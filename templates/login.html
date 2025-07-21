@@ -1,0 +1,392 @@
+<!doctype html>
+<html>
+<head>
+    <title>Login - Construction Management</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+                        url(/static/images/construction.jpg);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        .login-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 420px;
+            backdrop-filter: blur(10px);
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .login-container:hover {
+            transform: translateY(-5px);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo img {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 15px;
+            max-width: 100%;
+            height: auto;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #1a73e8;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        form input[type="email"],
+        form input[type="password"] {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 15px;
+            transition: border-color 0.3s ease;
+        }
+
+        form input[type="email"]:focus,
+        form input[type="password"]:focus {
+            border-color: #1a73e8;
+            outline: none;
+        }
+
+        form input[type="submit"] {
+            width: 100%;
+            background-color: #1a73e8;
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        form input[type="submit"]:hover {
+            background-color: #1557b0;
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 15px;
+            color: #555;
+        }
+
+        a {
+            color: #1a73e8;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: #1557b0;
+            text-decoration: none;
+        }
+
+        .error-message {
+            color: #d93025;
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            background-color: rgba(217, 48, 37, 0.1);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Tablet Styles */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 15px;
+                background-attachment: scroll;
+            }
+
+            .login-container {
+                padding: 30px 25px;
+                max-width: 400px;
+            }
+
+            .logo img {
+                width: 100px;
+                height: 100px;
+            }
+
+            h2 {
+                font-size: 24px;
+                margin-bottom: 25px;
+            }
+
+            form input[type="email"],
+            form input[type="password"] {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            form input[type="submit"] {
+                padding: 12px;
+                font-size: 15px;
+            }
+
+            .register-link {
+                font-size: 14px;
+            }
+        }
+
+        /* Mobile Styles */
+        @media screen and (max-width: 480px) {
+            body {
+                padding: 10px;
+                background-attachment: scroll;
+            }
+
+            .login-container {
+                padding: 25px 20px;
+                border-radius: 12px;
+                margin: 10px 0;
+            }
+
+            .login-container:hover {
+                transform: translateY(0);
+            }
+
+            .logo {
+                margin-bottom: 20px;
+            }
+
+            .logo img {
+                width: 80px;
+                height: 80px;
+                margin-bottom: 10px;
+            }
+
+            h2 {
+                font-size: 22px;
+                margin-bottom: 20px;
+            }
+
+            form input[type="email"],
+            form input[type="password"] {
+                padding: 12px;
+                margin-bottom: 15px;
+                font-size: 14px;
+                border-radius: 6px;
+            }
+
+            form input[type="submit"] {
+                padding: 12px;
+                font-size: 14px;
+                border-radius: 6px;
+                margin-bottom: 12px;
+            }
+
+            .register-link {
+                margin-top: 20px;
+                font-size: 13px;
+                line-height: 1.4;
+            }
+
+            .error-message {
+                font-size: 13px;
+                padding: 8px;
+            }
+        }
+
+        /* Extra Small Mobile Styles */
+        @media screen and (max-width: 360px) {
+            body {
+                padding: 5px;
+            }
+
+            .login-container {
+                padding: 20px 15px;
+                border-radius: 10px;
+            }
+
+            .logo img {
+                width: 70px;
+                height: 70px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            form input[type="email"],
+            form input[type="password"] {
+                padding: 10px;
+                font-size: 13px;
+            }
+
+            form input[type="submit"] {
+                padding: 10px;
+                font-size: 13px;
+            }
+
+            .register-link {
+                font-size: 12px;
+            }
+        }
+
+        /* Large Desktop Styles */
+        @media screen and (min-width: 1200px) {
+            .login-container {
+                max-width: 450px;
+                padding: 50px;
+            }
+
+            .logo img {
+                width: 140px;
+                height: 140px;
+            }
+
+            h2 {
+                font-size: 32px;
+            }
+
+            form input[type="email"],
+            form input[type="password"] {
+                padding: 16px;
+                font-size: 16px;
+            }
+
+            form input[type="submit"] {
+                padding: 16px;
+                font-size: 17px;
+            }
+        }
+
+        /* Landscape Mobile Orientation */
+        @media screen and (max-height: 500px) and (orientation: landscape) {
+            body {
+                padding: 5px;
+            }
+
+            .login-container {
+                padding: 15px 20px;
+                margin: 5px 0;
+            }
+
+            .logo {
+                margin-bottom: 10px;
+            }
+
+            .logo img {
+                width: 60px;
+                height: 60px;
+                margin-bottom: 5px;
+            }
+
+            h2 {
+                font-size: 18px;
+                margin-bottom: 15px;
+            }
+
+            form input[type="email"],
+            form input[type="password"] {
+                padding: 8px;
+                margin-bottom: 10px;
+                font-size: 13px;
+            }
+
+            form input[type="submit"] {
+                padding: 10px;
+                font-size: 14px;
+                margin-bottom: 8px;
+            }
+
+            .register-link {
+                margin-top: 10px;
+                font-size: 12px;
+            }
+        }
+
+        /* Touch device optimizations */
+        @media (hover: none) {
+            .login-container:hover {
+                transform: translateY(0);
+            }
+
+            form input[type="submit"]:hover {
+                background-color: #1a73e8;
+            }
+
+            a:hover {
+                color: #1a73e8;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <div class="logo">
+        <img src="/static/images/engineers.png" alt="Civil Engineer Logo">
+    </div>
+
+    <h2>Welcome Back</h2>
+    <form method="post">
+        <input type="email" name="email" placeholder="Email Address" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <input type="submit" value="Sign In">
+        <div class="forgot-password">
+            <a href="{{ url_for('forgot_password') }}">Forgot Password?</a>
+        </div>
+    </form>
+
+    <!-- <div class="register-link">
+        Don't have an account? <a href="{{ url_for('register') }}">Register here</a>
+    </div> -->
+    <p class="text-muted">New user? Contact your admin to register.
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <p class="error-message">{{ messages[0] }}</p>
+        {% endif %}
+    {% endwith %}
+</div>
+
+</body>
+</html>

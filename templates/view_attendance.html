@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+<head><title>Attendance Records</title></head>
+<body>
+    <h2>All Attendance Records</h2>
+    <table border="1" cellpadding="8">
+        <tr>
+            <th>ID</th>
+            <th>Worker Name</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Recorded At</th>
+        </tr>
+        {% for record in records %}
+        <tr>
+            <td>{{ record.id }}</td>
+            <td>{{ record.worker_name }}</td>
+            <td>{{ record.date }}</td>
+            <td>{{ record.status }}</td>
+            <td>{{ record.created_at }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <a href="{{ url_for('record_attendance') }}">Back to Attendance Form</a>
+</body>
+</html>

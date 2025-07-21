@@ -1,0 +1,12 @@
+<h2>Legal & Compliances Details</h2>
+<p>Status: {{ compliance.municipal_approval_status }}</p>
+{% if compliance.municipal_approval_status == 'Approved' %}
+  <p><a href="/{{ compliance.municipal_approval_pdf }}" target="_blank">Municipal Approval PDF</a></p>
+{% else %}
+  <p>Status: Pending</p>
+{% endif %}
+
+<p><a href="/{{ compliance.building_permit_pdf }}" target="_blank">Building Permit PDF</a></p>
+<p><a href="/{{ compliance.sanction_plan_pdf }}" target="_blank">Sanction Plan PDF</a></p>
+<p><a href="/{{ compliance.fire_department_noc_pdf }}" target="_blank">Fire Dept. NOC PDF</a></p>
+<p><strong>Environmental Clearance:</strong> {{ compliance.environmental_clearance }}</p>

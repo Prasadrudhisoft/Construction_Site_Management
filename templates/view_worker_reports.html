@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>View Worker Reports</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f8;
+            min-height: 100vh;
+            padding: 70px 10px 20px 10px;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .navbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 0 15px;
+            height: 70px;
+        }
+        
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        .navbar-brand i {
+            color: #3498db;
+            font-size: 1.4rem;
+        }
+        
+        .navbar-menu {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+        }
+        
+        .navbar-menu a {
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .navbar-menu a:hover {
+            color: #3498db;
+        }
+
+        .navbar-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            padding: 5px;
+            gap: 3px;
+        }
+        
+        .navbar-toggle span {
+            width: 25px;
+            height: 3px;
+            background-color: #2c3e50;
+            transition: all 0.3s ease;
+            transform-origin: center;
+        }
+        
+        .navbar-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        
+        .navbar-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .navbar-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 10px;
+        }
+
+        .header-section {
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-section h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-section p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .controls-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 45px 12px 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .search-box i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #3498db;
+            background: white;
+            color: #3498db;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3498db, #2ecc71, #f39c12, #e74c3c);
+        }
+
+        .stat-card i {
+            font-size: 1.8rem;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+
+        .stat-card h3 {
+            font-size: 1.6rem;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+            color: white;
+            padding: 20px 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th {
+            background: #f8f9fa;
+            color: #2c3e50;
+            padding: 15px 10px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #e9ecef;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            font-size: 0.9rem;
+        }
+
+        td {
+            padding: 15px 10px;
+            border-bottom: 1px solid #e9ecef;
+            color: #2c3e50;
+            font-size: 0.9rem;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+            transform: scale(1.001);
+            transition: all 0.2s ease;
+        }
+
+        .worker-count {
+            background: #3498db;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+
+        .date-badge {
+            background: #2ecc71;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .engineer-name {
+            color: #3498db;
+            font-weight: 600;
+        }
+
+        .project-name {
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .navigation-links {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            padding: 12px 20px;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .primary-link {
+            background: #3498db;
+            color: white;
+        }
+
+        .primary-link:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .secondary-link {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .secondary-link:hover {
+            background: #7f8c8d;
+            transform: translateY(-2px);
+        }
+
+        .back-link {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .back-link:hover {
+            background: #27ae60;
+            transform: translateY(-2px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: #bdc3c7;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.8; }
+        }
+
+        /* Tablet styles */
+        @media (max-width: 1024px) {
+            .container {
+                padding: 0 15px;
+            }
+            
+            .navbar-container {
+                padding: 0 15px;
+            }
+            
+            .controls-section {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+            }
+            
+            .search-box {
+                min-width: auto;
+            }
+            
+            .filter-buttons {
+                justify-content: center;
+            }
+            
+            .stats-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Mobile landscape */
+        @media (max-width: 768px) {
+            body {
+                padding: 60px 5px 20px 5px;
+            }
+            
+            .navbar {
+                height: 60px;
+            }
+            
+            .navbar-container {
+                height: 60px;
+                padding: 0 15px;
+                position: relative;
+            }
+            
+            .navbar-brand {
+                font-size: 1.1rem;
+                gap: 6px;
+            }
+            
+            .navbar-brand i {
+                font-size: 1.2rem;
+            }
+            
+            .navbar-toggle {
+                display: flex;
+                z-index: 1001;
+            }
+            
+            .navbar-menu {
+                position: fixed;
+                top: 60px;
+                left: 0;
+                width: 100%;
+                height: calc(100vh - 60px);
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
+                padding: 50px 0;
+                gap: 30px;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                border-top: 1px solid #e9ecef;
+                box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            }
+            
+            .navbar-menu.active {
+                transform: translateX(0);
+            }
+            
+            .navbar-menu a {
+                font-size: 1.1rem;
+                font-weight: 600;
+                color: #2c3e50;
+                text-decoration: none;
+                padding: 15px 30px;
+                border-radius: 10px;
+                transition: all 0.3s ease;
+                text-align: center;
+                min-width: 200px;
+            }
+            
+            .navbar-menu a:hover,
+            .navbar-menu a.active {
+                background: #3498db;
+                color: white;
+                transform: translateY(-2px);
+            }
+            
+            .container {
+                padding: 0 10px;
+            }
+
+            .header-section {
+                padding: 20px 15px;
+                margin-bottom: 15px;
+                text-align: center;
+            }
+
+            .header-section h1 {
+                font-size: 1.5rem;
+                gap: 10px;
+                justify-content: center;
+            }
+            
+            .header-section h1 i {
+                font-size: 1.5rem;
+            }
+
+            .header-section p {
+                font-size: 0.95rem;
+                margin-top: 5px;
+            }
+
+            .controls-section {
+                padding: 20px 15px;
+                margin-bottom: 15px;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .search-box {
+                width: 100%;
+                min-width: auto;
+            }
+
+            .search-box input {
+                padding: 14px 45px 14px 15px;
+                font-size: 1rem;
+                border-radius: 12px;
+            }
+
+            .filter-buttons {
+                justify-content: center;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .filter-btn {
+                padding: 10px 16px;
+                font-size: 0.9rem;
+                flex: 1;
+                min-width: 0;
+                text-align: center;
+            }
+
+            .stats-cards {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+                margin-bottom: 15px;
+            }
+            
+            .stat-card {
+                padding: 18px 15px;
+                text-align: center;
+            }
+            
+            .stat-card i {
+                font-size: 1.6rem;
+                margin-bottom: 8px;
+            }
+            
+            .stat-card h3 {
+                font-size: 1.5rem;
+                margin-bottom: 4px;
+            }
+            
+            .stat-card p {
+                font-size: 0.85rem;
+            }
+
+            .table-container {
+                margin-bottom: 15px;
+            }
+
+            .table-header {
+                padding: 18px 20px;
+                font-size: 1.05rem;
+                text-align: center;
+            }
+
+            .table-wrapper {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            table {
+                min-width: 650px;
+            }
+
+            th, td {
+                padding: 14px 10px;
+                font-size: 0.85rem;
+                text-align: center;
+            }
+
+            th:first-child, td:first-child {
+                text-align: left;
+                min-width: 60px;
+            }
+
+            th:nth-child(2), td:nth-child(2) {
+                min-width: 120px;
+            }
+
+            th:nth-child(3), td:nth-child(3) {
+                min-width: 130px;
+            }
+
+            .worker-count,
+            .date-badge {
+                font-size: 0.8rem;
+                padding: 6px 10px;
+                display: inline-block;
+            }
+
+            .navigation-links {
+                flex-direction: column;
+                gap: 12px;
+                margin-top: 15px;
+            }
+            
+            .nav-link {
+                justify-content: center;
+                padding: 14px 20px;
+                font-size: 0.95rem;
+                text-align: center;
+            }
+        }
+
+        /* Mobile portrait */
+        @media (max-width: 480px) {
+            body {
+                padding: 60px 5px 20px 5px;
+            }
+            
+            .navbar-container {
+                padding: 0 12px;
+            }
+            
+            .navbar-brand {
+                font-size: 1rem;
+                gap: 6px;
+            }
+            
+            .navbar-brand i {
+                font-size: 1.1rem;
+            }
+            
+            .container {
+                padding: 0 8px;
+            }
+
+            .header-section {
+                padding: 18px 12px;
+                border-radius: 10px;
+                margin-bottom: 15px;
+            }
+
+            .header-section h1 {
+                font-size: 1.3rem;
+                gap: 8px;
+                text-align: center;
+            }
+
+            .header-section p {
+                font-size: 0.9rem;
+                text-align: center;
+            }
+
+            .controls-section {
+                padding: 18px 12px;
+                gap: 18px;
+            }
+
+            .search-box input {
+                padding: 12px 40px 12px 12px;
+                font-size: 0.95rem;
+                border-radius: 10px;
+            }
+
+            .filter-buttons {
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+
+            .filter-btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+                min-width: calc(50% - 4px);
+                text-align: center;
+            }
+
+            .stats-cards {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                margin-bottom: 15px;
+            }
+            
+            .stat-card {
+                padding: 20px 15px;
+                text-align: center;
+            }
+
+            .stat-card i {
+                font-size: 1.8rem;
+                margin-bottom: 10px;
+            }
+            
+            .stat-card h3 {
+                font-size: 1.6rem;
+                margin-bottom: 5px;
+            }
+            
+            .stat-card p {
+                font-size: 0.9rem;
+            }
+
+            .table-header {
+                padding: 16px 12px;
+                font-size: 1rem;
+                text-align: center;
+            }
+
+            .table-wrapper {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            table {
+                min-width: 600px;
+            }
+
+            th, td {
+                padding: 12px 8px;
+                font-size: 0.8rem;
+            }
+            
+            th {
+                background: #f8f9fa;
+                position: sticky;
+                top: 0;
+                z-index: 1;
+            }
+            
+            th i {
+                display: none;
+            }
+
+            th:first-child, td:first-child {
+                text-align: left;
+                min-width: 50px;
+            }
+
+            .worker-count,
+            .date-badge {
+                font-size: 0.75rem;
+                padding: 4px 8px;
+                white-space: nowrap;
+            }
+
+            .empty-state {
+                padding: 50px 15px;
+            }
+            
+            .empty-state i {
+                font-size: 2.5rem;
+                margin-bottom: 15px;
+            }
+            
+            .empty-state h3 {
+                font-size: 1.2rem;
+                margin-bottom: 8px;
+            }
+
+            .empty-state p {
+                font-size: 0.9rem;
+            }
+            
+            .nav-link {
+                padding: 12px 15px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Very small screens */
+        @media (max-width: 320px) {
+            .navbar-container {
+                padding: 0 10px;
+            }
+            
+            .navbar-brand {
+                font-size: 0.9rem;
+                gap: 4px;
+            }
+            
+            .navbar-brand i {
+                font-size: 1rem;
+            }
+            
+            .container {
+                padding: 0 5px;
+            }
+
+            .header-section {
+                padding: 15px 10px;
+                margin-bottom: 12px;
+            }
+
+            .header-section h1 {
+                font-size: 1.1rem;
+                gap: 6px;
+            }
+
+            .header-section p {
+                font-size: 0.85rem;
+            }
+
+            .controls-section {
+                padding: 15px 10px;
+                gap: 15px;
+            }
+
+            .search-box input {
+                padding: 10px 35px 10px 10px;
+                font-size: 0.9rem;
+            }
+            
+            .filter-buttons {
+                gap: 6px;
+            }
+            
+            .filter-btn {
+                padding: 6px 8px;
+                font-size: 0.75rem;
+                min-width: calc(50% - 3px);
+            }
+            
+            .stats-cards {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 16px 12px;
+            }
+
+            .stat-card i {
+                font-size: 1.6rem;
+                margin-bottom: 8px;
+            }
+            
+            .stat-card h3 {
+                font-size: 1.4rem;
+                margin-bottom: 4px;
+            }
+            
+            .stat-card p {
+                font-size: 0.8rem;
+            }
+            
+            .table-header {
+                padding: 14px 10px;
+                font-size: 0.9rem;
+            }
+
+            table {
+                min-width: 550px;
+            }
+            
+            th, td {
+                padding: 10px 6px;
+                font-size: 0.75rem;
+            }
+
+            th:first-child, td:first-child {
+                min-width: 40px;
+            }
+
+            .worker-count,
+            .date-badge {
+                font-size: 0.7rem;
+                padding: 3px 6px;
+            }
+
+            .empty-state {
+                padding: 40px 10px;
+            }
+            
+            .empty-state i {
+                font-size: 2rem;
+            }
+            
+            .empty-state h3 {
+                font-size: 1rem;
+            }
+
+            .empty-state p {
+                font-size: 0.8rem;
+            }
+
+            .nav-link {
+                padding: 10px 12px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-container">
+            <a href="#" class="navbar-brand">
+                <i class="fas fa-chart-line"></i>
+                Worker Reports
+            </a>
+            <div class="navbar-toggle" id="navbar-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul class="navbar-menu" id="navbar-menu">
+                <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ url_for('view_worker_reports') }}" class="active">View Reports</a></li>
+                <li><a href="{{ url_for('logout') }}">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header-section">
+            <div class="header-content">
+                <h1>
+                    <i class="fas fa-chart-line"></i>
+                    Daily Worker Reports
+                </h1>
+                <p>Monitor and track daily worker attendance across all projects</p>
+            </div>
+        </div>
+
+        <div class="stats-cards">
+            <div class="stat-card">
+                <i class="fas fa-file-alt"></i>
+                <h3 id="total-reports">{{ reports|length }}</h3>
+                <p>Total Reports</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-users"></i>
+                <h3 id="total-workers">-</h3>
+                <p>Total Workers Today</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-building"></i>
+                <h3 id="active-projects">-</h3>
+                <p>Active Projects</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-user-tie"></i>
+                <h3 id="active-engineers">-</h3>
+                <p>Site Engineers</p>
+            </div>
+        </div>
+
+        <div class="controls-section">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search by project name, engineer, or date...">
+                <i class="fas fa-search"></i>
+            </div>
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">All Reports</button>
+                <button class="filter-btn" data-filter="today">Today</button>
+                <button class="filter-btn" data-filter="week">This Week</button>
+                <button class="filter-btn" data-filter="month">This Month</button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-header">
+                <i class="fas fa-table"></i>
+                Worker Reports Overview
+            </div>
+            <div class="table-wrapper">
+                {% if reports %}
+                <table id="reportsTable">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-hashtag"></i> ID</th>
+                            <th><i class="fas fa-user-tie"></i> Site Engineer</th>
+                            <th><i class="fas fa-building"></i> Project</th>
+                            <th><i class="fas fa-users"></i> Worker Count</th>
+                            <th><i class="fas fa-calendar-alt"></i> Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for report in reports %}
+                        <tr data-date="{{ report.report_date }}">
+                            <td>{{ report.id }}</td>
+                            <td class="engineer-name">{{ report.site_engineer }}</td>
+                            <td class="project-name">{{ report.project_name }}</td>
+                            <td>
+                                <span class="worker-count">{{ report.worker_count }}</span>
+                            </td>
+                            <td>
+                                <span class="date-badge">{{ report.report_date }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <h3>No Reports Found</h3>
+                    <p>No worker reports have been submitted yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="navigation-links">
+            <!-- <a href="{{ url_for('site_engineer_dashboard') }}" class="nav-link back-link">
+                <i class="fas fa-arrow-left"></i>
+                Back to Dashboard
+            </a> -->
+            <a href="{{ url_for('submit_worker_report') }}" class="nav-link primary-link">
+                <i class="fas fa-plus"></i>
+                Add New Report
+            </a>
+            <a href="{{ url_for('logout') }}" class="nav-link secondary-link">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu toggle functionality
+        const navbarToggle = document.getElementById('navbar-toggle');
+        const navbarMenu = document.getElementById('navbar-menu');
+        
+        if (navbarToggle && navbarMenu) {
+            navbarToggle.addEventListener('click', function() {
+                navbarToggle.classList.toggle('active');
+                navbarMenu.classList.toggle('active');
+            });
+
+            // Close mobile menu when clicking on a link
+            navbarMenu.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    navbarToggle.classList.remove('active');
+                    navbarMenu.classList.remove('active');
+                }
+            });
+
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!navbarToggle.contains(e.target) && !navbarMenu.contains(e.target)) {
+                    navbarToggle.classList.remove('active');
+                    navbarMenu.classList.remove('active');
+                }
+            });
+        }
+
+        // Calculate and display statistics
+        function calculateStats() {
+            const reports = document.querySelectorAll('#reportsTable tbody tr');
+            const projects = new Set();
+            const engineers = new Set();
+            let totalWorkers = 0;
+            const today = new Date().toISOString().split('T')[0];
+
+            reports.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const engineer = cells[1].textContent.trim();
+                const project = cells[2].textContent.trim();
+                const workerCount = parseInt(cells[3].textContent.trim());
+                const date = cells[4].textContent.trim();
+
+                engineers.add(engineer);
+                projects.add(project);
+                
+                if (date === today) {
+                    totalWorkers += workerCount;
+                }
+            });
+
+            document.getElementById('active-projects').textContent = projects.size;
+            document.getElementById('active-engineers').textContent = engineers.size;
+            document.getElementById('total-workers').textContent = totalWorkers;
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#reportsTable tbody tr');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        // Filter functionality
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Update active button
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                const filter = this.dataset.filter;
+                const rows = document.querySelectorAll('#reportsTable tbody tr');
+                const today = new Date();
+                const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+                const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+                rows.forEach(row => {
+                    const dateCell = row.querySelector('td:last-child .date-badge');
+                    const reportDate = new Date(dateCell.textContent);
+                    let show = true;
+
+                    switch(filter) {
+                        case 'today':
+                            show = reportDate.toDateString() === today.toDateString();
+                            break;
+                        case 'week':
+                            show = reportDate >= weekAgo;
+                            break;
+                        case 'month':
+                            show = reportDate >= monthAgo;
+                            break;
+                        default:
+                            show = true;
+                    }
+
+                    row.style.display = show ? '' : 'none';
+                });
+            });
+        });
+
+        // Initialize stats calculation
+        if (document.getElementById('reportsTable')) {
+            calculateStats();
+        }
+
+        // Add smooth scrolling for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

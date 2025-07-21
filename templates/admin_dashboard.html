@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f8;
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .mobile-menu-toggle:hover {
+            background: #34495e;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 20px 0;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 5px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: #ecf0f1;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            background: #34495e;
+            color: #fff;
+        }
+
+        .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 30px;
+            width: calc(100% - 250px);
+            transition: margin-left 0.3s ease, width 0.3s ease;
+        }
+
+        .welcome-section {
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .welcome-section h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .dashboard-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-header i {
+            font-size: 24px;
+            margin-right: 15px;
+            color: #3498db;
+            flex-shrink: 0;
+        }
+
+        .card-header h3 {
+            font-size: 1.2rem;
+            color: #2c3e50;
+        }
+
+        .card-content {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .card-link {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 8px 15px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.3s ease;
+        }
+
+        .card-link:hover {
+            background: #2980b9;
+        }
+
+        /* Overlay for mobile */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* Tablet Styles */
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .welcome-section {
+                padding: 25px;
+            }
+            
+            .welcome-section h1 {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+                padding: 15px;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 70px 15px 15px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                margin-top: 20px;
+            }
+
+            .dashboard-card {
+                padding: 20px;
+            }
+
+            .welcome-section {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .welcome-section h1 {
+                font-size: 1.6rem;
+            }
+
+            .card-header h3 {
+                font-size: 1.1rem;
+            }
+
+            .nav-link {
+                padding: 15px 12px;
+                font-size: 14px;
+            }
+        }
+
+        /* Small Mobile Styles */
+        @media (max-width: 480px) {
+            .sidebar {
+                width: 260px;
+            }
+
+            .main-content {
+                padding: 70px 10px 10px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .dashboard-card {
+                padding: 18px;
+            }
+
+            .welcome-section {
+                padding: 18px;
+            }
+
+            .welcome-section h1 {
+                font-size: 1.4rem;
+            }
+
+            .welcome-section p {
+                font-size: 14px;
+            }
+
+            .card-header i {
+                font-size: 20px;
+                margin-right: 12px;
+            }
+
+            .card-header h3 {
+                font-size: 1rem;
+            }
+
+            .card-content {
+                font-size: 14px;
+            }
+
+            .card-link {
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+        }
+
+        /* Very Small Mobile Styles */
+        @media (max-width: 320px) {
+            .sidebar {
+                width: 240px;
+            }
+
+            .main-content {
+                padding: 65px 8px 8px;
+            }
+
+            .dashboard-card {
+                padding: 15px;
+            }
+
+            .welcome-section {
+                padding: 15px;
+            }
+
+            .welcome-section h1 {
+                font-size: 1.3rem;
+            }
+
+            .card-header h3 {
+                font-size: 0.95rem;
+            }
+
+            .nav-link {
+                padding: 12px 10px;
+                font-size: 13px;
+            }
+        }
+
+        /* Landscape orientation on mobile */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .main-content {
+                padding: 60px 15px 15px;
+            }
+            
+            .welcome-section {
+                padding: 15px;
+            }
+            
+            .welcome-section h1 {
+                font-size: 1.4rem;
+            }
+        }
+
+        /* Touch-friendly improvements */
+        @media (hover: none) and (pointer: coarse) {
+            .nav-link {
+                padding: 15px 12px;
+                min-height: 48px;
+                align-items: center;
+            }
+            
+            .card-link {
+                padding: 12px 16px;
+                min-height: 44px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .mobile-menu-toggle {
+                min-height: 44px;
+                min-width: 44px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" onclick="closeMobileMenu()"></div>
+
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Admin</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="{{ url_for('admin_vendor_inventory') }}" class="nav-link">
+                        <i class="fas fa-truck"></i>
+                        <span>Vendor Inventory Approval</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('register') }}" class="nav-link">
+                        <i class="fas fa-user-plus"></i> Add New User
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('view_progress') }}" class="nav-link">
+                        <i class="fas fa-chart-line"></i>
+                        <span>View Progress Reports</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('view_enquiries') }}" class="nav-link">
+                        <i class="fas fa-question-circle"></i>
+                        <span>Enquiries</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('assign_architect') }}" class="nav-link">
+                        <i class="fas fa-user-cog"></i>
+                        <span>Assign Architect</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('assign_accountant') }}" class="nav-link">
+                        <i class="fas fa-user-check"></i>
+                        <span>Assign Accountant</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('view_project_details') }}" class="nav-link">
+                        <i class="fas fa-eye"></i>
+                        <span>View Projects</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('submit_legal_compliances') }}" class="nav-link">
+                        <i class="fas fa-eye"></i>
+                        <span>Legal compliance</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('view_worker_reports') }}" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        <span>View Worker Reports</span>
+                    </a>
+                </li>
+                <!-- Add the Generate Invoice (Admin) link here -->
+                <li class="nav-item">
+                    <a href="{{ url_for('admin_generate_invoice') }}" class="nav-link">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <span>Generate Invoice (Admin)</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('communication') }}" class="nav-link">
+                        <i class="fas fa-comments"></i>
+                        <span>Communication</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('logout') }}" class="nav-link">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="welcome-section">
+                <h1>Welcome,{{ admin_name }}!</h1>
+                <p>Manage your construction projects efficiently with our comprehensive tools.</p>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <i class="fas fa-users"></i>
+                        <h3>Worker Management</h3>
+                    </div>
+                    <div class="card-content">
+                        <p>View and manage all workers across construction sites.</p>
+                        <a href="{{ url_for('view_worker_reports') }}" class="card-link">View Worker Reports</a>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <i class="fas fa-boxes"></i>
+                        <h3>Inventory Management</h3>
+                    </div>
+                    <div class="card-content">
+                        <p>Track and manage site inventory and vendor supplies.</p>
+                        <a href="{{ url_for('view_inventory') }}" class="card-link">View Inventory</a>
+                    </div>
+                </div>
+ 
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <h3>Project Management</h3>
+                    </div>
+                    <div class="card-content">
+                        <p>Assign sites to engineers and monitor progress.</p>
+                        <a href="{{ url_for('assign_site') }}" class="card-link">Assign Sites</a>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <i class="fas fa-file-invoice"></i>
+                        <h3>Financial Management</h3>
+                    </div>
+                    <div class="card-content">
+                        <p>View and manage all project invoices.</p>
+                        <a href="{{ url_for('admin_view_invoices') }}" class="card-link">View Invoices</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        function closeMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        }
+
+        // Close mobile menu when clicking on a nav link
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', closeMobileMenu);
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                closeMobileMenu();
+            }
+        });
+    </script>
+</body>
+</html>

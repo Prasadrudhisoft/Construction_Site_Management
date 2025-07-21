@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+<body>
+<h2>Workers List</h2>
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Contact</th>
+        <th>Aadhar</th>
+    </tr>
+    {% for worker in workers %}
+    <tr>
+        <td>{{ worker.id }}</td>
+        <td>{{ worker.name }}</td>
+        <td>{{ worker.contact }}</td>
+        <td>{{ worker.aadhar }}</td>
+    </tr>
+    {% endfor %}
+</table>
+<a href="{{ url_for('logout') }}">Logout</a>
+</body>
+</html>

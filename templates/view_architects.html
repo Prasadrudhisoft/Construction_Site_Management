@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Architect List</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+         * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            min-height: 100vh;
+            padding: 100px 30px 30px 30px;
+        }
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
+        .navbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 0 20px;
+            height: 70px;
+        }
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: 1.4rem;
+            transition: color 0.2s;
+        }
+        .navbar-brand:hover {
+            color: #3498db;
+        }
+        .navbar-brand i {
+            color: #3498db;
+            font-size: 1.8rem;
+            transition: transform 0.2s;
+        }
+        .navbar-brand:hover i {
+            transform: rotate(-15deg) scale(1.1);
+        }
+        .navbar-menu {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+            align-items: center;
+            margin: 0;
+        }
+        .navbar-link {
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 500;
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(.77,0,.18,1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        .navbar-link::after {
+            content: "";
+            position: absolute;
+            left: 0; bottom: 0;
+            width: 0;
+            height: 3px;
+            background: #3498db;
+            transition: width 0.3s cubic-bezier(.77,0,.18,1);
+        }
+        .navbar-link:hover::after, .navbar-link.active::after {
+            width: 100%;
+        }
+        .navbar-link:hover {
+            background: rgba(52, 152, 219, 0.12);
+            color: #3498db;
+            transform: translateY(-2px) scale(1.04);
+        }
+        .navbar-link.active {
+            background: #3498db;
+            color: white;
+            box-shadow: 0 4px 16px rgba(52,152,219,0.08);
+        }
+        .navbar-link.logout {
+            background: #e74c3c;
+            color: white;
+        }
+        .navbar-link.logout:hover {
+            background: #c0392b;
+            transform: translateY(-2px) scale(1.04);
+        }
+        .navbar-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .navbar-toggle:hover {
+            color: #3498db;
+        }
+        @media (max-width: 900px) {
+            body {
+                padding: 100px 10px 10px 10px;
+            }
+            .navbar-container {
+                padding: 0 10px;
+            }
+        }
+        @media (max-width: 768px) {
+            body {
+                padding: 80px 5px 10px 5px;
+            }
+            .navbar {
+                height: 60px;
+            }
+            .navbar-container {
+                height: 60px;
+                padding: 0 5px;
+            }
+            .navbar-menu {
+                position: fixed;
+                top: 60px;
+                left: -100%;
+                width: 100vw;
+                height: calc(100vh - 60px);
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
+                padding: 40px 20px;
+                transition: left 0.3s cubic-bezier(.77,0,.18,1);
+                gap: 20px;
+                z-index: 2000;
+            }
+            .navbar-menu.active {
+                left: 0;
+            }
+            .navbar-toggle {
+                display: block;
+            }
+            .navbar-link {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+                padding: 15px 20px;
+                font-size: 1.1rem;
+            }
+        }
+        .table-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(52,152,219,0.13);
+            max-width: 1000px;
+            margin: 0 auto;
+            animation: fadeIn 0.7s cubic-bezier(.77,0,.18,1);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        .table-title {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+        .architect-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .architect-table th, .architect-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .architect-table th {
+            background-color: #f8f9fa;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        .architect-table tr:hover {
+            background-color: #f1f5f9;
+        }
+        .architect-table tr:last-child td {
+            border-bottom: none;
+        }
+        .empty-message {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+        @media (max-width: 768px) {
+            .table-container {
+                padding: 20px;
+            }
+            .architect-table th, .architect-table td {
+                padding: 10px 8px;
+            }
+        }
+        @media (max-width: 600px) {
+            .table-container {
+                padding: 10px 2vw 10px 2vw;
+                margin: 10px 2vw 0 2vw;
+            }
+            .table-title {
+                font-size: 1.1rem;
+                padding-bottom: 7px;
+            }
+            .architect-table th, .architect-table td {
+                font-size: 0.98rem;
+                padding: 8px 5px;
+            }
+        }
+        @media (max-width: 480px) {
+            .navbar-container {
+                padding: 0 2vw;
+            }
+            .navbar-brand {
+                font-size: 1rem;
+            }
+            .table-container {
+                margin: 8px 1vw 0 1vw;
+                padding: 8px 1vw 10px 1vw;
+            }
+            .table-title {
+                font-size: 1rem;
+            }
+        }
+        @media (max-width: 400px) {
+            .table-container {
+                padding: 4px 1vw 6px 1vw;
+            }
+            .table-title {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+    
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="{{ url_for('site_engineer_dashboard') }}" class="navbar-brand">
+                <i class="fas fa-drafting-compass"></i>
+                Architects
+            </a>
+            <ul class="navbar-menu" id="navbarNav">
+                <li>
+                    <a href="{{ url_for('dashboard') }}" class="navbar-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Dashboard
+                    </a>
+                </li>
+                <li><a href="{{ url_for('add_architect') }}" class="navbar-link">
+                    <i class="fas fa-user-plus"></i>
+                    Add Architect
+                </a></li>
+                <li><a href="{{ url_for('view_architects') }}" class="navbar-link active">
+                    <i class="fas fa-users"></i>
+                    View Architects
+                </a></li>
+                <li><a href="{{ url_for('logout') }}" class="navbar-link logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a></li>
+            </ul>
+            <button class="navbar-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="table-container">
+        <h2 class="table-title">Registered Architects</h2>
+        <table class="architect-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Project Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if architects %}
+                    {% for architect in architects %}
+                    <tr>
+                        <td>{{ architect.name }}</td>
+                        <td>{{ architect.email }}</td>
+                        <td>{{ architect.project_name }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="3" class="empty-message">No architects found</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const navbarNav = document.getElementById('navbarNav');
+            if (mobileMenuToggle && navbarNav) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    const icon = this.querySelector('i');
+                    navbarNav.classList.toggle('active');
+                    if (navbarNav.classList.contains('active')) {
+                        icon.classList.remove('fa-bars');
+                        icon.classList.add('fa-times');
+                    } else {
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                });
+                document.querySelectorAll('.navbar-link').forEach(link => {
+                    link.addEventListener('click', function() {
+                        navbarNav.classList.remove('active');
+                        const icon = mobileMenuToggle.querySelector('i');
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Assign Projects to Accountant</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        html, body {
+            height: 100%;
+        }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding-top: 80px; /* Account for fixed navbar */
+        }
+        /* Navbar Styles */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 15px 0;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            animation: slideDown 0.7s cubic-bezier(.77,0,.18,1) 0s 1;
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .navbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: 1.4rem;
+            transition: color 0.2s;
+        }
+        .navbar-brand:hover {
+            color: #3498db;
+        }
+        .navbar-brand i {
+            color: #3498db;
+            font-size: 1.8rem;
+            transition: transform 0.2s;
+        }
+        .navbar-brand:hover i {
+            transform: rotate(-15deg) scale(1.1);
+        }
+        .navbar-nav {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+            align-items: center;
+        }
+        .nav-link {
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 500;
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(.77,0,.18,1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        .nav-link::after {
+            content: "";
+            position: absolute;
+            left: 0; bottom: 0;
+            width: 0;
+            height: 3px;
+            background: #3498db;
+            transition: width 0.3s cubic-bezier(.77,0,.18,1);
+        }
+        .nav-link:hover::after, .nav-link.active::after {
+            width: 100%;
+        }
+        .nav-link:hover {
+            background: rgba(52, 152, 219, 0.12);
+            color: #3498db;
+            transform: translateY(-2px) scale(1.04);
+        }
+        .nav-link.active {
+            background: #3498db;
+            color: white;
+            box-shadow: 0 4px 16px rgba(52,152,219,0.08);
+        }
+        .nav-link.logout {
+            background: #e74c3c;
+            color: white;
+        }
+        .nav-link.logout:hover {
+            background: #c0392b;
+            transform: translateY(-2px) scale(1.04);
+        }
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .mobile-menu-toggle:hover {
+            color: #3498db;
+        }
+        /* Main container */
+        .container {
+            max-width: 700px;
+            width: 100%;
+            margin: 60px auto 0 auto;
+            background: #fff;
+            border-radius: 22px;
+            box-shadow: 0 8px 32px rgba(52,152,219,0.13);
+            padding: 60px 50px 40px 50px;
+            animation: fadeIn 0.7s cubic-bezier(.77,0,.18,1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        .form-title {
+            color: #2c3e50;
+            margin-bottom: 35px;
+            font-size: 2.1rem;
+            font-weight: 700;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 14px;
+            display: inline-block;
+            letter-spacing: 1px;
+        }
+        .form-group {
+            margin-bottom: 28px;
+            position: relative;
+            width: 100%;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #34495e;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            font-size: 1.08rem;
+        }
+        .form-group select, .form-group button {
+            width: 100%;
+            padding: 18px 18px;
+            border: 1.5px solid #ddd;
+            border-radius: 12px;
+            font-size: 1.08rem;
+            color: #2c3e50;
+            background-color: #f8fafd;
+            transition: all 0.3s;
+        }
+        .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52,152,219,0.13);
+            background: #fff;
+        }
+        .form-group button {
+            background: linear-gradient(90deg, #3498db 60%, #6dd5fa 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: background 0.2s, transform 0.2s;
+            box-shadow: 0 2px 8px rgba(52,152,219,0.10);
+            font-size: 1.12rem;
+        }
+        .form-group button:hover {
+            background: linear-gradient(90deg, #2980b9 60%, #3498db 100%);
+            transform: translateY(-2px) scale(1.03);
+        }
+        .form-group button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .projects-section {
+            width: 100%;
+            margin-top: 20px;
+            display: none;
+        }
+        .projects-section.active {
+            display: block;
+        }
+        .projects-card {
+            background: #f8fafd;
+            border: 1.5px solid #e8f0fe;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        .projects-card h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        .project-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e8f0fe;
+            transition: all 0.2s;
+        }
+        .project-item:hover {
+            background: #f0f8ff;
+            border-color: #3498db;
+        }
+        .project-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 12px;
+            cursor: pointer;
+        }
+        .project-item label {
+            flex: 1;
+            margin: 0;
+            cursor: pointer;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        .dashboard-link {
+            display: inline-block;
+            margin-top: 22px;
+            background: linear-gradient(90deg, #2ecc71 60%, #27ae60 100%);
+            color: #fff !important;
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background 0.2s, transform 0.2s;
+            box-shadow: 0 2px 8px rgba(46,204,113,0.10);
+            font-size: 1.08rem;
+        }
+        .dashboard-link:hover {
+            background: linear-gradient(90deg, #27ae60 60%, #2ecc71 100%);
+            transform: translateY(-2px) scale(1.03);
+        }
+        .success-message {
+            background: linear-gradient(90deg, #27ae60 60%, #2ecc71 100%);
+            color: white;
+            padding: 14px;
+            border-radius: 10px;
+            margin-bottom: 22px;
+            text-align: center;
+            font-weight: 500;
+            animation: fadeIn 0.5s;
+            font-size: 1.08rem;
+        }
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            color: #3498db;
+            font-size: 1.1rem;
+            margin: 20px 0;
+        }
+        .loading-spinner i {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Responsive Styles */
+        @media (max-width: 1100px) {
+            .container {
+                max-width: 95vw;
+                padding: 40px 5vw 30px 5vw;
+            }
+            .navbar-container {
+                max-width: 98vw;
+                padding: 0 10px;
+            }
+        }
+        @media (max-width: 900px) {
+            .container {
+                max-width: 98vw;
+                padding: 30px 2vw 25px 2vw;
+            }
+            .navbar-container {
+                max-width: 100vw;
+                padding: 0 8px;
+            }
+        }
+        @media (max-width: 700px) {
+            .container {
+                padding: 18px 2vw 18px 2vw;
+                margin: 18px 2vw 0 2vw;
+            }
+            .form-title {
+                font-size: 1.3rem;
+                padding-bottom: 8px;
+            }
+            .form-group select, .form-group button {
+                font-size: 1rem;
+                padding: 13px 10px;
+            }
+            .dashboard-link {
+                padding: 10px 10px;
+                font-size: 1rem;
+            }
+        }
+        @media (max-width: 600px) {
+            .navbar-nav {
+                flex-direction: column;
+                position: fixed;
+                top: 80px;
+                left: -100%;
+                width: 100vw;
+                height: calc(100vh - 80px);
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(20px);
+                justify-content: flex-start;
+                align-items: center;
+                padding: 40px 20px;
+                transition: left 0.3s cubic-bezier(.77,0,.18,1);
+                gap: 20px;
+            }
+            .navbar-nav.active {
+                left: 0;
+            }
+            .mobile-menu-toggle {
+                display: block;
+            }
+            .nav-link {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+                padding: 15px 20px;
+                font-size: 1.1rem;
+            }
+            .container {
+                padding: 10px 2vw 10px 2vw;
+                margin: 10px 2vw 0 2vw;
+            }
+            .form-title {
+                font-size: 1.1rem;
+                padding-bottom: 7px;
+            }
+            .form-group select, .form-group button {
+                font-size: 0.98rem;
+                padding: 11px 10px;
+            }
+            .dashboard-link {
+                padding: 10px 10px;
+                font-size: 0.98rem;
+            }
+        }
+        @media (max-width: 480px) {
+            .navbar-container {
+                padding: 0 2vw;
+            }
+            .navbar-brand {
+                font-size: 1rem;
+            }
+            .container {
+                margin: 8px 1vw 0 1vw;
+                padding: 8px 1vw 10px 1vw;
+            }
+            .form-title {
+                font-size: 1rem;
+            }
+            .dashboard-link {
+                font-size: 0.92rem;
+            }
+        }
+        @media (max-width: 400px) {
+            .container {
+                padding: 4px 1vw 6px 1vw;
+            }
+            .form-title {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    {# Dummy user for template testing, remove in production #}
+    {% if current_user is not defined %}
+        {% set current_user = {'role': 'admin'} %}
+    {% endif %}
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="{% if current_user.role == 'admin' %}{{ url_for('admin_dashboard') }}{% else %}{{ url_for('site_engineer_dashboard') }}{% endif %}" class="navbar-brand">
+                <i class="fas fa-calculator"></i>
+                Assign Accountant
+            </a>
+            <ul class="navbar-nav" id="navbarNav">
+                <li>
+                    <a href="{% if current_user.role == 'admin' %}{{ url_for('admin_dashboard') }}{% else %}{{ url_for('site_engineer_dashboard') }}{% endif %}" class="nav-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('assign_accountant') }}" class="nav-link active">
+                        <i class="fas fa-user-plus"></i>
+                        Assign Accountant
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('logout') }}" class="nav-link logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </a>
+                </li>
+            </ul>
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2 class="form-title"><i class="fas fa-calculator" style="color:#3498db"></i> Assign Projects to Accountant</h2>
+        
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="success-message">
+                <i class="fas fa-check-circle"></i>
+                {{ messages[0] }}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('assign_accountant') }}" id="assignForm" style="width:100%;">
+            <div class="form-group">
+                <label for="accountant_id"><i class="fas fa-user-tie" style="color:#3498db"></i> Select Accountant:</label>
+                <select name="accountant_id" id="accountant_id" required>
+                    <option value="">-- Select an Accountant --</option>
+                    {% for accountant in accountants %}
+                        <option value="{{ accountant.id }}" {% if request.form.accountant_id == accountant.id|string %}selected{% endif %}>
+                            {{ accountant.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="loading-spinner" id="loadingSpinner">
+                <i class="fas fa-spinner fa-spin"></i>
+                Loading projects...
+            </div>
+
+            <div class="projects-section" id="projectsSection">
+                <div class="projects-card">
+                    <h3><i class="fas fa-project-diagram" style="color:#3498db"></i> Assign Projects</h3>
+                    <div id="projectsList">
+                        {% if request.form.accountant_id %}
+                            {% for project in projects %}
+                                <div class="project-item">
+                                    <input class="form-check-input" type="checkbox" name="project_ids" value="{{ project.id }}" id="project_{{ project.id }}"
+                                        {% if project.id in assignments.get(request.form.accountant_id|int, []) %}checked{% endif %}>
+                                    <label for="project_{{ project.id }}">
+                                        {{ project.project_name }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="submit" id="saveBtn">
+                        <i class="fas fa-save"></i> Save Assignments
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <a href="{{ url_for('admin_dashboard') }}" class="dashboard-link">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobileMenuToggle').addEventListener('click', function() {
+            const navbarNav = document.getElementById('navbarNav');
+            const icon = this.querySelector('i');
+            navbarNav.classList.toggle('active');
+            if (navbarNav.classList.contains('active')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+
+        // Close mobile menu when clicking on a link
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function() {
+                const navbarNav = document.getElementById('navbarNav');
+                const mobileToggle = document.getElementById('mobileMenuToggle');
+                const icon = mobileToggle.querySelector('i');
+                navbarNav.classList.remove('active');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            });
+        });
+
+        // Handle accountant selection
+        const accountantSelect = document.getElementById('accountant_id');
+        const projectsSection = document.getElementById('projectsSection');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+
+        accountantSelect.addEventListener('change', function() {
+            if (this.value) {
+                // Show loading spinner
+                loadingSpinner.style.display = 'block';
+                projectsSection.classList.remove('active');
+                
+                // Submit form to load projects
+                setTimeout(() => {
+                    this.form.submit();
+                }, 500);
+            } else {
+                projectsSection.classList.remove('active');
+                loadingSpinner.style.display = 'none';
+            }
+        });
+
+        // Show projects section if accountant is already selected
+        if (accountantSelect.value) {
+            projectsSection.classList.add('active');
+        }
+
+        // Button loading animation on submit
+        document.getElementById('assignForm').addEventListener('submit', function(e) {
+            if (document.getElementById('saveBtn') && e.submitter === document.getElementById('saveBtn')) {
+                const btn = document.getElementById('saveBtn');
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                btn.disabled = true;
+            }
+        });
+    </script>
+</body>
+</html>

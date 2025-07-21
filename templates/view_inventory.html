@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>View Inventory</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            min-height: 100vh;
+            padding: 20px;
+            padding-top: 90px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 2000;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 0 20px;
+            height: 70px;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: 1.4rem;
+        }
+
+        .navbar-brand i {
+            color: #3498db;
+            font-size: 1.8rem;
+        }
+
+        .navbar-menu {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+            align-items: center;
+            margin: 0;
+        }
+
+        .navbar-link {
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 500;
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .navbar-link:hover {
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+            transform: translateY(-2px);
+        }
+
+        .navbar-link.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .navbar-link.logout {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .navbar-link.logout:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .navbar-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #2c3e50;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background 0.3s ease;
+        }
+
+        .navbar-toggle:hover {
+            background: rgba(52, 152, 219, 0.1);
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            position: relative;
+            margin-top: 20px;
+        }
+
+        .main-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #3498db, #2c3e50, #27ae60);
+        }
+
+        .header {
+            padding: 40px 40px 30px;
+            text-align: center;
+            border-bottom: 1px solid #e8f4fd;
+        }
+
+        .header i {
+            font-size: 3.5rem;
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .header h2 {
+            color: #2c3e50;
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .stats-section {
+            padding: 30px 40px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e8f4fd;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .stat-card h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .stat-available { color: #27ae60; }
+        .stat-low { color: #f39c12; }
+        .stat-out { color: #e74c3c; }
+        .stat-ordered { color: #3498db; }
+
+        .filters-section {
+            padding: 20px 40px;
+            background: #e8f4fd;
+            border-bottom: 1px solid #d1ecf1;
+        }
+
+        .filters-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-group label {
+            color: #2c3e50;
+            font-weight: 500;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .filter-control {
+            padding: 8px 15px;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            background: white;
+            min-width: 120px;
+        }
+
+        .filter-control:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 45px 10px 15px;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+        }
+
+        .table-section {
+            padding: 0;
+            overflow-x: auto;
+        }
+
+        .inventory-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            min-width: 600px;
+        }
+
+        .inventory-table th {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 18px 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+
+        .inventory-table th i {
+            margin-right: 8px;
+        }
+
+        .inventory-table td {
+            padding: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            color: #2c3e50;
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+
+        .inventory-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .inventory-table tr:nth-child(even) {
+            background: #fdfdfd;
+        }
+
+        .inventory-table tr:nth-child(even):hover {
+            background: #f1f2f6;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        .status-available {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+        }
+
+        .status-low {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            color: #856404;
+        }
+
+        .status-out {
+            background: linear-gradient(135deg, #f8d7da, #fab1a0);
+            color: #721c24;
+        }
+
+        .status-ordered {
+            background: linear-gradient(135deg, #d1ecf1, #74b9ff);
+            color: #0c5460;
+        }
+
+        .quantity-badge {
+            padding: 4px 10px;
+            background: #e8f4fd;
+            border-radius: 12px;
+            font-weight: 600;
+            color: #2c3e50;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        .date-text {
+            color: #7f8c8d;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        .actions-section {
+            padding: 30px 40px;
+            background: #f8f9fa;
+            text-align: center;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 160px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(39, 174, 96, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(149, 165, 166, 0.4);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 40px;
+            color: #7f8c8d;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* Tablet Styles */
+        @media (max-width: 1024px) {
+            .container {
+                padding: 0 15px;
+            }
+            
+            .navbar-container {
+                padding: 0 15px;
+            }
+            
+            .header {
+                padding: 30px 30px 25px;
+            }
+            
+            .header h2 {
+                font-size: 1.8rem;
+            }
+            
+            .stats-section {
+                padding: 25px 30px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                gap: 15px;
+            }
+            
+            .stat-card {
+                padding: 18px;
+            }
+            
+            .stat-card h3 {
+                font-size: 1.6rem;
+            }
+            
+            .filters-section {
+                padding: 18px 30px;
+            }
+            
+            .actions-section {
+                padding: 25px 30px;
+            }
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+                padding-top: 70px;
+            }
+            
+            .navbar {
+                height: 60px;
+            }
+            
+            .navbar-container {
+                height: 60px;
+                padding: 0 15px;
+            }
+            
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+            
+            .navbar-brand i {
+                font-size: 1.5rem;
+            }
+            
+            .navbar-menu {
+                position: fixed;
+                top: 60px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 60px);
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
+                padding: 40px 20px;
+                transition: left 0.3s ease;
+                gap: 20px;
+                z-index: 3000;
+            }
+            
+            .navbar-menu.active {
+                left: 0;
+            }
+            
+            .navbar-toggle {
+                display: block;
+            }
+            
+            .navbar-link {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+                padding: 15px 20px;
+                font-size: 1.1rem;
+            }
+            
+            .container {
+                padding: 0 10px;
+            }
+            
+            .main-content {
+                border-radius: 15px;
+                margin-top: 10px;
+            }
+            
+            .header {
+                padding: 25px 20px 20px;
+            }
+            
+            .header i {
+                font-size: 2.5rem;
+            }
+            
+            .header h2 {
+                font-size: 1.5rem;
+            }
+            
+            .header p {
+                font-size: 0.9rem;
+            }
+            
+            .stats-section {
+                padding: 20px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
+            .stat-card {
+                padding: 15px;
+            }
+            
+            .stat-card i {
+                font-size: 1.5rem;
+            }
+            
+            .stat-card h3 {
+                font-size: 1.4rem;
+            }
+            
+            .stat-card p {
+                font-size: 0.8rem;
+            }
+            
+            .filters-section {
+                padding: 15px 20px;
+            }
+            
+            .filters-row {
+                flex-direction: column;
+                gap: 12px;
+                align-items: stretch;
+            }
+            
+            .filter-group {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 5px;
+            }
+            
+            .filter-control {
+                width: 100%;
+            }
+            
+            .search-box {
+                min-width: unset;
+            }
+            
+            .table-section {
+                padding: 0 10px;
+            }
+            
+            .inventory-table {
+                font-size: 0.85rem;
+            }
+            
+            .inventory-table th {
+                padding: 12px 8px;
+                font-size: 0.8rem;
+            }
+            
+            .inventory-table td {
+                padding: 10px 8px;
+                font-size: 0.8rem;
+            }
+            
+            .status-badge {
+                font-size: 0.7rem;
+                padding: 4px 8px;
+            }
+            
+            .quantity-badge {
+                font-size: 0.8rem;
+                padding: 3px 8px;
+            }
+            
+            .date-text {
+                font-size: 0.75rem;
+            }
+            
+            .actions-section {
+                padding: 20px;
+            }
+            
+            .action-btn {
+                width: 100%;
+                max-width: 250px;
+                padding: 15px 25px;
+            }
+        }
+
+        /* Small Mobile Styles */
+        @media (max-width: 480px) {
+            body {
+                padding: 8px;
+                padding-top: 65px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .inventory-table {
+                min-width: 500px;
+            }
+            
+            .inventory-table th {
+                padding: 10px 6px;
+                font-size: 0.75rem;
+            }
+            
+            .inventory-table td {
+                padding: 8px 6px;
+                font-size: 0.75rem;
+            }
+            
+            .header {
+                padding: 20px 15px 15px;
+            }
+            
+            .stats-section {
+                padding: 15px;
+            }
+            
+            .filters-section {
+                padding: 12px 15px;
+            }
+            
+            .actions-section {
+                padding: 15px;
+            }
+        }
+
+        /* Extra Small Mobile Styles */
+        @media (max-width: 360px) {
+            .navbar-brand {
+                font-size: 1rem;
+            }
+            
+            .navbar-brand i {
+                font-size: 1.3rem;
+            }
+            
+            .header h2 {
+                font-size: 1.3rem;
+            }
+            
+            .stat-card h3 {
+                font-size: 1.2rem;
+            }
+            
+            .inventory-table {
+                min-width: 450px;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .navbar {
+                display: none;
+            }
+            
+            .main-content {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .actions-section {
+                display: none;
+            }
+            
+            .filters-section {
+                display: none;
+            }
+            
+            .inventory-table {
+                font-size: 12px;
+            }
+            
+            .inventory-table th,
+            .inventory-table td {
+                padding: 8px 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="{{ url_for('site_engineer_dashboard') }}" class="navbar-brand">
+                <i class="fas fa-warehouse"></i>
+                Inventory
+            </a>
+            <ul class="navbar-menu" id="navbarNav">
+                <li>
+                    <a href="{{ url_for('dashboard') }}" class="navbar-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Dashboard
+                    </a>
+                </li>
+                <li><a href="{{ url_for('view_inventory') }}" class="navbar-link active">
+                    <i class="fas fa-boxes"></i>
+                    Inventory
+                </a></li>
+                <li><a href="{{ url_for('logout') }}" class="navbar-link logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a></li>
+            </ul>
+            <button class="navbar-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="main-content fade-in">
+            <!-- Header Section -->
+            <div class="header">
+                <i class="fas fa-warehouse"></i>
+                <h2>Inventory Records</h2>
+                <p>Complete overview of all materials and supplies</p>
+            </div>
+
+            <!-- Stats Section -->
+            <div class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-check-circle stat-available"></i>
+                        <h3 class="stat-available" id="available-count">0</h3>
+                        <p>Available Items</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-exclamation-triangle stat-low"></i>
+                        <h3 class="stat-low" id="low-count">0</h3>
+                        <p>Low Stock</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-times-circle stat-out"></i>
+                        <h3 class="stat-out" id="out-count">0</h3>
+                        <p>Out of Stock</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-shopping-cart stat-ordered"></i>
+                        <h3 class="stat-ordered" id="ordered-count">0</h3>
+                        <p>Ordered</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters Section -->
+            <div class="filters-section">
+                <div class="filters-row">
+                    <div class="search-box">
+                        <input type="text" class="search-input" placeholder="Search materials..." id="searchInput">
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                    <div class="filter-group">
+                        <label for="statusFilter">Status:</label>
+                        <select class="filter-control" id="statusFilter">
+                            <option value="">All Status</option>
+                            <option value="Available">Available</option>
+                            <option value="Low">Low Stock</option>
+                            <option value="Out Of Stock">Out of Stock</option>
+                            <option value="Ordered">Ordered</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="sortBy">Sort by:</label>
+                        <select class="filter-control" id="sortBy">
+                            <option value="id">ID</option>
+                            <option value="description">Description</option>
+                            <option value="quantity">Quantity</option>
+                            <option value="date">Date</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Section -->
+            <div class="table-section">
+                <table class="inventory-table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-hashtag"></i>ID</th>
+                            <th><i class="fas fa-boxes"></i>Description</th>
+                            <th><i class="fas fa-sort-numeric-up"></i>Quantity</th>
+                            <th><i class="fas fa-calendar-alt"></i>Date</th>
+                            <th><i class="fas fa-info-circle"></i>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventoryTableBody">
+                        {% for item in inventory %}
+                        <tr>
+                            <td><strong>{{ item.material_id }}</strong></td>
+                            <td>{{ item.material_description }}</td>
+                            <td><span class="quantity-badge">{{ item.quantity }}</span></td>
+                            <td><span class="date-text">{{ item.date }}</span></td>
+                            <td>
+                                <span class="status-badge 
+                                    {% if item.status == 'available' %}status-available
+                                    {% elif item.status == 'low' %}status-low
+                                    {% elif item.status == 'out_of_stock' %}status-out
+                                    {% else %}status-ordered{% endif %}">
+                                    {% if item.status == 'available' %}Available
+                                    {% elif item.status == 'low' %}Low
+                                    {% elif item.status == 'out_of_stock' %}Out Of Stock
+                                    {% else %}Ordered{% endif %}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Actions Section -->
+            <div class="actions-section">
+                <div class="action-buttons">
+                    <a href="#" class="action-btn btn-secondary" onclick="window.print()">
+                        <i class="fas fa-print"></i>
+                        Print Report
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobileMenuToggle').addEventListener('click', function() {
+            const navbarMenu = document.getElementById('navbarNav');
+            navbarMenu.classList.toggle('active');
+            
+            // Change icon
+            const icon = this.querySelector('i');
+            if (navbarMenu.classList.contains('active')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const navbarMenu = document.getElementById('navbarNav');
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            
+            if (!navbarMenu.contains(event.target) && !mobileMenuToggle.contains(event.target)) {
+                navbarMenu.classList.remove('active');
+                const icon = mobileMenuToggle.querySelector('i');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+
+        // Get all rows for filtering and stats
+        function getAllRows() {
+            return document.querySelectorAll('#inventoryTableBody tr');
+        }
+
+        // Update stats based on visible rows
+        function updateStats() {
+            const rows = getAllRows();
+            let available = 0, low = 0, out = 0, ordered = 0;
+            
+            rows.forEach(row => {
+                const statusElement = row.cells[4].querySelector('.status-badge');
+                const status = statusElement.textContent.trim();
+                
+                switch(status) {
+                    case 'Available': available++; break;
+                    case 'Low': low++; break;
+                    case 'Out Of Stock': out++; break;
+                    case 'Ordered': ordered++; break;
+                }
+            });
+            
+            document.getElementById('available-count').textContent = available;
+            document.getElementById('low-count').textContent = low;
+            document.getElementById('out-count').textContent = out;
+            document.getElementById('ordered-count').textContent = ordered;
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = getAllRows();
+            
+            rows.forEach(row => {
+                const description = row.cells[1].textContent.toLowerCase();
+                const id = row.cells[0].textContent.toLowerCase();
+                
+                if (description.includes(searchTerm) || id.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            // Update stats after filtering
+            updateVisibleStats();
+        });
+
+        // Status filter
+        document.getElementById('statusFilter').addEventListener('change', function() {
+            const filterValue = this.value;
+            const rows = getAllRows();
+            
+            rows.forEach(row => {
+                const statusElement = row.cells[4].querySelector('.status-badge');
+                const status = statusElement.textContent.trim();
+                
+                if (filterValue === '' || status === filterValue) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            // Update stats after filtering
+            updateVisibleStats();
+        });
+
+        // Update stats based on visible rows only
+        function updateVisibleStats() {
+            const rows = getAllRows();
+            let available = 0, low = 0, out = 0, ordered = 0;
+            
+            rows.forEach(row => {
+                if (row.style.display !== 'none') {
+                    const statusElement = row.cells[4].querySelector('.status-badge');
+                    const status = statusElement.textContent.trim();
+                    
+                    switch(status) {
+                        case 'Available': available++; break;
+                        case 'Low': low++; break;
+                        case 'Out Of Stock': out++; break;
+                        case 'Ordered': ordered++; break;
+                    }
+                }
+            });
+            
+            document.getElementById('available-count').textContent = available;
+            document.getElementById('low-count').textContent = low;
+            document.getElementById('out-count').textContent = out;
+            document.getElementById('ordered-count').textContent = ordered;
+        }
+
+        // Sort functionality
+        document.getElementById('sortBy').addEventListener('change', function() {
+            const sortBy = this.value;
+            const tbody = document.getElementById('inventoryTableBody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            rows.sort((a, b) => {
+                let aVal, bVal;
+                
+                switch(sortBy) {
+                    case 'id':
+                        aVal = parseInt(a.cells[0].textContent);
+                        bVal = parseInt(b.cells[0].textContent);
+                        break;
+                    case 'description':
+                        aVal = a.cells[1].textContent.toLowerCase();
+                        bVal = b.cells[1].textContent.toLowerCase();
+                        break;
+                    case 'quantity':
+                        aVal = parseInt(a.cells[2].textContent);
+                        bVal = parseInt(b.cells[2].textContent);
+                        break;
+                    case 'date':
+                        aVal = new Date(a.cells[3].textContent);
+                        bVal = new Date(b.cells[3].textContent);
+                        break;
+                    default:
+                        return 0;
+                }
+                
+                if (typeof aVal === 'string') {
+                    return aVal.localeCompare(bVal);
+                }
+                return aVal - bVal;
+            });
+            
+            // Clear and re-append sorted rows
+            tbody.innerHTML = '';
+            rows.forEach(row => tbody.appendChild(row));
+        });
+
+        // Initialize stats on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStats();
+        });
+    </script>
+</body>
+</html>
+                    

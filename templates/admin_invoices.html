@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+<head>
+    <title>All Invoices</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        h2 { color: #2c3e50; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #aaa; padding: 10px; text-align: left; }
+        th { background: #3498db; color: #fff; }
+        .status-pending { color: #e67e22; font-weight: bold; }
+        .status-approved { color: #27ae60; font-weight: bold; }
+        .status-rejected { color: #c0392b; font-weight: bold; }
+        .btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin: 2px; }
+        .btn-success { background: #27ae60; color: #fff; }
+        .btn-danger { background: #c0392b; color: #fff; }
+        .btn-warning { background: #f39c12; color: #fff; }
+        .btn-primary { background: #3498db; color: #fff; }
+        input[type="text"] { padding: 5px 8px; font-size: 14px; width: 150px; }
+        select { padding: 5px 8px; margin-bottom: 10px; }
+        .filter-container { margin-bottom: 20px; }
+        .flash-messages { color: green; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h2>All Invoices</h2>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="flash-messages">
+          <ul>
+            {% for message in messages %}
+              <li>{{ message }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <form method="get" action="{{ url_for('admin_view_invoices') }}" class="filter-container">
+        <label for="status">Filter by Status:</label>
+        <select name="status" id="status" onchange="this.form.submit()">
+            <option value="All" {% if selected_status == 'All' %}selected{% endif %}>All</option>
+            <option value="Pending" {% if selected_status == 'Pending' %}selected{% endif %}>Pending</option>
+            <option value="Approved" {% if selected_status == 'Approved' %}selected{% endif %}>Approved</option>
+            <option value="Rejected" {% if selected_status == 'Rejected' %}selected{% endif %}>Rejected</option>
+        </select>
+    </form>
+
+    <table>
+        <tr>
+            <th>Invoice No.</th>
+            <th>Date</th>
+            <th>Vendor</th>
+            <th>Site Engineer</th>
+            <th>Total Amount</th>
+            <th>Status</th>
+            <th>Rejection Reason</th>
+            <th>Actions</th>
+            <th>image</th>
+            <th>PDF</th>
+        </tr>
+        {% for invoice in invoices %}
+        <tr>
+            <td>{{ invoice.invoice_number }}</td>
+            <td>{{ invoice.generated_on.strftime('%Y-%m-%d') if invoice.generated_on else '' }}</td>
+            <td>{{ invoice.vendor_name }}</td>
+            <td>{{ invoice.engineer_name or 'Admin' }}</td>
+            <td>₹{{ '%.2f' % invoice.total_amount|float }}</td>
+            <td class="status-{{ invoice.status|lower }}">{{ invoice.status }}</td>
+            <td>
+                {% if invoice.status == 'Rejected' %}
+                    {{ invoice.rejection_reason }}
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+            <td>
+                {% if invoice.status == 'Pending' %}
+                <form method="post" style="display:inline;">
+                    <input type="hidden" name="invoice_id" value="{{ invoice.id }}">
+                    <button name="action" value="approve" class="btn btn-success">Approve</button>
+                </form>
+                <form method="post" style="display:inline;">
+                    <input type="hidden" name="invoice_id" value="{{ invoice.id }}">
+                    <input type="text" name="rejection_reason" placeholder="Reason" required>
+                    <button name="action" value="reject" class="btn btn-danger">Reject</button>
+                </form>
+                <form method="post" style="display:inline;">
+                    <input type="hidden" name="invoice_id" value="{{ invoice.id }}">
+                    <button name="action" value="edit" class="btn btn-warning">Edit</button>
+                </form>
+                {% elif invoice.status == 'Rejected' %}
+                    <span class="status-rejected">Rejected</span>
+                {% elif invoice.status == 'Approved' %}
+                    <span class="status-approved">Approved</span>
+                {% endif %}
+            </td>
+            <td>
+               <a href="{{ url_for('static', filename='invoices/' ~ invoice.pdf_filename) }}"
+                                        target="_blank" class="btn btn-primary">
+                                        View PDF
+                                    </a>
+            </td>
+            <td>
+                {% if invoice.image_filename %}
+                    <a href="{{ url_for('static', filename='invoices/' ~ invoice.image_filename) }}" target="_blank">
+                        <img src="{{ url_for('static', filename='invoices/' ~ invoice.image_filename) }}" alt="Invoice Image" style="width: 50px; height: auto;">
+                    </a>
+                {% else %}
+                    No Image
+                {% endif %}
+            </td>
+              
+            
+        </tr>
+        {% endfor %}
+    </table>
+
+    <br>
+    <a href="{{ url_for('admin_dashboard') }}">← Back to Dashboard</a>
+</body>
+</html>

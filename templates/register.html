@@ -1,0 +1,472 @@
+<!doctype html>
+<html>
+<head>
+    <title>Register - Construction Management</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+                        url(/static/images/construction.jpg);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        .register-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 420px;
+            backdrop-filter: blur(10px);
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .register-container:hover {
+            transform: translateY(-5px);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo img {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 15px;
+            max-width: 100%;
+            height: auto;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #1a73e8;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        form input[type="text"],
+        form input[type="email"],
+        form input[type="password"],
+        form select {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 15px;
+            transition: border-color 0.3s ease;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        form select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        form input[type="text"]:focus,
+        form input[type="email"]:focus,
+        form input[type="password"]:focus,
+        form select:focus {
+            border-color: #1a73e8;
+            outline: none;
+        }
+
+        form input[type="submit"] {
+            width: 100%;
+            background-color: #1a73e8;
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        form input[type="submit"]:hover {
+            background-color: #1557b0;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 15px;
+            color: #555;
+        }
+
+        a {
+            color: #1a73e8;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: #1557b0;
+            text-decoration: none;
+        }
+
+        .error-message {
+            color: #d93025;
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            background-color: rgba(217, 48, 37, 0.1);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Tablet Styles */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 15px;
+                background-attachment: scroll;
+            }
+
+            .register-container {
+                padding: 30px 25px;
+                max-width: 400px;
+            }
+
+            .logo img {
+                width: 100px;
+                height: 100px;
+            }
+
+            h2 {
+                font-size: 24px;
+                margin-bottom: 25px;
+            }
+
+            form input[type="text"],
+            form input[type="email"],
+            form input[type="password"],
+            form select {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            form select {
+                background-position: right 10px center;
+                background-size: 14px;
+                padding-right: 35px;
+            }
+
+            form input[type="submit"] {
+                padding: 12px;
+                font-size: 15px;
+            }
+
+            .login-link {
+                font-size: 14px;
+            }
+        }
+
+        /* Mobile Styles */
+        @media screen and (max-width: 480px) {
+            body {
+                padding: 10px;
+                background-attachment: scroll;
+            }
+
+            .register-container {
+                padding: 25px 20px;
+                border-radius: 12px;
+                margin: 10px 0;
+            }
+
+            .register-container:hover {
+                transform: translateY(0);
+            }
+
+            .logo {
+                margin-bottom: 20px;
+            }
+
+            .logo img {
+                width: 80px;
+                height: 80px;
+                margin-bottom: 10px;
+            }
+
+            h2 {
+                font-size: 22px;
+                margin-bottom: 20px;
+            }
+
+            form input[type="text"],
+            form input[type="email"],
+            form input[type="password"],
+            form select {
+                padding: 12px;
+                margin-bottom: 15px;
+                font-size: 14px;
+                border-radius: 6px;
+            }
+
+            form select {
+                background-position: right 10px center;
+                background-size: 14px;
+                padding-right: 32px;
+            }
+
+            form input[type="submit"] {
+                padding: 12px;
+                font-size: 14px;
+                border-radius: 6px;
+                margin-bottom: 12px;
+            }
+
+            .login-link {
+                margin-top: 20px;
+                font-size: 13px;
+                line-height: 1.4;
+            }
+
+            .error-message {
+                font-size: 13px;
+                padding: 8px;
+            }
+        }
+
+        /* Extra Small Mobile Styles */
+        @media screen and (max-width: 360px) {
+            body {
+                padding: 5px;
+            }
+
+            .register-container {
+                padding: 20px 15px;
+                border-radius: 10px;
+            }
+
+            .logo img {
+                width: 70px;
+                height: 70px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            form input[type="text"],
+            form input[type="email"],
+            form input[type="password"],
+            form select {
+                padding: 10px;
+                font-size: 13px;
+            }
+
+            form select {
+                background-position: right 8px center;
+                background-size: 12px;
+                padding-right: 30px;
+            }
+
+            form input[type="submit"] {
+                padding: 10px;
+                font-size: 13px;
+            }
+
+            .login-link {
+                font-size: 12px;
+            }
+        }
+
+        /* Large Desktop Styles */
+        @media screen and (min-width: 1200px) {
+            .register-container {
+                max-width: 450px;
+                padding: 50px;
+            }
+
+            .logo img {
+                width: 140px;
+                height: 140px;
+            }
+
+            h2 {
+                font-size: 32px;
+            }
+
+            form input[type="text"],
+            form input[type="email"],
+            form input[type="password"],
+            form select {
+                padding: 16px;
+                font-size: 16px;
+            }
+
+            form select {
+                background-position: right 15px center;
+                background-size: 18px;
+                padding-right: 45px;
+            }
+
+            form input[type="submit"] {
+                padding: 16px;
+                font-size: 17px;
+            }
+        }
+
+        /* Landscape Mobile Orientation */
+        @media screen and (max-height: 500px) and (orientation: landscape) {
+            body {
+                padding: 5px;
+            }
+
+            .register-container {
+                padding: 15px 20px;
+                margin: 5px 0;
+            }
+
+            .logo {
+                margin-bottom: 10px;
+            }
+
+            .logo img {
+                width: 60px;
+                height: 60px;
+                margin-bottom: 5px;
+            }
+
+            h2 {
+                font-size: 18px;
+                margin-bottom: 15px;
+            }
+
+            form input[type="text"],
+            form input[type="email"],
+            form input[type="password"],
+            form select {
+                padding: 8px;
+                margin-bottom: 10px;
+                font-size: 13px;
+            }
+
+            form select {
+                background-position: right 8px center;
+                background-size: 12px;
+                padding-right: 28px;
+            }
+
+            form input[type="submit"] {
+                padding: 10px;
+                font-size: 14px;
+                margin-bottom: 8px;
+            }
+
+            .login-link {
+                margin-top: 10px;
+                font-size: 12px;
+            }
+        }
+
+        /* Touch device optimizations */
+        @media (hover: none) {
+            .register-container:hover {
+                transform: translateY(0);
+            }
+
+            form input[type="submit"]:hover {
+                background-color: #1a73e8;
+            }
+
+            a:hover {
+                color: #1a73e8;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="register-container">
+    <div class="logo">
+        <img src="/static/images/engineers.png" alt="Construction Logo">
+    </div>
+
+    <h2>Register New User</h2>
+
+<form method="POST" action="{{ url_for('register') }}">
+    <div class="form-group">
+        <label>Name:</label>
+        <input type="text" name="name" required class="form-control">
+    </div>
+
+    <div class="form-group">
+        <label>Email:</label>
+        <input type="email" name="email" required class="form-control">
+    </div>
+
+    <div class="form-group">
+        <label>Password:</label>
+        <input type="password" name="password" required class="form-control">
+    </div>
+
+    <div class="form-group">
+        <label>Role:</label>
+        <select name="role" id="roleSelect" required class="form-control">
+            <option value="">Select Role</option>
+            <option value="project_manager">Project Manager</option>
+            <option value="architect">Architect</option>
+            <option value="site_engineer">Site Engineer</option>
+            <option value="accountant">Accountant</option>
+        </select>
+    </div>
+
+    <div id="architectFields" style="display: none;">
+        <div class="form-group">
+            <label>License Number:</label>
+            <input type="text" name="license_number" class="form-control">
+        </div>
+
+        <div class="form-group">
+            <label>Contact Number:</label>
+            <input type="text" name="contact_no" class="form-control">
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Register User</button>
+</form>
+
+<script>
+document.getElementById('roleSelect').addEventListener('change', function () {
+    const role = this.value;
+    const fields = document.getElementById('architectFields');
+    fields.style.display = (role === 'architect') ? 'block' : 'none';
+});
+</script>
+
+</body>
+</html>

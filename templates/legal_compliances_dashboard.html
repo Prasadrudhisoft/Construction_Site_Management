@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Legal & Compliances Viewer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Poppins', sans-serif; 
+        }
+        
+        body {
+            background-color: #f4f6f8;
+            min-height: 100vh;
+            padding-top: 70px;
+            line-height: 1.6;
+        }
+        
+        .navbar {
+            position: fixed;
+            top: 0; 
+            left: 0; 
+            right: 0;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .navbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 0 20px;
+            height: 70px;
+        }
+        
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: clamp(1rem, 2.5vw, 1.4rem);
+            transition: color 0.2s;
+            white-space: nowrap;
+        }
+        
+        .navbar-brand:hover { color: #3498db; }
+        
+        .navbar-brand i { 
+            color: #3498db; 
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            transition: transform 0.2s; 
+        }
+        
+        .navbar-brand:hover i { 
+            transform: rotate(-15deg) scale(1.1); 
+        }
+        
+        .navbar-menu {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+            align-items: center;
+            margin: 0;
+        }
+        
+        .navbar-link {
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 500;
+            padding: 10px 12px;
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(.77,0,.18,1);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            position: relative;
+            overflow: hidden;
+            font-size: clamp(0.8rem, 1.5vw, 1rem);
+            white-space: nowrap;
+        }
+        
+        .navbar-link::after {
+            content: "";
+            position: absolute;
+            left: 0; 
+            bottom: 0;
+            width: 0;
+            height: 3px;
+            background: #3498db;
+            transition: width 0.3s cubic-bezier(.77,0,.18,1);
+        }
+        
+        .navbar-link:hover::after, 
+        .navbar-link.active::after { 
+            width: 100%; 
+        }
+        
+        .navbar-link:hover {
+            background: rgba(52,152,219,0.12);
+            color: #3498db;
+            transform: translateY(-2px) scale(1.04);
+        }
+        
+        .navbar-link.active {
+            background: #3498db;
+            color: white;
+            box-shadow: 0 4px 16px rgba(52,152,219,0.08);
+        }
+        
+        .navbar-link.logout {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .navbar-link.logout:hover {
+            background: #c0392b;
+            transform: translateY(-2px) scale(1.04);
+        }
+        
+        .navbar-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: color 0.2s;
+            padding: 5px;
+        }
+        
+        .navbar-toggle:hover { 
+            color: #3498db; 
+        }
+        
+        .container {
+            max-width: min(900px, 95vw);
+            margin: 20px auto;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(52,152,219,0.13);
+            padding: clamp(20px, 5vw, 50px);
+            animation: fadeIn 0.7s cubic-bezier(.77,0,.18,1);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        
+        .page-header {
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            color: white;
+            padding: clamp(20px, 5vw, 30px);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .page-header h2 {
+            font-size: clamp(1.2rem, 4vw, 2rem);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .page-header p {
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+            opacity: 0.9;
+        }
+        
+        .form-card {
+            background: white;
+            padding: clamp(20px, 5vw, 40px);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #2c3e50;
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+        }
+        
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+            transition: border-color 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            background-color: white;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+        }
+        
+        .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .submit-btn {
+            background: #3498db;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .submit-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+        
+        .form-section {
+            border-left: 4px solid #3498db;
+            padding-left: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            color: #2c3e50;
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title i {
+            color: #3498db;
+            font-size: clamp(1rem, 3vw, 1.2rem);
+        }
+        
+        .divider {
+            height: 2px;
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            border-radius: 2px;
+            margin: 30px 0;
+        }
+        
+        .results-card {
+            background: white;
+            padding: clamp(20px, 5vw, 40px);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        .results-card h3 {
+            color: #2c3e50;
+            font-size: clamp(1.1rem, 3.5vw, 1.5rem);
+            font-weight: 600;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            background: linear-gradient(135deg, #ebf3fd, #f8f9fa);
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .results-card h3 i {
+            color: #3498db;
+            font-size: clamp(1.1rem, 3.5vw, 1.5rem);
+        }
+        
+        .not-approved {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+            text-align: center;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+        }
+        
+        .not-approved i {
+            font-size: clamp(1rem, 3vw, 1.2rem);
+        }
+        
+        .detail-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .detail-item p {
+            margin: 0;
+            color: #2c3e50;
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+        
+        .detail-item strong {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        
+        .pdf-link {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(231, 76, 60, 0.2);
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .pdf-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+            background: linear-gradient(135deg, #c0392b, #a93226);
+        }
+        
+        .environmental-text {
+            background-color: #e8f5e8;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #27ae60;
+            color: #2c3e50;
+            line-height: 1.6;
+            font-weight: 500;
+            margin-top: 10px;
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+        }
+        
+        .no-data {
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 2px dashed #bdc3c7;
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+        }
+        
+        .no-data i {
+            margin-right: 8px;
+            font-size: clamp(1rem, 3vw, 1.2rem);
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-badge.pending {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        
+        .upload-date {
+            color: #7f8c8d;
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+            font-style: italic;
+            margin-top: 10px;
+        }
+        
+        .action-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .action-link {
+            display: inline-flex;
+            align-items: center;
+            padding: 12px 20px;
+            background: white;
+            color: #3498db;
+            text-decoration: none;
+            border-radius: 8px;
+            border: 2px solid #3498db;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+            gap: 8px;
+            flex: 1;
+            min-width: 120px;
+            max-width: 200px;
+            justify-content: center;
+        }
+        
+        .action-link:hover {
+            background: #3498db;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+        
+        .back-link {
+            background: #95a5a6;
+            color: white;
+            border-color: #95a5a6;
+        }
+        
+        .back-link:hover {
+            background: #7f8c8d;
+            box-shadow: 0 4px 12px rgba(149, 165, 166, 0.3);
+        }
+        
+        /* Tablet styles */
+        @media (max-width: 768px) {
+            body { 
+                padding-top: 60px; 
+            }
+            
+            .navbar { 
+                height: 60px; 
+            }
+            
+            .navbar-container { 
+                height: 60px; 
+                padding: 0 15px; 
+            }
+            
+            .navbar-menu {
+                position: fixed;
+                top: 60px;
+                left: -100%;
+                width: 100vw;
+                height: calc(100vh - 60px);
+                background: rgba(255,255,255,0.98);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
+                padding: 30px 20px;
+                transition: left 0.3s cubic-bezier(.77,0,.18,1);
+                gap: 20px;
+                z-index: 2000;
+                overflow-y: auto;
+            }
+            
+            .navbar-menu.active { 
+                left: 0; 
+            }
+            
+            .navbar-toggle { 
+                display: block; 
+            }
+            
+            .navbar-link {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+                padding: 15px 20px;
+                font-size: 1.1rem;
+            }
+            
+            .container {
+                margin: 15px auto;
+                border-radius: 12px;
+            }
+            
+            .page-header {
+                border-radius: 8px;
+                margin-bottom: 20px;
+            }
+            
+            .form-card, .results-card {
+                border-radius: 8px;
+            }
+            
+            .action-links {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .action-link {
+                max-width: none;
+                width: 100%;
+            }
+        }
+        
+        /* Mobile styles */
+        @media (max-width: 480px) {
+            .navbar-container { 
+                padding: 0 10px; 
+            }
+            
+            .navbar-brand {
+                gap: 6px;
+            }
+            
+            .container {
+                margin: 10px auto;
+                border-radius: 8px;
+            }
+            
+            .page-header {
+                border-radius: 6px;
+                margin-bottom: 15px;
+            }
+            
+            .form-card, .results-card {
+                border-radius: 6px;
+                margin-bottom: 15px;
+            }
+            
+            .form-section {
+                padding-left: 15px;
+                margin-bottom: 20px;
+            }
+            
+            .detail-item {
+                padding: 12px;
+            }
+            
+            .pdf-link {
+                padding: 10px 14px;
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        /* Small mobile styles */
+        @media (max-width: 320px) {
+            .navbar-container { 
+                padding: 0 8px; 
+            }
+            
+            .container {
+                margin: 5px auto;
+            }
+            
+            .page-header {
+                margin-bottom: 10px;
+            }
+            
+            .form-card, .results-card {
+                margin-bottom: 10px;
+            }
+            
+            .action-links {
+                gap: 8px;
+            }
+        }
+        
+        /* Landscape orientation on mobile */
+        @media (max-height: 600px) and (orientation: landscape) {
+            .navbar-menu {
+                padding: 15px 20px;
+                gap: 10px;
+            }
+            
+            .navbar-link {
+                padding: 10px 15px;
+            }
+        }
+        
+        /* High DPI displays */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .navbar {
+                border-bottom: 0.5px solid rgba(255,255,255,0.2);
+            }
+        }
+        
+        /* Print styles */
+        @media print {
+            .navbar, .action-links {
+                display: none;
+            }
+            
+            body {
+                padding-top: 0;
+                background: white;
+            }
+            
+            .container {
+                box-shadow: none;
+                margin: 0;
+                max-width: none;
+            }
+            
+            .page-header {
+                background: #f8f9fa !important;
+                color: #2c3e50 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="#" class="navbar-brand">
+                <i class="fas fa-gavel"></i>
+                <span>Legal & Compliances</span>
+            </a>
+            <ul class="navbar-menu" id="navbarNav">
+                <li>
+                    <a href="{{ url_for('dashboard') }}" class="navbar-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('legal_compliances_dashboard') }}" class="navbar-link active">
+                        <i class="fas fa-search"></i>
+                        <span>Legal & Compliances Viewer</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('logout') }}" class="navbar-link logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+            <button class="navbar-toggle" id="mobileMenuToggle" aria-label="Toggle navigation">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h2><i class="fas fa-search"></i> Legal & Compliances Viewer</h2>
+            <p>Select a project to view its legal compliance documents and status</p>
+        </div>
+
+        <div class="form-card">
+            <form method="POST">
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="fas fa-building"></i> 
+                        <span>Project Selection</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="project_id">
+                            <i class="fas fa-project-diagram"></i> Select Project:
+                        </label>
+                        <select name="project_id" id="project_id" required>
+                            <option value="">-- Select Project --</option>
+                            {% for project in projects %}
+                                <option value="{{ project.id }}"
+                                    {% if selected_project and selected_project.id == project.id %} selected {% endif %}>
+                                    {{ project.project_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-eye"></i> 
+                        <span>View Compliance Details</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        {% if selected_project %}
+            <div class="results-card">
+                <h3>
+                    <i class="fas fa-building"></i> 
+                    <span>Project: {{ selected_project.project_name }}</span>
+                </h3>
+                
+                {% if not_approved %}
+                    <div class="not-approved">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        <span>This project is not approved yet.</span>
+                    </div>
+                {% elif compliance %}
+                    <!-- Municipal Approval Status -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-clipboard-check"></i> 
+                            <span>Municipal Approval Status</span>
+                        </div>
+                        <div class="detail-item">
+                            <p><strong>Municipal Approval Status:</strong> <span class="status-badge">{{ compliance.municipal_approval_status }}</span></p>
+                        </div>
+                        <div class="detail-item">
+                            <p><strong>Municipal Approval PDF:</strong></p>
+                            {% if compliance.municipal_approval_pdf %}
+                                <a href="{{ url_for('static', filename=compliance.municipal_approval_pdf) }}" target="_blank" class="pdf-link">
+                                    <i class="fas fa-file-pdf"></i> 
+                                    <span>View PDF</span>
+                                </a>
+                            {% else %}
+                                <span class="status-badge pending">Pending</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Required Documents -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-file-contract"></i> 
+                            <span>Required Documents</span>
+                        </div>
+                        <div class="detail-item">
+                            <p><strong>Building Permit PDF:</strong></p>
+                            {% if compliance.building_permit_pdf %}
+                                <a href="{{ url_for('static', filename=compliance.building_permit_pdf) }}" target="_blank" class="pdf-link">
+                                    <i class="fas fa-file-pdf"></i> 
+                                    <span>View PDF</span>
+                                </a>
+                            {% else %}
+                                <span class="status-badge pending">Pending</span>
+                            {% endif %}
+                        </div>
+                        <div class="detail-item">
+                            <p><strong>Sanction Plan Copy:</strong></p>
+                            {% if compliance.sanction_plan_pdf %}
+                                <a href="{{ url_for('static', filename=compliance.sanction_plan_pdf) }}" target="_blank" class="pdf-link">
+                                    <i class="fas fa-file-pdf"></i> 
+                                    <span>View PDF</span>
+                                </a>
+                            {% else %}
+                                <span class="status-badge pending">Pending</span>
+                            {% endif %}
+                        </div>
+                        <div class="detail-item">
+                            <p><strong>Fire Department NOC:</strong></p>
+                            {% if compliance.fire_department_noc_pdf %}
+                                <a href="{{ url_for('static', filename=compliance.fire_department_noc_pdf) }}" target="_blank" class="pdf-link">
+                                    <i class="fas fa-file-pdf"></i> 
+                                    <span>View PDF</span>
+                                </a>
+                            {% else %}
+                                <span class="status-badge pending">Pending</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="detail-item">
+    <p><strong>MNGL PDF:</strong></p>
+    {% if compliance.mngl_pdf %}
+        <a href="{{ url_for('static', filename=compliance.mngl_pdf) }}" target="_blank" class="pdf-link">
+            <i class="fas fa-file-pdf"></i> View PDF
+        </a>
+    {% else %}
+        <span class="status-badge pending">Pending</span>
+    {% endif %}
+</div>
+
+                    <!-- Environmental Compliance -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-leaf"></i> 
+                            <span>Environmental Compliance</span>
+                        </div>
+                        <div class="detail-item">
+                            <p><strong>Environmental Clearance:</strong></p>
+                            {% if compliance.environmental_clearance %}
+                                <div class="environmental-text">{{ compliance.environmental_clearance }}</div>
+                            {% else %}
+                                <span class="status-badge pending">Pending</span>
+                            {% endif %}
+                        </div>
+                        <div class="detail-item">
+                            <p><strong>Uploaded On:</strong> <span class="status-badge">{{ compliance.uploaded_on }}</span></p>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="not-approved">
+                        <i class="fas fa-info-circle"></i> 
+                        <span>No compliance data found.</span>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <div class="action-links">
+            <!-- <a href="{{ url_for('admin_dashboard') }}" class="action-link back-link">
+                <i class="fas fa-arrow-left"></i> 
+                <span>Back to Dashboard</span>
+            </a> -->
+            <a href="{{ url_for('logout') }}" class="action-link">
+                <i class="fas fa-sign-out-alt"></i> 
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu toggle with improved accessibility
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const navbarNav = document.getElementById('navbarNav');
+            
+            if (mobileMenuToggle && navbarNav) {
+                mobileMenuToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const icon = this.querySelector('i');
+                    const isActive = navbarNav.classList.contains('active');
+                    
+                    navbarNav.classList.toggle('active');
+                    
+                    if (!isActive) {
+                        icon.classList.remove('fa-bars');
+                        icon.classList.add('fa-times');
+                        this.setAttribute('aria-expanded', 'true');
+                        document.body.style.overflow = 'hidden';
+                    } else {
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                        this.setAttribute('aria-expanded', 'false');
+                        document.body.style.overflow = '';
+                    }
+                });
+
+                // Close mobile menu when clicking on links
+                document.querySelectorAll('.navbar-link').forEach(link => {
+                    link.addEventListener('click', function() {
+                        navbarNav.classList.remove('active');
+                        const icon = mobileMenuToggle.querySelector('i');
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                        mobileMenuToggle.setAttribute('aria-expanded', 'false');
+                        document.body.style.overflow = '';
+                    });
+                });
+
+                // Close mobile menu when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!navbarNav.contains(e.target) && !mobileMenuToggle.contains(e.target)) {
+                        if (navbarNav.classList.contains('active')) {
+                            navbarNav.classList.remove('active');
+                            const icon = mobileMenuToggle.querySelector('i');
+                            icon.classList.remove('fa-times');
+                            icon.classList.add('fa-bars');
+                            mobileMenuToggle.setAttribute('aria-expanded', 'false');
+                            document.body.style.overflow = '';
+                        }
+                    }
+                });
+
+                // Handle window resize
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth > 768) {
+                        navbarNav.classList.remove('active');
+                        const icon = mobileMenuToggle.querySelector('i');
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                        mobileMenuToggle.setAttribute('aria-expanded', 'false');
+                        document.body.style.overflow = '';
+                    }
+                });
+            }
+
+            // Form validation enhancement
+            const form = document.querySelector('form');
+            const select = document.getElementById('project_id');
+            
+            if (form && select) {
+                form.addEventListener('submit', function(e) {
+                    if (!select.value) {
+                        e.preventDefault();
+                        select.focus();
+                        select.style.borderColor = '#e74c3c';
+                        
+                        setTimeout(() => {
+                            select.style.borderColor = '';
+                        }, 3000);
+                    }
+                });
+            }
+
+            // Add loading state to submit button
+            const submitBtn = document.querySelector('.submit-btn');
+            if (submitBtn) {
+                submitBtn.addEventListener('click', function() {
+                    const icon = this.querySelector('i');
+                    const text = this.querySelector('span');
+                    
+                    if (form && form.checkValidity()) {
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-spinner', 'fa-spin');
+                        text.textContent = 'Loading...';
+                        this.disabled = true;
+                    }
+                });
+            }
+
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Enhanced keyboard navigation
+            document.addEventListener('keydown', function(e) {
+                // Close mobile menu with Escape key
+                if (e.key === 'Escape' && navbarNav && navbarNav.classList.contains('active')) {
+                    navbarNav.classList.remove('active');
+                    const icon = mobileMenuToggle.querySelector('i');
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                    mobileMenuToggle.setAttribute('aria-expanded', 'false');
+                    document.body.style.overflow = '';
+                    mobileMenuToggle.focus();
+                }
+            });
+        });
+
+        // Intersection Observer for animations
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.form-section, .detail-item').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(el);
+            });
+        }
+    </script>
+</body>
+</html>

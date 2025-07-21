@@ -1,0 +1,5 @@
+<img src="{{ url_for('static', filename='uploads/' + r.image_path.split('/')[-1]) }}" width="100">
+ <a href="{{ url_for('static', filename='vendor_quotes/' + record.vendor_quotation_pdf) }}" target="_blank">View PDF</a> <a href="{{ url_for('static', filename='uploads/' + r.pdf_path) }}" target="_blank">View PDF</a>
+ <a href="{{ url_for('static', filename=doc.file_path) }}" target="_blank">
+    View PDF
+</a>

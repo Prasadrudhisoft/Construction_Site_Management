@@ -1,0 +1,23 @@
+<h2>View Legal Compliances (Assigned Projects Only)</h2>
+<form method="post">
+    <select name="project_id" required>
+        <option value="">Select Project</option>
+        {% for project in projects %}
+            <option value="{{ project.id }}" {% if selected_project_id and project.id == selected_project_id|int %}selected{% endif %}>
+                {{ project.project_name }}
+            </option>
+        {% endfor %}
+    </select>
+    <button type="submit">View</button>
+</form>
+
+{% if compliance %}
+    <h3>Legal Compliances for Project ID {{ compliance.project_id }}</h3>
+    <ul>
+        <li>Municipal Approval Status: {{ compliance.municipal_approval_status }}</li>
+        <li>Environmental Clearance: {{ compliance.environmental_clearance }}</li>
+        <!-- Add more fields as needed -->
+    </ul>
+{% elif selected_project_id %}
+    <p>No legal compliance data found for this project.</p>
+{% endif %}

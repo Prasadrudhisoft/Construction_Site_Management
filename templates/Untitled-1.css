@@ -1,0 +1,106 @@
+Navbar Styles
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 15px 0;
+    z-index: 1000;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+}
+.navbar-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: #2c3e50;
+    font-weight: 700;
+    font-size: 1.4rem;
+}
+.navbar-brand i {
+    color: #3498db;
+    font-size: 1.8rem;
+}
+.navbar-menu, .navbar-nav {
+    display: flex;
+    list-style: none;
+    gap: 30px;
+    align-items: center;
+}
+.navbar-link, .nav-link {
+    text-decoration: none;
+    color: #2c3e50;
+    font-weight: 500;
+    padding: 10px 15px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.navbar-link:hover, .nav-link:hover {
+    background: rgba(52, 152, 219, 0.1);
+    color: #3498db;
+    transform: translateY(-2px);
+}
+.navbar-link.active, .nav-link.active {
+    background: #3498db;
+    color: white;
+}
+.navbar-link.logout, .nav-link.logout {
+    background: #e74c3c;
+    color: white;
+}
+.navbar-link.logout:hover, .nav-link.logout:hover {
+    background: #c0392b;
+    transform: translateY(-2px);
+}
+.navbar-toggle, .mobile-menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #2c3e50;
+    cursor: pointer;
+}
+@media (max-width: 768px) {
+    .navbar-menu, .navbar-nav {
+        position: fixed;
+        top: 80px;
+        left: -100%;
+        width: 100%;
+        height: calc(100vh - 80px);
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(20px);
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        padding: 40px 20px;
+        transition: left 0.3s ease;
+        gap: 20px;
+    }
+    .navbar-menu.active, .navbar-nav.active {
+        left: 0;
+    }
+    .navbar-toggle, .mobile-menu-toggle {
+        display: block;
+    }
+    .navbar-link, .nav-link {
+        width: 100%;
+        max-width: 300px;
+        justify-content: center;
+        padding: 15px 20px;
+        font-size: 1.1rem;
+    }
+}

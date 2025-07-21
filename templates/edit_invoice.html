@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Invoice</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 80px;
+        }
+        .invoice-form {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .section-header {
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .items-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid #ffffff;
+            margin-top: 2rem;
+        }
+        .item-list {
+            list-style: none;
+            padding: 0;
+        }
+        .item-list li {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        /* Navbar Styles */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
+        .navbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 0 20px;
+            height: 70px;
+        }
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: 1.4rem;
+        }
+        .navbar-brand i {
+            color: #3498db;
+            font-size: 1.8rem;
+        }
+        .navbar-menu {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+            align-items: center;
+            margin: 0;
+        }
+        .navbar-link {
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 500;
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .navbar-link:hover {
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+            transform: translateY(-2px);
+        }
+        .navbar-link.active {
+            background: #3498db;
+            color: white;
+        }
+        .navbar-link.logout {
+            background: #e74c3c;
+            color: white;
+        }
+        .navbar-link.logout:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+        .navbar-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #2c3e50;
+            cursor: pointer;
+        }
+        @media (max-width: 900px) {
+            .navbar-container {
+                padding: 0 10px;
+            }
+        }
+        @media (max-width: 768px) {
+            body {
+                padding-top: 80px !important;
+            }
+            .navbar {
+                height: 60px;
+            }
+            .navbar-container {
+                height: 60px;
+            }
+            .navbar-menu {
+                position: fixed;
+                top: 60px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 60px);
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
+                padding: 40px 20px;
+                transition: left 0.3s ease;
+                gap: 20px;
+            }
+            .navbar-menu.active {
+                left: 0;
+            }
+            .navbar-toggle {
+                display: block;
+            }
+            .navbar-link {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+                padding: 15px 20px;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="{{ url_for('site_engineer_dashboard') }}" class="navbar-brand">
+                <i class="fas fa-hard-hat"></i>
+                Site Engineer
+            </a>
+            <ul class="navbar-menu" id="navbarNav">
+                <li><a href="{{ url_for('site_engineer_dashboard') }}" class="navbar-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </a></li>
+                <li><a href="{{ url_for('site_engineer_invoices') }}" class="navbar-link active">
+                    <i class="fas fa-file-invoice"></i>
+                    Invoices
+                </a></li>
+                <li><a href="{{ url_for('logout') }}" class="navbar-link logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a></li>
+            </ul>
+            <button class="navbar-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="invoice-form">
+                    <div class="section-header text-center">
+                        <div class="header-icon mb-2">
+                            <i class="fas fa-edit" style="font-size:2.5rem;"></i>
+                        </div>
+                        <h2 class="mb-0" style="font-size:2rem;">Edit Invoice #{{ invoice.invoice_number }}</h2>
+                    </div>
+
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="vendor_name" class="form-label">Vendor Name:</label>
+                            <input type="text" class="form-control" id="vendor_name" name="vendor_name" 
+                                   value="{{ invoice.vendor_name }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="total_amount" class="form-label">Total Amount:</label>
+                            <input type="number" class="form-control" id="total_amount" name="total_amount" 
+                                   step="0.01" value="{{ invoice.total_amount }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="gst_amount" class="form-label">GST Amount:</label>
+                            <input type="number" class="form-control" id="gst_amount" name="gst_amount" 
+                                   step="0.01" value="{{ invoice.gst_amount }}" required>
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary btn-lg px-5">
+                                <i class="fas fa-save me-2"></i>Save Changes & Generate PDF
+                            </button>
+                            <a href="{{ url_for('site_engineer_invoices') }}" class="btn btn-secondary btn-lg px-5 ms-3">
+                                <i class="fas fa-arrow-left me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+
+                    <div class="items-section">
+                        <h3 class="text-dark mb-3"><i class="fas fa-list me-2"></i>Invoice Items</h3>
+                        <ul class="item-list">
+                            {% for item in items %}
+                                <li>{{ item.description }} - Qty: {{ item.quantity }} x ₹{{ item.rate }} = ₹{{ item.subtotal }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobileMenuToggle').addEventListener('click', function() {
+            const navbarNav = document.getElementById('navbarNav');
+            const icon = this.querySelector('i');
+            navbarNav.classList.toggle('active');
+            if (navbarNav.classList.contains('active')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+
+        // Close mobile menu when clicking on a link
+        document.querySelectorAll('.navbar-link').forEach(link => {
+            link.addEventListener('click', function() {
+                const navbarNav = document.getElementById('navbarNav');
+                const mobileToggle = document.getElementById('mobileMenuToggle');
+                const icon = mobileToggle.querySelector('i');
+                navbarNav.classList.remove('active');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }); 
+        });
+    </script>
+</body>
+</html>

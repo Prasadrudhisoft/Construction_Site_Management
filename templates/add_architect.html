@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Architect</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        html, body {
+            height: 100%;
+        }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding-top: 80px;
+        }
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 15px 0;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            animation: slideDown 0.7s cubic-bezier(.77,0,.18,1) 0s 1;
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .navbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: 1.4rem;
+            transition: color 0.2s;
+        }
+        .navbar-brand:hover {
+            color: #3498db;
+        }
+        .navbar-brand i {
+            color: #3498db;
+            font-size: 1.8rem;
+            transition: transform 0.2s;
+        }
+        .navbar-brand:hover i {
+            transform: rotate(-15deg) scale(1.1);
+        }
+        .navbar-nav {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+            align-items: center;
+        }
+        .nav-link {
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 500;
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(.77,0,.18,1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        .nav-link::after {
+            content: "";
+            position: absolute;
+            left: 0; bottom: 0;
+            width: 0;
+            height: 3px;
+            background: #3498db;
+            transition: width 0.3s cubic-bezier(.77,0,.18,1);
+        }
+        .nav-link:hover::after, .nav-link.active::after {
+            width: 100%;
+        }
+        .nav-link:hover {
+            background: rgba(52, 152, 219, 0.12);
+            color: #3498db;
+            transform: translateY(-2px) scale(1.04);
+        }
+        .nav-link.active {
+            background: #3498db;
+            color: white;
+            box-shadow: 0 4px 16px rgba(52,152,219,0.08);
+        }
+        .nav-link.logout {
+            background: #e74c3c;
+            color: white;
+        }
+        .nav-link.logout:hover {
+            background: #c0392b;
+            transform: translateY(-2px) scale(1.04);
+        }
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .mobile-menu-toggle:hover {
+            color: #3498db;
+        }
+        .container {
+            max-width: 700px;
+            width: 100%;
+            margin: 60px auto 0 auto;
+            background: #fff;
+            border-radius: 22px;
+            box-shadow: 0 8px 32px rgba(52,152,219,0.13);
+            padding: 60px 50px 40px 50px;
+            animation: fadeIn 0.7s cubic-bezier(.77,0,.18,1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        .form-title {
+            color: #2c3e50;
+            margin-bottom: 35px;
+            font-size: 2.1rem;
+            font-weight: 700;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 14px;
+            display: inline-block;
+            letter-spacing: 1px;
+        }
+        .form-group {
+            margin-bottom: 28px;
+            position: relative;
+            width: 100%;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #34495e;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            font-size: 1.08rem;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group button {
+            width: 100%;
+            padding: 16px 16px;
+            border: 1.5px solid #ddd;
+            border-radius: 12px;
+            font-size: 1.08rem;
+            color: #2c3e50;
+            background-color: #f8fafd;
+            transition: all 0.3s;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52,152,219,0.13);
+            background: #fff;
+        }
+        .form-group button {
+            background: linear-gradient(90deg, #3498db 60%, #6dd5fa 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: background 0.2s, transform 0.2s;
+            box-shadow: 0 2px 8px rgba(52,152,219,0.10);
+            font-size: 1.12rem;
+        }
+        .form-group button:hover {
+            background: linear-gradient(90deg, #2980b9 60%, #3498db 100%);
+            transform: translateY(-2px) scale(1.03);
+        }
+        @media (max-width: 1100px) {
+            .container {
+                max-width: 95vw;
+                padding: 40px 5vw 30px 5vw;
+            }
+            .navbar-container {
+                max-width: 98vw;
+                padding: 0 10px;
+            }
+        }
+        @media (max-width: 900px) {
+            .container {
+                max-width: 98vw;
+                padding: 30px 2vw 25px 2vw;
+            }
+            .navbar-container {
+                max-width: 100vw;
+                padding: 0 8px;
+            }
+        }
+        @media (max-width: 700px) {
+            .container {
+                padding: 18px 2vw 18px 2vw;
+                margin: 18px 2vw 0 2vw;
+            }
+            .form-title {
+                font-size: 1.3rem;
+                padding-bottom: 8px;
+            }
+            .form-group input,
+            .form-group select,
+            .form-group button {
+                font-size: 1rem;
+                padding: 13px 10px;
+            }
+        }
+        @media (max-width: 600px) {
+            .navbar-nav {
+                flex-direction: column;
+                position: fixed;
+                top: 80px;
+                left: -100%;
+                width: 100vw;
+                height: calc(100vh - 80px);
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(20px);
+                justify-content: flex-start;
+                align-items: center;
+                padding: 40px 20px;
+                transition: left 0.3s cubic-bezier(.77,0,.18,1);
+                gap: 20px;
+            }
+            .navbar-nav.active {
+                left: 0;
+            }
+            .mobile-menu-toggle {
+                display: block;
+            }
+            .nav-link {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+                padding: 15px 20px;
+                font-size: 1.1rem;
+            }
+            .container {
+                padding: 10px 2vw 10px 2vw;
+                margin: 10px 2vw 0 2vw;
+            }
+            .form-title {
+                font-size: 1.1rem;
+                padding-bottom: 7px;
+            }
+            .form-group input,
+            .form-group select,
+            .form-group button {
+                font-size: 0.98rem;
+                padding: 11px 10px;
+            }
+        }
+        @media (max-width: 480px) {
+            .navbar-container {
+                padding: 0 2vw;
+            }
+            .navbar-brand {
+                font-size: 1rem;
+            }
+            .container {
+                margin: 8px 1vw 0 1vw;
+                padding: 8px 1vw 10px 1vw;
+            }
+            .form-title {
+                font-size: 1rem;
+            }
+        }
+        @media (max-width: 400px) {
+            .container {
+                padding: 4px 1vw 6px 1vw;
+            }
+            .form-title {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="{{ url_for('admin_dashboard') }}" class="navbar-brand">
+                <i class="fas fa-drafting-compass"></i>
+                Add Architect
+            </a>
+            <ul class="navbar-nav" id="navbarNav">
+                <li>
+                    <a href="{{ url_for('dashboard') }}" class="nav-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('add_architect') }}" class="nav-link active">
+                        <i class="fas fa-user-plus"></i>
+                        Add Architect
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('view_architects') }}" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        View Architects
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('logout') }}" class="nav-link logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </a>
+                </li>
+            </ul>
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+    <div class="container">
+        <h2 class="form-title"><i class="fas fa-user-plus" style="color:#3498db"></i> Add Architect</h2>
+        <form method="POST">
+            <div class="form-group">
+                <label for="name"><i class="fas fa-user" style="color:#3498db"></i> Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <!-- <div class="form-group">
+                <label for="license_number"><i class="fas fa-id-card" style="color:#3498db"></i> License Number:</label>
+                <input type="text" id="license_number" name="license_number" required>
+            </div>
+            <div class="form-group">
+                <label for="contact_no"><i class="fas fa-phone" style="color:#3498db"></i> Contact No:</label>
+                <input type="text" id="contact_no" name="contact_no" required>
+            </div> -->
+            <div class="form-group">
+                <label for="email"><i class="fas fa-envelope" style="color:#3498db"></i> Email:</label>
+                <input type="email" id="email" name="email">
+            </div>
+           <div class="form-group">
+            <label for="project_name"><i class="fas fa-building" style="color:#3498db"></i> Select Site:</label>
+            <select id="project_name" name="project_name" required>
+                <option value="" disabled selected>Select a site</option>
+                {% for site in sites %}
+                <option value="{{ site.site_id }}">{{ site.site_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+            <div class="form-group">
+                <label for="site_engineer_id"><i class="fas fa-user-cog" style="color:#3498db"></i> Assign To (Site Engineer):</label>
+                <select id="site_engineer_id" name="site_engineer_id" required>
+                    {% for eng in engineers %}
+                    <option value="{{ eng.id }}">{{ eng.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <button type="submit" id="addBtn">
+                    <i class="fas fa-plus"></i> Add Architect
+                </button>
+            </div>
+        </form>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const navbarNav = document.getElementById('navbarNav');
+        if (mobileMenuToggle && navbarNav) {
+            mobileMenuToggle.addEventListener('click', function() {
+                const icon = this.querySelector('i');
+                navbarNav.classList.toggle('active');
+                if (navbarNav.classList.contains('active')) {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
+                } else {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            });
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function() {
+                    navbarNav.classList.remove('active');
+                    const icon = mobileMenuToggle.querySelector('i');
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                });
+            });
+        }
+        // Button loading animation on submit
+        const addBtn = document.getElementById('addBtn');
+        if (addBtn && addBtn.form) {
+            addBtn.form.addEventListener('submit', function(e) {
+                addBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+                addBtn.disabled = true;
+            });
+        }
+    });
+    </script>
+</body>

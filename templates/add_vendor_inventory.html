@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>Add Vendor Inventory (Multi-Item)</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+
+        html,body{height:100%;}
+
+        body{min-height:100vh;background:linear-gradient(135deg,#3498db 0%,#2c3e50 100%);padding-top:80px;}
+
+        .navbar{position:fixed;top:0;left:0;right:0;background:rgba(255,255,255,.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.2);padding:15px 0;z-index:1000;box-shadow:0 2px 20px rgba(0,0,0,.1);}
+
+        .navbar-container{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:0 20px;}
+
+        .navbar-brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:#2c3e50;font-weight:700;font-size:1.4rem;}
+
+        .navbar-brand i{color:#3498db;font-size:1.8rem;}
+
+        .navbar-nav{display:flex;list-style:none;gap:30px;align-items:center;}
+
+        .nav-link{text-decoration:none;color:#2c3e50;font-weight:500;padding:10px 15px;border-radius:8px;transition:all .3s;display:flex;align-items:center;gap:8px;}
+
+        .nav-link.active{background:#3498db;color:white;}
+
+        .nav-link.logout{background:#e74c3c;color:white;}
+
+        .mobile-menu-toggle{display:none;background:none;border:none;font-size:1.5rem;color:#2c3e50;cursor:pointer;}
+
+        .container{max-width:900px;width:100%;margin:60px auto;background:#fff;border-radius:22px;box-shadow:0 8px 32px rgba(52,152,219,.13);padding:40px;}
+
+        .form-title{color:#2c3e50;margin-bottom:25px;font-size:2rem;font-weight:700;border-bottom:2px solid #3498db;padding-bottom:10px;display:inline-block;}
+
+        .success-message{background:#27ae60;color:white;padding:12px;border-radius:8px;margin-bottom:20px;text-align:center;}
+
+        .item-block{border:1.5px solid #ddd;border-radius:12px;padding:20px;margin-bottom:25px;position:relative;background:#f8fafd;}
+
+        .item-block h4{margin-bottom:15px;color:#2c3e50;}
+
+        .remove-btn{position:absolute;right:15px;top:15px;background:#e74c3c;color:white;border:none;border-radius:50%;width:30px;height:30px;font-size:1rem;cursor:pointer;line-height:1;}
+
+        .form-group{margin-bottom:18px;}
+
+        .form-group label{display:block;margin-bottom:6px;color:#34495e;font-weight:500;}
+
+        .form-group input,.form-group select{width:100%;padding:12px;border:1.5px solid #ddd;border-radius:10px;font-size:1rem;background:#fff;transition:border-color .3s;}
+
+        .form-group input:focus,.form-group select:focus{outline:none;border-color:#3498db;}
+
+        .form-group input[type="file"]{padding:8px 0;background:none;}
+
+        .btn-row{display:flex;gap:15px;flex-wrap:wrap;margin-top:15px;}
+
+        .btn-row button{padding:12px 24px;border:none;border-radius:10px;font-size:1rem;cursor:pointer;transition:all .2s;}
+
+        #addMoreBtn{background:#34495e;color:white;}
+
+        #addMoreBtn:hover{background:#2c3e50;}
+
+        #submitBtn{background:#3498db;color:white;font-weight:600;}
+
+        #submitBtn:hover{background:#2980b9;}
+
+        @media(max-width:768px){
+
+            .container{padding:20px;}
+
+            .form-title{font-size:1.6rem;}
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+
+
+<!-- ---------- Navbar (unchanged) ---------- -->
+
+<nav class="navbar">
+
+    <div class="navbar-container">
+
+        <a href="{{ url_for('dashboard') }}" class="navbar-brand">
+
+            <i class="fas fa-hard-hat"></i> Add Vendor Inventory
+
+        </a>
+
+        <ul class="navbar-nav" id="navbarNav">
+
+            <li><a href="{{ url_for('dashboard') }}" class="nav-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+
+            <li><a href="{{ url_for('add_vendor_inventory') }}" class="nav-link active"><i class="fas fa-truck"></i> Add Inventory</a></li>
+
+            <li><a href="{{ url_for('logout') }}" class="nav-link logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+
+        </ul>
+
+        <button class="mobile-menu-toggle" id="mobileMenuToggle"><i class="fas fa-bars"></i></button>
+
+</nav>
+
+
+
+<!-- ---------- Main Form ---------- -->
+
+<div class="container">
+
+    <h2 class="form-title"><i class="fas fa-truck" style="color:#3498db"></i> Add Vendor Inventory</h2>
+
+
+
+    {% with messages = get_flashed_messages() %}
+
+      {% if messages %}
+
+        <div class="success-message"><i class="fas fa-check-circle"></i> {{ messages[0] }}</div>
+
+      {% endif %}
+
+    {% endwith %}
+
+
+
+    <form method="POST" enctype="multipart/form-data" id="inventoryForm">
+
+        <div id="itemsWrapper">
+
+            <!-- Item block template -->
+
+            <div class="item-block" data-index="0">
+
+                <button type="button" class="remove-btn" onclick="removeItem(this)" title="Remove">×</button>
+
+                <h4>Item 1</h4>
+
+
+
+                <div class="form-group">
+
+                    <label>Material Description <span style="color:#e74c3c">*</span></label>
+
+                    <input type="text" name="material_description[]" required>
+
+                </div>
+
+
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
+
+                    <div class="form-group">
+
+                        <label>Quantity <span style="color:#e74c3c">*</span></label>
+
+                        <input type="number" name="quantity[]" min="1" required>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>Status <span style="color:#e74c3c">*</span></label>
+
+                        <select name="status[]" required>
+
+                            <option value="">Select</option>
+
+                            <option value="available">Available</option>
+
+                            <option value="low">Low</option>
+
+                            <option value="out_of_stock">Out of Stock</option>
+
+                            <option value="ordered">Ordered</option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
+
+                    <div class="form-group">
+
+                        <label>Vendor Type <span style="color:#e74c3c">*</span></label>
+
+                        <select name="vendor_type[]" required>
+
+                            <option value="">Select</option>
+
+                            <option value="electrical">Electrical</option>
+
+                            <option value="plumber">Plumber</option>
+
+                            <option value="carpenter">Carpenter</option>
+
+                            <option value="painter">Painter</option>
+
+                            <option value="other">Other</option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>Vendor Name <span style="color:#e74c3c">*</span></label>
+
+                        <input type="text" name="vendor_name[]" required>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="form-group">
+
+                    <label>Quotation PDF <span style="color:#e74c3c">*</span></label>
+
+                    <input type="file" name="quotation[]" accept=".pdf" required>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="btn-row">
+
+            <button type="button" id="addMoreBtn"><i class="fas fa-plus"></i> Add Another Item</button>
+
+            <button type="submit" id="submitBtn"><i class="fas fa-upload"></i> Submit All Items</button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+
+<!-- ---------- JavaScript ---------- -->
+
+<script>
+
+/* Mobile menu */
+
+document.addEventListener('DOMContentLoaded', () => {
+
+    const toggle = document.getElementById('mobileMenuToggle');
+
+    const nav    = document.getElementById('navbarNav');
+
+    toggle.addEventListener('click', () => {
+
+        nav.classList.toggle('active');
+
+        toggle.querySelector('i').className = nav.classList.contains('active') ? 'fas fa-times' : 'fas fa-bars';
+
+    });
+
+    nav.querySelectorAll('.nav-link').forEach(link => link.addEventListener('click', () => nav.classList.remove('active')));
+
+});
+
+
+
+/* Dynamic rows */
+
+let itemIndex = 1;
+
+document.getElementById('addMoreBtn').addEventListener('click', () => {
+
+    const wrapper   = document.getElementById('itemsWrapper');
+
+    const template  = wrapper.querySelector('.item-block').cloneNode(true);
+
+    itemIndex++;
+
+    template.dataset.index = itemIndex;
+
+    template.querySelector('h4').textContent = `Item ${itemIndex}`;
+
+    template.querySelectorAll('input, select').forEach(el => el.value = '');
+
+    wrapper.appendChild(template);
+
+});
+
+
+
+function removeItem(btn) {
+
+    const blocks = document.querySelectorAll('.item-block');
+
+    if (blocks.length > 1) {
+
+        btn.closest('.item-block').remove();
+
+    } else {
+
+        alert('At least one item is required.');
+
+    }
+
+}
+
+
+
+/* Loading spinner on submit */
+
+document.getElementById('inventoryForm').addEventListener('submit', function () {
+
+    const btn = document.getElementById('submitBtn');
+
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+
+    btn.disabled = true;
+
+});
+
+</script>
+
+</body>
+
+</html>

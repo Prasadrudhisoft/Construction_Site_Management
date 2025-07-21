@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Approved Vendor Inventory - Site Engineer Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body {
+            background-color: #f4f6f8;
+            min-height: 100vh;
+            padding-top: 90px;
+        }
+        .navbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
+        .navbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 0 20px;
+            height: 70px;
+        }
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: 1.4rem;
+            transition: color 0.2s;
+        }
+        .navbar-brand:hover { color: #3498db; }
+        .navbar-brand i { color: #3498db; font-size: 1.8rem; transition: transform 0.2s; }
+        .navbar-brand:hover i { transform: rotate(-15deg) scale(1.1); }
+        .navbar-menu {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+            align-items: center;
+            margin: 0;
+        }
+        .navbar-link {
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 500;
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(.77,0,.18,1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        .navbar-link::after {
+            content: "";
+            position: absolute;
+            left: 0; bottom: 0;
+            width: 0;
+            height: 3px;
+            background: #3498db;
+            transition: width 0.3s cubic-bezier(.77,0,.18,1);
+        }
+        .navbar-link:hover::after, .navbar-link.active::after { width: 100%; }
+        .navbar-link:hover {
+            background: rgba(52,152,219,0.12);
+            color: #3498db;
+            transform: translateY(-2px) scale(1.04);
+        }
+        .navbar-link.active {
+            background: #3498db;
+            color: white;
+            box-shadow: 0 4px 16px rgba(52,152,219,0.08);
+        }
+        .navbar-link.logout {
+            background: #e74c3c;
+            color: white;
+        }
+        .navbar-link.logout:hover {
+            background: #c0392b;
+            transform: translateY(-2px) scale(1.04);
+        }
+        .navbar-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .navbar-toggle:hover { color: #3498db; }
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+        .page-header {
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .page-header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+        }
+        .page-header h1 i {
+            margin-right: 15px;
+        }
+        .page-header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 12px 20px;
+            background: #2c3e50;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        .back-btn:hover {
+            background: #34495e;
+            transform: translateY(-2px);
+        }
+        .back-btn i {
+            margin-right: 8px;
+        }
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        .table-header {
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+            color: white;
+            padding: 20px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .table-header h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0;
+        }
+        .table-header .count {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+        }
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            min-width: 800px;
+        }
+        .styled-table th {
+            background: #f8f9fa;
+            color: #2c3e50;
+            font-weight: 600;
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 2px solid #e9ecef;
+            font-size: 0.95rem;
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .styled-table td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
+            color: #555;
+            word-wrap: break-word;
+        }
+        .styled-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        .styled-table tr:last-child td {
+            border-bottom: none;
+        }
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .pdf-link {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 15px;
+            background: #e74c3c;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .pdf-link:hover {
+            background: #c0392b;
+            transform: translateY(-1px);
+        }
+        .pdf-link i {
+            margin-right: 8px;
+        }
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 1.1rem;
+        }
+        .no-data i {
+            font-size: 3rem;
+            color: #bdc3c7;
+            margin-bottom: 15px;
+        }
+        .id-badge {
+            background: #3498db;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+        .date-text {
+            color: #666;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+        .vendor-name {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        .remark-text {
+            max-width: 200px;
+            word-wrap: break-word;
+            font-size: 0.9rem;
+        }
+        .no-file {
+            color: #95a5a6;
+            font-style: italic;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .main-content {
+                max-width: 100%;
+                padding: 20px;
+            }
+            .navbar-container {
+                max-width: 100%;
+                padding: 0 15px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .main-content {
+                padding: 20px 15px;
+            }
+            .page-header {
+                padding: 25px 20px;
+            }
+            .page-header h1 {
+                font-size: 1.8rem;
+            }
+            .table-header {
+                padding: 15px 20px;
+            }
+            .styled-table {
+                min-width: 700px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body { 
+                padding-top: 60px; 
+            }
+            .navbar { 
+                height: 60px; 
+            }
+            .navbar-container { 
+                height: 60px; 
+                padding: 0 10px; 
+            }
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+            .navbar-brand i {
+                font-size: 1.4rem;
+            }
+            .navbar-menu {
+                position: fixed;
+                top: 60px;
+                left: -100%;
+                width: 100vw;
+                height: calc(100vh - 60px);
+                background: rgba(255,255,255,0.98);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
+                padding: 40px 20px;
+                transition: left 0.3s cubic-bezier(.77,0,.18,1);
+                gap: 20px;
+                z-index: 2000;
+            }
+            .navbar-menu.active { 
+                left: 0; 
+            }
+            .navbar-toggle { 
+                display: block; 
+            }
+            .navbar-link {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+                padding: 15px 20px;
+                font-size: 1.1rem;
+            }
+            .main-content {
+                padding: 15px 10px;
+            }
+            .page-header {
+                padding: 20px 15px;
+                margin-bottom: 20px;
+            }
+            .page-header h1 {
+                font-size: 1.5rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .page-header h1 i {
+                margin-right: 0;
+            }
+            .page-header p {
+                font-size: 1rem;
+            }
+            .table-header {
+                padding: 15px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .table-header h3 {
+                font-size: 1.1rem;
+            }
+            .table-header .count {
+                font-size: 0.8rem;
+            }
+            .styled-table {
+                min-width: 600px;
+            }
+            .styled-table th, .styled-table td {
+                padding: 12px 10px;
+                font-size: 0.85rem;
+            }
+            .remark-text {
+                max-width: 120px;
+            }
+            .no-data {
+                padding: 30px 15px;
+            }
+            .no-data i {
+                font-size: 2.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .navbar-container {
+                padding: 0 8px;
+            }
+            .navbar-brand {
+                font-size: 1rem;
+            }
+            .navbar-brand i {
+                font-size: 1.2rem;
+            }
+            .main-content {
+                padding: 10px 8px;
+            }
+            .page-header {
+                padding: 15px 12px;
+                border-radius: 10px;
+            }
+            .page-header h1 {
+                font-size: 1.3rem;
+            }
+            .page-header p {
+                font-size: 0.9rem;
+            }
+            .table-header {
+                padding: 12px;
+            }
+            .table-header h3 {
+                font-size: 1rem;
+            }
+            .styled-table {
+                min-width: 500px;
+            }
+            .styled-table th, .styled-table td {
+                padding: 10px 8px;
+                font-size: 0.8rem;
+            }
+            .status-badge {
+                font-size: 0.75rem;
+                padding: 4px 8px;
+            }
+            .pdf-link {
+                font-size: 0.8rem;
+                padding: 6px 10px;
+            }
+            .id-badge {
+                font-size: 0.75rem;
+                padding: 3px 6px;
+            }
+            .remark-text {
+                max-width: 100px;
+                font-size: 0.8rem;
+            }
+            .no-data {
+                padding: 25px 10px;
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar-container {
+                padding: 0 5px;
+            }
+            .navbar-brand {
+                font-size: 0.9rem;
+            }
+            .main-content {
+                padding: 8px 5px;
+            }
+            .page-header {
+                padding: 12px 10px;
+            }
+            .page-header h1 {
+                font-size: 1.2rem;
+            }
+            .page-header p {
+                font-size: 0.85rem;
+            }
+            .table-header {
+                padding: 10px;
+            }
+            .styled-table {
+                min-width: 450px;
+            }
+            .styled-table th, .styled-table td {
+                padding: 8px 6px;
+                font-size: 0.75rem;
+            }
+            .remark-text {
+                max-width: 80px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .navbar-brand {
+                font-size: 0.8rem;
+            }
+            .main-content {
+                padding: 6px 3px;
+            }
+            .page-header {
+                padding: 10px 8px;
+            }
+            .page-header h1 {
+                font-size: 1.1rem;
+            }
+            .page-header p {
+                font-size: 0.8rem;
+            }
+            .styled-table {
+                min-width: 400px;
+            }
+            .styled-table th, .styled-table td {
+                padding: 6px 4px;
+                font-size: 0.7rem;
+            }
+            .status-badge {
+                font-size: 0.65rem;
+                padding: 3px 6px;
+            }
+            .pdf-link {
+                font-size: 0.7rem;
+                padding: 4px 8px;
+            }
+            .id-badge {
+                font-size: 0.65rem;
+                padding: 2px 4px;
+            }
+            .remark-text {
+                max-width: 60px;
+                font-size: 0.7rem;
+            }
+        }
+
+        /* Landscape orientation for small devices */
+        @media (max-width: 768px) and (orientation: landscape) {
+            body {
+                padding-top: 50px;
+            }
+            .navbar {
+                height: 50px;
+            }
+            .navbar-container {
+                height: 50px;
+            }
+            .navbar-brand {
+                font-size: 1rem;
+            }
+            .navbar-menu {
+                top: 50px;
+                height: calc(100vh - 50px);
+                padding: 20px;
+            }
+            .main-content {
+                padding: 10px;
+            }
+            .page-header {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            .page-header h1 {
+                font-size: 1.3rem;
+            }
+        }
+
+        /* Ultra-wide screens */
+        @media (min-width: 1600px) {
+            .main-content {
+                max-width: 1600px;
+                padding: 40px;
+            }
+            .page-header h1 {
+                font-size: 2.2rem;
+            }
+            .page-header p {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            .navbar,
+            .back-btn,
+            .pdf-link {
+                display: none;
+            }
+            body {
+                padding-top: 0;
+                background: white;
+            }
+            .main-content {
+                margin: 0;
+                padding: 20px;
+            }
+            .table-container {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+            .page-header {
+                background: #f8f9fa !important;
+                color: #2c3e50 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="#" class="navbar-brand">
+                <i class="fas fa-check-circle"></i>
+                Vendor Inventory
+            </a>
+            <ul class="navbar-menu" id="navbarNav">
+                <li>
+                    <a href="{{ url_for('dashboard') }}" class="navbar-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Dashboard
+                    </a>
+                </li>
+                <!-- <li>
+                    <a href="{{ url_for('view_progress') }}" class="navbar-link">
+                        <i class="fas fa-chart-line"></i>
+                        View Progress
+                    </a>
+                </li> -->
+                <li>
+                    <a href="#" class="navbar-link active">
+                        <i class="fas fa-check-circle"></i>
+                        Approved Inventory
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('logout') }}" class="navbar-link logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </a>
+                </li>
+            </ul>
+            <button class="navbar-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div class="page-header">
+            <h1><i class="fas fa-check-circle"></i> Approved Vendor Inventory</h1>
+            <p>View all approved vendor inventory items and their details</p>
+        </div>
+
+        <!-- <a href="/siteengineer/dashboard" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Back to Dashboard
+        </a> -->
+
+        <div class="table-container">
+            <div class="table-header">
+                <h3><i class="fas fa-boxes"></i> Inventory Items</h3>
+                <div class="count">
+                    <i class="fas fa-list"></i>
+                    {{ inventory|length if inventory else 0 }} Items
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                {% if inventory %}
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-hashtag"></i> ID</th>
+                            <th><i class="fas fa-cube"></i> Material</th>
+                            <th><i class="fas fa-sort-numeric-up"></i> Quantity</th>
+                            <th><i class="fas fa-calendar"></i> Date</th>
+                            <th><i class="fas fa-info-circle"></i> Status</th>
+                            <th><i class="fas fa-user-tie"></i> Vendor Name</th>
+                            <th><i class="fas fa-file-pdf"></i> PDF</th>
+                            <th><i class="fas fa-comment"></i> Remark</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in inventory %}
+                        <tr>
+                            <td><span class="id-badge">{{ item.id }}</span></td>
+                            <td>{{ item.material_description }}</td>
+                            <td><strong>{{ item.quantity }}</strong></td>
+                            <td><span class="date-text">{{ item.date }}</span></td>
+                            <td>
+                                <span class="status-badge {% if item.status.lower() == 'approved' %}status-approved{% elif item.status.lower() == 'pending' %}status-pending{% else %}status-rejected{% endif %}">
+                                    {{ item.status }}
+                                </span>
+                            </td>
+                            <td><span class="vendor-name">{{ item.vendor_name }}</span></td>
+                            <td>
+                                {% if item.vendor_quotation_pdf %}
+                                <a href="{{ url_for('static', filename='vendor_quotes/' ~ item.vendor_quotation_pdf) }}" target="_blank" class="pdf-link">
+                                    <i class="fas fa-file-pdf"></i>
+                                    View PDF
+                                </a>
+                                {% else %}
+                                <span class="no-file">No PDF</span>
+                                {% endif %}
+                            </td>
+                            <td><span class="remark-text">{{ item.admin_remark if item.admin_remark else '-' }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="no-data">
+                    <i class="fas fa-inbox"></i>
+                    <h3>No Approved Inventory Found</h3>
+                    <p>There are currently no approved vendor inventory items to display.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Navbar mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const navbarNav = document.getElementById('navbarNav');
+            if (mobileMenuToggle && navbarNav) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    const icon = this.querySelector('i');
+                    navbarNav.classList.toggle('active');
+                    if (navbarNav.classList.contains('active')) {
+                        icon.classList.remove('fa-bars');
+                        icon.classList.add('fa-times');
+                    } else {
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                });
+                document.querySelectorAll('.navbar-link').forEach(link => {
+                    link.addEventListener('click', function() {
+                        navbarNav.classList.remove('active');
+                        const icon = mobileMenuToggle.querySelector('i');
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
