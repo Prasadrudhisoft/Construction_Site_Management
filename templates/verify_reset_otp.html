@@ -1,4 +1,562 @@
-<form method="POST">
-    <input type="text" name="otp" placeholder="Enter OTP" required>
-    <button type="submit">Verify OTP</button>
-</form>
+<!doctype html>
+<html>
+<head>
+    <title>Verify OTP - Construction Management</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+                        url(/static/images/construction.jpg);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            position: relative;
+        }
+
+        /* Back to Home Button Styles */
+        .back-to-home {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background-color: rgba(255, 255, 255, 0.95);
+            color: #1a73e8;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-to-home:before {
+            content: '←';
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .back-to-home:hover {
+            background-color: #1a73e8;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26, 115, 232, 0.3);
+        }
+
+        .otp-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 420px;
+            backdrop-filter: blur(10px);
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .otp-container:hover {
+            transform: translateY(-5px);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo img {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 15px;
+            max-width: 100%;
+            height: auto;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #1a73e8;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .otp-description {
+            text-align: center;
+            color: #666;
+            font-size: 15px;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        form input[type="text"] {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 15px;
+            transition: border-color 0.3s ease;
+            text-align: center;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        form input[type="text"]:focus {
+            border-color: #1a73e8;
+            outline: none;
+        }
+
+        form input[type="text"]::placeholder {
+            letter-spacing: normal;
+            font-weight: normal;
+        }
+
+        form button[type="submit"] {
+            width: 100%;
+            background-color: #1a73e8;
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        form button[type="submit"]:hover {
+            background-color: #1557b0;
+        }
+
+        .resend-link {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .back-to-login {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 15px;
+            color: #555;
+        }
+
+        a:not(.back-to-home) {
+            color: #1a73e8;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        a:not(.back-to-home):hover {
+            color: #1557b0;
+            text-decoration: none;
+        }
+
+        .error-message {
+            color: #d93025;
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            background-color: rgba(217, 48, 37, 0.1);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .success-message {
+            color: #137333;
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            background-color: rgba(19, 115, 51, 0.1);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Tablet Styles */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 15px;
+                background-attachment: scroll;
+            }
+
+            .back-to-home {
+                top: 15px;
+                left: 15px;
+                padding: 10px 16px;
+                font-size: 13px;
+                border-radius: 20px;
+            }
+
+            .otp-container {
+                padding: 30px 25px;
+                max-width: 400px;
+            }
+
+            .logo img {
+                width: 100px;
+                height: 100px;
+            }
+
+            h2 {
+                font-size: 24px;
+                margin-bottom: 12px;
+            }
+
+            .otp-description {
+                font-size: 14px;
+                margin-bottom: 25px;
+            }
+
+            form input[type="text"] {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            form button[type="submit"] {
+                padding: 12px;
+                font-size: 15px;
+            }
+
+            .back-to-login {
+                font-size: 14px;
+            }
+        }
+
+        /* Mobile Styles */
+        @media screen and (max-width: 480px) {
+            body {
+                padding: 10px;
+                background-attachment: scroll;
+            }
+
+            .back-to-home {
+                top: 10px;
+                left: 10px;
+                padding: 8px 12px;
+                font-size: 12px;
+                border-radius: 18px;
+                gap: 6px;
+            }
+
+            .back-to-home:before {
+                font-size: 14px;
+            }
+
+            .otp-container {
+                padding: 25px 20px;
+                border-radius: 12px;
+                margin: 10px 0;
+            }
+
+            .otp-container:hover {
+                transform: translateY(0);
+            }
+
+            .logo {
+                margin-bottom: 20px;
+            }
+
+            .logo img {
+                width: 80px;
+                height: 80px;
+                margin-bottom: 10px;
+            }
+
+            h2 {
+                font-size: 22px;
+                margin-bottom: 10px;
+            }
+
+            .otp-description {
+                font-size: 13px;
+                margin-bottom: 20px;
+            }
+
+            form input[type="text"] {
+                padding: 12px;
+                margin-bottom: 15px;
+                font-size: 14px;
+                border-radius: 6px;
+            }
+
+            form button[type="submit"] {
+                padding: 12px;
+                font-size: 14px;
+                border-radius: 6px;
+                margin-bottom: 12px;
+            }
+
+            .back-to-login {
+                margin-top: 20px;
+                font-size: 13px;
+                line-height: 1.4;
+            }
+
+            .error-message,
+            .success-message {
+                font-size: 13px;
+                padding: 8px;
+            }
+        }
+
+        /* Extra Small Mobile Styles */
+        @media screen and (max-width: 360px) {
+            body {
+                padding: 5px;
+            }
+
+            .back-to-home {
+                top: 8px;
+                left: 8px;
+                padding: 6px 10px;
+                font-size: 11px;
+                border-radius: 15px;
+                gap: 4px;
+            }
+
+            .back-to-home:before {
+                font-size: 12px;
+            }
+
+            .otp-container {
+                padding: 20px 15px;
+                border-radius: 10px;
+            }
+
+            .logo img {
+                width: 70px;
+                height: 70px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            .otp-description {
+                font-size: 12px;
+            }
+
+            form input[type="text"] {
+                padding: 10px;
+                font-size: 13px;
+            }
+
+            form button[type="submit"] {
+                padding: 10px;
+                font-size: 13px;
+            }
+
+            .back-to-login {
+                font-size: 12px;
+            }
+        }
+
+        /* Large Desktop Styles */
+        @media screen and (min-width: 1200px) {
+            .back-to-home {
+                top: 30px;
+                left: 30px;
+                padding: 14px 24px;
+                font-size: 15px;
+                border-radius: 30px;
+            }
+
+            .back-to-home:before {
+                font-size: 18px;
+            }
+
+            .otp-container {
+                max-width: 450px;
+                padding: 50px;
+            }
+
+            .logo img {
+                width: 140px;
+                height: 140px;
+            }
+
+            h2 {
+                font-size: 32px;
+            }
+
+            .otp-description {
+                font-size: 16px;
+            }
+
+            form input[type="text"] {
+                padding: 16px;
+                font-size: 16px;
+            }
+
+            form button[type="submit"] {
+                padding: 16px;
+                font-size: 17px;
+            }
+        }
+
+        /* Landscape Mobile Orientation */
+        @media screen and (max-height: 500px) and (orientation: landscape) {
+            body {
+                padding: 5px;
+            }
+
+            .back-to-home {
+                top: 5px;
+                left: 5px;
+                padding: 6px 10px;
+                font-size: 11px;
+                border-radius: 15px;
+            }
+
+            .back-to-home:before {
+                font-size: 12px;
+            }
+
+            .otp-container {
+                padding: 15px 20px;
+                margin: 5px 0;
+            }
+
+            .logo {
+                margin-bottom: 10px;
+            }
+
+            .logo img {
+                width: 60px;
+                height: 60px;
+                margin-bottom: 5px;
+            }
+
+            h2 {
+                font-size: 18px;
+                margin-bottom: 8px;
+            }
+
+            .otp-description {
+                font-size: 12px;
+                margin-bottom: 15px;
+            }
+
+            form input[type="text"] {
+                padding: 8px;
+                margin-bottom: 10px;
+                font-size: 13px;
+            }
+
+            form button[type="submit"] {
+                padding: 10px;
+                font-size: 14px;
+                margin-bottom: 8px;
+            }
+
+            .back-to-login {
+                margin-top: 10px;
+                font-size: 12px;
+            }
+        }
+
+        /* Touch device optimizations */
+        @media (hover: none) {
+            .otp-container:hover {
+                transform: translateY(0);
+            }
+
+            .back-to-home:hover {
+                background-color: rgba(255, 255, 255, 0.95);
+                color: #1a73e8;
+                transform: translateY(0);
+            }
+
+            form button[type="submit"]:hover {
+                background-color: #1a73e8;
+            }
+
+            a:not(.back-to-home):hover {
+                color: #1a73e8;
+            }
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            .back-to-home {
+                border: 2px solid #1a73e8;
+                background-color: white;
+            }
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            .back-to-home,
+            .otp-container {
+                transition: none;
+            }
+
+            .otp-container {
+                animation: none;
+            }
+
+            .back-to-home:hover {
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Back to Home Button -->
+<a href="/" class="back-to-home">Home</a>
+
+<div class="otp-container">
+    <div class="logo">
+        <img src="/static/images/engineers.png" alt="Civil Engineer Logo">
+    </div>
+
+    <h2>Verify OTP</h2>
+    <p class="otp-description">Please enter the verification code sent to your email address.</p>
+    
+    <form method="POST">
+        <input type="text" name="otp" placeholder="Enter OTP" required maxlength="6">
+        <button type="submit">Verify OTP</button>
+        <div class="resend-link">
+            <a href="{{ url_for('resend_otp') }}">Resend OTP</a>
+        </div>
+    </form>
+
+    <div class="back-to-login">
+        <a href="{{ url_for('login') }}">← Back to Login</a>
+    </div>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <p class="error-message">{{ messages[0] }}</p>
+        {% endif %}
+    {% endwith %}
+</div>
+
+</body>
+</html>
