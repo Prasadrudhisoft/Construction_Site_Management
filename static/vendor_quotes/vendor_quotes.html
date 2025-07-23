@@ -1,0 +1,7 @@
+<td>
+    {% if r.pdf_path %}
+        <a href="{{ url_for('static', filename='uploads/' + r.pdf_path) }}" target="_blank">View PDF</a>
+    {% else %}
+        No PDF
+    {% endif %}
+</td>

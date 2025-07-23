@@ -22,6 +22,42 @@
             background-position: center;
             background-repeat: no-repeat;
             background-attachment: fixed;
+            position: relative;
+        }
+
+        /* Back to Home Button Styles */
+        .back-to-home {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background-color: rgba(255, 255, 255, 0.95);
+            color: #1a73e8;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-to-home:before {
+            content: '←';
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .back-to-home:hover {
+            background-color: #1a73e8;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26, 115, 232, 0.3);
         }
 
         .login-container {
@@ -110,14 +146,14 @@
             color: #555;
         }
 
-        a {
+        a:not(.back-to-home) {
             color: #1a73e8;
             text-decoration: none;
             font-weight: 600;
             transition: color 0.3s ease;
         }
 
-        a:hover {
+        a:not(.back-to-home):hover {
             color: #1557b0;
             text-decoration: none;
         }
@@ -142,6 +178,14 @@
             body {
                 padding: 15px;
                 background-attachment: scroll;
+            }
+
+            .back-to-home {
+                top: 15px;
+                left: 15px;
+                padding: 10px 16px;
+                font-size: 13px;
+                border-radius: 20px;
             }
 
             .login-container {
@@ -180,6 +224,19 @@
             body {
                 padding: 10px;
                 background-attachment: scroll;
+            }
+
+            .back-to-home {
+                top: 10px;
+                left: 10px;
+                padding: 8px 12px;
+                font-size: 12px;
+                border-radius: 18px;
+                gap: 6px;
+            }
+
+            .back-to-home:before {
+                font-size: 14px;
             }
 
             .login-container {
@@ -240,6 +297,19 @@
                 padding: 5px;
             }
 
+            .back-to-home {
+                top: 8px;
+                left: 8px;
+                padding: 6px 10px;
+                font-size: 11px;
+                border-radius: 15px;
+                gap: 4px;
+            }
+
+            .back-to-home:before {
+                font-size: 12px;
+            }
+
             .login-container {
                 padding: 20px 15px;
                 border-radius: 10px;
@@ -272,6 +342,18 @@
 
         /* Large Desktop Styles */
         @media screen and (min-width: 1200px) {
+            .back-to-home {
+                top: 30px;
+                left: 30px;
+                padding: 14px 24px;
+                font-size: 15px;
+                border-radius: 30px;
+            }
+
+            .back-to-home:before {
+                font-size: 18px;
+            }
+
             .login-container {
                 max-width: 450px;
                 padding: 50px;
@@ -302,6 +384,18 @@
         @media screen and (max-height: 500px) and (orientation: landscape) {
             body {
                 padding: 5px;
+            }
+
+            .back-to-home {
+                top: 5px;
+                left: 5px;
+                padding: 6px 10px;
+                font-size: 11px;
+                border-radius: 15px;
+            }
+
+            .back-to-home:before {
+                font-size: 12px;
             }
 
             .login-container {
@@ -349,17 +443,50 @@
                 transform: translateY(0);
             }
 
+            .back-to-home:hover {
+                background-color: rgba(255, 255, 255, 0.95);
+                color: #1a73e8;
+                transform: translateY(0);
+            }
+
             form input[type="submit"]:hover {
                 background-color: #1a73e8;
             }
 
-            a:hover {
+            a:not(.back-to-home):hover {
                 color: #1a73e8;
+            }
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            .back-to-home {
+                border: 2px solid #1a73e8;
+                background-color: white;
+            }
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            .back-to-home,
+            .login-container {
+                transition: none;
+            }
+
+            .login-container {
+                animation: none;
+            }
+
+            .back-to-home:hover {
+                transform: none;
             }
         }
     </style>
 </head>
 <body>
+
+<!-- Back to Home Button -->
+<a href="/" class="back-to-home">Home</a>
 
 <div class="login-container">
     <div class="logo">

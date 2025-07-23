@@ -449,17 +449,24 @@
                         <span>Legal compliance</span>
                     </a>
                 </li>
-                <li class="nav-item">
+                <!-- <li class="nav-item">
                     <a href="{{ url_for('view_worker_reports') }}" class="nav-link">
                         <i class="fas fa-users"></i>
                         <span>View Worker Reports</span>
                     </a>
-                </li>
+                </li> -->
                 <!-- Add the Generate Invoice (Admin) link here -->
                 <li class="nav-item">
                     <a href="{{ url_for('admin_generate_invoice') }}" class="nav-link">
                         <i class="fas fa-file-invoice-dollar"></i>
                         <span>Generate Invoice (Admin)</span>
+                    </a>
+                </li>
+                <!-- Salary Management Link -->
+                <li class="nav-item">
+                    <a href="{{ url_for('admin_view_salaries') }}" class="nav-link">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>View All Salaries</span>
                     </a>
                 </li>
                 <li class="nav-item">

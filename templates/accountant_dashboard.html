@@ -16,6 +16,7 @@
         body {
             background-color: #f4f6f8;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         .dashboard-container {
@@ -39,6 +40,7 @@
             cursor: pointer;
             font-size: 18px;
             transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
 
         .mobile-menu-toggle:hover {
@@ -102,6 +104,8 @@
 
         .nav-link span {
             white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         /* Main Content Styles */
@@ -110,6 +114,7 @@
             margin-left: 250px;
             padding: 30px;
             transition: margin-left 0.3s ease;
+            width: calc(100% - 250px);
         }
 
         .welcome-section {
@@ -133,6 +138,7 @@
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             transition: transform 0.3s ease;
+            overflow: hidden;
         }
 
         .section:hover {
@@ -145,6 +151,7 @@
             font-size: 1.3rem;
             display: flex;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .section h3 i {
@@ -171,6 +178,7 @@
             font-size: 16px;
             background: white;
             transition: border-color 0.3s ease;
+            max-width: 100%;
         }
 
         select:focus {
@@ -189,6 +197,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+            white-space: nowrap;
         }
 
         button:hover {
@@ -209,6 +218,7 @@
             border-radius: 8px;
             border-left: 4px solid #3498db;
             word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         .details-list li strong {
@@ -223,6 +233,7 @@
             font-weight: 500;
             transition: color 0.3s ease;
             word-break: break-word;
+            overflow-wrap: break-word;
         }
 
         .file-link:hover {
@@ -243,7 +254,6 @@
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            overflow-x: auto;
         }
 
         .invoice-table th {
@@ -259,6 +269,8 @@
             padding: 12px 15px;
             border-bottom: 1px solid #e1e8ed;
             word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 0;
         }
 
         .invoice-table tr:hover {
@@ -277,6 +289,7 @@
             border-radius: 6px;
             font-size: 14px;
             word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         .toggle-btn {
@@ -311,12 +324,14 @@
         .table-wrapper {
             overflow-x: auto;
             margin-top: 20px;
+            -webkit-overflow-scrolling: touch;
         }
 
         /* Tablet Styles */
         @media screen and (max-width: 1024px) {
             .main-content {
                 padding: 20px;
+                width: calc(100% - 250px);
             }
 
             .welcome-section {
@@ -334,6 +349,7 @@
             .invoice-table th,
             .invoice-table td {
                 padding: 10px 12px;
+                font-size: 14px;
             }
         }
 
@@ -345,6 +361,7 @@
 
             .sidebar {
                 transform: translateX(-100%);
+                width: min(280px, 85vw);
             }
 
             .sidebar.active {
@@ -358,6 +375,7 @@
             .main-content {
                 margin-left: 0;
                 padding: 80px 15px 20px 15px;
+                width: 100%;
             }
 
             .welcome-section {
@@ -391,15 +409,24 @@
             .details-list li {
                 padding: 10px 12px;
                 margin-bottom: 8px;
+                font-size: 14px;
             }
 
             .invoice-table {
-                font-size: 14px;
+                font-size: 13px;
+                min-width: 600px;
             }
 
             .invoice-table th,
             .invoice-table td {
-                padding: 8px;
+                padding: 8px 6px;
+                white-space: nowrap;
+            }
+
+            .invoice-table td {
+                max-width: 120px;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
 
             .invoice-items li {
@@ -420,6 +447,10 @@
             label {
                 font-size: 14px;
             }
+
+            .file-link {
+                font-size: 12px;
+            }
         }
 
         /* Small Mobile Styles */
@@ -436,7 +467,7 @@
             }
 
             .sidebar {
-                width: 280px;
+                width: min(260px, 90vw);
                 padding: 15px;
             }
 
@@ -492,12 +523,17 @@
             }
 
             .invoice-table {
-                font-size: 12px;
+                font-size: 11px;
+                min-width: 550px;
             }
 
             .invoice-table th,
             .invoice-table td {
-                padding: 6px;
+                padding: 6px 4px;
+            }
+
+            .invoice-table td {
+                max-width: 100px;
             }
 
             .invoice-items li {
@@ -523,7 +559,7 @@
         /* Extra Small Mobile Styles */
         @media screen and (max-width: 360px) {
             .sidebar {
-                width: 260px;
+                width: min(240px, 95vw);
             }
 
             .main-content {
@@ -552,12 +588,17 @@
             }
 
             .invoice-table {
-                font-size: 11px;
+                font-size: 10px;
+                min-width: 500px;
             }
 
             .invoice-table th,
             .invoice-table td {
-                padding: 4px;
+                padding: 4px 3px;
+            }
+
+            .invoice-table td {
+                max-width: 80px;
             }
 
             .invoice-items li {
@@ -665,8 +706,18 @@
             }
         }
 
+        /* Ultra-wide screens */
+        @media screen and (min-width: 1600px) {
+            .main-content {
+                max-width: 1400px;
+                margin-left: auto;
+                margin-right: auto;
+                padding-left: 290px;
+            }
+        }
+
         /* Touch device optimizations */
-        @media (hover: none) {
+        @media (hover: none) and (pointer: coarse) {
             .section:hover {
                 transform: none;
             }
@@ -688,6 +739,20 @@
                 background: linear-gradient(135deg, #3498db, #2980b9);
                 transform: none;
                 box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+            }
+
+            /* Increase touch targets */
+            .nav-link {
+                min-height: 48px;
+            }
+
+            button {
+                min-height: 48px;
+            }
+
+            .mobile-menu-toggle {
+                min-height: 48px;
+                min-width: 48px;
             }
         }
 
@@ -733,12 +798,37 @@
                 transform: none;
             }
         }
+
+        /* Print styles */
+        @media print {
+            .sidebar,
+            .mobile-menu-toggle,
+            .sidebar-overlay {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+                width: 100%;
+            }
+
+            .section {
+                break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+
+            .invoice-table {
+                font-size: 12px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="dashboard-container">
         <!-- Mobile Menu Toggle -->
-        <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <button class="mobile-menu-toggle" onclick="toggleSidebar()" aria-label="Toggle menu">
             <i class="fas fa-bars"></i>
         </button>
 
@@ -755,6 +845,18 @@
                     <a href="#" class="nav-link">
                         <i class="fas fa-chart-bar"></i>
                         <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('add_salary') }}" class="nav-link">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Enter Salary</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('view_salaries') }}" class="nav-link">
+                        <i class="fas fa-table"></i>
+                        <span>My Salaries</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -798,26 +900,34 @@
                                         <th><i class="fas fa-dollar-sign"></i> Total Amount</th>
                                         <th><i class="fas fa-percent"></i> GST</th>
                                         <th><i class="fas fa-calendar"></i> Date</th>
-                                        <th><i class="fas fa-info-circle"></i> Status</th>
+                                        <th><i class="fas fa-file-pdf"></i> PDF</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for invoice in data.invoices %}
-                                    <tr>
-                                        <td>{{ invoice.invoice_number }}</td>
-                                        <td>{{ invoice.vendor_name }}</td>
-                                        <td>₹{{ invoice.total_amount }}</td>
-                                        <td>₹{{ invoice.gst_amount }}</td>
-                                        <td>{{ invoice.generated_on.strftime('%Y-%m-%d') if invoice.generated_on else '' }}</td>
-                                        <td>
-                                            <span class="status-{{ invoice.status|lower }}">{{ invoice.status }}</span>
-                                        </td>
-                                    </tr>
+                                    {% if data.invoices %}
+                                        {% for invoice in data.invoices %}
+                                        <tr>
+                                            <td>{{ invoice.invoice_number }}</td>
+                                            <td>{{ invoice.vendor_name }}</td>
+                                            <td>₹{{ invoice.total_amount }}</td>
+                                            <td>₹{{ invoice.gst_amount }}</td>
+                                            <td>{{ invoice.generated_on.strftime('%Y-%m-%d') if invoice.generated_on else '' }}</td>
+                                            <td>
+                                                {% if invoice.pdf_filename %}
+                                                    <a href="{{ url_for('serve_invoice_pdf', filename=invoice.pdf_filename) }}" target="_blank" class="file-link">
+                                                        <i class="fas fa-file-pdf"></i> View PDF
+                                                    </a>
+                                                {% else %}
+                                                    No PDF
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
                                     {% else %}
-                                    <tr>
-                                        <td colspan="6" class="no-data">No invoices found for this project.</td>
-                                    </tr>
-                                    {% endfor %}
+                                        <tr>
+                                            <td colspan="6" class="no-data">No invoices found for this project.</td>
+                                        </tr>
+                                    {% endif %}
                                 </tbody>
                             </table>
                         </div>
@@ -835,22 +945,28 @@
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.querySelector('.sidebar-overlay');
-            
             sidebar.classList.toggle('active');
             overlay.classList.toggle('active');
+            
+            // Prevent body scrolling when sidebar is open on mobile
+            if (sidebar.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
         }
 
         function closeSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.querySelector('.sidebar-overlay');
-            
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
+            document.body.style.overflow = '';
         }
 
         // Close sidebar when clicking on nav links on mobile
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', () => {
+        document.querySelectorAll('.nav-link').forEach(function(link) {
+            link.addEventListener('click', function() {
                 if (window.innerWidth <= 768) {
                     closeSidebar();
                 }
@@ -858,24 +974,25 @@
         });
 
         // Handle window resize
-        window.addEventListener('resize', () => {
+        window.addEventListener('resize', function() {
             if (window.innerWidth > 768) {
+                closeSidebar();
+                document.body.style.overflow = '';
+            }
+        });
+
+        // Handle escape key to close sidebar
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
                 closeSidebar();
             }
         });
 
-        // Original invoice toggle functionality
-        document.getElementById('viewInvoicesBtn').onclick = function() {
-            var div = document.getElementById('invoiceTableDiv');
-            var icon = this.querySelector('i');
-            if (div.style.display === "none") {
-                div.style.display = "block";
-                this.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Invoices';
-            } else {
-                div.style.display = "none";
-                this.innerHTML = '<i class="fas fa-file-invoice"></i> View Invoices';
-            }
-        };
+        // Prevent zoom on iOS Safari when focusing inputs
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+            const viewport = document.querySelector('meta[name="viewport"]');
+            viewport.setAttribute('content', viewport.content + ', user-scalable=0');
+        }
     </script>
 </body>
 </html>

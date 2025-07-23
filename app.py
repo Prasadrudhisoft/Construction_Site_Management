@@ -451,52 +451,111 @@ def cleanup_architects():
     return "Unauthorized"
 
 
+
 @app.route('/accountant_dashboard')
+
 def accountant_dashboard():
+
     if 'role' not in session or session['role'] != 'accountant':
+
         return redirect(url_for('login'))
 
+
+
     accountant_id = session['user_id']
+
     conn = db_connection()
+
     cur = conn.cursor(pymysql.cursors.DictCursor)
 
-    # Fetch projects and their invoices assigned to the accountant in one go
+
+
+    # Fetch projects and their invoices assigned to the accountant
+
     cur.execute("""
+
         SELECT
+
             p.id AS project_id,
+
             p.project_name,
+
             i.id AS invoice_id,
+
             i.invoice_number,
+
             i.vendor_name,
+
             i.total_amount,
+
             i.gst_amount,
+
             i.generated_on,
-            i.status
+
+            i.status,
+
+            i.pdf_filename,
+
+            i.bill_to_name,
+
+            i.bill_to_address,
+
+            i.subtotal,
+
+            se.name AS site_engineer_name
+
         FROM accountant_projects ap
+
         JOIN projects p ON ap.project_id = p.id
+
         LEFT JOIN invoices i ON p.id = i.project_id
+
+        LEFT JOIN register se ON i.site_engineer_id = se.id
+
         WHERE ap.accountant_id = %s
+
         ORDER BY p.project_name, i.generated_on DESC
+
     """, (accountant_id,))
+
     results = cur.fetchall()
 
+
+
     # Organize the data by project
+
     projects_with_invoices = {}
+
     for row in results:
+
         project_id = row['project_id']
+
         if project_id not in projects_with_invoices:
+
             projects_with_invoices[project_id] = {
+
                 'project_name': row['project_name'],
+
                 'invoices': []
+
             }
+
         if row['invoice_id']:
+
             projects_with_invoices[project_id]['invoices'].append(row)
+
+
 
     conn.close()
 
+
+
     return render_template(
+
         'accountant_dashboard.html',
+
         projects_with_invoices=projects_with_invoices
+
     )
 
 
@@ -2618,11 +2677,18 @@ def submit_invoice():
         flash(f"Error: {e}", "danger")
         return redirect(request.url)
 @app.route('/uploads/invoices/<path:filename>')
+
 def serve_invoice_pdf(filename):
-    if session.get('role') != 'admin':
+
+    # Allow admin, accountant, site_engineer, architect
+
+    if session.get('role') not in ['admin', 'accountant', 'site_engineer', 'architect']:
+
         flash("Unauthorized access", "danger")
+
         return redirect(url_for('login'))
-    return send_from_directory('uploads/invoices', filename)
+
+    return send_from_directory('static/invoices', filename)
 @app.route('/dashboard')
 def dashboard():
     role = session.get('role')
@@ -3363,7 +3429,124 @@ def mark_messages_read(sender_id):
     except Exception as e:
 
         return jsonify({'success': False, 'error': str(e)})
+    
 
+
+@app.route('/add_salary', methods=['GET', 'POST'])
+def add_salary():
+    if 'role' not in session or session['role'] != 'accountant':
+        return redirect(url_for('login'))
+
+    accountant_id = session['user_id']
+    conn = db_connection()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
+
+    # Fetch assigned projects
+    cur.execute("""
+        SELECT p.id, p.project_name
+        FROM accountant_projects ap
+        JOIN projects p ON ap.project_id = p.id
+        WHERE ap.accountant_id = %s
+    """, (accountant_id,))
+    projects = cur.fetchall()
+
+    # Fetch users for assigned projects (site engineer via sites, architect, accountant self)
+    cur.execute("""
+        SELECT DISTINCT r.id, r.name, r.role
+        FROM accountant_projects ap
+        JOIN projects p ON ap.project_id = p.id
+        JOIN sites s ON p.site_id = s.site_id
+        JOIN register r ON r.id = s.site_engineer_id
+        WHERE ap.accountant_id = %s
+
+        UNION
+
+        SELECT DISTINCT r.id, r.name, r.role
+        FROM accountant_projects ap
+        JOIN projects p ON ap.project_id = p.id
+        JOIN register r ON r.id = p.architect_id
+        WHERE ap.accountant_id = %s
+
+        UNION
+
+        SELECT DISTINCT r.id, r.name, r.role
+        FROM register r
+        WHERE r.id = %s AND r.role = 'accountant'
+    """, (accountant_id, accountant_id, accountant_id))
+    users = cur.fetchall()
+
+    if request.method == 'POST':
+        project_id = request.form['project_id']
+        user_id = request.form['user_id']
+        role = request.form['role']
+        month_year = request.form['month_year']
+        base_salary = request.form['base_salary']
+        allowance = request.form.get('allowance', 0) or 0
+        pf = request.form.get('pf', 0) or 0
+        description = request.form.get('description', '')
+        payment_mode = request.form['payment_mode']
+        cheque_number = request.form.get('cheque_number', '') if payment_mode == 'cheque' else None
+
+        # Insert with payment mode and cheque number
+        cur.execute("""
+            INSERT INTO salaries (project_id, user_id, role, month_year, base_salary, allowance, pf, description, payment_mode, cheque_number, created_by, created_on)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+        """, (project_id, user_id, role, month_year, base_salary, allowance, pf, description, payment_mode, cheque_number, accountant_id))
+        conn.commit()
+        flash('Salary entry added successfully.')
+        conn.close()
+        return redirect(url_for('add_salary'))
+
+    conn.close()
+    return render_template('add_salary.html', projects=projects, users=users)
+
+
+# Accountant: View Own Entered Salaries
+@app.route('/view_salaries')
+def view_salaries():
+    if 'role' not in session or session['role'] != 'accountant':
+        return redirect(url_for('login'))
+    
+    accountant_id = session['user_id']
+    conn = db_connection()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
+    
+    # Include payment mode and cheque number in the query
+    cur.execute("""
+        SELECT s.*, p.project_name, r.name AS user_name, cr.name AS created_by_name
+        FROM salaries s
+        JOIN projects p ON s.project_id = p.id
+        JOIN register r ON s.user_id = r.id
+        JOIN register cr ON s.created_by = cr.id
+        WHERE s.created_by = %s
+        ORDER BY s.month_year DESC, p.project_name
+    """, (accountant_id,))
+    salaries = cur.fetchall()
+    conn.close()
+    return render_template('view_salaries.html', salaries=salaries)
+
+
+# Admin: View All Salaries
+@app.route('/admin/view_salaries')
+def admin_view_salaries():
+    if 'role' not in session or session['role'] != 'admin':
+        return redirect(url_for('login'))
+    
+    conn = db_connection()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
+    
+    # Include payment mode and cheque number in the query
+    cur.execute("""
+        SELECT s.*, p.project_name, r.name AS user_name, cr.name AS created_by_name
+        FROM salaries s
+        JOIN projects p ON s.project_id = p.id
+        JOIN register r ON s.user_id = r.id
+        JOIN register cr ON s.created_by = cr.id
+        ORDER BY s.month_year DESC, p.project_name
+    """)
+    salaries = cur.fetchall()
+    conn.close()
+    return render_template('admin_view_salaries.html', salaries=salaries)
 
 
 
