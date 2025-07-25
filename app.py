@@ -25,8 +25,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.pagesizes import A4
 from flask import send_from_directory
 from reportlab.lib.styles import ParagraphStyle
-from werkzeug.utils import secure_filename
-import os
+
 from PIL import Image as PILImage
 from reportlab.platypus import Image as RLImage
 
@@ -135,7 +134,7 @@ def verify_reset_otp():
 @app.route('/reset_password', methods=['GET', 'POST'])
 def reset_password():
     if request.method == 'POST':
-        new_password = request.form['password']
+        new_password = request.form['new_password']
         confirm_password = request.form['confirm_password']
 
         if new_password != confirm_password:
@@ -2749,15 +2748,46 @@ def admin_generate_invoice():
             rates = request.form.getlist('rate[]')
             totals = request.form.getlist('total[]')
 
+            # Handle image upload
+            image_filename = None
+            if 'invoice_image' in request.files:
+                image_file = request.files['invoice_image']
+                if image_file and image_file.filename != '':
+                    # Create images directory if it doesn't exist
+                    image_directory = os.path.join('static', 'invoice_images')
+                    if not os.path.exists(image_directory):
+                        os.makedirs(image_directory)
+                    
+                    # Generate unique filename
+                    file_extension = os.path.splitext(image_file.filename)[1].lower()
+                    image_filename = f"invoice_img_{invoice_number}{file_extension}"
+                    image_path = os.path.join(image_directory, image_filename)
+                    
+                    # Validate file type
+                    allowed_extensions = {'.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff', '.webp', '.svg', '.jfif', '.heic'}
+                    if file_extension not in allowed_extensions:
+                        raise Exception("Invalid file type. Only PNG, JPG, and JPEG files are allowed.")
+                    
+                    # Check file size (5MB limit)
+                    image_file.seek(0, 2)  # Seek to end of file
+                    file_size = image_file.tell()
+                    image_file.seek(0)  # Reset to beginning
+                    
+                    if file_size > 5 * 1024 * 1024:  # 5MB in bytes
+                        raise Exception("File size too large. Maximum size is 5MB.")
+                    
+                    # Save the image
+                    image_file.save(image_path)
+
             with db.cursor() as cursor:
                 cursor.execute("""
                     INSERT INTO invoices (
                         project_id, site_engineer_id, vendor_name, total_amount, gst_amount, invoice_number, pdf_filename,
-                        generated_on, bill_to_name, bill_to_address, bill_to_phone, status, approved_by, approved_on
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'Approved', %s, NOW())
+                        generated_on, bill_to_name, bill_to_address, bill_to_phone, status, approved_by, approved_on, invoice_image_filename
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'Approved', %s, NOW(), %s)
                 """, (
                     project_id, site_engineer_id, vendor_name, grand_total, gst_amount, invoice_number, pdf_filename,
-                    invoice_date, client_name, client_address, client_phone, admin_id
+                    invoice_date, client_name, client_address, client_phone, admin_id, image_filename
                 ))
                 invoice_id = cursor.lastrowid
 
@@ -2856,10 +2886,17 @@ def admin_generate_invoice():
             doc.build(elements)
             buffer.seek(0)
 
-            pdf_path = os.path.join(UPLOAD_FOLDER_INVOICES, pdf_filename)
+            # CHANGED: Updated directory path from UPLOAD_FOLDER_INVOICES to static/invoice_pdfs
+            pdf_directory = os.path.join('static', 'invoice_pdfs')
+            
+            # Create directory if it doesn't exist
+            if not os.path.exists(pdf_directory):
+                os.makedirs(pdf_directory)
+            
+            pdf_path = os.path.join(pdf_directory, pdf_filename)
             with open(pdf_path, 'wb') as f:
                 f.write(buffer.read())
-            buffer.seek(0)
+            buffer.seek(0)  
 
             flash("Admin invoice generated and auto-approved.", "success")
             return redirect(url_for('admin_view_invoices'))
@@ -3025,7 +3062,7 @@ def edit_invoice(invoice_id):
             
             # Generate new PDF
             new_pdf_filename = f"invoice_{uuid.uuid4().hex}.pdf"
-            pdf_path = os.path.join("static", "invoices", new_pdf_filename)
+            pdf_path = os.path.join("static", "invoice_pdfs", new_pdf_filename)
             os.makedirs(os.path.dirname(pdf_path), exist_ok=True)
             
             c = canvas.Canvas(pdf_path, pagesize=letter)

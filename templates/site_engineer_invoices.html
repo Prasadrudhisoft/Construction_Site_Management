@@ -850,7 +850,7 @@
 
                         <div class="invoice-actions">
                             {% if invoice.pdf_filename %}
-                            <a href="{{ url_for('static', filename='invoices/' ~ invoice.pdf_filename) }}"
+                            <a href="{{ url_for('static', filename='invoice_pdfs/' ~ invoice.pdf_filename) }}"
                                 target="_blank" class="btn">
                                 View PDF
                             </a>
