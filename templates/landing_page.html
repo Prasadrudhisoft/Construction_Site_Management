@@ -5,7 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RudhiArch ERP - Construction Management Software</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         /* Base Styles */
@@ -14,7 +16,7 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Roboto', sans-serif;
             color: #333;
@@ -22,20 +24,23 @@
             background-color: #f9f9f9;
             overflow-x: hidden;
         }
-        
-        h1, h2, h3, h4 {
+
+        h1,
+        h2,
+        h3,
+        h4 {
             font-family: 'Roboto Slab', serif;
             font-weight: 700;
             color: #222;
         }
-        
+
         .container {
             width: 100%;
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
         }
-        
+
         .btn {
             display: inline-block;
             padding: 12px 30px;
@@ -47,7 +52,7 @@
             position: relative;
             overflow: hidden;
         }
-        
+
         .btn::before {
             content: '';
             position: absolute;
@@ -55,43 +60,43 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
             transition: left 0.5s ease;
         }
-        
+
         .btn:hover::before {
             left: 100%;
         }
-        
+
         .btn-primary {
             background: linear-gradient(45deg, #FFD700, #FFA500);
             color: #222;
             border: 2px solid #FFD700;
             box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
         }
-        
+
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
         }
-        
+
         .btn-secondary {
             background: rgba(255, 255, 255, 0.1);
             color: #fff;
             border: 2px solid rgba(255, 255, 255, 0.3);
             backdrop-filter: blur(10px);
         }
-        
+
         .btn-secondary:hover {
             background: rgba(255, 255, 255, 0.2);
             transform: translateY(-2px);
         }
-        
+
         .section {
             padding: 100px 0;
             position: relative;
         }
-        
+
         .section-title {
             font-size: clamp(28px, 5vw, 42px);
             margin-bottom: 20px;
@@ -101,7 +106,7 @@
             transform: translateY(30px);
             animation: fadeInUp 0.8s ease forwards;
         }
-        
+
         .section-title:after {
             content: '';
             display: block;
@@ -111,7 +116,7 @@
             margin: 15px auto;
             border-radius: 2px;
         }
-        
+
         .section-subtitle {
             font-size: clamp(16px, 2.5vw, 18px);
             color: #666;
@@ -122,7 +127,7 @@
             transform: translateY(20px);
             animation: fadeInUp 0.8s ease 0.2s forwards;
         }
-        
+
         /* Animations */
         @keyframes fadeInUp {
             to {
@@ -130,47 +135,55 @@
                 transform: translateY(0);
             }
         }
-        
+
         @keyframes slideInLeft {
             from {
                 opacity: 0;
                 transform: translateX(-50px);
             }
+
             to {
                 opacity: 1;
                 transform: translateX(0);
             }
         }
-        
+
         @keyframes slideInRight {
             from {
                 opacity: 0;
                 transform: translateX(50px);
             }
+
             to {
                 opacity: 1;
                 transform: translateX(0);
             }
         }
-        
+
         @keyframes float {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translateY(0px);
             }
+
             50% {
                 transform: translateY(-10px);
             }
         }
-        
+
         @keyframes pulse {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: scale(1);
             }
+
             50% {
                 transform: scale(1.05);
             }
         }
-        
+
         /* Header */
         header {
             background: rgba(34, 34, 34, 0.95);
@@ -181,43 +194,45 @@
             z-index: 1000;
             transition: all 0.3s ease;
         }
-        
+
         .header-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        
+
         .logo {
             display: flex;
             align-items: center;
             animation: slideInLeft 0.8s ease;
         }
-        
+
         .logo-icon {
-        width: 100px; /* Adjust this value as needed */
-        height: auto; /* Maintain aspect ratio */
-        margin-right: 10px;
-        animation: pulse 2s infinite;
-    }
-        
+            width: 120px;
+            /* Adjust this value as needed */
+            height: auto;
+            /* Maintain aspect ratio */
+            margin-right: 10px;
+            /* animation: pulse 2s infinite; */
+        }
+
         .logo-text {
             color: #fff;
             font-family: 'Roboto Slab', serif;
             font-size: clamp(18px, 3vw, 22px);
             font-weight: 700;
         }
-        
+
         .nav-links {
             display: flex;
             list-style: none;
             animation: slideInRight 0.8s ease;
         }
-        
+
         .nav-links li {
             margin-left: 30px;
         }
-        
+
         .nav-links a {
             color: #fff;
             text-decoration: none;
@@ -225,7 +240,7 @@
             transition: all 0.3s ease;
             position: relative;
         }
-        
+
         .nav-links a::after {
             content: '';
             position: absolute;
@@ -236,15 +251,15 @@
             background: #FFD700;
             transition: width 0.3s ease;
         }
-        
+
         .nav-links a:hover::after {
             width: 100%;
         }
-        
+
         .nav-links a:hover {
             color: #FFD700;
         }
-        
+
         .mobile-menu-btn {
             display: none;
             background: none;
@@ -254,22 +269,22 @@
             cursor: pointer;
             transition: color 0.3s ease;
         }
-        
+
         .mobile-menu-btn:hover {
             color: #FFD700;
         }
-        
+
         /* Hero Section */
         .hero {
-            background: linear-gradient(135deg, rgba(0,0,0,0.7), rgba(34,34,34,0.8)), 
-                        url('/static/images/landing.png') no-repeat center center/cover;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(34, 34, 34, 0.8)),
+                url('/static/images/landing.png') no-repeat center center/cover;
             color: #fff;
             padding: 200px 0 120px;
             text-align: center;
             position: relative;
             overflow: hidden;
         }
-        
+
         .hero::before {
             content: '';
             position: absolute;
@@ -280,14 +295,14 @@
             /* background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="%23FFD700" opacity="0.1"><polygon points="0,0 1000,100 0,100"/></svg>'); */
             pointer-events: none;
         }
-        
+
         .hero-content {
             max-width: 800px;
             margin: 0 auto;
             position: relative;
             z-index: 2;
         }
-        
+
         .hero-title {
             font-size: clamp(32px, 6vw, 56px);
             margin-bottom: 20px;
@@ -296,7 +311,7 @@
             transform: translateY(30px);
             animation: fadeInUp 1s ease 0.5s forwards;
         }
-        
+
         .hero-subtitle {
             font-size: clamp(18px, 3vw, 22px);
             margin-bottom: 40px;
@@ -305,7 +320,7 @@
             transform: translateY(20px);
             animation: fadeInUp 1s ease 0.7s forwards;
         }
-        
+
         .hero-buttons {
             display: flex;
             justify-content: center;
@@ -315,13 +330,13 @@
             transform: translateY(20px);
             animation: fadeInUp 1s ease 0.9s forwards;
         }
-        
+
         /* Features Section */
         .features {
             background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
             position: relative;
         }
-        
+
         .features::before {
             content: '';
             position: absolute;
@@ -331,14 +346,14 @@
             height: 100px;
             background: linear-gradient(to bottom, #f9f9f9, transparent);
         }
-        
+
         .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 30px;
             margin-top: 60px;
         }
-        
+
         .feature-card {
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px);
@@ -353,15 +368,35 @@
             transform: translateY(30px);
             animation: fadeInUp 0.8s ease forwards;
         }
-        
-        .feature-card:nth-child(1) { animation-delay: 0.1s; }
-        .feature-card:nth-child(2) { animation-delay: 0.2s; }
-        .feature-card:nth-child(3) { animation-delay: 0.3s; }
-        .feature-card:nth-child(4) { animation-delay: 0.4s; }
-        .feature-card:nth-child(5) { animation-delay: 0.5s; }
-        .feature-card:nth-child(6) { animation-delay: 0.6s; }
-        .feature-card:nth-child(7) { animation-delay: 0.7s; }
-        
+
+        .feature-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .feature-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .feature-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .feature-card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .feature-card:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+
+        .feature-card:nth-child(6) {
+            animation-delay: 0.6s;
+        }
+
+        .feature-card:nth-child(7) {
+            animation-delay: 0.7s;
+        }
+
         .feature-card::before {
             content: '';
             position: absolute;
@@ -371,12 +406,12 @@
             height: 4px;
             background: linear-gradient(45deg, #FFD700, #FFA500);
         }
-        
+
         .feature-card:hover {
             transform: translateY(-15px);
             box-shadow: 0 20px 40px rgba(255, 215, 0, 0.2);
         }
-        
+
         .feature-image {
             width: 80px;
             height: 80px;
@@ -388,50 +423,50 @@
             justify-content: center;
             transition: transform 0.3s ease;
         }
-        
+
         .feature-card:hover .feature-image {
             transform: scale(1.1);
             animation: float 2s ease-in-out infinite;
         }
-        
+
         .feature-icon {
             font-size: 32px;
             color: #222;
         }
-        
+
         .feature-title {
             font-size: 20px;
             margin-bottom: 15px;
             color: #222;
         }
-        
+
         .feature-desc {
             color: #666;
             line-height: 1.6;
         }
-        
+
         /* How It Works Section */
         .how-it-works {
             background: linear-gradient(135deg, #222 0%, #333 100%);
             color: #fff;
             position: relative;
         }
-        
+
         .how-it-works .section-title {
             color: #fff;
         }
-        
+
         .how-it-works .section-subtitle {
             color: #ccc;
         }
-        
+
         .steps {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 40px;
             margin-top: 60px;
         }
-        
+
         .step {
             text-align: center;
             position: relative;
@@ -439,11 +474,19 @@
             transform: translateY(30px);
             animation: fadeInUp 0.8s ease forwards;
         }
-        
-        .step:nth-child(1) { animation-delay: 0.2s; }
-        .step:nth-child(2) { animation-delay: 0.4s; }
-        .step:nth-child(3) { animation-delay: 0.6s; }
-        
+
+        .step:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+
+        .step:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        .step:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+
         .step-number {
             width: 80px;
             height: 80px;
@@ -459,29 +502,29 @@
             transition: transform 0.3s ease;
             box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
         }
-        
+
         .step:hover .step-number {
             transform: scale(1.1);
             animation: pulse 1.5s ease-in-out infinite;
         }
-        
+
         .step-title {
             font-size: 22px;
             margin-bottom: 15px;
             color: #fff;
         }
-        
+
         .step-desc {
             color: #ccc;
             line-height: 1.6;
         }
-        
+
         /* About Us Section */
         .about-section {
             background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
             position: relative;
         }
-        
+
         .about-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -489,53 +532,53 @@
             align-items: center;
             margin-top: 60px;
         }
-        
+
         .about-content {
             opacity: 0;
             transform: translateX(-30px);
             animation: slideInLeft 0.8s ease 0.3s forwards;
         }
-        
+
         .about-image {
             background: #fff;
             border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             position: relative;
             opacity: 0;
             transform: translateX(30px);
             animation: slideInRight 0.8s ease 0.5s forwards;
             text-align: center;
         }
-        
+
         .about-image img {
             max-width: 100%;
             border-radius: 10px;
         }
-        
+
         .about-heading {
             font-size: 28px;
             margin-bottom: 20px;
             color: #222;
         }
-        
+
         .about-subheading {
             font-size: 20px;
             margin: 30px 0 15px;
             color: #FFA500;
         }
-        
+
         .about-text {
             margin-bottom: 15px;
             color: #666;
         }
-        
+
         /* Chat Communication Section */
         .chat-section {
             background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
             position: relative;
         }
-        
+
         .chat-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -543,24 +586,24 @@
             align-items: center;
             margin-top: 60px;
         }
-        
+
         .chat-content {
             opacity: 0;
             transform: translateX(-30px);
             animation: slideInLeft 0.8s ease 0.3s forwards;
         }
-        
+
         .chat-demo {
             background: #fff;
             border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             position: relative;
             opacity: 0;
             transform: translateX(30px);
             animation: slideInRight 0.8s ease 0.5s forwards;
         }
-        
+
         .chat-header {
             display: flex;
             align-items: center;
@@ -568,7 +611,7 @@
             border-bottom: 1px solid #eee;
             margin-bottom: 20px;
         }
-        
+
         .chat-avatar {
             width: 40px;
             height: 40px;
@@ -579,33 +622,33 @@
             justify-content: center;
             margin-right: 15px;
         }
-        
+
         .chat-info h4 {
             margin: 0;
             font-size: 16px;
         }
-        
+
         .chat-info p {
             margin: 0;
             color: #666;
             font-size: 14px;
         }
-        
+
         .chat-messages {
             height: 300px;
             overflow-y: auto;
             margin-bottom: 20px;
         }
-        
+
         .message {
             margin-bottom: 15px;
             animation: fadeInUp 0.5s ease;
         }
-        
+
         .message.sent {
             text-align: right;
         }
-        
+
         .message-bubble {
             display: inline-block;
             padding: 12px 18px;
@@ -613,22 +656,22 @@
             max-width: 80%;
             word-wrap: break-word;
         }
-        
+
         .message.received .message-bubble {
             background: #f1f1f1;
             color: #333;
         }
-        
+
         .message.sent .message-bubble {
             background: linear-gradient(45deg, #FFD700, #FFA500);
             color: #222;
         }
-        
+
         .chat-input {
             display: flex;
             gap: 10px;
         }
-        
+
         .chat-input input {
             flex: 1;
             padding: 12px 16px;
@@ -637,11 +680,11 @@
             outline: none;
             transition: border-color 0.3s ease;
         }
-        
+
         .chat-input input:focus {
             border-color: #FFD700;
         }
-        
+
         .chat-input button {
             padding: 12px 20px;
             background: linear-gradient(45deg, #FFD700, #FFA500);
@@ -651,11 +694,11 @@
             cursor: pointer;
             transition: transform 0.3s ease;
         }
-        
+
         .chat-input button:hover {
             transform: scale(1.05);
         }
-        
+
         /* Footer */
         footer {
             background: linear-gradient(135deg, #111 0%, #222 100%);
@@ -663,77 +706,89 @@
             padding: 80px 0 30px;
             position: relative;
         }
-        
+
         .footer-content {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 40px;
             margin-bottom: 40px;
         }
-        
+
         .footer-column {
             opacity: 0;
             transform: translateY(20px);
             animation: fadeInUp 0.8s ease forwards;
         }
-        
-        .footer-column:nth-child(1) { animation-delay: 0.1s; }
-        .footer-column:nth-child(2) { animation-delay: 0.2s; }
-        .footer-column:nth-child(3) { animation-delay: 0.3s; }
-        .footer-column:nth-child(4) { animation-delay: 0.4s; }
-        
+
+        .footer-column:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .footer-column:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .footer-column:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .footer-column:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
         .footer-column h4 {
             color: #fff;
             margin-bottom: 20px;
             font-size: 18px;
         }
-        
+
         .footer-links {
             list-style: none;
         }
-        
+
         .footer-links li {
             margin-bottom: 10px;
         }
-        
+
         .footer-links a {
             color: #aaa;
             text-decoration: none;
             transition: all 0.3s ease;
         }
-        
+
         .footer-links a:hover {
             color: #FFD700;
             padding-left: 5px;
         }
-        
+
         .footer-bottom {
             text-align: center;
             padding-top: 20px;
             border-top: 1px solid #333;
         }
-        
+
         /* Responsive Styles */
         @media (max-width: 1024px) {
             .hero {
                 padding: 160px 0 100px;
             }
-            
+
             .section {
                 padding: 80px 0;
             }
-            
+
             .features-grid {
                 grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
                 gap: 25px;
             }
-            
-            .chat-container, .about-container {
+
+            .chat-container,
+            .about-container {
                 grid-template-columns: 1fr;
                 gap: 40px;
             }
         }
-        
+
         @media (max-width: 768px) {
             .nav-links {
                 display: none;
@@ -745,74 +800,76 @@
                 backdrop-filter: blur(10px);
                 flex-direction: column;
                 padding: 20px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             }
-            
+
             .nav-links.show {
                 display: flex;
             }
-            
+
             .nav-links li {
                 margin: 10px 0;
             }
-            
+
             .mobile-menu-btn {
                 display: block;
             }
-            
+
             .hero {
                 padding: 140px 0 80px;
             }
-            
+
             .hero-buttons {
                 flex-direction: column;
                 align-items: center;
                 gap: 15px;
             }
-            
+
             .hero-buttons .btn {
                 width: 100%;
                 max-width: 300px;
             }
-            
+
             .features-grid {
                 grid-template-columns: 1fr;
                 gap: 20px;
             }
-            
+
             .steps {
                 grid-template-columns: 1fr;
                 gap: 30px;
             }
-            
-            .chat-container, .about-container {
+
+            .chat-container,
+            .about-container {
                 grid-template-columns: 1fr;
                 gap: 30px;
             }
-            
+
             .section {
                 padding: 60px 0;
             }
         }
-        
+
         @media (max-width: 480px) {
             .container {
                 padding: 0 15px;
             }
-            
+
             .feature-card {
                 padding: 30px 20px;
             }
-            
+
             .footer-content {
                 grid-template-columns: 1fr;
                 gap: 30px;
             }
-            
-            .chat-demo, .about-image {
+
+            .chat-demo,
+            .about-image {
                 padding: 20px;
             }
-            
+
             .chat-messages {
                 height: 250px;
             }
@@ -825,8 +882,8 @@
     <header>
         <div class="container header-container">
             <div class="logo">
-                <img src="/static/images/rudhi.png" alt="RudhiArch Logo" class="logo-icon">
-                <span class="logo-text">RudhiArch</span>
+                <img src="/static/images/img.png" alt="RudhiArch Logo" class="logo-icon">
+                <!-- <span class="logo-text">RudhiArch</span> -->
             </div>
             <button class="mobile-menu-btn">
                 <i class="fas fa-bars"></i>
@@ -846,7 +903,8 @@
         <div class="container">
             <div class="hero-content">
                 <h1 class="hero-title">Streamline Your Construction Projects with RudhiArch ERP</h1>
-                <p class="hero-subtitle">All-in-one construction management software for project tracking, site coordination, billing, compliance, and seamless team communication.</p>
+                <p class="hero-subtitle">All-in-one construction management software for project tracking, site
+                    coordination, billing, compliance, and seamless team communication.</p>
                 <div class="hero-buttons">
                     <a href="#features" class="btn btn-primary">Explore Features</a>
                 </div>
@@ -858,55 +916,62 @@
     <section id="features" class="section features">
         <div class="container">
             <h2 class="section-title">Powerful Features for Your Construction Business</h2>
-            <p class="section-subtitle">Everything you need to manage your construction projects efficiently with enhanced team communication</p>
-            
+            <p class="section-subtitle">Everything you need to manage your construction projects efficiently with
+                enhanced team communication</p>
+
             <div class="features-grid">
                 <div class="feature-card">
                     <div class="feature-image">
                         <i class="fas fa-users-cog feature-icon"></i>
                     </div>
                     <h3 class="feature-title">Multi-User Roles</h3>
-                    <p class="feature-desc">Separate dashboards for Admins, Engineers, Architects with appropriate permissions and role-based access control.</p>
+                    <p class="feature-desc">Separate dashboards for Admins, Engineers, Architects with appropriate
+                        permissions and role-based access control.</p>
                 </div>
-                
+
                 <div class="feature-card">
                     <div class="feature-image">
                         <i class="fas fa-file-upload feature-icon"></i>
                     </div>
                     <h3 class="feature-title">Progress Tracking</h3>
-                    <p class="feature-desc">Upload images, PDFs, and reports to track real-time site progress with detailed milestone tracking.</p>
+                    <p class="feature-desc">Upload images, PDFs, and reports to track real-time site progress with
+                        detailed milestone tracking.</p>
                 </div>
-                
+
                 <div class="feature-card">
                     <div class="feature-image">
                         <i class="fas fa-file-invoice-dollar feature-icon"></i>
                     </div>
                     <h3 class="feature-title">Invoice Generation</h3>
-                    <p class="feature-desc">Create, manage, and track invoices with automated PDF output and integrated payment tracking.</p>
+                    <p class="feature-desc">Create, manage, and track invoices with automated PDF output and integrated
+                        payment tracking.</p>
                 </div>
-                
+
                 <div class="feature-card">
                     <div class="feature-image">
                         <i class="fas fa-shield-alt feature-icon"></i>
                     </div>
                     <h3 class="feature-title">Compliance Management</h3>
-                    <p class="feature-desc">Track safety checks, permits, and legal documents in one centralized compliance dashboard.</p>
+                    <p class="feature-desc">Track safety checks, permits, and legal documents in one centralized
+                        compliance dashboard.</p>
                 </div>
-                
+
                 <div class="feature-card">
                     <div class="feature-image">
                         <i class="fas fa-chart-line feature-icon"></i>
                     </div>
                     <h3 class="feature-title">Reporting & Analytics</h3>
-                    <p class="feature-desc">Generate detailed reports on project progress, expenses, timelines with advanced data visualization.</p>
+                    <p class="feature-desc">Generate detailed reports on project progress, expenses, timelines with
+                        advanced data visualization.</p>
                 </div>
-                
+
                 <div class="feature-card">
                     <div class="feature-image">
                         <i class="fas fa-comments feature-icon"></i>
                     </div>
                     <h3 class="feature-title">Team Communication</h3>
-                    <p class="feature-desc">Built-in chat system for real-time team communication, file sharing, and project discussions.</p>
+                    <p class="feature-desc">Built-in chat system for real-time team communication, file sharing, and
+                        project discussions.</p>
                 </div>
             </div>
         </div>
@@ -917,24 +982,27 @@
         <div class="container">
             <h2 class="section-title">How RudhiArch ERP Works</h2>
             <p class="section-subtitle">Get started in just three simple steps</p>
-            
+
             <div class="steps">
                 <div class="step">
                     <div class="step-number">1</div>
                     <h3 class="step-title">Create a Project</h3>
-                    <p class="step-desc">Set up your construction project with all necessary details, timelines, and assigned teams with integrated communication channels.</p>
+                    <p class="step-desc">Set up your construction project with all necessary details, timelines, and
+                        assigned teams with integrated communication channels.</p>
                 </div>
-                
+
                 <div class="step">
                     <div class="step-number">2</div>
                     <h3 class="step-title">Track & Communicate</h3>
-                    <p class="step-desc">Teams update progress with photos, reports, and real-time chat communication for seamless collaboration.</p>
+                    <p class="step-desc">Teams update progress with photos, reports, and real-time chat communication
+                        for seamless collaboration.</p>
                 </div>
-                
+
                 <div class="step">
                     <div class="step-number">3</div>
                     <h3 class="step-title">Manage & Monitor</h3>
-                    <p class="step-desc">Generate invoices, track payments, monitor progress, and maintain team communication all in one platform.</p>
+                    <p class="step-desc">Generate invoices, track payments, monitor progress, and maintain team
+                        communication all in one platform.</p>
                 </div>
             </div>
         </div>
@@ -945,20 +1013,28 @@
         <div class="container">
             <h2 class="section-title">About RudhiArch</h2>
             <p class="section-subtitle">Innovating technology to shape a smarter tomorrow</p>
-            
+
             <div class="about-container">
                 <div class="about-content">
                     <h3 class="about-heading">WHO WE ARE</h3>
                     <p class="about-text">We're Changing the Way the World Adopts and Utilizes Technology.</p>
                     <p class="about-text">We are Innovating The Technology to Shape a Smarter Tomorrow.</p>
-                    
+
                     <h3 class="about-subheading">Our Mission</h3>
-                    <p class="about-text">We are a passionate team of innovators, developers, and tech strategists committed to delivering cutting-edge software solutions for businesses worldwide. Our expertise lies in building scalable, high-performance, and user-friendly digital products that drive business growth. Whether it's a start-up looking to disrupt the market or an enterprise seeking digital transformation, we create technology that makes an impact.</p>
-                    
+                    <p class="about-text">We are a passionate team of innovators, developers, and tech strategists
+                        committed to delivering cutting-edge software solutions for businesses worldwide. Our expertise
+                        lies in building scalable, high-performance, and user-friendly digital products that drive
+                        business growth. Whether it's a start-up looking to disrupt the market or an enterprise seeking
+                        digital transformation, we create technology that makes an impact.</p>
+
                     <h3 class="about-subheading">WHAT WE DO</h3>
-                    <p class="about-text">At RUDHIARCH, we specialize in transforming business challenges into digital solutions. Our services range from custom software and mobile apps to AI-powered automation and blockchain solutions. We build software that enhances efficiency, security, and scalability, enabling businesses to stay ahead in the fast-paced digital world. With a tech-first mindset and a problem-solving approach, we empower businesses with high-performance software solutions.</p>
+                    <p class="about-text">At RUDHIARCH, we specialize in transforming business challenges into digital
+                        solutions. Our services range from custom software and mobile apps to AI-powered automation and
+                        blockchain solutions. We build software that enhances efficiency, security, and scalability,
+                        enabling businesses to stay ahead in the fast-paced digital world. With a tech-first mindset and
+                        a problem-solving approach, we empower businesses with high-performance software solutions.</p>
                 </div>
-                
+
                 <div class="about-image">
                     <img src="/static/images/team.jpg" alt="Rudhisoft Team">
                 </div>
@@ -971,46 +1047,47 @@
         <div class="container">
             <h2 class="section-title">Real-Time Team Communication</h2>
             <p class="section-subtitle">Stay connected with your team through our integrated chat system</p>
-            
-            
-                
-                <div class="chat-demo">
-                    <div class="chat-header">
-                        <div class="chat-avatar">
-                            <i class="fas fa-hard-hat" style="color: #222;"></i>
-                        </div>
-                        <div class="chat-info">
-                            <h4>Project Team Chat</h4>
-                            <p>Downtown Office Complex</p>
-                        </div>
+
+
+
+            <div class="chat-demo">
+                <div class="chat-header">
+                    <div class="chat-avatar">
+                        <i class="fas fa-hard-hat" style="color: #222;"></i>
                     </div>
-                    
-                    <div class="chat-messages" id="chatMessages">
-                        <div class="message received">
-                            <div class="message-bubble">Foundation work is 80% complete. Photos uploaded to progress tracker.</div>
-                        </div>
-                        <div class="message sent">
-                            <div class="message-bubble">Great progress! When do you estimate completion?</div>
-                        </div>
-                        <div class="message received">
-                            <div class="message-bubble">Should be done by Friday. Weather looks good for the week.</div>
-                        </div>
-                        <div class="message sent">
-                            <div class="message-bubble">Perfect! I'll schedule the next phase inspection.</div>
-                        </div>
-                        <div class="message received">
-                            <div class="message-bubble">Sounds good. I'll send you the updated timeline.</div>
-                        </div>
-                    </div>
-                    
-                    <div class="chat-input">
-                        <input type="text" id="chatInput" placeholder="Type your message..." />
-                        <button onclick="sendMessage()">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
+                    <div class="chat-info">
+                        <h4>Project Team Chat</h4>
+                        <p>Downtown Office Complex</p>
                     </div>
                 </div>
+
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message received">
+                        <div class="message-bubble">Foundation work is 80% complete. Photos uploaded to progress
+                            tracker.</div>
+                    </div>
+                    <div class="message sent">
+                        <div class="message-bubble">Great progress! When do you estimate completion?</div>
+                    </div>
+                    <div class="message received">
+                        <div class="message-bubble">Should be done by Friday. Weather looks good for the week.</div>
+                    </div>
+                    <div class="message sent">
+                        <div class="message-bubble">Perfect! I'll schedule the next phase inspection.</div>
+                    </div>
+                    <div class="message received">
+                        <div class="message-bubble">Sounds good. I'll send you the updated timeline.</div>
+                    </div>
+                </div>
+
+                <div class="chat-input">
+                    <input type="text" id="chatInput" placeholder="Type your message..." />
+                    <button onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
             </div>
+        </div>
         </div>
     </section>
 
@@ -1018,11 +1095,16 @@
     <footer>
         <div class="container">
             <div class="footer-content">
+                <div class="logo">
+                    <img src="/static/images/img.png" alt="RudhiArch Logo" class="logo-icon">
+                    <!-- <span class="logo-text">RudhiArch</span> -->
+                </div>
                 <div class="footer-column">
                     <h4>RudhiArch</h4>
-                    <p>Comprehensive construction management software for projects of all sizes with integrated team communication.</p>
+                    <p>Comprehensive construction management software for projects of all sizes with integrated team
+                        communication.</p>
                 </div>
-                
+
                 <div class="footer-column">
                     <h4>Quick Links</h4>
                     <ul class="footer-links">
@@ -1032,7 +1114,7 @@
                         <li><a href="#about">About Us</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="footer-column">
                     <h4>Contact Us</h4>
                     <ul class="footer-links">
@@ -1042,19 +1124,20 @@
                     </ul>
                 </div>
             </div>
-            
+
             <div class="footer-bottom">
                 <p>&copy; 2025 RudhiArch. All rights reserved.</p>
             </div>
+
         </div>
     </footer>
 
     <script>
         // Mobile menu toggle
-        document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
+        document.querySelector('.mobile-menu-btn').addEventListener('click', function () {
             document.querySelector('.nav-links').classList.toggle('show');
         });
-        
+
         // Smooth scrolling for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -1068,22 +1151,22 @@
                 }
             });
         });
-        
+
         // Chat functionality
         function sendMessage() {
             const input = document.getElementById('chatInput');
             const messagesContainer = document.getElementById('chatMessages');
-            
+
             if (input.value.trim() !== '') {
                 const messageDiv = document.createElement('div');
                 messageDiv.className = 'message sent';
                 messageDiv.innerHTML = `<div class="message-bubble">${input.value}</div>`;
-                
+
                 messagesContainer.appendChild(messageDiv);
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                
+
                 input.value = '';
-                
+
                 // Simulate response after 1 second
                 setTimeout(() => {
                     const responses = [
@@ -1093,26 +1176,26 @@
                         "Perfect, thanks for letting me know.",
                         "I'll review this and get back to you."
                     ];
-                    
+
                     const responseDiv = document.createElement('div');
                     responseDiv.className = 'message received';
                     responseDiv.innerHTML = `<div class="message-bubble">${responses[Math.floor(Math.random() * responses.length)]}</div>`;
-                    
+
                     messagesContainer.appendChild(responseDiv);
                     messagesContainer.scrollTop = messagesContainer.scrollHeight;
                 }, 1000);
             }
         }
-        
+
         // Allow Enter key to send message
-        document.getElementById('chatInput').addEventListener('keypress', function(e) {
+        document.getElementById('chatInput').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 sendMessage();
             }
         });
-        
+
         // Header scroll effect
-        window.addEventListener('scroll', function() {
+        window.addEventListener('scroll', function () {
             const header = document.querySelector('header');
             if (window.scrollY > 100) {
                 header.style.background = 'rgba(34, 34, 34, 0.98)';
@@ -1122,13 +1205,13 @@
                 header.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
             }
         });
-        
+
         // Intersection Observer for animations
         const observerOptions = {
             threshold: 0.1,
             rootMargin: '0px 0px -50px 0px'
         };
-        
+
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -1136,15 +1219,16 @@
                 }
             });
         }, observerOptions);
-        
+
         // Observe all animated elements
         document.querySelectorAll('.feature-card, .step, .footer-column, .about-content, .about-image').forEach(el => {
             observer.observe(el);
         });
-        
+
         // Auto-scroll chat messages
         const chatMessages = document.getElementById('chatMessages');
         chatMessages.scrollTop = chatMessages.scrollHeight;
     </script>
 </body>
+
 </html>

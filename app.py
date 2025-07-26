@@ -85,7 +85,7 @@ def send_otp_email(email, otp):
         return True, None
     except Exception as e:
         return False, str(e)
-    
+ ######################forgot password routes######################################   
 @app.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
     if request.method == 'POST':
@@ -112,6 +112,8 @@ def forgot_password():
     
     return render_template('forgot_password.html')
 
+##############################verify reset OTP######################################
+
 @app.route('/verify_reset_otp', methods=['GET', 'POST'])
 def verify_reset_otp():
     if request.method == 'POST':
@@ -130,6 +132,8 @@ def verify_reset_otp():
         else:
             flash("Invalid OTP.")
     return render_template("verify_reset_otp.html")
+
+##################################### reset password ######################################
 
 @app.route('/reset_password', methods=['GET', 'POST'])
 def reset_password():
@@ -268,6 +272,8 @@ def login():
             flash('Invalid email or password.')
 
     return render_template('login.html')
+
+##########################################verify OTP######################################
 @app.route('/verify_otp', methods=['GET', 'POST'])
 def verify_otp():
     if request.method == 'POST':
@@ -450,7 +456,7 @@ def cleanup_architects():
     return "Unauthorized"
 
 
-
+############################################## accountant routes ######################################
 @app.route('/accountant_dashboard')
 
 def accountant_dashboard():
@@ -755,7 +761,7 @@ def upload_site_conditions():
     return redirect(url_for('login'))
 
 
-
+#############################################logout route######################################
 
 @app.route('/logout')
 def logout():
@@ -790,6 +796,7 @@ def logout():
   #  workers = cursor.fetchall()
  #   return render_template('view_workers.html', workers=workers)
 
+############################# Submit Worker Report ######################################
 @app.route('/submit_worker_report', methods=['GET', 'POST'])
 def submit_worker_report():
     if 'role' not in session or session['role'] != 'site_engineer':
@@ -827,6 +834,8 @@ def submit_worker_report():
 
     return render_template('submit_worker_report.html', projects=projects)
 
+
+########################################## View Worker Reports ######################################
 @app.route('/view_worker_reports')
 def view_worker_reports():
     if 'role' not in session or session['role'] not in ['admin', 'site_engineer']:
@@ -917,7 +926,7 @@ def view_attendance():
     records = cursor.fetchall()
     return render_template('view_attendance.html', records=records)
 
-#---record inventory---
+########################################## Add Inventory ######################################
 @app.route('/add_inventory', methods=['GET', 'POST'])
 def add_inventory():
     if 'role' not in session or session['role'] != 'site_engineer':
@@ -1055,7 +1064,9 @@ def upload_progress():
     cursor.execute("SELECT * FROM sites WHERE site_engineer_id = %s", (site_engineer_id,))
     sites = cursor.fetchall()
     return render_template('upload_progress.html', sites=sites)
-################################### View Progress Reports (ADMIN)
+
+
+################################### View Progress Reports (ADMIN)###############################################
 @app.route('/view_progress')
 def view_progress():
     if session.get('role') != 'admin':
@@ -1079,7 +1090,7 @@ ALLOWED_EXT = {'pdf'}
 def allowed(filename: str) -> bool:
   return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXT
 
- 
+####################################add_vendor_inventory######################################## 
 @app.route('/add_vendor_inventory', methods=['GET', 'POST'])
 def add_vendor_inventory():
 
@@ -1182,7 +1193,7 @@ def add_vendor_inventory():
     return render_template('add_vendor_inventory.html')
 
 
-###################### --- Admin View Vendor Inventory --- ######################
+###################### --- Admin View Vendor Inventory --- ####################################################
 
 @app.route('/admin/vendor_inventory', methods=['GET','POST'])
 def admin_vendor_inventory():
@@ -1212,6 +1223,8 @@ def admin_vendor_inventory():
 
  #   return render_template('site_engineer_worker.html', workers=workers)
 
+
+########################################### Site Engineer View Inventory ######################################
 @app.route('/site_engineer/view_inventory')
 def site_engineer_view_inventory():
     if 'role' not in session or session['role'] != 'site_engineer':
@@ -1221,6 +1234,8 @@ def site_engineer_view_inventory():
         data = cursor.fetchall()
     return render_template('view_inventory.html', inventory=data)
 
+
+############################################ Site Engineer Approved Vendor Inventory ######################################
 @app.route('/site_engineer/approved_vendor_inventory')
 def site_engineer_approved_vendor_quotations():
     if session.get('role') != 'site_engineer':
@@ -1238,6 +1253,7 @@ def db_connection():
         cursorclass=pymysql.cursors.DictCursor
     )
 
+############################################### Add Enquiry ######################################
 @app.route('/add_enquiry', methods=['GET', 'POST'])
 def add_enquiry():
     if 'role' in session and session['role'] == 'site_engineer':
@@ -1263,7 +1279,8 @@ def add_enquiry():
 
     else:
         return redirect(url_for('login'))
-
+    
+################################################ View Enquiries ######################################
 @app.route('/admin/enquiries')
 def view_enquiries():
     if 'role' in session and session['role'] in ['admin', 'site_engineer']:
@@ -1291,6 +1308,8 @@ def view_enquiries():
     else:
         return redirect(url_for('login'))
     
+
+ ################################################# Add Architect ######################################   
 @app.route('/add_architect', methods=['GET', 'POST'])
 def add_architect():
     conn = db_connection()
@@ -1327,6 +1346,8 @@ def add_architect():
     conn.close()
     return render_template('add_architect.html', engineers=engineers, sites=sites)
 
+
+################################################# View Architects ######################################
 @app.route('/view_architects')
 def view_architects():
     if 'role' in session and session['role'] in ['admin', 'site_engineer']:
@@ -1369,6 +1390,8 @@ def view_architects():
 #                 conn.close()
 #     return redirect(url_for('login'))
 
+
+########################################### View Architect Details ######################################
 @app.route('/view_architect_details/<int:architect_id>')
 def view_architect_details(architect_id):
     if 'role' in session and session['role'] in ['admin', 'site_engineer']:
@@ -1392,6 +1415,8 @@ def view_architect_details(architect_id):
             if conn:
                 conn.close()
     return redirect(url_for('login'))
+
+########################################### Upload Utilities Services ######################################
 
 @app.route('/upload_utilities_services', methods=['POST'])
 def upload_utilities_services():
@@ -1420,7 +1445,7 @@ def upload_utilities_services():
 
 
 
-
+############################################ Upload Cost Estimation ######################################
 @app.route('/upload_cost_estimation', methods=['POST'])
 def upload_cost_estimation():
     if 'role' in session and session['role'] == 'architect':
@@ -1490,7 +1515,7 @@ def upload_cost_estimation():
 
 
 
-# # Define the function first
+########################################## Generate PDF for Cost Estimation ######################################
 def generate_estimation_pdf(data, save_path):
     from reportlab.lib.pagesizes import letter
     from reportlab.pdfgen import canvas
@@ -1508,7 +1533,7 @@ def generate_estimation_pdf(data, save_path):
         y -= 20
 
     c.save()
-
+########################################### Generate Cost Estimation PDF ######################################
 @app.route('/generate_cost_estimation_pdf', methods=['POST'])
 def generate_cost_estimation_pdf():
     if 'role' in session and session['role'] == 'architect':
@@ -1580,7 +1605,9 @@ def generate_cost_estimation_pdf():
     else:
         flash("Unauthorized access.")
         return redirect(url_for('login'))
+    
 
+############################################ Assign Architect to Project ######################################
 @app.route('/assign_architect', methods=['GET', 'POST'])
 def assign_architect():
     if 'role' in session and session['role'] in ['admin', 'site_engineer']:
@@ -1659,6 +1686,8 @@ def assign_architect():
                 conn.close()
     else:
         return redirect(url_for('login'))
+    
+########################################### Admin Assigned Sites ######################################    
 @app.route('/admin/assigned_sites')
 def admin_assigned_sites():
     if session.get('role') != 'admin':
@@ -1666,6 +1695,8 @@ def admin_assigned_sites():
     cursor.execute("SELECT * FROM sites WHERE site_engineer_id IS NOT NULL")
     sites = cursor.fetchall()
     return render_template('admin_assigned_sites.html', sites=sites)
+
+########################################### View Assigned Architects ######################################
 
 @app.route('/view_assigned_architects')
 def view_assigned_architects():
@@ -1707,6 +1738,9 @@ def view_assigned_architects():
     }
     
     return render_template('view_assigned_architects.html', sites=sites, current_user=current_user)
+
+
+################################################# View Project Details ######################################
 @app.route('/view_project_details', methods=['GET', 'POST'])
 def view_project_details():
     if 'role' not in session or session['role'] not in ['admin', 'site_engineer']:
@@ -1778,6 +1812,8 @@ def view_project_details():
     conn.close()
 
     return render_template("view_project_details.html", project_list=project_list)
+
+########################################### Submit Legal Compliances ######################################
 
 @app.route('/submit_legal_compliances', methods=['GET', 'POST'])
 
@@ -1963,7 +1999,7 @@ def submit_legal_compliances():
     return render_template('submit_legal_compliances.html', projects=projects)
 
 
-# View Route (for all roles)
+############################################ View Legal Compliances ######################################
 @app.route('/view_legal_compliances')
 def view_legal_compliances():
     if 'role' not in session:
@@ -2011,7 +2047,7 @@ def save_file(file):
         return os.path.join('uploads', filename).replace("\\", "/")
     return None
 
-## Legal Compliances Dashboard#########################################
+################################################ Legal Compliances Dashboard#########################################
 @app.route('/legal_compliances_dashboard', methods=['GET', 'POST'])
 def legal_compliances_dashboard():
     print("DEBUG: session =", dict(session))
@@ -2423,7 +2459,9 @@ def generate_invoice():
                          projects=projects, 
                          current_date=datetime.now().strftime("%Y-%m-%d"), 
                          user_role='site_engineer')
-########################### Invoice Submission Route ##########################
+
+
+###################################################### Invoice Submission Route ##########################
 @app.route('/submit_invoice_alt', methods=['GET','POST'])
 def submit_invoice_alt():
     if session.get('role') != 'site_engineer':
@@ -2473,7 +2511,9 @@ def submit_invoice_alt():
         db.rollback()
         flash(f"Error: {e}", "danger")
         return redirect(request.url)
+    
 
+###################################################### Admin View Invoices Route ##########################
 @app.route('/admin/invoices', methods=['GET', 'POST'])
 def admin_view_invoices():
     if session.get('role') != 'admin':
@@ -2626,6 +2666,9 @@ def admin_invoice_detail(invoice_id):
 #     # Pass current date to template for display
 #     return render_template('generate_invoice.html', current_date=datetime.now().strftime("%Y-%m-%d"), user_role='site_engineer')
 
+
+####################################################### Submit Invoice Route for Site Engineer ##########################################
+
 @app.route('/submit_invoice', methods=['GET','POST'])
 def submit_invoice():
     if session.get('role') != 'site_engineer':
@@ -2675,6 +2718,8 @@ def submit_invoice():
         db.rollback()
         flash(f"Error: {e}", "danger")
         return redirect(request.url)
+    
+######################################### Serve Invoice PDF ########################################    
 @app.route('/uploads/invoices/<path:filename>')
 
 def serve_invoice_pdf(filename):
