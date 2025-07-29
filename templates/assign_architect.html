@@ -400,10 +400,7 @@
             <div class="form-group">
                 <label for="project_id"><i class="fas fa-building" style="color:#3498db"></i> Select Site (as Project):</label>
                 <select name="project_id" id="project_id" required>
-                    <option value="">Choose a site...</option>
-                    {% for project in projects %}
-                        <option value="{{ project.site_id }}">{{ project.site_name }}</option>
-                    {% endfor %}
+                    <option value="">Loading sites...</option>
                 </select>
             </div>
             <div class="form-group">
@@ -425,36 +422,56 @@
             <i class="fas fa-users"></i> View Assigned Architects
         </a>
     </div>
-    <script>
+   <script>
         // Mobile menu toggle
-        document.getElementById('mobileMenuToggle').addEventListener('click', function() {
+        document.getElementById('mobileMenuToggle').addEventListener('click', function () {
             const navbarNav = document.getElementById('navbarNav');
             const icon = this.querySelector('i');
             navbarNav.classList.toggle('active');
-            if (navbarNav.classList.contains('active')) {
-                icon.classList.remove('fa-bars');
-                icon.classList.add('fa-times');
-            } else {
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
-            }
+            icon.classList.toggle('fa-bars');
+            icon.classList.toggle('fa-times');
         });
-        // Close mobile menu when clicking on a link
+
+        // Close mobile menu when link clicked
         document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', function() {
+            link.addEventListener('click', () => {
                 const navbarNav = document.getElementById('navbarNav');
-                const mobileToggle = document.getElementById('mobileMenuToggle');
-                const icon = mobileToggle.querySelector('i');
+                const icon = document.getElementById('mobileMenuToggle').querySelector('i');
                 navbarNav.classList.remove('active');
                 icon.classList.remove('fa-times');
                 icon.classList.add('fa-bars');
             });
         });
 
-        // Enable architect select only after project is selected
-        const projectSelect = document.getElementById('project_id');
-        const architectSelect = document.getElementById('architect_id');
-        projectSelect.addEventListener('change', function() {
+        // Load projects from API
+        async function loadProjects() {
+            const projectSelect = document.getElementById("project_id");
+            projectSelect.innerHTML = '<option value="">Loading sites...</option>';
+
+            try {
+                const res = await fetch("/select_project_by_org");
+                const data = await res.json();
+
+                if (data.status === "success") {
+                    projectSelect.innerHTML = '<option value="">Choose a site...</option>';
+                    data.projects.forEach(project => {
+                        const option = document.createElement("option");
+                        option.value = project.site_id;
+                        option.text = project.site_name;
+                        projectSelect.appendChild(option);
+                    });
+                } else {
+                    projectSelect.innerHTML = '<option value="">No sites found</option>';
+                }
+            } catch (error) {
+                console.error("Failed to load sites:", error);
+                projectSelect.innerHTML = '<option value="">Error loading sites</option>';
+            }
+        }
+
+        // Enable architect dropdown only when project is selected
+        document.getElementById('project_id').addEventListener('change', function () {
+            const architectSelect = document.getElementById('architect_id');
             if (this.value) {
                 architectSelect.disabled = false;
                 architectSelect.options[0].text = "Choose an architect...";
@@ -465,11 +482,16 @@
             }
         });
 
-        // Button loading animation on submit
-        document.getElementById('assignForm').addEventListener('submit', function(e) {
+        // Loading animation on submit
+        document.getElementById('assignForm').addEventListener('submit', function (e) {
             const btn = document.getElementById('assignBtn');
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Assigning...';
             btn.disabled = true;
+        });
+
+        // Load project list on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            loadProjects();
         });
     </script>
 </body>
