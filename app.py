@@ -25,9 +25,13 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.pagesizes import A4
 from flask import send_from_directory
 from reportlab.lib.styles import ParagraphStyle
+from config import get_connection
+from dotenv import load_dotenv
 
 from PIL import Image as PILImage
 from reportlab.platypus import Image as RLImage
+
+load_dotenv()
 
 UPLOAD_FOLDER_INVOICES = 'static/invoices'
 os.makedirs(UPLOAD_FOLDER_INVOICES, exist_ok=True)
@@ -40,15 +44,6 @@ moment = Moment(app)
 EMAIL = "rudhisoft@gmail.com"
 EMAIL_PASSWORD = "adko lzta nznk chms"
 
-# Connect to MySQL using pymysql
-db = pymysql.connect(
-    host="localhost",
-    user="root",
-    password="omgodse200378",  # <-- put your actual MySQL root password here
-    database="construction_site_management",
-    cursorclass=pymysql.cursors.DictCursor
-)
-cursor = db.cursor()
 from werkzeug.security import generate_password_hash, check_password_hash
 
 UPLOAD_FOLDER = 'static/uploads'
@@ -63,6 +58,7 @@ os.makedirs(UPLOAD_FOLDER_VENDOR, exist_ok=True)
 UPLOAD_FOLDER_PROGRESS = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf'}
+
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -90,6 +86,7 @@ def send_otp_email(email, otp):
 def forgot_password():
     if request.method == 'POST':
         email = request.form['email']
+        cursor = get_connection()
         cursor.execute("SELECT * FROM register WHERE email = %s", (email,))
         user = cursor.fetchone()
 
@@ -147,7 +144,8 @@ def reset_password():
 
         hashed_pw = generate_password_hash(new_password)
         email = session.get('reset_email')
-
+        cursor = get_connection()
+        db = cursor.cursor(pymysql.cursors.DictCursor) 
         cursor.execute("UPDATE register SET password_hash = %s WHERE email = %s", (hashed_pw, email))
         db.commit()
 
@@ -183,23 +181,32 @@ def register():
         password_hash = generate_password_hash(password)
 
         try:
-            conn = db_connection()
+            conn = get_connection()
             cursor = conn.cursor(pymysql.cursors.DictCursor)
 
-            # Insert into register table
+            # ✅ Get admin's org_id using session['user_id']
+            admin_id = session['user_id']
+            cursor.execute("SELECT org_id FROM register WHERE id = %s", (admin_id,))
+            admin_data = cursor.fetchone()
+            if not admin_data:
+                flash("Unable to retrieve admin's organization.")
+                return redirect(url_for('register'))
+            org_id = admin_data['org_id']
+
+            # ✅ Insert user with org_id
             cursor.execute("""
-                INSERT INTO register (name, email, password_hash, role)
-                VALUES (%s, %s, %s, %s)
-            """, (name, email, password_hash, role))
+                INSERT INTO register (name, email, password_hash, role, org_id)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (name, email, password_hash, role, org_id))
             register_id = cursor.lastrowid
             conn.commit()
 
             # If architect, insert into architects table
             if role == 'architect':
                 cursor.execute("""
-                    INSERT INTO architects (name, email, license_number, contact_no, register_id)
-                    VALUES (%s, %s, %s, %s, %s)
-                """, (name, email, license_number, contact_no, register_id))
+                    INSERT INTO architects (name, email, license_number, contact_no, register_id,org_id)
+                    VALUES (%s, %s, %s, %s, %s,%s)
+                """, (name, email, license_number, contact_no, register_id,org_id))
                 conn.commit()
 
             flash('User registered successfully.')
@@ -225,7 +232,7 @@ def login():
         email = request.form['email']
         password = request.form['password']
 
-        conn = db_connection()
+        conn = get_connection()
         cursor = conn.cursor(pymysql.cursors.DictCursor)
         cursor.execute("SELECT * FROM register WHERE email=%s", (email,))
         user = cursor.fetchone()
@@ -237,6 +244,8 @@ def login():
             session['user_id'] = user['id']
             session['role'] = user['role']
             session['name'] = user['name']
+            session['org_id'] = user['org_id']
+            print("User session set:", session)  # Debug line
             flash('Login successful!')
 
              # ✅ Generate and send OTP
@@ -327,7 +336,7 @@ def site_engineer_dashboard():
     site_engineer_id = session['user_id']
 
     # Fetch site engineer's name
-    conn = db_connection()
+    conn = get_connection()
     cur = conn.cursor(pymysql.cursors.DictCursor)
     cur.execute("SELECT name FROM register WHERE id = %s", (site_engineer_id,))
     engineer = cur.fetchone()
@@ -354,7 +363,7 @@ def architect_dashboard():
     if 'role' in session and session['role'] == 'architect':
         user_id = session['user_id']
 
-        conn = db_connection()
+        conn = get_connection()
         cur = conn.cursor(pymysql.cursors.DictCursor)
 
         selected_project = None
@@ -410,7 +419,7 @@ def cleanup_architects():
     Call this once to fix your database
     """
     if 'role' in session and session['role'] == 'architect':
-        conn = db_connection()
+        conn = get_connection()
         cur = conn.cursor(pymysql.cursors.DictCursor)
         
         try:
@@ -469,7 +478,7 @@ def accountant_dashboard():
 
     accountant_id = session['user_id']
 
-    conn = db_connection()
+    conn = get_connection()
 
     cur = conn.cursor(pymysql.cursors.DictCursor)
 
@@ -578,7 +587,7 @@ def add_design_details():
         plot_area = request.form['plot_area']
         fsi = request.form['fsi']
 
-        conn = db_connection()
+        conn = get_connection()
         cur = conn.cursor()
         cur.execute("""
             INSERT INTO design_details (project_id, building_usage, num_floors, area_sqft, plot_area, fsi)
@@ -610,7 +619,7 @@ def add_structural_details():
         beam_details = request.form['beam_details']
         load_calculation = request.form['load_calculation']
 
-        conn = db_connection()
+        conn = get_connection()
         cur = conn.cursor()
         cur.execute("""
             INSERT INTO structural_details (project_id, foundation_type, framing_system, slab_type, beam_details, load_calculation)
@@ -643,7 +652,7 @@ def add_material_specification():
         flooring_material = request.form['flooring_material']
         fire_safety_materials = request.form['fire_safety_materials']
 
-        conn = db_connection()
+        conn = get_connection()
         cur = conn.cursor()
         cur.execute("""
             INSERT INTO material_specifications (project_id, primary_material, wall_material, roofing_material, flooring_material, fire_safety_materials)
@@ -703,7 +712,7 @@ def upload_layout():
             return redirect(url_for('architect_dashboard'))
 
         # Save to DB
-        conn = db_connection()
+        conn = get_connection()
         cur = conn.cursor()
         cur.execute("""
             INSERT INTO drawing_documents (
@@ -745,7 +754,7 @@ def upload_site_conditions():
             topo_file.save(topo_save_path)
             topo_path = os.path.join('uploads', topo_filename).replace("\\", "/")
 
-        conn = db_connection()
+        conn = get_connection()
         cur = conn.cursor()
         cur.execute("""
             INSERT INTO site_conditions (project_id, soil_report_path, water_table_level, topo_counter_map_path)
@@ -804,7 +813,7 @@ def submit_worker_report():
 
     site_engineer_id = session['user_id']
 
-    conn = db_connection()
+    conn = get_connection()
     cur = conn.cursor(pymysql.cursors.DictCursor)
 
     # Handle POST submission
@@ -841,35 +850,47 @@ def view_worker_reports():
     if 'role' not in session or session['role'] not in ['admin', 'site_engineer']:
         return redirect(url_for('login'))
 
-    conn = db_connection()
+    conn = get_connection()
     cur = conn.cursor(pymysql.cursors.DictCursor)
 
+    # Step 1: Get the logged-in user's org_id
+    user_id = session.get('user_id')
+    cur.execute("SELECT org_id FROM register WHERE id = %s", (user_id,))
+    user_data = cur.fetchone()
+
+    if not user_data:
+        flash("User organization not found.", "danger")
+        return redirect(url_for('login'))
+
+    org_id = user_data['org_id']
+
+    # Step 2: Role-based view
     if session['role'] == 'admin':
-        # Admin view: show all reports with site engineer name
+        # Admin: Show reports for their org_id
         cur.execute("""
             SELECT 
                 dr.id, 
                 r.name AS site_engineer, 
                 p.project_name, 
                 dr.worker_count, 
-                dr.report_date
+                dr.report_date,
+                dr.org_id
             FROM daily_worker_report dr
             JOIN projects p ON dr.project_id = p.id
             JOIN register r ON dr.site_engineer_id = r.id
+            WHERE dr.org_id = %s
             ORDER BY dr.report_date DESC
-        """)
+        """, (org_id,))
         reports = cur.fetchall()
-    
-    else:
-        # Site Engineer view: show their own reports along with their own name
-        site_engineer_id = session['user_id']
 
-        # First fetch the site engineer's name
-        cur.execute("SELECT name FROM register WHERE id = %s", (site_engineer_id,))
+    else:
+        # Site Engineer: Show only their own reports for their org_id
+        # First get the site engineer's name
+        cur.execute("SELECT name FROM register WHERE id = %s", (user_id,))
         engineer = cur.fetchone()
         engineer_name = engineer['name'] if engineer else 'Unknown'
 
-        # Now fetch that engineer's worker reports
+        # Fetch their worker reports
         cur.execute("""
             SELECT 
                 dr.id, 
@@ -878,16 +899,17 @@ def view_worker_reports():
                 dr.report_date
             FROM daily_worker_report dr
             JOIN projects p ON dr.project_id = p.id
-            WHERE dr.site_engineer_id = %s
+            WHERE dr.site_engineer_id = %s AND dr.org_id = %s
             ORDER BY dr.report_date DESC
-        """, (site_engineer_id,))
+        """, (user_id, org_id))
         reports = cur.fetchall()
 
-        # Inject the site engineer name into each row
+        # Inject site engineer name into each report
         for report in reports:
             report['site_engineer'] = engineer_name
 
     return render_template('view_worker_reports.html', reports=reports)
+
 
 
 
@@ -907,6 +929,8 @@ def record_attendance():
         attendance_date = request.form['date']
 
         try:
+            cursor = get_connection()
+            db = cursor.cursor(pymysql.cursors.DictCursor)
             cursor.execute(
                 "INSERT INTO attendance (worker_name, date, status) VALUES (%s, %s, %s)",
                 (worker_name, attendance_date, status)
@@ -922,6 +946,7 @@ def record_attendance():
 
 @app.route('/view_attendance')
 def view_attendance():
+    cursor = get_connection()
     cursor.execute("SELECT * FROM attendance ORDER BY date DESC")
     records = cursor.fetchall()
     return render_template('view_attendance.html', records=records)
@@ -930,9 +955,13 @@ def view_attendance():
 @app.route('/add_inventory', methods=['GET', 'POST'])
 def add_inventory():
     if 'role' not in session or session['role'] != 'site_engineer':
-        return redirect('/')
+        return redirect(url_for('login'))
 
-    conn = db_connection()
+    if 'org_id' not in session:
+        flash("Unauthorized access", "danger")
+        return redirect(url_for('login'))
+
+    conn = get_connection()
     cursor = conn.cursor()
 
     if request.method == 'POST':
@@ -941,15 +970,21 @@ def add_inventory():
             qty = int(request.form['quantity'])
             stat = request.form['status']
             inv_date = request.form['date']
+            org_id = session['org_id']
 
-            query = "INSERT INTO inventory (material_description, quantity, date, status) VALUES (%s, %s, %s, %s)"
-            cursor.execute(query, (desc, qty, inv_date, stat))
+            query = """
+                INSERT INTO inventory (material_description, quantity, date, status, org_id)
+                VALUES (%s, %s, %s, %s, %s)
+            """
+            cursor.execute(query, (desc, qty, inv_date, stat, org_id))
             conn.commit()
             flash('Inventory added successfully!', 'success')
-            return redirect(url_for('view_inventory'))  # <== Redirect here
+            return redirect(url_for('view_inventory'))
+
         except Exception as e:
             conn.rollback()
             flash(f'Error: {e}', 'danger')
+
         finally:
             cursor.close()
             conn.close()
@@ -958,14 +993,20 @@ def add_inventory():
 
 
 
+
 ######################################## View Inventory ######################################
 
 @app.route('/view_inventory')
 def view_inventory():
-    db = db_connection()  # Reopen DB connection freshly
-    
+    if 'org_id' not in session:
+        flash("Unauthorized access", "danger")
+        return redirect(url_for('login'))
+
+    org_id = session['org_id']
+    db = get_connection()
     cursor = db.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("SELECT * FROM inventory ORDER BY date DESC")
+
+    cursor.execute("SELECT * FROM inventory WHERE org_id = %s ORDER BY date DESC", (org_id,))
     inventory = cursor.fetchall()
 
     response = make_response(render_template('view_inventory.html', inventory=inventory))
@@ -974,13 +1015,21 @@ def view_inventory():
     response.headers["Expires"] = "0"
     return response
 
+
 ########################---assign sites---#######################################
 @app.route('/assign_site', methods=['GET', 'POST'])
 def assign_site():
     if session.get('role') != 'admin':
         return redirect(url_for('login'))
 
-    cursor.execute("SELECT id, name FROM register WHERE role = 'site_engineer'")
+    db = get_connection()
+    cursor = db.cursor(pymysql.cursors.DictCursor)
+
+    # ✅ Correctly pass org_id as a tuple
+    cursor.execute(
+        "SELECT id, name FROM register WHERE role = 'site_engineer' AND org_id = %s",
+        (session['org_id'],)  # ← tuple with comma
+    )
     engineers = cursor.fetchall()
 
     if request.method == 'POST':
@@ -988,12 +1037,17 @@ def assign_site():
         location = request.form['location']
         engineer_id = request.form['site_engineer_id']
 
-        query = "INSERT INTO sites (site_name, location, site_engineer_id) VALUES (%s, %s, %s)"
-        cursor.execute(query, (site_name, location, engineer_id))
+        # ✅ Insert new site with associated engineer and org
+        cursor.execute(
+            "INSERT INTO sites (site_name, location, site_engineer_id, org_id) VALUES (%s, %s, %s, %s)",
+            (site_name, location, engineer_id, session['org_id'])
+        )
         db.commit()
-        flash('Site assigned successfully.')
+        flash('Site assigned successfully.', 'success')
+        return redirect(url_for('assign_site'))
 
     return render_template('assign_site.html', engineers=engineers)
+
 
 ################################--- View Assigned Sites ---###################
 
@@ -1004,9 +1058,14 @@ def view_assigned_sites():
 
     engineer_id = session['user_id']  # Make sure user_id is set on login
 
+    conn = get_connection()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
     cursor.execute("SELECT * FROM sites WHERE site_engineer_id = %s", (engineer_id,))
     sites = cursor.fetchall()
+    conn.close()
+
     return render_template('view_assigned_sites.html', sites=sites)
+
 
 ######################## 🌟 Upload Progress Report (SITE ENGINEER)###################
 @app.route('/upload_progress', methods=['GET', 'POST'])
@@ -1051,18 +1110,25 @@ def upload_progress():
             print("DEBUG: No PDF uploaded")
 
         # Insert into DB
+        db = get_connection()  # ✅ Correctly get connection
+        cursor = db.cursor(pymysql.cursors.DictCursor)  # ✅ Get cursor from connection
         cursor.execute("""
             INSERT INTO progress_reports 
             (site_id, progress_percent, image_path, pdf_path, report_date, remark) 
             VALUES (%s,%s,%s,%s,%s,%s)
         """, (site_id, progress, img_filename, pdf_filename, today, remark))
         db.commit()
+        db.close()
         flash('Progress report uploaded successfully!', 'success')
         return redirect(url_for('upload_progress'))
 
-    # Get assigned sites
+    # GET method: fetch assigned sites
+    db = get_connection()
+    cursor = db.cursor(pymysql.cursors.DictCursor)
     cursor.execute("SELECT * FROM sites WHERE site_engineer_id = %s", (site_engineer_id,))
     sites = cursor.fetchall()
+    db.close()
+
     return render_template('upload_progress.html', sites=sites)
 
 
@@ -1071,12 +1137,25 @@ def upload_progress():
 def view_progress():
     if session.get('role') != 'admin':
         return redirect(url_for('login'))
-    cursor.execute("""SELECT pr.*, s.site_name, pr.report_date AS upload_date
-                      FROM progress_reports pr 
-                      JOIN sites s ON pr.site_id = s.site_id
-                      ORDER BY pr.report_date DESC""")
+
+    db = get_connection()
+    cursor = db.cursor(pymysql.cursors.DictCursor)
+
+    # Use the correct SQL order: WHERE before ORDER BY
+    # Assuming org_id is in the sites table
+    query = """
+        SELECT pr.*, s.site_name, pr.report_date AS upload_date
+        FROM progress_reports pr
+        JOIN sites s ON pr.site_id = s.site_id
+        WHERE s.org_id = %s
+        ORDER BY pr.report_date DESC
+    """
+
+    cursor.execute(query, (session['org_id'],))
     reports = cursor.fetchall()
+
     return render_template('view_progress.html', reports=reports)
+
 
 # ✅ Vendor Inventory with PDF quotes by site engineer & admin approval
 
@@ -1150,7 +1229,9 @@ def add_vendor_inventory():
 
                 return redirect(url_for('add_vendor_inventory'))
 
-
+            # Insert into vendor_inventory table
+            db = get_connection()
+            cursor = db.cursor(pymysql.cursors.DictCursor)
 
             cursor.execute("""
 
@@ -1158,9 +1239,9 @@ def add_vendor_inventory():
 
                 (material_description, quantity, date, status,
 
-                 vendor_name, vendor_type, vendor_quotation_pdf)
+                 vendor_name, vendor_type, vendor_quotation_pdf,org_id)
 
-                VALUES (%s, %s, CURDATE(), %s, %s, %s, %s)
+                VALUES (%s, %s, CURDATE(), %s, %s, %s, %s, %s)
 
             """, (
 
@@ -1174,7 +1255,9 @@ def add_vendor_inventory():
 
                 v_types[i],
 
-                filename
+                filename,
+
+                session['org_id']
 
             ))
 
@@ -1195,20 +1278,34 @@ def add_vendor_inventory():
 
 ###################### --- Admin View Vendor Inventory --- ####################################################
 
-@app.route('/admin/vendor_inventory', methods=['GET','POST'])
+@app.route('/admin/vendor_inventory', methods=['GET', 'POST'])
 def admin_vendor_inventory():
     if session.get('role') != 'admin':
         return redirect(url_for('login'))
+
+    db = get_connection()
+    cursor = db.cursor(pymysql.cursors.DictCursor)
+    org_id = session.get('org_id')  # Get org_id from session
+
     if request.method == 'POST':
         rec_id = request.form['id']
         remark = request.form['remark']
         approval = request.form['approval']
-        cursor.execute("UPDATE vendor_inventory SET admin_remark=%s, admin_approval=%s WHERE id=%s",
-                       (remark, approval, rec_id))
+
+        # ✅ Ensure org_id match during update
+        cursor.execute("""
+            UPDATE vendor_inventory 
+            SET admin_remark=%s, admin_approval=%s 
+            WHERE id=%s AND org_id=%s
+        """, (remark, approval, rec_id, org_id))
         db.commit()
-    cursor.execute("SELECT * FROM vendor_inventory")
+
+    # ✅ Only fetch records for the current organization
+    cursor.execute("SELECT * FROM vendor_inventory WHERE org_id = %s", (org_id,))
     inv = cursor.fetchall()
+    
     return render_template('admin_vendor_inventory.html', inventory=inv)
+
 
 
 
@@ -1228,11 +1325,25 @@ def admin_vendor_inventory():
 @app.route('/site_engineer/view_inventory')
 def site_engineer_view_inventory():
     if 'role' not in session or session['role'] != 'site_engineer':
-        return redirect('/')
-    with db.cursor() as cursor:
-        cursor.execute("SELECT * FROM inventory ORDER BY date DESC")
+        return redirect(url_for('login'))
+
+    if 'org_id' not in session:
+        flash("Unauthorized access", "danger")
+        return redirect(url_for('login'))
+
+    org_id = session['org_id']
+    db = get_connection()
+
+    with db.cursor(pymysql.cursors.DictCursor) as cursor:
+        cursor.execute("""
+            SELECT * FROM inventory
+            WHERE org_id = %s
+            ORDER BY date DESC
+        """, (org_id,))
         data = cursor.fetchall()
+
     return render_template('view_inventory.html', inventory=data)
+
 
 
 ############################################ Site Engineer Approved Vendor Inventory ######################################
@@ -1240,18 +1351,33 @@ def site_engineer_view_inventory():
 def site_engineer_approved_vendor_quotations():
     if session.get('role') != 'site_engineer':
         return redirect(url_for('login'))
-    cursor.execute("SELECT * FROM vendor_inventory WHERE admin_approval='approved'")
-    approved_inventory = cursor.fetchall()
-    return render_template('site_engineer_approved_vendor_quotations.html', inventory=approved_inventory)
-def db_connection():
 
-    return pymysql.connect(
-        host='localhost',
-        user='root',         # <-- replace with your DB username
-        password='omgodse200378', # <-- replace with your DB password
-        db='construction_site_management',           # <-- replace with your DB name
-        cursorclass=pymysql.cursors.DictCursor
-    )
+    if 'org_id' not in session:
+        flash("Unauthorized access", "danger")
+        return redirect(url_for('login'))
+
+    org_id = session['org_id']
+    db = get_connection()
+
+    with db.cursor(pymysql.cursors.DictCursor) as cursor:
+        cursor.execute("""
+            SELECT * FROM vendor_inventory
+            WHERE admin_approval = 'approved' AND org_id = %s
+            ORDER BY date DESC
+        """, (org_id,))
+        approved_inventory = cursor.fetchall()
+
+    return render_template('site_engineer_approved_vendor_quotations.html', inventory=approved_inventory)
+
+# def db_connection():
+
+#     return pymysql.connect(
+#         host='localhost',
+#         user='root',         # <-- replace with your DB username
+#         password='omgodse200378', # <-- replace with your DB password
+#         db='construction_site_management',           # <-- replace with your DB name
+#         cursorclass=pymysql.cursors.DictCursor
+#     )
 
 ############################################### Add Enquiry ######################################
 @app.route('/add_enquiry', methods=['GET', 'POST'])
@@ -1263,12 +1389,16 @@ def add_enquiry():
             contact_no = request.form['contact_no']
             requirement = request.form['requirement']
             engineer_id = session['user_id']
+            org_id = session.get('org_id')  # Fetch org_id from session
 
-            conn = db_connection()
+            conn = get_connection()
             cur = conn.cursor()
             cur.execute(
-                "INSERT INTO enquiries (site_engineer_id, name, address, contact_no, requirement) VALUES (%s, %s, %s, %s, %s)",
-                (engineer_id, name, address, contact_no, requirement)
+                """
+                INSERT INTO enquiries (site_engineer_id, name, address, contact_no, requirement, org_id)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                """,
+                (engineer_id, name, address, contact_no, requirement, org_id)
             )
             conn.commit()
             conn.close()
@@ -1279,40 +1409,46 @@ def add_enquiry():
 
     else:
         return redirect(url_for('login'))
+
     
 ################################################ View Enquiries ######################################
 @app.route('/admin/enquiries')
 def view_enquiries():
     if 'role' in session and session['role'] in ['admin', 'site_engineer']:
-        conn = db_connection()
+        conn = get_connection()
         cur = conn.cursor(pymysql.cursors.DictCursor)
+        org_id = session.get('org_id')
+
         if session['role'] == 'admin':
             cur.execute("""
                 SELECT e.*, r.name AS engineer_name 
                 FROM enquiries e
                 JOIN register r ON e.site_engineer_id = r.id
+                WHERE e.org_id = %s
                 ORDER BY e.enquiry_date DESC
-            """)
+            """, (org_id,))
         else:  # site_engineer
             site_engineer_id = session['user_id']
             cur.execute("""
                 SELECT e.*, r.name AS engineer_name 
                 FROM enquiries e
                 JOIN register r ON e.site_engineer_id = r.id
-                WHERE e.site_engineer_id = %s
+                WHERE e.site_engineer_id = %s AND e.org_id = %s
                 ORDER BY e.enquiry_date DESC
-            """, (site_engineer_id,))
+            """, (site_engineer_id, org_id))
+
         enquiries = cur.fetchall()
         conn.close()
         return render_template('view_enquiry.html', enquiries=enquiries)
     else:
         return redirect(url_for('login'))
+
     
 
  ################################################# Add Architect ######################################   
 @app.route('/add_architect', methods=['GET', 'POST'])
 def add_architect():
-    conn = db_connection()
+    conn = get_connection()
     cursor = conn.cursor()
 
     # Get site engineers
@@ -1351,7 +1487,7 @@ def add_architect():
 @app.route('/view_architects')
 def view_architects():
     if 'role' in session and session['role'] in ['admin', 'site_engineer']:
-        conn = db_connection()
+        conn = get_connection()
         cur = conn.cursor(pymysql.cursors.DictCursor)
 
         if session['role'] == 'site_engineer':
@@ -1397,7 +1533,7 @@ def view_architect_details(architect_id):
     if 'role' in session and session['role'] in ['admin', 'site_engineer']:
         conn = None
         try:
-            conn = db_connection()
+            conn = get_connection()
             cur = conn.cursor(pymysql.cursors.DictCursor)
             cur.execute("SELECT * FROM architects WHERE id = %s", (architect_id,))
             architect = cur.fetchone()
@@ -1426,7 +1562,7 @@ def upload_utilities_services():
         drainage_system = request.form.get('drainage_system_type')
         power_supply = request.form.get('power_supply_source')
 
-        conn = db_connection()
+        conn = get_connection()
         cur = conn.cursor()
 
         cur.execute("""
@@ -1478,7 +1614,7 @@ def upload_cost_estimation():
         generate_estimation_pdf(pdf_data, save_path)
 
         # Save to DB
-        conn = db_connection()
+        conn = get_connection()
         cur = conn.cursor()
 
         # Update if project already has entry
@@ -1569,7 +1705,7 @@ def generate_cost_estimation_pdf():
             pdf.output(filepath)
 
             # Save PDF path to database
-            conn = db_connection()
+            conn = get_connection()
             cur = conn.cursor()
             cur.execute("SELECT id FROM cost_estimation WHERE project_id = %s", (project_id,))
             if cur.fetchone():
@@ -1607,13 +1743,41 @@ def generate_cost_estimation_pdf():
         return redirect(url_for('login'))
     
 
-############################################ Assign Architect to Project ######################################
+############################################ Assign Architect to Project ######################################@app.route('/select_project_by_org')@app.route('/select_project_by_org', methods=['GET'])
+@app.route('/select_project_by_org', methods=['GET'])
+def select_project_by_org():
+    if 'user_id' not in session or 'org_id' not in session:
+        return jsonify({'status': 'error', 'message': 'Unauthorized access'}), 401
+
+    org_id = session['org_id']
+    print("Org ID from session:", org_id)
+
+    try:
+        conn = get_connection()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+        query = "SELECT site_id, site_name FROM sites WHERE org_id = %s"
+        print("Running query...")
+        cursor.execute(query, (org_id,))
+        projects = cursor.fetchall()
+        print("Fetched projects:", projects)
+
+        return jsonify({'status': 'success', 'projects': projects})
+
+    except Exception as e:
+        import traceback
+        print("DB error in /select_project_by_org:", e)
+        traceback.print_exc()
+    return jsonify({'status': 'error', 'message': 'Error loading projects'}), 500
+
+
+
 @app.route('/assign_architect', methods=['GET', 'POST'])
 def assign_architect():
     if 'role' in session and session['role'] in ['admin', 'site_engineer']:
         conn = None
         try:
-            conn = db_connection()
+            conn = get_connection()
             cursor = conn.cursor(pymysql.cursors.DictCursor)
 
             # Get sites assigned to site engineers
@@ -1633,7 +1797,7 @@ def assign_architect():
             projects = cursor.fetchall()
 
             # Fetch architects from register table
-            cursor.execute("SELECT id, name FROM register WHERE role = 'architect'")
+            cursor.execute("SELECT id, name FROM register WHERE role = 'architect' and org_id = %s", (session['org_id'],))
             architects = cursor.fetchall()
 
             if request.method == 'POST':
@@ -1645,7 +1809,7 @@ def assign_architect():
                 
                 try:
                     # Get the site name for project name
-                    cursor.execute("SELECT site_name FROM sites WHERE site_id = %s", (site_id,))
+                    cursor.execute("SELECT site_name FROM sites WHERE site_id = %s and org_id = %s", (site_id,session['org_id']))
                     site = cursor.fetchone()
                     
                     if site:
@@ -1653,9 +1817,9 @@ def assign_architect():
 
                         # Insert into projects
                         cursor.execute("""
-                            INSERT INTO projects (project_name, architect_id, site_id)
-                            VALUES (%s, %s, %s)
-                        """, (project_name, architect_id, site_id))
+                            INSERT INTO projects (project_name, architect_id, site_id,org_id)
+                            VALUES (%s, %s, %s, %s)
+                        """, (project_name, architect_id, site_id, session['org_id']))
 
                         conn.commit()
                         flash('Project and Architect assigned successfully.')
@@ -1692,6 +1856,8 @@ def assign_architect():
 def admin_assigned_sites():
     if session.get('role') != 'admin':
         return redirect(url_for('login'))
+
+    cursor = get_connection()
     cursor.execute("SELECT * FROM sites WHERE site_engineer_id IS NOT NULL")
     sites = cursor.fetchall()
     return render_template('admin_assigned_sites.html', sites=sites)
@@ -1703,7 +1869,7 @@ def view_assigned_architects():
     if 'role' not in session or session['role'] not in ['admin', 'site_engineer']:
         return redirect(url_for('login'))
 
-    conn = db_connection()
+    conn = get_connection()
     cur = conn.cursor(pymysql.cursors.DictCursor)
 
     if session['role'] == 'admin':
@@ -1748,21 +1914,22 @@ def view_project_details():
 
     user_id = session['user_id']
     role = session['role']
+    org_id = session.get('org_id')
 
-    conn = db_connection()
+    conn = get_connection()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
 
     # Get all project options for dropdown
     if role == 'admin':
-        cursor.execute("SELECT id, project_name FROM projects")
+        cursor.execute("SELECT id, project_name FROM projects WHERE org_id = %s", (org_id,))
         project_list = cursor.fetchall()
     elif role == 'site_engineer':
         cursor.execute("""
             SELECT p.id, p.project_name
             FROM projects p
             JOIN sites s ON p.site_id = s.site_id
-            WHERE s.site_engineer_id = %s
-        """, (user_id,))
+            WHERE s.site_engineer_id = %s AND p.org_id = %s
+        """, (user_id, org_id))
         project_list = cursor.fetchall()
     else:
         project_list = []
@@ -1771,232 +1938,146 @@ def view_project_details():
     project_id = request.form.get('project_id')
 
     if request.method == 'POST' and project_id:
-        # Fetch all details related to the selected project
-        cursor.execute("SELECT * FROM projects WHERE id = %s", (project_id,))
+        # Validate if selected project belongs to org
+        cursor.execute("SELECT * FROM projects WHERE id = %s AND org_id = %s", (project_id, org_id))
         selected_project = cursor.fetchone()
 
-        cursor.execute("SELECT * FROM design_details WHERE project_id = %s", (project_id,))
-        design = cursor.fetchone()
+        if selected_project:
+            cursor.execute("SELECT * FROM design_details WHERE project_id = %s", (project_id,))
+            design = cursor.fetchone()
 
-        cursor.execute("SELECT * FROM structural_details WHERE project_id = %s", (project_id,))
-        structure = cursor.fetchone()
+            cursor.execute("SELECT * FROM structural_details WHERE project_id = %s", (project_id,))
+            structure = cursor.fetchone()
 
-        cursor.execute("SELECT * FROM material_specifications WHERE project_id = %s", (project_id,))
-        material = cursor.fetchone()
+            cursor.execute("SELECT * FROM material_specifications WHERE project_id = %s", (project_id,))
+            material = cursor.fetchone()
 
-        cursor.execute("SELECT * FROM site_conditions WHERE project_id = %s", (project_id,))
-        site_conditions = cursor.fetchone()
+            cursor.execute("SELECT * FROM site_conditions WHERE project_id = %s", (project_id,))
+            site_conditions = cursor.fetchone()
 
-        cursor.execute("SELECT * FROM utilities_services WHERE project_id = %s", (project_id,))
-        utilities = cursor.fetchone()
+            cursor.execute("SELECT * FROM utilities_services WHERE project_id = %s", (project_id,))
+            utilities = cursor.fetchone()
 
-        cursor.execute("SELECT * FROM cost_estimation WHERE project_id = %s", (project_id,))
-        cost = cursor.fetchone()
+            cursor.execute("SELECT * FROM cost_estimation WHERE project_id = %s", (project_id,))
+            cost = cursor.fetchone()
 
-        cursor.execute("SELECT * FROM drawing_documents WHERE project_id = %s", (project_id,))
-        drawings = cursor.fetchall()
+            cursor.execute("SELECT * FROM drawing_documents WHERE project_id = %s", (project_id,))
+            drawings = cursor.fetchall()
 
-        return render_template("view_project_details.html",
-                               project_list=project_list,
-                               selected_project=selected_project,
-                               design=design,
-                               structure=structure,
-                               material=material,
-                               site_conditions=site_conditions,
-                               utilities=utilities,
-                               cost=cost,
-                               drawings=drawings,
-                               selected_project_id=int(project_id))
+            return render_template("view_project_details.html",
+                                   project_list=project_list,
+                                   selected_project=selected_project,
+                                   design=design,
+                                   structure=structure,
+                                   material=material,
+                                   site_conditions=site_conditions,
+                                   utilities=utilities,
+                                   cost=cost,
+                                   drawings=drawings,
+                                   selected_project_id=int(project_id))
 
     cursor.close()
     conn.close()
 
     return render_template("view_project_details.html", project_list=project_list)
 
+
 ########################################### Submit Legal Compliances ######################################
-
 @app.route('/submit_legal_compliances', methods=['GET', 'POST'])
-
 def submit_legal_compliances():
-
     if 'role' not in session or session['role'] not in ['admin', 'site_engineer']:
-
         return redirect(url_for('login'))
 
-
-
-    conn = db_connection()
-
-    cur = conn.cursor()
-
-
+    conn = get_connection()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
 
     if request.method == 'POST':
-
         project_id = request.form['project_id']
-
         municipal_status = request.form['municipal_approval_status']
-
         environmental_clearance = request.form['environmental_clearance']
 
-
-
         municipal_pdf = None
-
         if municipal_status == 'Approved':
-
             municipal_pdf = save_file(request.files['municipal_approval_pdf'])
 
-
-
         building_permit_pdf = save_file(request.files['building_permit_pdf'])
-
         sanction_plan_pdf = save_file(request.files['sanction_plan_pdf'])
-
         fire_noc_pdf = save_file(request.files['fire_department_noc_pdf'])
-
         mngl_pdf = save_file(request.files['mngl_pdf']) if 'mngl_pdf' in request.files else None
 
-
-
-        cur.execute("SELECT id FROM legal_and_compliances WHERE project_id = %s", (project_id,))
-
+        cur.execute("SELECT id FROM legal_and_compliances WHERE project_id = %s AND org_id = %s", (project_id, session['org_id']))
         existing = cur.fetchone()
 
-
-
         if existing:
-
-            cur.execute("SELECT * FROM legal_and_compliances WHERE project_id = %s", (project_id,))
-
+            cur.execute("SELECT * FROM legal_and_compliances WHERE project_id = %s AND org_id = %s", (project_id, session['org_id']))
             old = cur.fetchone()
 
-            municipal_pdf = municipal_pdf or old[2]
-
-            building_permit_pdf = building_permit_pdf or old[3]
-
-            sanction_plan_pdf = sanction_plan_pdf or old[4]
-
-            fire_noc_pdf = fire_noc_pdf or old[5]
-
-            mngl_pdf = mngl_pdf or old[6]  # Adjust index as per your table structure
-
-
+            # ✅ FIXED: Use column names instead of indexes
+            municipal_pdf = municipal_pdf or old['municipal_approval_pdf']
+            building_permit_pdf = building_permit_pdf or old['building_permit_pdf']
+            sanction_plan_pdf = sanction_plan_pdf or old['sanction_plan_pdf']
+            fire_noc_pdf = fire_noc_pdf or old['fire_department_noc_pdf']
+            mngl_pdf = mngl_pdf or old['mngl_pdf']
 
             cur.execute("""
-
                 UPDATE legal_and_compliances
-
                 SET municipal_approval_status=%s,
-
                     municipal_approval_pdf=%s,
-
                     building_permit_pdf=%s,
-
                     sanction_plan_pdf=%s,
-
                     fire_department_noc_pdf=%s,
-
                     environmental_clearance=%s,
-
                     mngl_pdf=%s
-
-                WHERE project_id=%s
-
+                WHERE project_id=%s AND org_id = %s
             """, (
-
                 municipal_status, municipal_pdf, building_permit_pdf,
-
                 sanction_plan_pdf, fire_noc_pdf, environmental_clearance,
-
-                mngl_pdf, project_id
-
+                mngl_pdf, project_id, session['org_id']
             ))
-
             flash('Legal compliances updated successfully.')
-
         else:
-
             cur.execute("""
-
                 INSERT INTO legal_and_compliances (
-
                     project_id, municipal_approval_status, municipal_approval_pdf,
-
                     building_permit_pdf, sanction_plan_pdf, fire_department_noc_pdf,
-
-                    environmental_clearance, mngl_pdf
-
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-
+                    environmental_clearance, mngl_pdf, org_id
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, (
-
                 project_id, municipal_status, municipal_pdf,
-
                 building_permit_pdf, sanction_plan_pdf, fire_noc_pdf,
-
-                environmental_clearance, mngl_pdf
-
+                environmental_clearance, mngl_pdf, session['org_id']
             ))
-
             flash('Legal compliances submitted successfully.')
-
-
 
         conn.commit()
         cur.close()
         conn.close()
         return redirect(url_for('admin_dashboard'))
 
-
-
     # ✅ GET method - Fetch project list
-
     user_id = session.get('user_id')
-
     role = session.get('role')
 
-
-
-    print("✅ SESSION DEBUG --> user_id:", user_id, "| role:", role)
-
-
-
     if role == 'admin':
-
-        cur.execute("SELECT id, project_name FROM projects")
-
+        cur.execute("SELECT id, project_name FROM projects WHERE org_id = %s", (session['org_id'],))
     elif role == 'site_engineer':
-
-        # ✅ Use JOIN to get projects assigned through sites table
-
         cur.execute("""
-
-            SELECT p.id, p.project_name
-
+            SELECT p.id, p.project_name, p.org_id
             FROM projects p
-
             JOIN sites s ON p.site_id = s.site_id
-
-            WHERE s.site_engineer_id = %s
-
-        """, (user_id,))
-
+            WHERE s.site_engineer_id = %s AND p.org_id = %s
+        """, (user_id, session['org_id']))
     else:
         cur.close()
         conn.close()
         flash("Unauthorized access.")
         return redirect(url_for('login'))
 
-
-
     projects = cur.fetchall()
-    print("✅ Projects fetched:", projects)
-
     cur.close()
     conn.close()
-
     return render_template('submit_legal_compliances.html', projects=projects)
+
 
 
 ############################################ View Legal Compliances ######################################
@@ -2007,7 +2088,9 @@ def view_legal_compliances():
 
     user_id = session['user_id']
     role = session['role']
-    conn = db_connection()
+    org_id = session['org_id']  # ✅ Get org_id from session
+
+    conn = get_connection()
     cur = conn.cursor(pymysql.cursors.DictCursor)
 
     if role == 'admin':
@@ -2015,14 +2098,18 @@ def view_legal_compliances():
             SELECT lc.*, p.project_name
             FROM legal_and_compliances lc
             JOIN projects p ON lc.project_id = p.id
-        """)
+            WHERE lc.org_id = %s
+        """, (org_id,))
+        
     elif role == 'site_engineer':
         cur.execute("""
             SELECT lc.*, p.project_name
             FROM legal_and_compliances lc
             JOIN projects p ON lc.project_id = p.id
-            WHERE p.site_engineer_id = %s
-        """, (user_id,))
+            JOIN sites s ON p.site_id = s.site_id
+            WHERE s.site_engineer_id = %s AND p.org_id = %s
+        """, (user_id, org_id))
+        
     else:
         cur.close()
         conn.close()
@@ -2032,6 +2119,7 @@ def view_legal_compliances():
     cur.close()
     conn.close()
     return render_template('view_legal_compliances.html', compliances=compliances)
+
 
 
 
@@ -2048,19 +2136,35 @@ def save_file(file):
     return None
 
 ################################################ Legal Compliances Dashboard#########################################
+
+@app.route('/api/get_projects_by_org', methods=['GET'])
+def get_projects_by_org():
+    if 'org_id' not in session:
+        return jsonify({'error': 'Unauthorized or missing org_id in session'}), 401
+
+    org_id = session['org_id']
+    
+    conn = get_connection()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
+
+    try:
+        cur.execute("SELECT id, project_name FROM projects WHERE org_id = %s", (org_id,))
+        projects = cur.fetchall()
+        return jsonify({'projects': projects}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cur.close()
+        conn.close()
+
 @app.route('/legal_compliances_dashboard', methods=['GET', 'POST'])
 def legal_compliances_dashboard():
-    print("DEBUG: session =", dict(session))
-    if 'role' not in session or session['role'] not in ['admin', 'site_engineer', 'architect', 'accountant']:
-        return redirect(url_for('login'))
 
-    conn = db_connection()
+    conn = get_connection()
     cur = conn.cursor(pymysql.cursors.DictCursor)
 
     user_id = session.get('user_id')
     role = session.get('role')
-
-    print("✅ DASHBOARD DEBUG --> user_id:", user_id, "| role:", role)
 
     projects = []
     compliance_data = None
@@ -2076,7 +2180,7 @@ def legal_compliances_dashboard():
         projects = cur.fetchall()
 
     elif role == 'site_engineer':
-        cur.execute("SELECT site_id FROM sites WHERE site_engineer_id = %s", (user_id,))
+        cur.execute("SELECT site_id FROM sites WHERE site_engineer_id = %s", (user_id))
         user_site_ids = [row['site_id'] for row in cur.fetchall()]
         if user_site_ids:
             format_strings = ','.join(['%s'] * len(user_site_ids))
@@ -2084,12 +2188,11 @@ def legal_compliances_dashboard():
                 SELECT p.id, p.project_name, p.site_id
                 FROM projects p 
                 JOIN legal_and_compliances l ON p.id = l.project_id
-                WHERE p.site_id IN ({format_strings})
+                 WHERE p.site_id IN ({format_strings})
             """, user_site_ids)
             projects = cur.fetchall()
 
     elif role == 'architect':
-        # ✅ Fetch architect using register_id
         cur.execute("SELECT * FROM architects WHERE register_id = %s", (user_id,))
         architect = cur.fetchone()
 
@@ -2099,12 +2202,11 @@ def legal_compliances_dashboard():
             flash("Architect profile not found.")
             return redirect(url_for('login'))
 
-        # ✅ Now match using architect's register_id since project.architect_id refers to register.id
         cur.execute("""
             SELECT p.id, p.project_name
             FROM projects p
             JOIN legal_and_compliances l ON p.id = l.project_id
-            WHERE p.architect_id = %s
+             WHERE p.architect_id = %s
         """, (architect['register_id'],))
         projects = cur.fetchall()
 
@@ -2113,7 +2215,7 @@ def legal_compliances_dashboard():
             SELECT p.id, p.project_name
             FROM projects p
             JOIN accountant_projects ap ON p.id = ap.project_id
-            WHERE ap.accountant_id = %s
+             WHERE ap.accountant_id = %s
         """, (user_id,))
         projects = cur.fetchall()
 
@@ -2127,7 +2229,6 @@ def legal_compliances_dashboard():
     if request.method == 'POST':
         selected_project_id = request.form['project_id']
 
-        # ✅ Security: Site engineer
         if role == 'site_engineer':
             cur.execute("""
                 SELECT COUNT(*) as count
@@ -2139,18 +2240,16 @@ def legal_compliances_dashboard():
                 flash("Access denied to this project.")
                 return redirect(url_for('legal_compliances_dashboard'))
 
-        # ✅ Security: Architect (check if project.architect_id == register_id)
         if role == 'architect':
             cur.execute("""
                 SELECT COUNT(*) as count
                 FROM projects
-                WHERE id = %s AND architect_id = %s
+                 WHERE id = %s AND architect_id = %s
             """, (selected_project_id, user_id))  # user_id is register_id
             if cur.fetchone()['count'] == 0:
                 flash("Access denied to this project.")
                 return redirect(url_for('legal_compliances_dashboard'))
 
-        # ✅ Security: Accountant (assigned only)
         if role == 'accountant':
             cur.execute("""
                 SELECT COUNT(*) as count
@@ -2161,12 +2260,8 @@ def legal_compliances_dashboard():
                 flash("Access denied to this project.")
                 return redirect(url_for('legal_compliances_dashboard'))
 
-        # 🔍 Fetch compliance data
         cur.execute("SELECT * FROM legal_and_compliances WHERE project_id = %s", (selected_project_id,))
         compliance_data = cur.fetchone()
-
-        if compliance_data and compliance_data['municipal_approval_status'] != 'Approved':
-            not_approved = True
 
         if compliance_data and compliance_data['municipal_approval_status'] != 'Approved':
             not_approved = True
@@ -2195,7 +2290,7 @@ def generate_invoice():
     if session.get('role') != 'site_engineer':
         return redirect(url_for('login'))
 
-    conn = db_connection()
+    conn = get_connection()
     cur = conn.cursor(pymysql.cursors.DictCursor)
 
     # Fetch projects assigned to the site engineer
@@ -2487,6 +2582,8 @@ def submit_invoice_alt():
     grand_total = subtotal + gst_amount
 
     try:
+        cursor = get_connection()
+        db = cursor.cursor(pymysql.cursors.DictCursor)
         with db.cursor() as cursor:
             # Insert invoice entry first
             cursor.execute("""
@@ -2513,26 +2610,29 @@ def submit_invoice_alt():
         return redirect(request.url)
     
 
-###################################################### Admin View Invoices Route ##########################
+###################################################### Admin View Invoices Route ##########################@app.route('/admin/invoices', methods=['GET', 'POST'])
 @app.route('/admin/invoices', methods=['GET', 'POST'])
 def admin_view_invoices():
     if session.get('role') != 'admin':
         return redirect(url_for('login'))
 
     status_filter = request.args.get('status', 'All')
+    db = get_connection()
+    admin_id = session.get('user_id')
+    org_id = session.get('org_id')
+
     if request.method == 'POST':
         invoice_id = request.form.get('invoice_id')
         action = request.form.get('action')
         rejection_reason = request.form.get('rejection_reason', '')
-        admin_id = session.get('user_id')
 
         with db.cursor() as cursor:
             if action == 'approve':
                 cursor.execute("""
                     UPDATE invoices 
                     SET status='Approved', approved_by=%s, approved_on=NOW(), rejection_reason=NULL 
-                    WHERE id=%s
-                """, (admin_id, invoice_id))
+                    WHERE id=%s AND org_id = %s
+                """, (admin_id, invoice_id, org_id))
                 db.commit()
                 flash("Invoice approved.", "success")
 
@@ -2540,8 +2640,8 @@ def admin_view_invoices():
                 cursor.execute("""
                     UPDATE invoices 
                     SET status='Rejected', rejection_reason=%s, approved_by=%s, approved_on=NOW() 
-                    WHERE id=%s
-                """, (rejection_reason, admin_id, invoice_id))
+                    WHERE id=%s AND org_id = %s
+                """, (rejection_reason, admin_id, invoice_id, org_id))
                 db.commit()
                 flash("Invoice rejected.", "danger")
 
@@ -2554,35 +2654,48 @@ def admin_view_invoices():
                 SELECT i.*, r.name as engineer_name 
                 FROM invoices i 
                 LEFT JOIN register r ON i.site_engineer_id = r.id 
-                WHERE i.status = %s 
+                WHERE i.status = %s AND i.org_id = %s
                 ORDER BY i.generated_on DESC
-            """, (status_filter,))
+            """, (status_filter, org_id))
         else:
             cursor.execute("""
                 SELECT i.*, r.name as engineer_name 
                 FROM invoices i 
                 LEFT JOIN register r ON i.site_engineer_id = r.id 
+                WHERE i.org_id = %s
                 ORDER BY i.generated_on DESC
-            """)
+            """, (org_id,))
         invoices = cursor.fetchall()
 
-        cursor.execute("SELECT * FROM invoice_items ORDER BY invoice_id")
+        cursor.execute("""
+            SELECT * FROM invoice_items 
+            WHERE org_id = %s 
+            ORDER BY invoice_id
+        """, (org_id,))
         all_items = cursor.fetchall()
 
+    db.close()
+
+    # Group items by invoice ID
     items_by_invoice = {}
     for item in all_items:
         items_by_invoice.setdefault(item['invoice_id'], []).append(item)
 
-    return render_template('invoice_detail.html', invoices=invoices, items_by_invoice=items_by_invoice, selected_status=status_filter)
+    return render_template(
+        'invoice_detail.html',
+        invoices=invoices,
+        items_by_invoice=items_by_invoice,
+        selected_status=status_filter
+    )
 
 #################################### Admin Invoice Detail View ######################################
 @app.route('/admin/invoice/<int:invoice_id>')
 def admin_invoice_detail(invoice_id):
-    conn = db_connection()
+    conn = get_connection()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("SELECT * FROM invoices WHERE id=%s", (invoice_id,))
+    cursor.execute("SELECT * FROM invoices WHERE id=%s and org_id = %s", (invoice_id, session['org_id']))
     invoice = cursor.fetchone()
-    cursor.execute("SELECT * FROM invoice_items WHERE invoice_id=%s", (invoice_id,))
+    cursor.execute("SELECT * FROM invoice_items WHERE invoice_id=%s and org_id = %s", (invoice_id,session['org_id']))
     items = cursor.fetchall()
     conn.close()
     return render_template('invoice_detail.html', invoice=invoice, items=items)
@@ -2694,6 +2807,8 @@ def submit_invoice():
     grand_total = subtotal + gst_amount
 
     try:
+        cursor = get_connection()
+        db = cursor.cursor(pymysql.cursors.DictCursor)
         with db.cursor() as cursor:
             # Insert invoice entry first
             cursor.execute("""
@@ -2752,12 +2867,13 @@ def dashboard():
 def admin_generate_invoice():
     if session.get('role') != 'admin':
         return redirect(url_for('login'))
+    db = get_connection()
 
     with db.cursor(pymysql.cursors.DictCursor) as cursor:
-        cursor.execute("SELECT id, name FROM register WHERE role = 'site_engineer'")
+        cursor.execute("SELECT id, name FROM register WHERE role = 'site_engineer' and org_id = %s", (session['org_id'],))
         engineers = cursor.fetchall()
         
-        cursor.execute("SELECT id, project_name FROM projects")
+        cursor.execute("SELECT id, project_name FROM projects WHERE org_id = %s", (session['org_id'],))
         projects = cursor.fetchall()
 
     if request.method == 'POST':
@@ -2828,11 +2944,12 @@ def admin_generate_invoice():
                 cursor.execute("""
                     INSERT INTO invoices (
                         project_id, site_engineer_id, vendor_name, total_amount, gst_amount, invoice_number, pdf_filename,
-                        generated_on, bill_to_name, bill_to_address, bill_to_phone, status, approved_by, approved_on, invoice_image_filename
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'Approved', %s, NOW(), %s)
+                        generated_on, bill_to_name, bill_to_address, bill_to_phone, status, approved_by, approved_on, invoice_image_filename,
+                        org_id
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'Approved', %s, NOW(), %s, %s)
                 """, (
                     project_id, site_engineer_id, vendor_name, grand_total, gst_amount, invoice_number, pdf_filename,
-                    invoice_date, client_name, client_address, client_phone, admin_id, image_filename
+                    invoice_date, client_name, client_address, client_phone, admin_id, image_filename,session['org_id']
                 ))
                 invoice_id = cursor.lastrowid
 
@@ -2840,9 +2957,9 @@ def admin_generate_invoice():
                 for desc, qty, rate, subtotal_item in zip(descriptions, quantities, rates, totals):
                     if desc and qty and rate:
                         cursor.execute("""
-                            INSERT INTO invoice_items (invoice_id, description, quantity, rate, subtotal)
-                            VALUES (%s, %s, %s, %s, %s)
-                        """, (invoice_id, desc.strip(), float(qty), float(rate), float(subtotal_item)))
+                            INSERT INTO invoice_items (invoice_id, description, quantity, rate, subtotal, org_id  )
+                            VALUES (%s, %s, %s, %s, %s, %s)
+                        """, (invoice_id, desc.strip(), float(qty), float(rate), float(subtotal_item),session['org_id']))
                         items_inserted += 1
 
                 if items_inserted == 0:
@@ -2958,6 +3075,7 @@ def site_engineer_invoices():
         return redirect(url_for('login'))
 
     site_engineer_id = session.get('user_id')
+    db = get_connection()
     with db.cursor(pymysql.cursors.DictCursor) as cursor:
         cursor.execute("""
             SELECT 
@@ -3015,7 +3133,7 @@ def site_engineer_invoices():
 def admin_edit_invoice(invoice_id):
     if session.get('role') != 'admin':
         return redirect(url_for('login'))
-     
+    db = get_connection()
     with db.cursor(pymysql.cursors.DictCursor) as cursor:
         # Get invoice
         cursor.execute("SELECT * FROM invoices WHERE id = %s", (invoice_id,))
@@ -3083,7 +3201,7 @@ def edit_invoice(invoice_id):
         return redirect(url_for('login'))
     
     engineer_id = session.get('user_id')
-    
+    db = get_connection()
     with db.cursor(pymysql.cursors.DictCursor) as cursor:
         # Verify the invoice belongs to this engineer
         cursor.execute("""
@@ -3152,7 +3270,9 @@ def assign_accountant():
     if 'role' not in session or session['role'] != 'admin':
         return redirect(url_for('login'))
 
-    conn = db_connection()
+    org_id = session.get('org_id')  # Get the current admin's org_id
+
+    conn = get_connection()
     cur = conn.cursor(pymysql.cursors.DictCursor)
 
     if request.method == 'POST':
@@ -3164,22 +3284,25 @@ def assign_accountant():
 
         # Insert new assignments
         for project_id in project_ids:
-            cur.execute("INSERT INTO accountant_projects (accountant_id, project_id) VALUES (%s, %s)",
-                        (accountant_id, project_id))
+            cur.execute(
+                "INSERT INTO accountant_projects (accountant_id, project_id, org_id) VALUES (%s, %s, %s)",
+                (accountant_id, project_id, org_id)
+            )
         conn.commit()
         flash('Projects assigned successfully.')
 
-    # Fetch all accountants and projects for the form
-    cur.execute("SELECT id, name FROM register WHERE role = 'accountant'")
+    # Fetch all accountants belonging to this org
+    cur.execute("SELECT id, name FROM register WHERE role = 'accountant' AND org_id = %s", (org_id,))
     accountants = cur.fetchall()
 
-    cur.execute("SELECT id, project_name FROM projects")
+    # Fetch all projects belonging to this org
+    cur.execute("SELECT id, project_name FROM projects WHERE org_id = %s", (org_id,))
     projects = cur.fetchall()
 
     # Get current assignments to check the boxes in the template
     assignments = {}
     if accountants:
-        cur.execute("SELECT accountant_id, project_id FROM accountant_projects")
+        cur.execute("SELECT accountant_id, project_id FROM accountant_projects WHERE org_id = %s", (org_id,))
         all_assignments = cur.fetchall()
         for a in all_assignments:
             if a['accountant_id'] not in assignments:
@@ -3188,7 +3311,12 @@ def assign_accountant():
 
     conn.close()
 
-    return render_template('assign_accountant.html', accountants=accountants, projects=projects, assignments=assignments)
+    return render_template(
+        'assign_accountant.html',
+        accountants=accountants,
+        projects=projects,
+        assignments=assignments
+    )
 @app.route('/')
 def landing(): 
   return render_template('landing_page.html')
@@ -3215,7 +3343,7 @@ def get_current_user_role():
 
     
 
-    conn = db_connection()
+    conn = get_connection()
 
     cursor = conn.cursor(pymysql.cursors.DictCursor)
 
@@ -3249,7 +3377,7 @@ def get_users():
 
     
 
-    conn = db_connection()
+    conn = get_connection()
 
     cursor = conn.cursor(pymysql.cursors.DictCursor)
 
@@ -3363,7 +3491,7 @@ def get_messages(receiver_id):
 
     
 
-    conn = db_connection()
+    conn = get_connection()
 
     cursor = conn.cursor(pymysql.cursors.DictCursor)
 
@@ -3448,7 +3576,7 @@ def send_message():
 
     try:
 
-        conn = db_connection()
+        conn = get_connection()
 
         cursor = conn.cursor()
 
@@ -3488,7 +3616,7 @@ def mark_messages_read(sender_id):
 
     try:
 
-        conn = db_connection()
+        conn = get_connection()
 
         cursor = conn.cursor()
 
@@ -3520,7 +3648,9 @@ def add_salary():
         return redirect(url_for('login'))
 
     accountant_id = session['user_id']
-    conn = db_connection()
+    org_id = session['org_id']
+
+    conn = get_connection()
     cur = conn.cursor(pymysql.cursors.DictCursor)
 
     # Fetch assigned projects
@@ -3532,7 +3662,7 @@ def add_salary():
     """, (accountant_id,))
     projects = cur.fetchall()
 
-    # Fetch users for assigned projects (site engineer via sites, architect, accountant self)
+    # Fetch relevant users: site engineers, architects, self (accountant)
     cur.execute("""
         SELECT DISTINCT r.id, r.name, r.role
         FROM accountant_projects ap
@@ -3558,29 +3688,41 @@ def add_salary():
     users = cur.fetchall()
 
     if request.method == 'POST':
-        project_id = request.form['project_id']
-        user_id = request.form['user_id']
-        role = request.form['role']
-        month_year = request.form['month_year']
-        base_salary = request.form['base_salary']
-        allowance = request.form.get('allowance', 0) or 0
-        pf = request.form.get('pf', 0) or 0
-        description = request.form.get('description', '')
-        payment_mode = request.form['payment_mode']
-        cheque_number = request.form.get('cheque_number', '') if payment_mode == 'cheque' else None
+        try:
+            project_id = request.form['project_id']
+            user_id = request.form['user_id']
+            role = request.form['role']
+            month_year = request.form['month_year']
+            base_salary = float(request.form['base_salary'])
+            allowance = float(request.form.get('allowance', 0) or 0)
+            pf = float(request.form.get('pf', 0) or 0)
+            description = request.form.get('description', '').strip()
+            payment_mode = request.form['payment_mode']
+            cheque_number = request.form.get('cheque_number', '').strip() if payment_mode == 'cheque' else None
 
-        # Insert with payment mode and cheque number
-        cur.execute("""
-            INSERT INTO salaries (project_id, user_id, role, month_year, base_salary, allowance, pf, description, payment_mode, cheque_number, created_by, created_on)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
-        """, (project_id, user_id, role, month_year, base_salary, allowance, pf, description, payment_mode, cheque_number, accountant_id))
-        conn.commit()
-        flash('Salary entry added successfully.')
-        conn.close()
-        return redirect(url_for('add_salary'))
+            cur.execute("""
+                INSERT INTO salaries (
+                    project_id, user_id, role, month_year, base_salary, allowance, pf,
+                    description, payment_mode, cheque_number, created_by, created_on, org_id
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), %s)
+            """, (
+                project_id, user_id, role, month_year, base_salary, allowance, pf,
+                description, payment_mode, cheque_number, accountant_id, org_id
+            ))
+            conn.commit()
+            flash('Salary entry added successfully.', 'success')
+            return redirect(url_for('add_salary'))
+        except Exception as e:
+            conn.rollback()
+            flash(f'Error: {str(e)}', 'danger')
+        finally:
+            cur.close()
+            conn.close()
 
+    cur.close()
     conn.close()
     return render_template('add_salary.html', projects=projects, users=users)
+
 
 
 # Accountant: View Own Entered Salaries
@@ -3590,22 +3732,26 @@ def view_salaries():
         return redirect(url_for('login'))
     
     accountant_id = session['user_id']
-    conn = db_connection()
+    org_id = session['org_id']
+
+    conn = get_connection()
     cur = conn.cursor(pymysql.cursors.DictCursor)
     
-    # Include payment mode and cheque number in the query
+    # Include payment mode and cheque number in the query with org_id filtering
     cur.execute("""
         SELECT s.*, p.project_name, r.name AS user_name, cr.name AS created_by_name
         FROM salaries s
         JOIN projects p ON s.project_id = p.id
         JOIN register r ON s.user_id = r.id
         JOIN register cr ON s.created_by = cr.id
-        WHERE s.created_by = %s
+        WHERE s.created_by = %s AND s.org_id = %s
         ORDER BY s.month_year DESC, p.project_name
-    """, (accountant_id,))
+    """, (accountant_id, org_id))
+    
     salaries = cur.fetchall()
     conn.close()
     return render_template('view_salaries.html', salaries=salaries)
+
 
 
 # Admin: View All Salaries
@@ -3613,8 +3759,9 @@ def view_salaries():
 def admin_view_salaries():
     if 'role' not in session or session['role'] != 'admin':
         return redirect(url_for('login'))
+    org_id = session.get('org_id')
     
-    conn = db_connection()
+    conn = get_connection()
     cur = conn.cursor(pymysql.cursors.DictCursor)
     
     # Include payment mode and cheque number in the query
@@ -3624,8 +3771,9 @@ def admin_view_salaries():
         JOIN projects p ON s.project_id = p.id
         JOIN register r ON s.user_id = r.id
         JOIN register cr ON s.created_by = cr.id
+        WHERE s.org_id = %s
         ORDER BY s.month_year DESC, p.project_name
-    """)
+    """, (org_id,))
     salaries = cur.fetchall()
     conn.close()
     return render_template('admin_view_salaries.html', salaries=salaries)
