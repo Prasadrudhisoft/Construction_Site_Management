@@ -895,7 +895,7 @@
                             <table class="invoice-table">
                                 <thead>
                                     <tr>
-                                        <th><i class="fas fa-hashtag"></i> Invoice #</th>
+                                        <th><i class="fas fa-hashtag"></i> Invoice </th>
                                         <th><i class="fas fa-truck"></i> Vendor</th>
                                         <th><i class="fas fa-dollar-sign"></i> Total Amount</th>
                                         <th><i class="fas fa-percent"></i> GST</th>
@@ -914,7 +914,7 @@
                                             <td>{{ invoice.generated_on.strftime('%Y-%m-%d') if invoice.generated_on else '' }}</td>
                                             <td>
                                                 {% if invoice.pdf_filename %}
-                                                    <a href="{{ url_for('serve_invoice_pdf', filename=invoice.pdf_filename) }}" target="_blank" class="file-link">
+                                                    <a href="{{ url_for('static', filename='invoice_pdfs/' ~ invoice.pdf_filename) }}" target="_blank" class="file-link">
                                                         <i class="fas fa-file-pdf"></i> View PDF
                                                     </a>
                                                 {% else %}

@@ -467,109 +467,57 @@ def cleanup_architects():
 
 ############################################## accountant routes ######################################
 @app.route('/accountant_dashboard')
-
 def accountant_dashboard():
-
     if 'role' not in session or session['role'] != 'accountant':
-
         return redirect(url_for('login'))
 
-
-
     accountant_id = session['user_id']
-
     conn = get_connection()
-
     cur = conn.cursor(pymysql.cursors.DictCursor)
 
-
-
-    # Fetch projects and their invoices assigned to the accountant
-
+    # Fetch projects and their APPROVED invoices assigned to the accountant
     cur.execute("""
-
         SELECT
-
             p.id AS project_id,
-
             p.project_name,
-
             i.id AS invoice_id,
-
             i.invoice_number,
-
             i.vendor_name,
-
             i.total_amount,
-
             i.gst_amount,
-
             i.generated_on,
-
             i.status,
-
             i.pdf_filename,
-
             i.bill_to_name,
-
             i.bill_to_address,
-
             i.subtotal,
-
             se.name AS site_engineer_name
-
         FROM accountant_projects ap
-
         JOIN projects p ON ap.project_id = p.id
-
-        LEFT JOIN invoices i ON p.id = i.project_id
-
+        LEFT JOIN invoices i ON p.id = i.project_id AND i.status = 'Approved'  # Only approved invoices
         LEFT JOIN register se ON i.site_engineer_id = se.id
-
         WHERE ap.accountant_id = %s and ap.org_id = %s
-
         ORDER BY p.project_name, i.generated_on DESC
-
-    """, (accountant_id,session['org_id']))
-
+    """, (accountant_id, session['org_id']))
     results = cur.fetchall()
 
-
-
     # Organize the data by project
-
     projects_with_invoices = {}
-
     for row in results:
-
         project_id = row['project_id']
-
         if project_id not in projects_with_invoices:
-
             projects_with_invoices[project_id] = {
-
                 'project_name': row['project_name'],
-
                 'invoices': []
-
             }
-
         if row['invoice_id']:
-
             projects_with_invoices[project_id]['invoices'].append(row)
-
-
 
     conn.close()
 
-
-
     return render_template(
-
         'accountant_dashboard.html',
-
         projects_with_invoices=projects_with_invoices
-
     )
 
 
