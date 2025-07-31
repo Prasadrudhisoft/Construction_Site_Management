@@ -3783,6 +3783,46 @@ def admin_view_salaries():
     conn.close()
     return render_template('admin_view_salaries.html', salaries=salaries)
 
+@app.route('/api/get_compliance_data')
+def get_compliance_data():
+    if 'role' not in session or session['role'] not in ['admin', 'site_engineer']:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    project_id = request.args.get('project_id')
+    if not project_id:
+        return jsonify({'error': 'Project ID required'}), 400
+
+    conn = get_connection()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
+
+    try:
+        cur.execute("""
+            SELECT * FROM legal_and_compliances 
+            WHERE project_id = %s AND org_id = %s
+        """, (project_id, session['org_id']))
+        
+        compliance = cur.fetchone()
+        
+        if compliance:
+            return jsonify({
+                'exists': True,
+                'municipal_approval_status': compliance['municipal_approval_status'],
+                'municipal_approval_pdf': compliance['municipal_approval_pdf'],
+                'building_permit_pdf': compliance['building_permit_pdf'],
+                'sanction_plan_pdf': compliance['sanction_plan_pdf'],
+                'fire_department_noc_pdf': compliance['fire_department_noc_pdf'],
+                'mngl_pdf': compliance['mngl_pdf'],
+                'environmental_clearance': compliance['environmental_clearance']
+            })
+        else:
+            return jsonify({'exists': False})
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+        
+    finally:
+        cur.close()
+        conn.close()
 
 
 if __name__ == "__main__":

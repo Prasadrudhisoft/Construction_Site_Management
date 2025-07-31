@@ -267,6 +267,51 @@
             background: #7f8c8d;
             box-shadow: 0 4px 12px rgba(149,165,166,0.3);
         }
+        .document-status {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            margin-right: 10px;
+        }
+        .status-badge.pending {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        .view-pdf-link {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(231, 76, 60, 0.2);
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+        .view-pdf-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+            background: linear-gradient(135deg, #c0392b, #a93226);
+        }
+        .view-pdf-link i {
+            margin-right: 6px;
+        }
         @media (max-width: 1100px) {
             .container { max-width: 98vw; padding: 30px 3vw 20px 3vw; }
             .navbar-container { max-width: 98vw; padding: 0 10px; }
@@ -377,7 +422,7 @@
                     </div>
                     <div class="form-group">
                         <label for="project_id"><i class="fas fa-project-diagram"></i> Select Project: <span class="required-indicator">*</span></label>
-                        <select name="project_id" id="project_id" required>
+                        <select name="project_id" id="project_id" required onchange="loadProjectCompliance(this.value)">
                             <option value="">-- Choose a Project --</option>
                             {% for p in projects %}
                             <option value="{{ p.id }}">{{ p.project_name }}</option>
@@ -385,6 +430,7 @@
                         </select>
                     </div>
                 </div>
+                
                 <div class="form-section">
                     <div class="section-title">
                         <i class="fas fa-clipboard-check"></i>
@@ -401,11 +447,15 @@
                     <div id="municipal_pdf_div" class="conditional-section" style="display:none;">
                         <div class="form-group">
                             <label for="municipal_pdf"><i class="fas fa-file-pdf"></i> Municipal Approval PDF: <span class="required-indicator">*</span></label>
+                            <div id="municipal_pdf_status" class="document-status">
+                                <span class="status-badge pending">Pending</span>
+                            </div>
                             <input type="file" name="municipal_approval_pdf" id="municipal_pdf" accept=".pdf">
                             <div class="file-info">Please upload the official municipal approval document in PDF format</div>
                         </div>
                     </div>
                 </div>
+                
                 <div class="form-section">
                     <div class="section-title">
                         <i class="fas fa-file-contract"></i>
@@ -413,25 +463,38 @@
                     </div>
                     <div class="form-group">
                         <label for="building_permit"><i class="fas fa-hammer"></i> Building Permit PDF: <span class="required-indicator">*</span></label>
+                        <div id="building_permit_status" class="document-status">
+                            <span class="status-badge pending">Pending</span>
+                        </div>
                         <input type="file" name="building_permit_pdf" id="building_permit" accept=".pdf">
                         <div class="file-info">Upload the official building permit document</div>
                     </div>
                     <div class="form-group">
                         <label for="sanction_plan"><i class="fas fa-drafting-compass"></i> Sanction Plan Copy PDF: <span class="required-indicator">*</span></label>
+                        <div id="sanction_plan_status" class="document-status">
+                            <span class="status-badge pending">Pending</span>
+                        </div>
                         <input type="file" name="sanction_plan_pdf" id="sanction_plan" accept=".pdf">
                         <div class="file-info">Upload the approved architectural sanction plan</div>
                     </div>
                     <div class="form-group">
                         <label for="fire_noc"><i class="fas fa-fire-extinguisher"></i> Fire Department NOC PDF: <span class="required-indicator">*</span></label>
+                        <div id="fire_noc_status" class="document-status">
+                            <span class="status-badge pending">Pending</span>
+                        </div>
                         <input type="file" name="fire_department_noc_pdf" id="fire_noc" accept=".pdf">
                         <div class="file-info">Upload the No Objection Certificate from Fire Department</div>
                     </div>
-                        <div class="form-group">
-            <label for="mngl_pdf"><i class="fas fa-file-pdf"></i> MNGL PDF:</label>
-            <input type="file" name="mngl_pdf" id="mngl_pdf" accept=".pdf">
-            <div class="file-info">Upload the MNGL (Maharashtra Natural Gas Limited) approval document</div>
-        </div>
+                    <div class="form-group">
+                        <label for="mngl_pdf"><i class="fas fa-file-pdf"></i> MNGL PDF:</label>
+                        <div id="mngl_pdf_status" class="document-status">
+                            <span class="status-badge pending">Pending</span>
+                        </div>
+                        <input type="file" name="mngl_pdf" id="mngl_pdf" accept=".pdf">
+                        <div class="file-info">Upload the MNGL (Maharashtra Natural Gas Limited) approval document</div>
+                    </div>
                 </div>
+                
                 <div class="form-section">
                     <div class="section-title">
                         <i class="fas fa-leaf"></i>
@@ -443,7 +506,8 @@
                         <div class="file-info">Additional environmental compliance information and clearance details</div>
                     </div>
                 </div>
-                <button type="submit" class="submit-btn">
+                
+                <button type="submit" class="submit-btn" id="submitBtn">
                     <i class="fas fa-upload"></i> Submit Legal Compliances
                 </button>
             </form>
@@ -484,6 +548,7 @@
                 });
             }
         });
+        
         function toggleMunicipalPDF() {
             var status = document.getElementById("status_select").value;
             var pdfDiv = document.getElementById("municipal_pdf_div");
@@ -494,6 +559,82 @@
                 pdfDiv.style.display = "none";
                 pdfDiv.classList.remove("show");
             }
+        }
+        
+        function loadProjectCompliance(projectId) {
+            if (!projectId) return;
+            
+            fetch(`/api/get_compliance_data?project_id=${projectId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.exists) {
+                        // Update the button text
+                        document.getElementById('submitBtn').innerHTML = '<i class="fas fa-sync-alt"></i> Update Legal Compliances';
+                        
+                        // Set municipal approval status
+                        if (data.municipal_approval_status) {
+                            document.getElementById('status_select').value = data.municipal_approval_status;
+                            toggleMunicipalPDF();
+                            
+                            // Update municipal PDF status
+                            updateDocumentStatus('municipal_pdf_status', data.municipal_approval_pdf);
+                        }
+                        
+                        // Update other document statuses
+                        updateDocumentStatus('building_permit_status', data.building_permit_pdf);
+                        updateDocumentStatus('sanction_plan_status', data.sanction_plan_pdf);
+                        updateDocumentStatus('fire_noc_status', data.fire_department_noc_pdf);
+                        updateDocumentStatus('mngl_pdf_status', data.mngl_pdf);
+                        
+                        // Set environmental clearance text
+                        if (data.environmental_clearance) {
+                            document.getElementById('environmental_clearance').value = data.environmental_clearance;
+                        }
+                    } else {
+                        // Reset to default if no existing data
+                        document.getElementById('submitBtn').innerHTML = '<i class="fas fa-upload"></i> Submit Legal Compliances';
+                        resetDocumentStatuses();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching compliance data:', error);
+                });
+        }
+        
+        function updateDocumentStatus(elementId, filePath) {
+            const statusElement = document.getElementById(elementId);
+            if (filePath) {
+                statusElement.innerHTML = `
+                    <a href="/static/${filePath}" target="_blank" class="view-pdf-link">
+                        <i class="fas fa-file-pdf"></i> View PDF
+                    </a>
+                    <span class="status-badge">Uploaded</span>
+                `;
+            } else {
+                statusElement.innerHTML = '<span class="status-badge pending">Pending</span>';
+            }
+        }
+        
+        function resetDocumentStatuses() {
+            const statusElements = [
+                'municipal_pdf_status',
+                'building_permit_status',
+                'sanction_plan_status',
+                'fire_noc_status',
+                'mngl_pdf_status'
+            ];
+            
+            statusElements.forEach(elementId => {
+                document.getElementById(elementId).innerHTML = '<span class="status-badge pending">Pending</span>';
+            });
+            
+            // Reset municipal approval section
+            document.getElementById('status_select').value = '';
+            document.getElementById('municipal_pdf_div').style.display = 'none';
+            document.getElementById('municipal_pdf_div').classList.remove('show');
+            
+            // Reset environmental clearance
+            document.getElementById('environmental_clearance').value = '';
         }
     </script>
 </body>
