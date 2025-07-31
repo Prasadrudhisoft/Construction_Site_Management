@@ -184,102 +184,155 @@
             }
         }
 
-        /* Header */
+        /* Header - Fully Responsive Design */
         header {
             background: rgba(34, 34, 34, 0.95);
             backdrop-filter: blur(10px);
-            padding: 15px 0;
+            padding: 20px 0;
             position: fixed;
             width: 100%;
             z-index: 1000;
             transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         .header-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: relative;
+            min-height: 60px;
         }
 
+        /* Logo Styling - Much Larger Size */
         .logo {
             display: flex;
             align-items: center;
             animation: slideInLeft 0.8s ease;
+            z-index: 1001;
+            flex-shrink: 0;
         }
 
         .logo-icon {
-            width: 120px;
-            /* Adjust this value as needed */
-            height: auto;
-            /* Maintain aspect ratio */
-            margin-right: 10px;
-            /* animation: pulse 2s infinite; */
+            width: 180px;
+            height: 150px;
+            max-height: 180px;
+            object-fit: contain;
+            margin-right: 15px;
+            transition: transform 0.3s ease;
+            filter: brightness(1.1);
+        }
+
+        .logo:hover .logo-icon {
+            transform: scale(1.05);
         }
 
         .logo-text {
             color: #fff;
             font-family: 'Roboto Slab', serif;
-            font-size: clamp(18px, 3vw, 22px);
+            font-size: clamp(24px, 4vw, 32px);
             font-weight: 700;
+            letter-spacing: 0.8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
+        /* Navigation Links - Enhanced Responsive */
         .nav-links {
             display: flex;
             list-style: none;
             animation: slideInRight 0.8s ease;
+            align-items: center;
+            margin: 0;
+            padding: 0;
         }
 
         .nav-links li {
-            margin-left: 30px;
+            margin-left: 40px;
         }
 
         .nav-links a {
             color: #fff;
             text-decoration: none;
             font-weight: 500;
+            font-size: 18px;
             transition: all 0.3s ease;
             position: relative;
+            padding: 12px 8px;
+            white-space: nowrap;
         }
 
         .nav-links a::after {
             content: '';
             position: absolute;
-            bottom: -5px;
-            left: 0;
+            bottom: 8px;
+            left: 8px;
             width: 0;
-            height: 2px;
-            background: #FFD700;
+            height: 3px;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
             transition: width 0.3s ease;
+            border-radius: 2px;
         }
 
-        .nav-links a:hover::after {
-            width: 100%;
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: calc(100% - 16px);
         }
 
-        .nav-links a:hover {
+        .nav-links a:hover,
+        .nav-links a.active {
             color: #FFD700;
+            transform: translateY(-2px);
         }
 
+        .nav-links .btn {
+            margin-left: 15px;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 25px;
+            font-weight: 600;
+        }
+
+        /* Mobile Menu Button - Enhanced */
         .mobile-menu-btn {
             display: none;
             background: none;
             border: none;
             color: #fff;
-            font-size: 24px;
+            font-size: 32px;
             cursor: pointer;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
+            padding: 12px;
+            border-radius: 8px;
+            z-index: 1001;
+            position: relative;
         }
 
         .mobile-menu-btn:hover {
             color: #FFD700;
+            background: rgba(255, 215, 0, 0.1);
+            transform: scale(1.05);
         }
 
-        /* Hero Section */
+        .mobile-menu-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Mobile Menu Icon Animation */
+        .mobile-menu-btn i {
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu-btn.active i {
+            transform: rotate(180deg);
+            color: #FFD700;
+        }
+
+        /* Hero Section - Adjusted for larger header */
         .hero {
             background: linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(34, 34, 34, 0.8)),
                 url('/static/images/landing.png') no-repeat center center/cover;
             color: #fff;
-            padding: 200px 0 120px;
+            padding: 220px 0 120px;
             text-align: center;
             position: relative;
             overflow: hidden;
@@ -292,7 +345,6 @@
             left: 0;
             right: 0;
             bottom: 0;
-            /* background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="%23FFD700" opacity="0.1"><polygon points="0,0 1000,100 0,100"/></svg>'); */
             pointer-events: none;
         }
 
@@ -767,10 +819,52 @@
             border-top: 1px solid #333;
         }
 
-        /* Responsive Styles */
+        /* Enhanced Responsive Styles - Complete Redesign */
+        @media (max-width: 1400px) {
+            .container {
+                padding: 0 40px;
+            }
+            
+            .nav-links li {
+                margin-left: 35px;
+            }
+
+            .logo-icon {
+                width: 160px;
+                max-height: 70px;
+            }
+
+            .logo-text {
+                font-size: 28px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .container {
+                padding: 0 30px;
+            }
+            
+            .nav-links li {
+                margin-left: 30px;
+            }
+
+            .nav-links a {
+                font-size: 17px;
+            }
+
+            .logo-icon {
+                width: 150px;
+                max-height: 65px;
+            }
+
+            .logo-text {
+                font-size: 26px;
+            }
+        }
+
         @media (max-width: 1024px) {
             .hero {
-                padding: 160px 0 100px;
+                padding: 200px 0 100px;
             }
 
             .section {
@@ -787,20 +881,44 @@
                 grid-template-columns: 1fr;
                 gap: 40px;
             }
+
+            .nav-links li {
+                margin-left: 25px;
+            }
+
+            .nav-links a {
+                font-size: 16px;
+            }
+
+            .logo-icon {
+                width: 140px;
+                max-height: 60px;
+            }
+
+            .logo-text {
+                font-size: 24px;
+            }
+
+            header {
+                padding: 18px 0;
+            }
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 992px) {
             .nav-links {
                 display: none;
                 position: absolute;
                 top: 100%;
                 left: 0;
                 right: 0;
-                background: rgba(34, 34, 34, 0.95);
-                backdrop-filter: blur(10px);
+                background: rgba(34, 34, 34, 0.98);
+                backdrop-filter: blur(20px);
                 flex-direction: column;
-                padding: 20px;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                padding: 40px 30px;
+                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+                border-radius: 0 0 20px 20px;
+                animation: slideDown 0.4s ease;
+                border-top: 3px solid #FFD700;
             }
 
             .nav-links.show {
@@ -808,15 +926,62 @@
             }
 
             .nav-links li {
-                margin: 10px 0;
+                margin: 0;
+                margin-bottom: 25px;
+                width: 100%;
+            }
+
+            .nav-links a {
+                display: block;
+                padding: 18px 25px;
+                border-radius: 12px;
+                transition: all 0.3s ease;
+                font-size: 20px;
+                font-weight: 500;
+                text-align: center;
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .nav-links a:hover {
+                background: rgba(255, 215, 0, 0.15);
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(255, 215, 0, 0.2);
+            }
+
+            .nav-links .btn {
+                margin: 15px 0 0 0;
+                padding: 15px 30px;
+                font-size: 18px;
+                font-weight: 600;
+                box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
             }
 
             .mobile-menu-btn {
                 display: block;
             }
 
+            .logo-icon {
+                width: 130px;
+                max-height: 55px;
+            }
+
+            .logo-text {
+                font-size: 22px;
+            }
+
+            .header-container {
+                min-height: 70px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
+            }
+
             .hero {
-                padding: 140px 0 80px;
+                padding: 180px 0 80px;
             }
 
             .hero-buttons {
@@ -849,6 +1014,65 @@
             .section {
                 padding: 60px 0;
             }
+
+            .header-container {
+                padding: 0 15px;
+                min-height: 65px;
+            }
+
+            .logo-icon {
+                width: 120px;
+                max-height: 50px;
+                margin-right: 12px;
+            }
+
+            .logo-text {
+                font-size: 20px;
+            }
+
+            header {
+                padding: 15px 0;
+            }
+
+            .mobile-menu-btn {
+                font-size: 30px;
+                padding: 10px;
+            }
+
+            .nav-links {
+                padding: 35px 25px;
+            }
+
+            .nav-links a {
+                font-size: 18px;
+                padding: 16px 20px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .logo-icon {
+                width: 110px;
+                max-height: 45px;
+                margin-right: 10px;
+            }
+
+            .logo-text {
+                font-size: 18px;
+            }
+
+            .nav-links {
+                padding: 30px 20px;
+            }
+
+            .nav-links a {
+                font-size: 17px;
+                padding: 15px 18px;
+            }
+
+            .mobile-menu-btn {
+                font-size: 28px;
+                padding: 8px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -873,27 +1097,189 @@
             .chat-messages {
                 height: 250px;
             }
+
+            .header-container {
+                padding: 0 10px;
+                min-height: 60px;
+            }
+
+            .logo-icon {
+                width: 100px;
+                max-height: 40px;
+                margin-right: 8px;
+            }
+
+            .logo-text {
+                font-size: 16px;
+            }
+
+            .mobile-menu-btn {
+                font-size: 26px;
+                padding: 8px;
+            }
+
+            .nav-links {
+                padding: 25px 15px;
+            }
+
+            .nav-links a {
+                padding: 14px 16px;
+                font-size: 16px;
+            }
+
+            .nav-links .btn {
+                padding: 14px 25px;
+                font-size: 16px;
+            }
+
+            header {
+                padding: 12px 0;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .logo-icon {
+                width: 90px;
+                max-height: 35px;
+                margin-right: 6px;
+            }
+
+            .logo-text {
+                font-size: 14px;
+            }
+
+            .mobile-menu-btn {
+                font-size: 24px;
+                padding: 6px;
+            }
+
+            .nav-links {
+                padding: 20px 12px;
+            }
+
+            .nav-links a {
+                padding: 12px 14px;
+                font-size: 15px;
+            }
+
+            .header-container {
+                min-height: 55px;
+                padding: 0 8px;
+            }
+        }
+
+        @media (max-width: 320px) {
+            .logo-icon {
+                width: 180px;
+                max-height: 150px;
+                margin-right: 5px;
+            }
+
+            .logo-text {
+                font-size: 13px;
+            }
+
+            .mobile-menu-btn {
+                font-size: 22px;
+                padding: 5px;
+            }
+
+            .nav-links a {
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+
+            .header-container {
+                min-height: 50px;
+                padding: 0 5px;
+            }
+        }
+
+        /* Slide down animation for mobile menu */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Enhanced header scroll effect */
+        .header-scrolled {
+            padding: 12px 0 !important;
+            background: rgba(34, 34, 34, 0.98) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        .header-scrolled .logo-icon {
+            transform: scale(0.85);
+            width: 140px;
+        }
+
+        .header-scrolled .logo-text {
+            font-size: 24px;
+        }
+
+        /* Mobile specific scroll adjustments */
+        @media (max-width: 992px) {
+            .header-scrolled .logo-icon {
+                width: 110px;
+                transform: scale(0.9);
+            }
+            
+            .header-scrolled .logo-text {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-scrolled {
+                padding: 10px 0 !important;
+            }
+            
+            .header-scrolled .logo-icon {
+                width: 100px;
+                transform: scale(0.9);
+            }
+            
+            .header-scrolled .logo-text {
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-scrolled .logo-icon {
+                width: 85px;
+                transform: scale(0.9);
+            }
+            
+            .header-scrolled .logo-text {
+                font-size: 15px;
+            }
         }
     </style>
 </head>
 
 <body>
     <!-- Header -->
-    <header>
+    <header id="header">
         <div class="container header-container">
             <div class="logo">
-                <img src="/static/images/img.png" alt="RudhiArch Logo" class="logo-icon">
-                <!-- <span class="logo-text">RudhiArch</span> -->
+                <img src="/static/images/ci.png" alt="RudhiArch Logo" class="logo-icon">
+
             </div>
-            <button class="mobile-menu-btn">
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
                 <i class="fas fa-bars"></i>
             </button>
-            <ul class="nav-links">
+            <ul class="nav-links" id="navLinks">
                 <li><a href="#features">Features</a></li>
                 <li><a href="#how-it-works">How It Works</a></li>
                 <li><a href="#chat">Communication</a></li>
                 <li><a href="#about">About Us</a></li>
-                <li><a href="/login">Login</a></li>
+                <li><a href="/login" class="btn btn-primary" style="padding: 8px 20px; margin-left: 10px;">Login</a></li>
             </ul>
         </div>
     </header>
@@ -907,6 +1293,7 @@
                     coordination, billing, compliance, and seamless team communication.</p>
                 <div class="hero-buttons">
                     <a href="#features" class="btn btn-primary">Explore Features</a>
+                    <a href="/login" class="btn btn-secondary">Start Now</a>
                 </div>
             </div>
         </div>
@@ -1048,46 +1435,59 @@
             <h2 class="section-title">Real-Time Team Communication</h2>
             <p class="section-subtitle">Stay connected with your team through our integrated chat system</p>
 
-
-
-            <div class="chat-demo">
-                <div class="chat-header">
-                    <div class="chat-avatar">
-                        <i class="fas fa-hard-hat" style="color: #222;"></i>
-                    </div>
-                    <div class="chat-info">
-                        <h4>Project Team Chat</h4>
-                        <p>Downtown Office Complex</p>
-                    </div>
+            <div class="chat-container">
+                <div class="chat-content">
+                    <h3 class="about-heading">Seamless Communication</h3>
+                    <p class="about-text">Keep your entire construction team connected with our built-in messaging system. Share updates, photos, documents, and coordinate activities in real-time.</p>
+                    
+                    <h3 class="about-subheading">Key Features:</h3>
+                    <ul style="color: #666; margin: 20px 0;">
+                        <li style="margin-bottom: 10px;">• Real-time messaging between team members</li>
+                        <li style="margin-bottom: 10px;">• File and image sharing capabilities</li>
+                        <li style="margin-bottom: 10px;">• Project-specific chat rooms</li>
+                        <li style="margin-bottom: 10px;">• Mobile notifications for urgent updates</li>
+                        <li style="margin-bottom: 10px;">• Message history and search functionality</li>
+                    </ul>
                 </div>
 
-                <div class="chat-messages" id="chatMessages">
-                    <div class="message received">
-                        <div class="message-bubble">Foundation work is 80% complete. Photos uploaded to progress
-                            tracker.</div>
+                <div class="chat-demo">
+                    <div class="chat-header">
+                        <div class="chat-avatar">
+                            <i class="fas fa-hard-hat" style="color: #222;"></i>
+                        </div>
+                        <div class="chat-info">
+                            <h4>Project Team Chat</h4>
+                            <p>Downtown Office Complex</p>
+                        </div>
                     </div>
-                    <div class="message sent">
-                        <div class="message-bubble">Great progress! When do you estimate completion?</div>
-                    </div>
-                    <div class="message received">
-                        <div class="message-bubble">Should be done by Friday. Weather looks good for the week.</div>
-                    </div>
-                    <div class="message sent">
-                        <div class="message-bubble">Perfect! I'll schedule the next phase inspection.</div>
-                    </div>
-                    <div class="message received">
-                        <div class="message-bubble">Sounds good. I'll send you the updated timeline.</div>
-                    </div>
-                </div>
 
-                <div class="chat-input">
-                    <input type="text" id="chatInput" placeholder="Type your message..." />
-                    <button onclick="sendMessage()">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message received">
+                            <div class="message-bubble">Foundation work is 80% complete. Photos uploaded to progress
+                                tracker.</div>
+                        </div>
+                        <div class="message sent">
+                            <div class="message-bubble">Great progress! When do you estimate completion?</div>
+                        </div>
+                        <div class="message received">
+                            <div class="message-bubble">Should be done by Friday. Weather looks good for the week.</div>
+                        </div>
+                        <div class="message sent">
+                            <div class="message-bubble">Perfect! I'll schedule the next phase inspection.</div>
+                        </div>
+                        <div class="message received">
+                            <div class="message-bubble">Sounds good. I'll send you the updated timeline.</div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input">
+                        <input type="text" id="chatInput" placeholder="Type your message..." />
+                        <button onclick="sendMessage()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
         </div>
     </section>
 
@@ -1095,13 +1495,12 @@
     <footer>
         <div class="container">
             <div class="footer-content">
-                <div class="logo">
-                    <img src="/static/images/img.png" alt="RudhiArch Logo" class="logo-icon">
-                    <!-- <span class="logo-text">RudhiArch</span> -->
-                </div>
                 <div class="footer-column">
-                    <h4>RudhiArch</h4>
-                    <p>Comprehensive construction management software for projects of all sizes with integrated team
+                    <div class="logo">
+                        <img src="/static/images/ci.png" alt="RudhiArch Logo" class="logo-icon" style="width: 80px;">
+                        <span class="logo-text" style="color: #fff;">RudhiArch</span>
+                    </div>
+                    <p style="margin-top: 15px;">Comprehensive construction management software for projects of all sizes with integrated team
                         communication.</p>
                 </div>
 
@@ -1123,19 +1522,66 @@
                         <li><i class="fas fa-map-marker-alt"></i> 13 maruti plaza vidyavikas circle</li>
                     </ul>
                 </div>
+
+                <div class="footer-column">
+                    <h4>Follow Us</h4>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="fab fa-linkedin"></i> LinkedIn</a></li>
+                        <li><a href="#"><i class="fab fa-twitter"></i> Twitter</a></li>
+                        <li><a href="#"><i class="fab fa-facebook"></i> Facebook</a></li>
+                        <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
+                    </ul>
+                </div>
             </div>
 
             <div class="footer-bottom">
                 <p>&copy; 2025 RudhiArch. All rights reserved.</p>
             </div>
-
         </div>
     </footer>
 
     <script>
-        // Mobile menu toggle
-        document.querySelector('.mobile-menu-btn').addEventListener('click', function () {
-            document.querySelector('.nav-links').classList.toggle('show');
+        // Enhanced Mobile menu toggle with animation
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navLinks = document.getElementById('navLinks');
+
+        mobileMenuBtn.addEventListener('click', function () {
+            navLinks.classList.toggle('show');
+            mobileMenuBtn.classList.toggle('active');
+            
+            const icon = mobileMenuBtn.querySelector('i');
+            if (navLinks.classList.contains('show')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+
+        // Close mobile menu when clicking on links
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('show');
+                mobileMenuBtn.classList.remove('active');
+                const icon = mobileMenuBtn.querySelector('i');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            });
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const isClickInsideNav = navLinks.contains(event.target);
+            const isClickOnButton = mobileMenuBtn.contains(event.target);
+            
+            if (!isClickInsideNav && !isClickOnButton && navLinks.classList.contains('show')) {
+                navLinks.classList.remove('show');
+                mobileMenuBtn.classList.remove('active');
+                const icon = mobileMenuBtn.querySelector('i');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
         });
 
         // Smooth scrolling for anchor links
@@ -1194,15 +1640,13 @@
             }
         });
 
-        // Header scroll effect
+        // Enhanced header scroll effect
+        const header = document.getElementById('header');
         window.addEventListener('scroll', function () {
-            const header = document.querySelector('header');
             if (window.scrollY > 100) {
-                header.style.background = 'rgba(34, 34, 34, 0.98)';
-                header.style.boxShadow = '0 2px 20px rgba(0,0,0,0.2)';
+                header.classList.add('header-scrolled');
             } else {
-                header.style.background = 'rgba(34, 34, 34, 0.95)';
-                header.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+                header.classList.remove('header-scrolled');
             }
         });
 
@@ -1221,14 +1665,37 @@
         }, observerOptions);
 
         // Observe all animated elements
-        document.querySelectorAll('.feature-card, .step, .footer-column, .about-content, .about-image').forEach(el => {
+        document.querySelectorAll('.feature-card, .step, .footer-column, .about-content, .about-image, .chat-content, .chat-demo').forEach(el => {
             observer.observe(el);
         });
 
         // Auto-scroll chat messages
         const chatMessages = document.getElementById('chatMessages');
         chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // Add active state to navigation links based on scroll position
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
     </script>
 </body>
 
 </html>
+                    

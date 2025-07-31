@@ -946,18 +946,82 @@
             }
         });
 
+        // Global variables for filter state
+        let currentSearchTerm = '';
+        let currentStatusFilter = '';
+
         // Get all rows for filtering and stats
         function getAllRows() {
             return document.querySelectorAll('#inventoryTableBody tr');
         }
 
-        // Update stats based on visible rows
-        function updateStats() {
+        // Apply all filters together
+        function applyFilters() {
+            const rows = getAllRows();
+            
+            rows.forEach(row => {
+                let shouldShow = true;
+                
+                // Apply search filter
+                if (currentSearchTerm) {
+                    const description = row.cells[1].textContent.toLowerCase();
+                    const id = row.cells[0].textContent.toLowerCase();
+                    const engineer = row.cells[4].textContent.toLowerCase();
+                    
+                    shouldShow = shouldShow && (
+                        description.includes(currentSearchTerm) || 
+                        id.includes(currentSearchTerm) ||
+                        engineer.includes(currentSearchTerm)
+                    );
+                }
+                
+                // Apply status filter
+                if (currentStatusFilter) {
+                    const statusElement = row.cells[5].querySelector('.status-badge');
+                    const status = statusElement.textContent.trim();
+                    shouldShow = shouldShow && (status === currentStatusFilter);
+                }
+                
+                // Show or hide row
+                row.style.display = shouldShow ? '' : 'none';
+            });
+            
+            // Update stats after filtering
+            updateVisibleStats();
+        }
+
+        // Update stats based on visible rows only
+        function updateVisibleStats() {
             const rows = getAllRows();
             let available = 0, low = 0, out = 0, ordered = 0;
             
             rows.forEach(row => {
-                const statusElement = row.cells[4].querySelector('.status-badge');
+                if (row.style.display !== 'none') {
+                    const statusElement = row.cells[5].querySelector('.status-badge');
+                    const status = statusElement.textContent.trim();
+                    
+                    switch(status) {
+                        case 'Available': available++; break;
+                        case 'Low': low++; break;
+                        case 'Out Of Stock': out++; break;
+                        case 'Ordered': ordered++; break;
+                    }
+                }
+            });
+            
+            document.getElementById('available-count').textContent = available;
+            document.getElementById('low-count').textContent = low;
+            document.getElementById('out-count').textContent = out;
+            document.getElementById('ordered-count').textContent = ordered;
+        }
+
+        // Update stats based on all rows (for initial load)
+        function updateAllStats() {
+            const rows = getAllRows();
+            let available = 0, low = 0, out = 0, ordered = 0;
+            
+            rows.forEach(row => {
+                const statusElement = row.cells[5].querySelector('.status-badge');
                 const status = statusElement.textContent.trim();
                 
                 switch(status) {
@@ -976,68 +1040,15 @@
 
         // Search functionality
         document.getElementById('searchInput').addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            const rows = getAllRows();
-            
-            rows.forEach(row => {
-                const description = row.cells[1].textContent.toLowerCase();
-                const id = row.cells[0].textContent.toLowerCase();
-                
-                if (description.includes(searchTerm) || id.includes(searchTerm)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-            
-            // Update stats after filtering
-            updateVisibleStats();
+            currentSearchTerm = this.value.toLowerCase();
+            applyFilters();
         });
 
         // Status filter
         document.getElementById('statusFilter').addEventListener('change', function() {
-            const filterValue = this.value;
-            const rows = getAllRows();
-            
-            rows.forEach(row => {
-                const statusElement = row.cells[4].querySelector('.status-badge');
-                const status = statusElement.textContent.trim();
-                
-                if (filterValue === '' || status === filterValue) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-            
-            // Update stats after filtering
-            updateVisibleStats();
+            currentStatusFilter = this.value;
+            applyFilters();
         });
-
-        // Update stats based on visible rows only
-        function updateVisibleStats() {
-            const rows = getAllRows();
-            let available = 0, low = 0, out = 0, ordered = 0;
-            
-            rows.forEach(row => {
-                if (row.style.display !== 'none') {
-                    const statusElement = row.cells[4].querySelector('.status-badge');
-                    const status = statusElement.textContent.trim();
-                    
-                    switch(status) {
-                        case 'Available': available++; break;
-                        case 'Low': low++; break;
-                        case 'Out Of Stock': out++; break;
-                        case 'Ordered': ordered++; break;
-                    }
-                }
-            });
-            
-            document.getElementById('available-count').textContent = available;
-            document.getElementById('low-count').textContent = low;
-            document.getElementById('out-count').textContent = out;
-            document.getElementById('ordered-count').textContent = ordered;
-        }
 
         // Sort functionality
         document.getElementById('sortBy').addEventListener('change', function() {
@@ -1050,41 +1061,90 @@
                 
                 switch(sortBy) {
                     case 'id':
-                        aVal = parseInt(a.cells[0].textContent);
-                        bVal = parseInt(b.cells[0].textContent);
-                        break;
+                        aVal = parseInt(a.cells[0].textContent.replace(/\D/g, ''));
+                        bVal = parseInt(b.cells[0].textContent.replace(/\D/g, ''));
+                        return aVal - bVal;
                     case 'description':
-                        aVal = a.cells[1].textContent.toLowerCase();
-                        bVal = b.cells[1].textContent.toLowerCase();
-                        break;
+                        aVal = a.cells[1].textContent.toLowerCase().trim();
+                        bVal = b.cells[1].textContent.toLowerCase().trim();
+                        return aVal.localeCompare(bVal);
                     case 'quantity':
-                        aVal = parseInt(a.cells[2].textContent);
-                        bVal = parseInt(b.cells[2].textContent);
-                        break;
+                        aVal = parseInt(a.cells[2].textContent.replace(/\D/g, '')) || 0;
+                        bVal = parseInt(b.cells[2].textContent.replace(/\D/g, '')) || 0;
+                        return bVal - aVal; // Descending order for quantity
                     case 'date':
-                        aVal = new Date(a.cells[3].textContent);
-                        bVal = new Date(b.cells[3].textContent);
-                        break;
+                        aVal = new Date(a.cells[3].textContent.trim());
+                        bVal = new Date(b.cells[3].textContent.trim());
+                        return bVal - aVal; // Most recent first
                     default:
                         return 0;
                 }
-                
-                if (typeof aVal === 'string') {
-                    return aVal.localeCompare(bVal);
-                }
-                return aVal - bVal;
             });
             
             // Clear and re-append sorted rows
             tbody.innerHTML = '';
             rows.forEach(row => tbody.appendChild(row));
+            
+            // Reapply filters after sorting
+            applyFilters();
         });
 
-        // Initialize stats on page load
+        // Initialize stats and filters on page load
         document.addEventListener('DOMContentLoaded', function() {
-            updateStats();
+            updateAllStats();
+            
+            // Add some visual feedback for empty results
+            const originalApplyFilters = applyFilters;
+            applyFilters = function() {
+                originalApplyFilters();
+                
+                // Check if any rows are visible
+                const visibleRows = Array.from(getAllRows()).filter(row => row.style.display !== 'none');
+                const tableSection = document.querySelector('.table-section');
+                
+                // Remove existing empty state
+                const existingEmptyState = document.querySelector('.empty-state');
+                if (existingEmptyState) {
+                    existingEmptyState.remove();
+                }
+                
+                if (visibleRows.length === 0) {
+                    // Create empty state
+                    const emptyState = document.createElement('div');
+                    emptyState.className = 'empty-state';
+                    emptyState.innerHTML = `
+                        <i class="fas fa-search"></i>
+                        <h3>No Results Found</h3>
+                        <p>Try adjusting your search or filter criteria</p>
+                    `;
+                    tableSection.appendChild(emptyState);
+                    document.querySelector('.inventory-table').style.display = 'none';
+                } else {
+                    document.querySelector('.inventory-table').style.display = 'table';
+                }
+            };
         });
+
+        // Reset filters function (optional - you can add a reset button)
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('sortBy').value = 'id';
+            currentSearchTerm = '';
+            currentStatusFilter = '';
+            
+            // Reset table order and show all rows
+            const rows = getAllRows();
+            rows.forEach(row => row.style.display = '');
+            updateAllStats();
+            
+            // Remove empty state if exists
+            const existingEmptyState = document.querySelector('.empty-state');
+            if (existingEmptyState) {
+                existingEmptyState.remove();
+            }
+            document.querySelector('.inventory-table').style.display = 'table';
+        }
     </script>
 </body>
 </html>
-                    
