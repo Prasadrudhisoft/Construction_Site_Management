@@ -526,11 +526,11 @@ def accountant_dashboard():
 
         LEFT JOIN register se ON i.site_engineer_id = se.id
 
-        WHERE ap.accountant_id = %s
+        WHERE ap.accountant_id = %s and ap.org_id = %s
 
         ORDER BY p.project_name, i.generated_on DESC
 
-    """, (accountant_id,))
+    """, (accountant_id,session['org_id']))
 
     results = cur.fetchall()
 
@@ -590,15 +590,15 @@ def add_design_details():
         conn = get_connection()
         cur = conn.cursor()
         cur.execute("""
-            INSERT INTO design_details (project_id, building_usage, num_floors, area_sqft, plot_area, fsi)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            INSERT INTO design_details (project_id, building_usage, num_floors, area_sqft, plot_area, fsi,org_id)
+            VALUES (%s, %s, %s, %s, %s, %s,%s)
             ON DUPLICATE KEY UPDATE
             building_usage = VALUES(building_usage),
             num_floors = VALUES(num_floors),
             area_sqft = VALUES(area_sqft),
             plot_area = VALUES(plot_area),
             fsi = VALUES(fsi)
-        """, (project_id, building_usage, num_floors, area_sqft, plot_area, fsi))
+        """, (project_id, building_usage, num_floors, area_sqft, plot_area, fsi,session['org_id']))
         conn.commit()
         conn.close()
         flash("Design details saved successfully.")
@@ -622,15 +622,15 @@ def add_structural_details():
         conn = get_connection()
         cur = conn.cursor()
         cur.execute("""
-            INSERT INTO structural_details (project_id, foundation_type, framing_system, slab_type, beam_details, load_calculation)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            INSERT INTO structural_details (project_id, foundation_type, framing_system, slab_type, beam_details, load_calculation,org_id)
+            VALUES (%s, %s, %s, %s, %s, %s,%s)
             ON DUPLICATE KEY UPDATE
             foundation_type = VALUES(foundation_type),
             framing_system = VALUES(framing_system),
             slab_type = VALUES(slab_type),
             beam_details = VALUES(beam_details),
             load_calculation = VALUES(load_calculation)
-        """, (project_id, foundation_type, framing_system, slab_type, beam_details, load_calculation))
+        """, (project_id, foundation_type, framing_system, slab_type, beam_details, load_calculation,session['org_id']))
         conn.commit()
         conn.close()
         flash("Structural details saved successfully.")
@@ -655,15 +655,15 @@ def add_material_specification():
         conn = get_connection()
         cur = conn.cursor()
         cur.execute("""
-            INSERT INTO material_specifications (project_id, primary_material, wall_material, roofing_material, flooring_material, fire_safety_materials)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            INSERT INTO material_specifications (project_id, primary_material, wall_material, roofing_material, flooring_material, fire_safety_materials,org_id)
+            VALUES (%s, %s, %s, %s, %s, %s,%s)
             ON DUPLICATE KEY UPDATE
             primary_material = VALUES(primary_material),
             wall_material = VALUES(wall_material),
             roofing_material = VALUES(roofing_material),
             flooring_material = VALUES(flooring_material),
             fire_safety_materials = VALUES(fire_safety_materials)
-        """, (project_id, primary_material, wall_material, roofing_material, flooring_material, fire_safety_materials))
+        """, (project_id, primary_material, wall_material, roofing_material, flooring_material, fire_safety_materials,session['org_id']))
         conn.commit()
         conn.close()
         flash("Material specifications saved successfully.")
@@ -716,9 +716,9 @@ def upload_layout():
         cur = conn.cursor()
         cur.execute("""
             INSERT INTO drawing_documents (
-                project_id, layout_type, document_title, file_path, uploaded_by
-            ) VALUES (%s, %s, %s, %s, %s)
-        """, (project_id, layout_type, document_title, file_path, uploaded_by))
+                project_id, layout_type, document_title, file_path, uploaded_by,org_id
+            ) VALUES (%s, %s, %s, %s, %s, %s)
+        """, (project_id, layout_type, document_title, file_path, uploaded_by,session['org_id']))
         conn.commit()
         conn.close()
 
@@ -757,9 +757,9 @@ def upload_site_conditions():
         conn = get_connection()
         cur = conn.cursor()
         cur.execute("""
-            INSERT INTO site_conditions (project_id, soil_report_path, water_table_level, topo_counter_map_path)
-            VALUES (%s, %s, %s, %s)
-        """, (project_id, soil_path, water_table_level, topo_path))
+            INSERT INTO site_conditions (project_id, soil_report_path, water_table_level, topo_counter_map_path,org_id)
+            VALUES (%s, %s, %s, %s,%s)
+        """, (project_id, soil_path, water_table_level, topo_path,session['org_id']))
         conn.commit()
         conn.close()
 
@@ -824,9 +824,9 @@ def submit_worker_report():
 
         try:
             cur.execute("""
-                INSERT INTO daily_worker_report (site_engineer_id, project_id, worker_count, report_date)
-                VALUES (%s, %s, %s, %s)
-            """, (site_engineer_id, project_id, worker_count, report_date))
+                INSERT INTO daily_worker_report (site_engineer_id, project_id, worker_count, report_date,org_id)
+                VALUES (%s, %s, %s, %s,%s)
+            """, (site_engineer_id, project_id, worker_count, report_date,session['org_id']))
             conn.commit()
             flash('Worker report submitted successfully.')
         except Exception as e:
@@ -837,8 +837,8 @@ def submit_worker_report():
         SELECT p.*
         FROM projects p
         JOIN sites s ON p.project_name = s.site_name
-        WHERE s.site_engineer_id = %s
-    """, (site_engineer_id,))
+        WHERE s.site_engineer_id = %s and s.org_id = %s
+    """, (site_engineer_id,session['org_id']))
     projects = cur.fetchall()
 
     return render_template('submit_worker_report.html', projects=projects)
@@ -1114,9 +1114,9 @@ def upload_progress():
         cursor = db.cursor(pymysql.cursors.DictCursor)  # ✅ Get cursor from connection
         cursor.execute("""
             INSERT INTO progress_reports 
-            (site_id, progress_percent, image_path, pdf_path, report_date, remark) 
-            VALUES (%s,%s,%s,%s,%s,%s)
-        """, (site_id, progress, img_filename, pdf_filename, today, remark))
+            (site_id, progress_percent, image_path, pdf_path, report_date, remark,org_id) 
+            VALUES (%s,%s,%s,%s,%s,%s,%s)
+        """, (site_id, progress, img_filename, pdf_filename, today, remark, session['org_id']))
         db.commit()
         db.close()
         flash('Progress report uploaded successfully!', 'success')
@@ -1125,7 +1125,7 @@ def upload_progress():
     # GET method: fetch assigned sites
     db = get_connection()
     cursor = db.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("SELECT * FROM sites WHERE site_engineer_id = %s", (site_engineer_id,))
+    cursor.execute("SELECT * FROM sites WHERE site_engineer_id = %s and org_id = %s", (site_engineer_id,session['org_id']))
     sites = cursor.fetchall()
     db.close()
 
@@ -1567,9 +1567,9 @@ def upload_utilities_services():
 
         cur.execute("""
             INSERT INTO utilities_services (
-                project_id, water_supply_source, drainage_system_type, power_supply_source
-            ) VALUES (%s, %s, %s, %s)
-        """, (project_id, water_supply, drainage_system, power_supply))
+                project_id, water_supply_source, drainage_system_type, power_supply_source,org_id
+            ) VALUES (%s, %s, %s, %s, %s)
+        """, (project_id, water_supply, drainage_system, power_supply,session['org_id']))
 
         conn.commit()
         conn.close()
@@ -1582,71 +1582,72 @@ def upload_utilities_services():
 
 
 ############################################ Upload Cost Estimation ######################################
-@app.route('/upload_cost_estimation', methods=['POST'])
-def upload_cost_estimation():
-    if 'role' in session and session['role'] == 'architect':
-        project_id = request.form.get('project_id')
-        arch_cost = request.form.get('architectural_design_cost')
-        struct_cost = request.form.get('structural_design_cost')
-        summary = request.form.get('estimation_summary')
-        boq = request.form.get('boq_reference')
-        cost_per_sqft = request.form.get('cost_per_sqft')
+# @app.route('/upload_cost_estimation', methods=['POST'])
+# def upload_cost_estimation():
+#     if 'role' in session and session['role'] == 'architect':
+#         project_id = request.form.get('project_id')
+#         arch_cost = request.form.get('architectural_design_cost')
+#         struct_cost = request.form.get('structural_design_cost')
+#         summary = request.form.get('estimation_summary')
+#         boq = request.form.get('boq_reference')
+#         cost_per_sqft = request.form.get('cost_per_sqft')
+#         org_id = session['org_id']
 
-        # Ensure the upload directory exists
-        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+#         # Ensure the upload directory exists
+#         os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-        # Generate unique PDF filename
-        filename = f"estimation_{uuid.uuid4().hex[:8]}.pdf"
-        save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        #relative_path = os.path.join('uploads', os.path.basename(app.config['UPLOAD_FOLDER']), filename).replace("\\", "/")
-        relative_path = os.path.join('uploads', filename).replace("\\", "/")
+#         # Generate unique PDF filename
+#         filename = f"estimation_{uuid.uuid4().hex[:8]}.pdf"
+#         save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+#         #relative_path = os.path.join('uploads', os.path.basename(app.config['UPLOAD_FOLDER']), filename).replace("\\", "/")
+#         relative_path = os.path.join('uploads', filename).replace("\\", "/")
 
 
-        # Create PDF from submitted data
-        pdf_data = {
-            "Project ID": project_id,
-            "Architectural Design Cost": arch_cost,
-            "Structural Design Cost": struct_cost,
-            "Estimation Summary": summary,
-            "BOQ Reference": boq,
-            "Cost per Sqft": cost_per_sqft
-        }
-        generate_estimation_pdf(pdf_data, save_path)
+#         # Create PDF from submitted data
+#         pdf_data = {
+#             "Project ID": project_id,
+#             "Architectural Design Cost": arch_cost,
+#             "Structural Design Cost": struct_cost,
+#             "Estimation Summary": summary,
+#             "BOQ Reference": boq,
+#             "Cost per Sqft": cost_per_sqft
+#         }
+#         generate_estimation_pdf(pdf_data, save_path)
 
-        # Save to DB
-        conn = get_connection()
-        cur = conn.cursor()
+#         # Save to DB
+#         conn = get_connection()
+#         cur = conn.cursor()
 
-        # Update if project already has entry
-        cur.execute("SELECT id FROM cost_estimation WHERE project_id = %s", (project_id,))
-        if cur.fetchone():
-            cur.execute("""
-                UPDATE cost_estimation
-                SET architectural_design_cost = %s,
-                    structural_design_cost = %s,
-                    estimation_summary = %s,
-                    boq_reference = %s,
-                    cost_per_sqft = %s,
-                    report_pdf_path = %s,
-                    generated_on = NOW()
-                WHERE project_id = %s
-            """, (arch_cost, struct_cost, summary, boq, cost_per_sqft, relative_path, project_id))
-        else:
-            cur.execute("""
-                INSERT INTO cost_estimation
-                    (project_id, architectural_design_cost, structural_design_cost,
-                     estimation_summary, boq_reference, cost_per_sqft, report_pdf_path)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
-            """, (project_id, arch_cost, struct_cost, summary, boq, cost_per_sqft, relative_path))
+#         # Update if project already has entry
+#         cur.execute("SELECT id FROM cost_estimation WHERE project_id = %s and org_id = %s", (project_id,org_id))
+#         if cur.fetchone():
+#             cur.execute("""
+#                 UPDATE cost_estimation
+#                 SET architectural_design_cost = %s,
+#                     structural_design_cost = %s,
+#                     estimation_summary = %s,
+#                     boq_reference = %s,
+#                     cost_per_sqft = %s,
+#                     report_pdf_path = %s,
+#                     generated_on = NOW()
+#                 WHERE project_id = %s and org_id = %s
+#             """, (arch_cost, struct_cost, summary, boq, cost_per_sqft, relative_path, project_id,org_id))
+#         else:
+#             cur.execute("""
+#                 INSERT INTO cost_estimation
+#                     (project_id, architectural_design_cost, structural_design_cost,
+#                      estimation_summary, boq_reference, cost_per_sqft, report_pdf_path,org_id)
+#                 VALUES (%s, %s, %s, %s, %s, %s, %s,%s)
+#             """, (project_id, arch_cost, struct_cost, summary, boq, cost_per_sqft, relative_path,org_id))
 
-        conn.commit()
-        conn.close()
+#         conn.commit()
+#         conn.close()
 
-        flash("Cost estimation saved and PDF generated.")
-        return redirect(url_for('architect_dashboard'))
+#         flash("Cost estimation saved and PDF generated.")
+#         return redirect(url_for('architect_dashboard'))
 
-    flash("Unauthorized access.")
-    return redirect(url_for('login'))
+#     flash("Unauthorized access.")
+#     return redirect(url_for('login'))
 
 
 
@@ -1680,6 +1681,7 @@ def generate_cost_estimation_pdf():
             estimation_summary = request.form['estimation_summary']
             boq_reference = request.form['boq_reference']
             cost_per_sqft = request.form['cost_per_sqft']
+            org_id = session['org_id']
 
             # Create uploads folder if not exists
             upload_folder = os.path.join('static', 'uploads')
@@ -1707,7 +1709,7 @@ def generate_cost_estimation_pdf():
             # Save PDF path to database
             conn = get_connection()
             cur = conn.cursor()
-            cur.execute("SELECT id FROM cost_estimation WHERE project_id = %s", (project_id,))
+            cur.execute("SELECT id FROM cost_estimation WHERE project_id = %s and org_id = %s", (project_id,org_id))
             if cur.fetchone():
                 cur.execute("""
                     UPDATE cost_estimation 
@@ -1718,16 +1720,16 @@ def generate_cost_estimation_pdf():
                         cost_per_sqft = %s,
                         report_pdf_path = %s,
                         generated_on = NOW()
-                    WHERE project_id = %s
-                """, (architectural_cost, structural_cost, estimation_summary, boq_reference, cost_per_sqft, relative_path, project_id))
+                    WHERE project_id = %s and org_id = %s
+                """, (architectural_cost, structural_cost, estimation_summary, boq_reference, cost_per_sqft, relative_path, project_id,org_id))
             else:
                 cur.execute("""
                     INSERT INTO cost_estimation 
                     (project_id, architectural_design_cost, structural_design_cost, 
-                     estimation_summary, boq_reference, cost_per_sqft, report_pdf_path, generated_on)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, NOW())
+                     estimation_summary, boq_reference, cost_per_sqft, report_pdf_path, generated_on,org_id)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, NOW(),%s)
                 """, (project_id, architectural_cost, structural_cost, estimation_summary,
-                      boq_reference, cost_per_sqft, relative_path))
+                      boq_reference, cost_per_sqft, relative_path,org_id))
             conn.commit()
             conn.close()
 
@@ -1878,8 +1880,8 @@ def view_assigned_architects():
             FROM sites s
             LEFT JOIN projects p ON s.site_id = p.site_id
             LEFT JOIN register r ON p.architect_id = r.id
-            WHERE s.site_engineer_id IS NOT NULL
-        """)
+            WHERE s.org_id = %s
+        """ , (session['org_id'],))
     else:
         site_engineer_id = session['user_id']
         cur.execute("""
@@ -1928,23 +1930,27 @@ def view_project_details():
             SELECT p.id, p.project_name
             FROM projects p
             JOIN sites s ON p.site_id = s.site_id
-            WHERE s.site_engineer_id = %s AND p.org_id = %s
+            WHERE s.site_engineer_id = %s AND s.org_id = %s
         """, (user_id, org_id))
         project_list = cursor.fetchall()
+        print("DEBUG: Fetched project_list for site_engineer:", project_list)
     else:
         project_list = []
 
     selected_project = None
     project_id = request.form.get('project_id')
+    print("DEBUG: Selected project_id from form:", project_id)
 
     if request.method == 'POST' and project_id:
         # Validate if selected project belongs to org
         cursor.execute("SELECT * FROM projects WHERE id = %s AND org_id = %s", (project_id, org_id))
         selected_project = cursor.fetchone()
+        print("DEBUG: Selected project:", selected_project)
 
         if selected_project:
             cursor.execute("SELECT * FROM design_details WHERE project_id = %s", (project_id,))
             design = cursor.fetchone()
+            print("DEBUG: Design details:", design)
 
             cursor.execute("SELECT * FROM structural_details WHERE project_id = %s", (project_id,))
             structure = cursor.fetchone()
@@ -2139,20 +2145,59 @@ def save_file(file):
 
 @app.route('/api/get_projects_by_org', methods=['GET'])
 def get_projects_by_org():
-    if 'org_id' not in session:
-        return jsonify({'error': 'Unauthorized or missing org_id in session'}), 401
+    if 'org_id' not in session or 'role' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
 
     org_id = session['org_id']
-    
+    user_id = session.get('user_id')
+    role = session.get('role')
+
     conn = get_connection()
     cur = conn.cursor(pymysql.cursors.DictCursor)
 
     try:
-        cur.execute("SELECT id, project_name FROM projects WHERE org_id = %s", (org_id,))
-        projects = cur.fetchall()
+        if role == 'admin':
+            cur.execute("SELECT id, project_name FROM projects WHERE org_id = %s", (org_id,))
+            projects = cur.fetchall()
+
+        elif role == 'site_engineer':
+            cur.execute("""
+                SELECT DISTINCT p.id, p.project_name
+                FROM projects p
+                JOIN sites s ON p.site_id = s.site_id
+                WHERE s.site_engineer_id = %s AND p.org_id = %s
+            """, (user_id, org_id))
+            projects = cur.fetchall()
+
+        elif role == 'architect':
+            cur.execute("SELECT id FROM architects WHERE register_id = %s", (user_id,))
+            architect = cur.fetchone()
+            if not architect:
+                return jsonify({'projects': []})
+            cur.execute("""
+                SELECT id, project_name
+                FROM projects
+                WHERE architect_id = %s AND org_id = %s
+            """, (architect['id'], org_id))
+            projects = cur.fetchall()
+
+        elif role == 'accountant':
+            cur.execute("""
+                SELECT p.id, p.project_name
+                FROM projects p
+                JOIN accountant_projects ap ON p.id = ap.project_id
+                WHERE ap.accountant_id = %s AND p.org_id = %s
+            """, (user_id, org_id))
+            projects = cur.fetchall()
+
+        else:
+            return jsonify({'error': 'Unauthorized role'}), 403
+
         return jsonify({'projects': projects}), 200
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
     finally:
         cur.close()
         conn.close()
@@ -2299,8 +2344,8 @@ def generate_invoice():
         SELECT p.id, p.project_name
         FROM projects p
         JOIN sites s ON p.site_id = s.site_id
-        WHERE s.site_engineer_id = %s
-    """, (site_engineer_id,))
+        WHERE s.site_engineer_id = %s AND s.org_id = %s
+    """ , (site_engineer_id, session.get('org_id')))
     projects = cur.fetchall()
 
     if request.method == 'POST':
@@ -2393,14 +2438,14 @@ def generate_invoice():
                     project_id, site_engineer_id, vendor_name, total_amount,
                     gst_amount, invoice_number, pdf_filename, generated_on,
                     bill_to_name, bill_to_address, bill_to_phone, subtotal,
-                    invoice_image_filename
+                    invoice_image_filename,org_id
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s)
             """, (
                 project_id, site_engineer_id, vendor_name, grand_total,
                 gst_amount, invoice_number, pdf_filename, invoice_date,
                 client_name, client_address, client_phone, subtotal,
-                invoice_image_filename
+                invoice_image_filename,session.get('org_id')
             ))
             
             invoice_id = cur.lastrowid
@@ -2410,9 +2455,9 @@ def generate_invoice():
             for desc, qty, rate, line_total in zip(descriptions, quantities, rates, totals):
                 if desc and qty and rate:
                     cur.execute("""
-                        INSERT INTO invoice_items (invoice_id, description, quantity, rate, subtotal)
-                        VALUES (%s, %s, %s, %s, %s)
-                    """, (invoice_id, desc.strip(), float(qty), float(rate), float(line_total)))
+                        INSERT INTO invoice_items (invoice_id, description, quantity, rate, subtotal,org_id)
+                        VALUES (%s, %s, %s, %s, %s,%s)
+                    """, (invoice_id, desc.strip(), float(qty), float(rate), float(line_total), session.get('org_id')))
 
             # Commit transaction
             conn.commit()
@@ -3081,17 +3126,17 @@ def site_engineer_invoices():
             SELECT 
                 id, invoice_number, generated_on, total_amount, status, rejection_reason, pdf_filename
             FROM invoices
-            WHERE site_engineer_id = %s
+            WHERE site_engineer_id = %s and org_id = %s
             ORDER BY generated_on DESC
-        """, (site_engineer_id,))
+        """, (site_engineer_id,session['org_id']))
         invoices = cursor.fetchall()
 
         for invoice in invoices:
             cursor.execute("""
                 SELECT description, quantity, rate 
                 FROM invoice_items 
-                WHERE invoice_id = %s
-            """, (invoice['id'],))
+                WHERE invoice_id = %s and org_id = %s
+            """, (invoice['id'],session['org_id']))
             invoice['items'] = cursor.fetchall()
 
     return render_template('site_engineer_invoices.html', invoices=invoices)
@@ -3206,8 +3251,8 @@ def edit_invoice(invoice_id):
         # Verify the invoice belongs to this engineer
         cursor.execute("""
             SELECT * FROM invoices 
-            WHERE id = %s AND  site_engineer_id= %s AND status = 'Rejected'
-        """, (invoice_id, engineer_id))
+            WHERE id = %s AND  site_engineer_id= %s AND status = 'Rejected' AND org_id = %s
+        """, (invoice_id, engineer_id, session['org_id']))
         invoice = cursor.fetchone()
         
         if not invoice:
@@ -3215,7 +3260,7 @@ def edit_invoice(invoice_id):
             return redirect(url_for('site_engineer_invoices'))
         
         # Get invoice items
-        cursor.execute("SELECT * FROM invoice_items WHERE invoice_id = %s", (invoice_id,))
+        cursor.execute("SELECT * FROM invoice_items WHERE invoice_id = %s and org_id = %s", (invoice_id,session['org_id']))
         items = cursor.fetchall()
         
         if request.method == 'POST':
@@ -3347,7 +3392,7 @@ def get_current_user_role():
 
     cursor = conn.cursor(pymysql.cursors.DictCursor)
 
-    cursor.execute("SELECT role FROM register WHERE id = %s", (session['user_id'],))
+    cursor.execute("SELECT role FROM register WHERE id = %s and org_id = %s", (session['user_id'],session['org_id']))
 
     result = cursor.fetchone()
 
@@ -3364,116 +3409,74 @@ def get_current_user_role():
 
 
 @app.route('/get_users')
-
 def get_users():
-
     if 'user_id' not in session:
-
         return jsonify([])
 
-    
-
     current_user_id = session['user_id']
-
-    
+    org_id = session.get('org_id')
 
     conn = get_connection()
-
     cursor = conn.cursor(pymysql.cursors.DictCursor)
 
-    
-
     # Get current user's role
+    cursor.execute("SELECT role FROM register WHERE id = %s AND org_id = %s", (current_user_id, org_id))
+    result = cursor.fetchone()
+    if not result:
+        return jsonify([])
+    current_user_role = result['role']
 
-    cursor.execute("SELECT role FROM register WHERE id = %s", (current_user_id,))
-
-    current_user_role = cursor.fetchone()['role']
-
-    
-
-    # Get all users with unread counts - exclude super_admin
-
+    # Get users
     if current_user_role == 'admin':
-
         cursor.execute("""
-
-            SELECT r.id, r.name, r.role, 
-
+            SELECT r.id, r.name, r.role,
                    (SELECT COUNT(*) FROM messages 
-
-                    WHERE receiver_id = %s AND sender_id = r.id AND is_read = FALSE) as unread_count
-
+                    WHERE receiver_id = %s AND sender_id = r.id AND is_read = FALSE) AS unread_count
             FROM register r
-
-            WHERE r.id != %s AND r.role != 'super_admin'
-
+            WHERE r.id != %s AND r.role != 'super_admin' AND r.org_id = %s
             ORDER BY r.name
-
-        """, (current_user_id, current_user_id))
-
+        """, (current_user_id, current_user_id, org_id))
+    elif current_user_role == 'accountant':
+        cursor.execute("""
+            SELECT r.id, r.name, r.role,
+                   (SELECT COUNT(*) FROM messages 
+                    WHERE receiver_id = %s AND sender_id = r.id AND is_read = FALSE) AS unread_count
+            FROM register r
+            WHERE r.role = 'admin' AND r.id != %s AND r.org_id = %s
+            ORDER BY r.name
+        """, (current_user_id, current_user_id, org_id))
     else:
-
-        if current_user_role == 'accountant':
-
-            cursor.execute("""
-
-                SELECT r.id, r.name, r.role, 
-
-                       (SELECT COUNT(*) FROM messages 
-
-                        WHERE receiver_id = %s AND sender_id = r.id AND is_read = FALSE) as unread_count
-
-                FROM register r
-
-                WHERE r.role = 'admin' AND r.id != %s
-
-                ORDER BY r.name
-
-            """, (current_user_id, current_user_id))
-
-        else:
-
-            cursor.execute("""
-
-                SELECT r.id, r.name, r.role, 
-
-                       (SELECT COUNT(*) FROM messages 
-
-                        WHERE receiver_id = %s AND sender_id = r.id AND is_read = FALSE) as unread_count
-
-                FROM register r
-
-                WHERE (r.role = %s OR r.role = 'admin' OR 
-
-                      (r.role = 'site_engineer' AND %s = 'architect') OR
-
-                      (r.role = 'architect' AND %s = 'site_engineer')) 
-
-                AND r.id != %s AND r.role != 'super_admin'
-
-                ORDER BY r.name
-
-            """, (current_user_id, current_user_role, current_user_role, current_user_role, current_user_id))
-
-    
+        cursor.execute("""
+            SELECT r.id, r.name, r.role,
+                   (SELECT COUNT(*) FROM messages 
+                    WHERE receiver_id = %s AND sender_id = r.id AND is_read = FALSE) AS unread_count
+            FROM register r
+            WHERE (
+                r.role = %s OR r.role = 'admin' OR 
+                (r.role = 'site_engineer' AND %s = 'architect') OR
+                (r.role = 'architect' AND %s = 'site_engineer')
+            )
+            AND r.id != %s AND r.role != 'super_admin' AND r.org_id = %s
+            ORDER BY r.name
+        """, (
+            current_user_id,
+            current_user_role,
+            current_user_role,
+            current_user_role,
+            current_user_id,
+            org_id
+        ))
 
     users = cursor.fetchall()
-
-    
-
-    # Convert site_engineer role to project_manager for display
-
-    for user in users:
-
-        if user['role'] == 'site_engineer':
-
-            user['role'] = 'project_manager'
-
-    
-
     conn.close()
 
+    # Rename site_engineer to project_manager
+    for user in users:
+        if user['role'] == 'site_engineer':
+            user['role'] = 'project_manager'
+
     return jsonify(users)
+
 
 
 
@@ -3488,6 +3491,7 @@ def get_messages(receiver_id):
     
 
     sender_id = session['user_id']
+    org_id = session['org_id']
 
     
 
@@ -3503,11 +3507,11 @@ def get_messages(receiver_id):
 
         SELECT * FROM messages
 
-        WHERE (sender_id = %s AND receiver_id = %s) OR (sender_id = %s AND receiver_id = %s)
+        WHERE (sender_id = %s AND receiver_id = %s) OR (sender_id = %s AND receiver_id = %s) AND org_id = %s
 
         ORDER BY timestamp ASC
 
-    """, (sender_id, receiver_id, receiver_id, sender_id))
+    """, (sender_id, receiver_id, receiver_id, sender_id,org_id))
 
     messages = cursor.fetchall()
 
@@ -3565,6 +3569,7 @@ def send_message():
     message = data.get('message')
 
     sender_id = session['user_id']
+    org_id = session['org_id']
 
 
 
@@ -3582,11 +3587,11 @@ def send_message():
 
         cursor.execute("""
 
-            INSERT INTO messages (sender_id, receiver_id, message)
+            INSERT INTO messages (sender_id, receiver_id, message,org_id)
 
-            VALUES (%s, %s, %s)
+            VALUES (%s, %s, %s,%s)
 
-        """, (sender_id, receiver_id, message))
+        """, (sender_id, receiver_id, message,org_id))
 
         conn.commit()
 
@@ -3658,8 +3663,8 @@ def add_salary():
         SELECT p.id, p.project_name
         FROM accountant_projects ap
         JOIN projects p ON ap.project_id = p.id
-        WHERE ap.accountant_id = %s
-    """, (accountant_id,))
+        WHERE ap.accountant_id = %s AND ap.org_id = %s
+    """, (accountant_id,session['org_id']))
     projects = cur.fetchall()
 
     # Fetch relevant users: site engineers, architects, self (accountant)
@@ -3683,8 +3688,8 @@ def add_salary():
 
         SELECT DISTINCT r.id, r.name, r.role
         FROM register r
-        WHERE r.id = %s AND r.role = 'accountant'
-    """, (accountant_id, accountant_id, accountant_id))
+        WHERE r.id = %s AND r.role = 'accountant' AND r.org_id = %s
+    """, (accountant_id, accountant_id, accountant_id,session['org_id']))
     users = cur.fetchall()
 
     if request.method == 'POST':

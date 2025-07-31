@@ -471,10 +471,6 @@
                     <i class="fas fa-map-marked-alt"></i>
                     <span>Assigned Sites</span>
                 </a></li>
-                <li><a href="{{ url_for('view_architects') }}" class="navbar-link">
-                    <i class="fas fa-users"></i>
-                    <span>View Architects</span>
-                </a></li>
                 <li><a href="{{ url_for('logout') }}" class="navbar-link logout">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Logout</span>
@@ -498,7 +494,6 @@
             <table class="sites-table">
                 <thead>
                     <tr>
-                        <th><i class="fas fa-hashtag"></i> Site ID</th>
                         <th><i class="fas fa-building"></i> Site Name</th>
                         <th><i class="fas fa-map-marker-alt"></i> Location</th>
                     </tr>
@@ -506,7 +501,6 @@
                 <tbody>
                     {% for site in sites %}
                     <tr>
-                        <td>{{ site.site_id }}</td>
                         <td>{{ site.site_name }}</td>
                         <td>{{ site.location }}</td>
                     </tr>
@@ -525,11 +519,6 @@
                 </div>
                 <div class="site-card-info">
                     <div class="site-card-row">
-                        <i class="fas fa-hashtag"></i>
-                        <strong>Site ID:</strong>
-                        <span>{{ site.site_id }}</span>
-                    </div>
-                    <div class="site-card-row">
                         <i class="fas fa-map-marker-alt"></i>
                         <strong>Location:</strong>
                         <span>{{ site.location }}</span>
@@ -545,13 +534,6 @@
             <p>You currently have no construction sites assigned to you.</p>
         </div>
         {% endif %}
-
-        <div class="action-buttons">
-            <a href="{{ url_for('view_architects') }}" class="action-link secondary">
-                <i class="fas fa-users"></i>
-                View Architects
-            </a>
-        </div>
     </div>
     
     <script>
