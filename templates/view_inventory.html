@@ -874,7 +874,8 @@
                             <th><i class="fas fa-boxes"></i>Description</th>
                             <th><i class="fas fa-sort-numeric-up"></i>Quantity</th>
                             <th><i class="fas fa-calendar-alt"></i>Date</th>
-                            <th><i class="fas fa-info-circle"></i>Status</th>
+                            <th><i class="fas fa-user"></i>Engineer</th>
+                            <th><i class="fas fa-info-circle"></i>Status</th> 
                         </tr>
                     </thead>
                     <tbody id="inventoryTableBody">
@@ -884,6 +885,7 @@
                             <td>{{ item.material_description }}</td>
                             <td><span class="quantity-badge">{{ item.quantity }}</span></td>
                             <td><span class="date-text">{{ item.date }}</span></td>
+                            <td>{{ item.site_engineer_name }}</td>
                             <td>
                                 <span class="status-badge 
                                     {% if item.status == 'available' %}status-available

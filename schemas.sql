@@ -128,15 +128,18 @@ CREATE TABLE enquiries (
 );
 
 --########################################### inventory table #############################################
-
 CREATE TABLE inventory (
-    material_id INT AUTO_INCREMENT PRIMARY KEY,
+    material_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     material_description VARCHAR(255) NOT NULL,
     quantity INT NOT NULL,
     date DATE NOT NULL,
     org_id INT NOT NULL,
-    status ENUM('available', 'low', 'out_of_stock', 'ordered') NOT NULL
+    status ENUM('available', 'low', 'out_of_stock', 'ordered') NOT NULL,
+    site_engineer_id INT NOT NULL,
 );
+
+
+
 -- ############################# invoice_items table ##################################
 
 CREATE TABLE invoice_items (

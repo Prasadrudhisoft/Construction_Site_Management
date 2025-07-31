@@ -957,7 +957,7 @@ def add_inventory():
     if 'role' not in session or session['role'] != 'site_engineer':
         return redirect(url_for('login'))
 
-    if 'org_id' not in session:
+    if 'org_id' not in session or 'user_id' not in session:
         flash("Unauthorized access", "danger")
         return redirect(url_for('login'))
 
@@ -971,12 +971,13 @@ def add_inventory():
             stat = request.form['status']
             inv_date = request.form['date']
             org_id = session['org_id']
+            site_engineer_id = session['user_id']  # ✅ get site engineer's id
 
             query = """
-                INSERT INTO inventory (material_description, quantity, date, status, org_id)
-                VALUES (%s, %s, %s, %s, %s)
+                INSERT INTO inventory (material_description, quantity, date, status, org_id, site_engineer_id)
+                VALUES (%s, %s, %s, %s, %s, %s)
             """
-            cursor.execute(query, (desc, qty, inv_date, stat, org_id))
+            cursor.execute(query, (desc, qty, inv_date, stat, org_id, site_engineer_id))
             conn.commit()
             flash('Inventory added successfully!', 'success')
             return redirect(url_for('view_inventory'))
@@ -994,6 +995,7 @@ def add_inventory():
 
 
 
+
 ######################################## View Inventory ######################################
 
 @app.route('/view_inventory')
@@ -1006,7 +1008,16 @@ def view_inventory():
     db = get_connection()
     cursor = db.cursor(pymysql.cursors.DictCursor)
 
-    cursor.execute("SELECT * FROM inventory WHERE org_id = %s ORDER BY date DESC", (org_id,))
+    cursor.execute("""
+        SELECT 
+            inventory.*,
+            register.name AS site_engineer_name
+        FROM inventory
+        JOIN register ON inventory.site_engineer_id = register.id
+        WHERE inventory.org_id = %s
+        ORDER BY inventory.date DESC
+    """, (org_id,))
+    
     inventory = cursor.fetchall()
 
     response = make_response(render_template('view_inventory.html', inventory=inventory))
