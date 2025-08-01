@@ -4053,6 +4053,163 @@ def get_compliance_data():
         cur.close()
         conn.close()
 
+@app.route('/site_engineer/expenses', methods=['GET', 'POST'])
+def site_engineer_expenses():
+    if 'user_id' not in session or session.get('role') != 'site_engineer':
+        return redirect('/login')
+
+    site_engineer_id = session['user_id']
+
+    conn = get_connection()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+    # Get org_id for the current site engineer
+    cursor.execute("SELECT org_id FROM register WHERE id = %s", (site_engineer_id,))
+    org = cursor.fetchone()
+    org_id = org['org_id'] if org else None
+
+    # Handle expense form submission
+    if request.method == 'POST':
+        date = request.form['date']
+        description = request.form['description']
+        amount = request.form['amount']
+        project_id = request.form['project_id']
+
+        # Validate: ensure project belongs to this engineer and org
+        cursor.execute("""
+            SELECT COUNT(*) AS count
+            FROM projects p
+            JOIN sites s ON p.site_id = s.site_id
+            WHERE p.id = %s AND s.site_engineer_id = %s AND s.org_id = %s
+        """, (project_id, site_engineer_id, org_id))
+        valid = cursor.fetchone()
+
+        if valid and valid['count'] > 0:
+            cursor.execute("""
+                INSERT INTO daily_expenses 
+                (site_engineer_id, org_id, project_id, date, description, amount) 
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """, (site_engineer_id, org_id, project_id, date, description, amount))
+            conn.commit()
+            flash('Expense added successfully.', 'success')
+        else:
+            flash('Invalid project selection. You can only add expenses for your assigned projects.', 'error')
+
+    # Fetch expenses submitted by this engineer
+    cursor.execute("""
+        SELECT de.*, p.project_name 
+        FROM daily_expenses de
+        JOIN projects p ON de.project_id = p.id
+        WHERE de.site_engineer_id = %s AND de.org_id = %s
+        ORDER BY de.date DESC
+    """, (site_engineer_id, org_id))
+    expenses = cursor.fetchall()
+
+    # Fetch projects assigned to this site engineer
+    cursor.execute("""
+        SELECT p.id, p.project_name
+        FROM projects p
+        JOIN sites s ON p.site_id = s.site_id
+        WHERE s.site_engineer_id = %s AND s.org_id = %s
+    """, (site_engineer_id, org_id))
+    projects = cursor.fetchall()
+
+    conn.close()
+    return render_template("expenses.html", expenses=expenses, projects=projects)
+
+
+##################################### Admin View Expenses #####################################
+@app.route('/admin/expenses', methods=['GET', 'POST'])
+def admin_view_expenses():
+    if 'user_id' not in session or session.get('role') != 'admin':
+        return redirect('/login')
+
+    admin_id = session['user_id']
+    conn = get_connection()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+    # Get org_id for admin
+    cursor.execute("SELECT org_id FROM register WHERE id = %s", (admin_id,))
+    org = cursor.fetchone()
+    org_id = org['org_id'] if org else None
+
+    # Handle approval/rejection
+    if request.method == 'POST':
+        expense_id = request.form['expense_id']
+        action = request.form['action']
+        comment = request.form.get('admin_comment', '')
+
+        if action in ['Approved', 'Rejected']:
+            cursor.execute("""
+                UPDATE daily_expenses 
+                SET status = %s, admin_comment = %s 
+                WHERE id = %s AND org_id = %s
+            """, (action, comment, expense_id, org_id))
+            conn.commit()
+
+    # Fetch all expenses for this org
+    cursor.execute("""
+        SELECT de.*, r.name AS engineer_name, p.project_name
+        FROM daily_expenses de
+        JOIN register r ON de.site_engineer_id = r.id
+        JOIN projects p ON de.project_id = p.id
+        WHERE de.org_id = %s
+        ORDER BY de.created_at DESC
+    """, (org_id,))
+    expenses = cursor.fetchall()
+
+    conn.close()
+    return render_template("admin_view_expenses.html", expenses=expenses)
+
+##################################### Accountant View Expenses #####################################
+@app.route('/accountant/expenses')
+def accountant_view_expenses():
+    if 'user_id' not in session or session.get('role') != 'accountant':
+        return redirect('/login')
+
+    accountant_id = session['user_id']
+    conn = get_connection()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+    # Get org_id
+    cursor.execute("SELECT org_id FROM register WHERE id = %s", (accountant_id,))
+    org = cursor.fetchone()
+    org_id = org['org_id'] if org else None
+
+    # Get assigned project IDs for this accountant
+    cursor.execute("""
+        SELECT project_id FROM accountant_projects 
+        WHERE accountant_id = %s
+    """, (accountant_id,))
+    project_ids = [row['project_id'] for row in cursor.fetchall()]
+
+    if not project_ids:
+        expenses = []  # No assigned projects, no expenses
+    else:
+        # Use IN clause to filter only assigned projects
+        format_strings = ','.join(['%s'] * len(project_ids))
+        query = f"""
+            SELECT de.*, r.name AS engineer_name, p.project_name
+            FROM daily_expenses de
+            JOIN register r ON de.site_engineer_id = r.id
+            JOIN projects p ON de.project_id = p.id
+            WHERE de.org_id = %s AND de.status = 'Approved' 
+            AND de.project_id IN ({format_strings})
+            ORDER BY de.created_at DESC
+        """
+        cursor.execute(query, [org_id] + project_ids)
+        expenses = cursor.fetchall()
+
+    conn.close()
+    return render_template("accountant_expenses.html", expenses=expenses)
+
+
+
+
+
+
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)

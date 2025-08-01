@@ -689,11 +689,24 @@
                         <i class="fas fa-file-invoice"></i>
                         <h3>Financial Management</h3>
                     </div>
+                
                     <div class="card-content">
                         <p>Generate and manage invoices for your projects.</p>
                         <a href="{{ url_for('generate_invoice') }}" class="card-link">Generate Invoice</a>
                     </div>
                 </div>
+
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <i class="fas fa-rupee-sign"></i>
+                        <h3>Daily Expenses</h3>
+                    </div>
+                    <div class="card-content">
+                        <p>Submit and track daily expenses for your project work.</p>
+                        <a href="{{ url_for('site_engineer_expenses') }}" class="card-link">Submit Expenses</a>
+                    </div>
+                </div>
+
 
                 <!-- Submit Visitor Enquiry as a dashboard card -->
                 <div class="dashboard-card">
