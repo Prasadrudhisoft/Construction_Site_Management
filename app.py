@@ -2307,6 +2307,8 @@ def generate_invoice():
     """ , (site_engineer_id, session.get('org_id')))
     projects = cur.fetchall()
 
+    sgst = 0
+    cgst = 0
     if request.method == 'POST':
         try:
             # Get form data
@@ -2321,10 +2323,14 @@ def generate_invoice():
             invoice_date = datetime.now().strftime("%Y-%m-%d")
 
             # GST calculation
-            gst_percentage = 18
-            apply_gst = request.form.get('apply_gst')
-            gst_amount = subtotal * gst_percentage / 100 if apply_gst else 0
+            # GST calculation
+            gst_percentage = float(request.form.get('gst_percentage', 0))
+            gst_amount = subtotal * gst_percentage / 100
             grand_total = total_amount
+
+            sgst = gst_amount / 2
+            cgst = gst_amount / 2
+            print(f"DEBUG: SGST: {sgst}, CGST: {cgst}")
 
             # Generate invoice number
             invoice_number = "INV" + datetime.now().strftime("%Y%m%d%H%M%S")
@@ -2476,12 +2482,16 @@ def generate_invoice():
             elements.append(Spacer(1, 10))
 
             # Totals
-            totals_data = [
-                ['Subtotal', f'₹{subtotal:.2f}'],
-                ['Discount', '₹0.00'],
-                [f'Tax ({gst_percentage}%)', f'₹{gst_amount:.2f}'],
-                ['Total', f'₹{grand_total:.2f}']
-            ]
+            totals_data = [['Subtotal', f'₹{subtotal:.2f}']]
+
+            if gst_amount > 0:
+                totals_data.extend([
+                    [f'GST ({gst_percentage}%)', f'₹{gst_amount:.2f}'],
+                    [f'SGST ({gst_percentage/2}%)', f'₹{sgst:.2f}'],
+                    [f'CGST ({gst_percentage/2}%)', f'₹{cgst:.2f}']
+                ])
+
+            totals_data.append(['Total', f'₹{grand_total:.2f}'])
             totals_table = Table(totals_data, colWidths=[350, 150])
             totals_table.setStyle(TableStyle([
                 ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
@@ -2894,16 +2904,16 @@ def admin_generate_invoice():
 
             grand_total = total_amount
 
-            apply_gst = request.form.get('apply_gst')
-            gst_percentage = 18
-            gst_amount = 0
-
             subtotal_raw = request.form.get('subtotal', 0)
             subtotal = float(subtotal_raw) if subtotal_raw else 0.0
-            if apply_gst:
-                gst_amount = subtotal * gst_percentage / 100
-            else:
-                gst_amount = 0
+
+            # GST calculation with dynamic percentage
+            gst_percentage = float(request.form.get('gst_percentage', 0))
+            gst_amount = subtotal * gst_percentage / 100
+
+            # Calculate SGST and CGST
+            sgst = gst_amount / 2
+            cgst = gst_amount / 2
 
             invoice_number = "INV" + datetime.now().strftime("%Y%m%d%H%M%S")
             pdf_filename = f"{invoice_number}.pdf"
@@ -3018,12 +3028,20 @@ def admin_generate_invoice():
             elements.append(Spacer(1, 16))
 
             # Totals section
-            totals_table = Table([
-                ["Subtotal", f"₹{subtotal:.2f}"],
-                ["Discount", "₹0.00"],
-                [f"Tax ({gst_percentage}%)", f"₹{gst_amount:.2f}"],
-                ["INVOICE TOTAL", f"₹{grand_total:.2f}"]
-            ], colWidths=[380, 100])
+            # Totals section - dynamic based on GST selection
+            totals_data = [["Subtotal", f"₹{subtotal:.2f}"]]
+
+            if gst_amount > 0:
+                totals_data.extend([
+                    [f"GST ({gst_percentage}%)", f"₹{gst_amount:.2f}"],
+                    [f"SGST ({gst_percentage/2}%)", f"₹{sgst:.2f}"],
+                    [f"CGST ({gst_percentage/2}%)", f"₹{cgst:.2f}"]
+                ])
+
+            totals_data.append(["INVOICE TOTAL", f"₹{grand_total:.2f}"])
+
+            totals_table = Table(totals_data, colWidths=[380, 100])
+
             totals_table.setStyle(TableStyle([
                 ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
                 ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),

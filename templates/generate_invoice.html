@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,12 +11,14 @@
         body {
             padding-top: 80px;
         }
+
         .invoice-form {
             background: #fff;
             padding: 2rem;
             border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
         }
+
         .section-header {
             background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
             color: white;
@@ -23,6 +26,7 @@
             border-radius: 8px;
             margin-bottom: 2rem;
         }
+
         .btn-add-item {
             background: #28a745;
             border: none;
@@ -33,6 +37,7 @@
             align-items: center;
             justify-content: center;
         }
+
         .btn-remove-item {
             background: #dc3545;
             border: none;
@@ -43,6 +48,7 @@
             align-items: center;
             justify-content: center;
         }
+
         .line-item-row {
             background: #f8f9fa;
             padding: 1rem;
@@ -50,12 +56,14 @@
             margin-bottom: 1rem;
             border: 1px solid #dee2e6;
         }
+
         .total-section {
             background: #f8f9fa;
             padding: 1.5rem;
             border-radius: 8px;
             border: 2px solid #ffffff;
         }
+
         /* Navbar Styles */
         .navbar {
             position: fixed;
@@ -71,6 +79,7 @@
             display: flex;
             align-items: center;
         }
+
         .navbar-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -81,6 +90,7 @@
             padding: 0 20px;
             height: 70px;
         }
+
         .navbar-brand {
             display: flex;
             align-items: center;
@@ -90,10 +100,12 @@
             font-weight: 700;
             font-size: 1.4rem;
         }
+
         .navbar-brand i {
             color: #3498db;
             font-size: 1.8rem;
         }
+
         .navbar-menu {
             display: flex;
             list-style: none;
@@ -101,6 +113,7 @@
             align-items: center;
             margin: 0;
         }
+
         .navbar-link {
             text-decoration: none;
             color: #2c3e50;
@@ -112,23 +125,28 @@
             align-items: center;
             gap: 8px;
         }
+
         .navbar-link:hover {
             background: rgba(52, 152, 219, 0.1);
             color: #3498db;
             transform: translateY(-2px);
         }
+
         .navbar-link.active {
             background: #3498db;
             color: white;
         }
+
         .navbar-link.logout {
             background: #e74c3c;
             color: white;
         }
+
         .navbar-link.logout:hover {
             background: #c0392b;
             transform: translateY(-2px);
         }
+
         .navbar-toggle {
             display: none;
             background: none;
@@ -137,21 +155,26 @@
             color: #2c3e50;
             cursor: pointer;
         }
+
         @media (max-width: 900px) {
             .navbar-container {
                 padding: 0 10px;
             }
         }
+
         @media (max-width: 768px) {
             body {
                 padding-top: 80px !important;
             }
+
             .navbar {
                 height: 60px;
             }
+
             .navbar-container {
                 height: 60px;
             }
+
             .navbar-menu {
                 position: fixed;
                 top: 60px;
@@ -167,12 +190,15 @@
                 transition: left 0.3s ease;
                 gap: 20px;
             }
+
             .navbar-menu.active {
                 left: 0;
             }
+
             .navbar-toggle {
                 display: block;
             }
+
             .navbar-link {
                 width: 100%;
                 max-width: 300px;
@@ -183,21 +209,24 @@
         }
     </style>
 </head>
+
 <body>
     <nav class="navbar">
         <div class="navbar-container">
             <!-- Fixed navbar brand to redirect based on user role -->
-            <a href="{{ url_for('admin_dashboard') if user_role == 'admin' else url_for('site_engineer_dashboard') }}" class="navbar-brand">
+            <a href="{{ url_for('admin_dashboard') if user_role == 'admin' else url_for('site_engineer_dashboard') }}"
+                class="navbar-brand">
                 <i class="fas fa-hard-hat"></i>
                 Invoices
             </a>
             <ul class="navbar-menu" id="navbarNav">
-               <li>
-    <a href="{{ url_for('admin_dashboard') if user_role == 'admin' else url_for('site_engineer_dashboard') }}" class="navbar-link">
-        <i class="fas fa-tachometer-alt"></i>
-        Dashboard
-    </a>
-</li>
+                <li>
+                    <a href="{{ url_for('admin_dashboard') if user_role == 'admin' else url_for('site_engineer_dashboard') }}"
+                        class="navbar-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Dashboard
+                    </a>
+                </li>
                 <!-- <li><a href="{{ url_for('generate_invoice') }}" class="navbar-link active">
                     <i class="fas fa-file-invoice-dollar"></i>
                     Generate Invoice
@@ -209,9 +238,9 @@
                     </a>
                 </li> -->
                 <li><a href="{{ url_for('logout') }}" class="navbar-link logout">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Logout
-                </a></li>
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </a></li>
             </ul>
             <button class="navbar-toggle" id="mobileMenuToggle">
                 <i class="fas fa-bars"></i>
@@ -232,14 +261,15 @@
 
                     <!-- Flash Messages -->
                     {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                            {% for category, message in messages %}
-                                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show">
-                                    {{ message }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                </div>
-                            {% endfor %}
-                        {% endif %}
+                    {% if messages %}
+                    {% for category, message in messages %}
+                    <div
+                        class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
                     {% endwith %}
 
                     <form method="POST" enctype="multipart/form-data" id="invoiceForm">
@@ -249,16 +279,19 @@
                                 <h5 class="text-dark mb-3"><i class="fas fa-info-circle me-2"></i>Invoice Details</h5>
                                 <div class="mb-3">
                                     <label for="vendor_name" class="form-label">Vendor Name *</label>
-                                    <input type="text" class="form-control" id="vendor_name" name="vendor_name" required>
+                                    <input type="text" class="form-control" id="vendor_name" name="vendor_name"
+                                        required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="invoice_date" class="form-label">Invoice Date *</label>
                                     {% if user_role == 'admin' %}
-                                        <input type="date" class="form-control" id="invoice_date" name="invoice_date" required>
-                                        <small class="text-muted">As admin, you can select any date.</small>
+                                    <input type="date" class="form-control" id="invoice_date" name="invoice_date"
+                                        required>
+                                    <small class="text-muted">As admin, you can select any date.</small>
                                     {% else %}
-                                        <input type="text" class="form-control" id="invoice_date" name="invoice_date" value="{{ current_date }}" readonly>
-                                        <small class="text-muted">Invoice date is always today.</small>
+                                    <input type="text" class="form-control" id="invoice_date" name="invoice_date"
+                                        value="{{ current_date }}" readonly>
+                                    <small class="text-muted">Invoice date is always today.</small>
                                     {% endif %}
                                 </div>
                             </div>
@@ -266,11 +299,13 @@
                                 <h5 class="text-dark mb-3"><i class="fas fa-address-card me-2"></i>Bill To</h5>
                                 <div class="mb-3">
                                     <label for="bill_to_name" class="form-label">Client Name *</label>
-                                    <input type="text" class="form-control" id="bill_to_name" name="bill_to_name" required>
+                                    <input type="text" class="form-control" id="bill_to_name" name="bill_to_name"
+                                        required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="bill_to_address" class="form-label">Address</label>
-                                    <textarea class="form-control" id="bill_to_address" name="bill_to_address" rows="2"></textarea>
+                                    <textarea class="form-control" id="bill_to_address" name="bill_to_address"
+                                        rows="2"></textarea>
                                 </div>
                                 <div class="mb-3">
                                     <label for="bill_to_phone" class="form-label">Phone</label>
@@ -278,13 +313,13 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label for="project_id" class="form-label">Project *</label>
                             <select class="form-select" id="project_id" name="project_id" required>
                                 <option value="">-- Select Project --</option>
                                 {% for project in projects %}
-                                    <option value="{{ project.id }}">{{ project.project_name }}</option>
+                                <option value="{{ project.id }}">{{ project.project_name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -296,7 +331,7 @@
                             <select name="site_engineer_id" id="site_engineer_id" class="form-select" required>
                                 <option value="">-- Select Site Engineer --</option>
                                 {% for eng in engineers %}
-                                    <option value="{{ eng.id }}">{{ eng.name }}</option>
+                                <option value="{{ eng.id }}">{{ eng.name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -310,32 +345,33 @@
                                     <i class="fas fa-plus"></i>
                                 </button>
                             </div>
-                            
+
                             <div id="lineItems">
                                 <div class="line-item-row" data-item="0">
                                     <div class="row align-items-center">
-                                        <div class="col-md-4">  
+                                        <div class="col-md-4">
                                             <label class="form-label">Description *</label>
                                             <input type="text" class="form-control" name="description[]" required>
                                         </div>
                                         <div class="col-md-2">
                                             <label class="form-label">Quantity *</label>
-                                            <input type="number" class="form-control quantity" name="quantity[]" 
-                                                   min="1" step="0.01" onchange="calculateLineTotal(this)" required>
+                                            <input type="number" class="form-control quantity" name="quantity[]" min="1"
+                                                step="0.01" onchange="calculateLineTotal(this)" required>
                                         </div>
                                         <div class="col-md-2">
                                             <label class="form-label">Rate *</label>
-                                            <input type="number" class="form-control rate" name="rate[]" 
-                                                   min="0" step="0.01" onchange="calculateLineTotal(this)" required>
+                                            <input type="number" class="form-control rate" name="rate[]" min="0"
+                                                step="0.01" onchange="calculateLineTotal(this)" required>
                                         </div>
                                         <div class="col-md-2">
                                             <label class="form-label">Total</label>
-                                            <input type="number" class="form-control line-total" name="total[]" readonly>
+                                            <input type="number" class="form-control line-total" name="total[]"
+                                                readonly>
                                         </div>
                                         <div class="col-md-1">
                                             <label class="form-label">&nbsp;</label>
-                                            <button type="button" class="btn btn-remove-item text-white d-block" 
-                                                    onclick="removeLineItem(this)" style="display: none;">
+                                            <button type="button" class="btn btn-remove-item text-white d-block"
+                                                onclick="removeLineItem(this)" style="display: none;">
                                                 <i class="fas fa-times"></i>
                                             </button>
                                         </div>
@@ -348,12 +384,19 @@
                         <div class="total-section">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="apply_gst" 
-                                               name="apply_gst" onchange="calculateTotals()">
-                                        <label class="form-check-label" for="apply_gst">
-                                            Apply GST (18%)
-                                        </label>
+                                    <div class="mb-3">
+                                        <label for="gst_percentage" class="form-label">Select GST Rate</label>
+                                        <select class="form-select" id="gst_percentage" name="gst_percentage"
+                                            onchange="calculateTotals()">
+                                            <option value="0">No GST (0%)</option>
+                                            <option value="0.25">GST 0.25%</option>
+                                            <option value="3">GST 3%</option>
+                                            <option value="5">GST 5%</option>
+                                            <option value="9">GST 9%</option>
+                                            <option value="12">GST 12%</option>
+                                            <option value="18" selected>GST 18%</option>
+                                            <option value="28">GST 28%</option>
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -365,9 +408,21 @@
                                         <div class="col-6 text-end"><strong>GST (18%):</strong></div>
                                         <div class="col-6"><span id="gstDisplay">₹0.00</span></div>
                                     </div>
+                                    <div class="row mb-2" id="sgstRow" style="display: none;">
+                                        <div class="col-6 text-end"><strong>SGST:</strong></div>
+                                        <div class="col-6"><span id="sgstDisplay">₹0.00</span></div>
+                                    </div>
+                                    <div class="row mb-2" id="cgstRow" style="display: none;">
+                                        <div class="col-6 text-end"><strong>CGST:</strong></div>
+                                        <div class="col-6"><span id="cgstDisplay">₹0.00</span></div>
+                                    </div>
                                     <div class="row mb-2">
-                                        <div class="col-6 text-end"><h5><strong>Grand Total:</strong></h5></div>
-                                        <div class="col-6"><h5><strong><span id="grandTotalDisplay">₹0.00</span></strong></h5></div>
+                                        <div class="col-6 text-end">
+                                            <h5><strong>Grand Total:</strong></h5>
+                                        </div>
+                                        <div class="col-6">
+                                            <h5><strong><span id="grandTotalDisplay">₹0.00</span></strong></h5>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -377,8 +432,8 @@
                             <label for="invoice_image" class="form-label">
                                 <i class="fas fa-image me-2"></i>Upload Invoice Image (optional)
                             </label>
-                            <input type="file" class="form-control" id="invoice_image"
-                                name="invoice_image" accept="image/png, image/jpeg, image/jpg">
+                            <input type="file" class="form-control" id="invoice_image" name="invoice_image"
+                                accept="image/png, image/jpeg, image/jpg">
                             <small class="text-muted">Allowed formats: png, jpg, jpeg. Max size 5 MB.</small>
                         </div>
 
@@ -386,16 +441,17 @@
                         <input type="hidden" id="subtotal" name="subtotal" value="0">
                         <input type="hidden" id="grand_total" name="grand_total" value="0">
                         <input type="hidden" name="total_amount" id="total_amount" value="0">
-                        
+
 
                         <!-- Submit Button -->
                         <div class="text-center mt-4">
                             <button type="submit" class="btn btn-primary btn-lg px-5">
                                 <i class="fas fa-save me-2"></i>Generate Invoice
                             </button>
-                            <a href="{{ url_for('admin_dashboard') if user_role == 'admin' else url_for('site_engineer_dashboard') }}" class="btn btn-secondary btn-lg px-5 ms-3">
-    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
-</a>
+                            <a href="{{ url_for('admin_dashboard') if user_role == 'admin' else url_for('site_engineer_dashboard') }}"
+                                class="btn btn-secondary btn-lg px-5 ms-3">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                            </a>
                         </div>
                     </form>
                 </div>
@@ -412,7 +468,7 @@
             const newItem = document.createElement('div');
             newItem.className = 'line-item-row';
             newItem.setAttribute('data-item', itemCounter);
-            
+
             newItem.innerHTML = `
                 <div class="row align-items-center">
                     <div class="col-md-4">  
@@ -442,7 +498,7 @@
                     </div>
                 </div>
             `;
-            
+
             lineItems.appendChild(newItem);
             itemCounter++;
             updateRemoveButtons();
@@ -471,58 +527,64 @@
             const quantity = parseFloat(row.querySelector('.quantity').value) || 0;
             const rate = parseFloat(row.querySelector('.rate').value) || 0;
             const lineTotal = quantity * rate;
-            
+
             row.querySelector('.line-total').value = lineTotal.toFixed(2);
             calculateTotals();
         }
 
         function calculateTotals() {
             let subtotal = 0;
-            
+
             document.querySelectorAll('.line-total').forEach(input => {
                 subtotal += parseFloat(input.value) || 0;
             });
 
-            const applyGst = document.getElementById('apply_gst').checked;
-            const gstAmount = applyGst ? subtotal * 0.18 : 0;
+            const gstPercentage = parseFloat(document.getElementById('gst_percentage').value) || 0;
+            const gstAmount = subtotal * gstPercentage / 100;
+            const sgstAmount = gstAmount / 2;
+            const cgstAmount = gstAmount / 2;
             const grandTotal = subtotal + gstAmount;
 
             // Update display
             document.getElementById('subtotalDisplay').textContent = `₹${subtotal.toFixed(2)}`;
             document.getElementById('gstDisplay').textContent = `₹${gstAmount.toFixed(2)}`;
+            document.getElementById('sgstDisplay').textContent = `₹${sgstAmount.toFixed(2)}`;
+            document.getElementById('cgstDisplay').textContent = `₹${cgstAmount.toFixed(2)}`;
             document.getElementById('grandTotalDisplay').textContent = `₹${grandTotal.toFixed(2)}`;
 
-            // Show/hide GST row
-            document.getElementById('gstRow').style.display = applyGst ? 'flex' : 'none';
+            // Show/hide GST rows
+            const showGstRows = gstPercentage > 0;
+            document.getElementById('gstRow').style.display = showGstRows ? 'flex' : 'none';
+            document.getElementById('sgstRow').style.display = showGstRows ? 'flex' : 'none';
+            document.getElementById('cgstRow').style.display = showGstRows ? 'flex' : 'none';
 
             // Update hidden inputs
             document.getElementById('subtotal').value = subtotal.toFixed(2);
             document.getElementById('grand_total').value = grandTotal.toFixed(2);
             document.getElementById('total_amount').value = grandTotal.toFixed(2);
         }
-
         // Set current date as default
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('invoice_date').value = today;
             updateRemoveButtons();
         });
 
         // Form validation
-        document.getElementById('invoiceForm').addEventListener('submit', function(e) {
+        document.getElementById('invoiceForm').addEventListener('submit', function (e) {
             const lineItems = document.querySelectorAll('.line-item-row');
             let hasValidItem = false;
-            
+
             lineItems.forEach(item => {
                 const desc = item.querySelector('input[name="description[]"]').value.trim();
                 const qty = item.querySelector('input[name="quantity[]"]').value;
                 const rate = item.querySelector('input[name="rate[]"]').value;
-                
+
                 if (desc && qty && rate) {
                     hasValidItem = true;
                 }
             });
-            
+
             if (!hasValidItem) {
                 e.preventDefault();
                 alert('Please add at least one valid line item with description, quantity, and rate.');
@@ -530,7 +592,7 @@
         });
 
         // Mobile menu toggle
-        document.getElementById('mobileMenuToggle').addEventListener('click', function() {
+        document.getElementById('mobileMenuToggle').addEventListener('click', function () {
             const navbarNav = document.getElementById('navbarNav');
             const icon = this.querySelector('i');
             navbarNav.classList.toggle('active');
@@ -544,7 +606,7 @@
         });
         // Close mobile menu when clicking on a link
         document.querySelectorAll('.navbar-link').forEach(link => {
-            link.addEventListener('click', function() {
+            link.addEventListener('click', function () {
                 const navbarNav = document.getElementById('navbarNav');
                 const mobileToggle = document.getElementById('mobileMenuToggle');
                 const icon = mobileToggle.querySelector('i');
@@ -553,8 +615,9 @@
                 icon.classList.add('fa-bars');
             });
         });
-    
+
 
     </script>
 </body>
+
 </html>
