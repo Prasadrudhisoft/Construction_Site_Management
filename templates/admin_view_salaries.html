@@ -325,6 +325,43 @@
             border: 1px solid #007bff;
         }
 
+        /* Entry Type Badges */
+        .entry-type-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .advance-payment {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            color: #856404;
+            border: 1px solid #ffc107;
+        }
+
+        .salary-payment {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+            border: 1px solid #28a745;
+        }
+
+        .salary-with-advance-deduction {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            color: #721c24;
+            border: 1px solid #dc3545;
+        }
+
+        .other {
+            background: linear-gradient(135deg, #e2e3e5, #d6d8db);
+            color: #383d41;
+            border: 1px solid #6c757d;
+        }
+
         .no-data {
             text-align: center;
             padding: 40px;
@@ -339,6 +376,37 @@
             font-size: 3rem;
             margin-bottom: 15px;
             opacity: 0.5;
+        }
+
+        /* Highlight advance entries */
+        .advance-row {
+            background: rgba(255, 193, 7, 0.1);
+        }
+
+        .advance-row:hover {
+            background: rgba(255, 193, 7, 0.2);
+        }
+
+        /* Amount styling */
+        .amount {
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        .positive-amount {
+            color: #28a745;
+        }
+
+        .advance-amount {
+            color: #ffc107;
+        }
+
+        .text-muted {
+            color: #6c757d;
+        }
+
+        .text-danger {
+            color: #dc3545;
         }
 
         /* Mobile Responsive */
@@ -528,6 +596,14 @@
             tr:hover {
                 background: #3a3a3a;
             }
+
+            .advance-row {
+                background: rgba(255, 193, 7, 0.15);
+            }
+
+            .advance-row:hover {
+                background: rgba(255, 193, 7, 0.25);
+            }
         }
     </style>
 </head>
@@ -568,19 +644,14 @@
 
     <div class="container">
         <div class="header">
-            <h2>All Salary Entries</h2>
-            <p>Comprehensive view of all salary entries in the system</p>
+            <h2>All Salary Entries & Advances</h2>
+            <p>Comprehensive view of all salary entries and advance payments in the system</p>
         </div>
 
         <div class="content">
             <!-- Action Buttons -->
             <div class="action-buttons">
-                <!-- <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">
-                    <i class="fas fa-home"></i> Admin Dashboard
-                </a>
-                <a href="{{ url_for('admin_view_salaries') }}" class="btn btn-secondary">
-                    <i class="fas fa-eye"></i> View All Salaries
-                </a> -->
+                <!-- Add any additional action buttons here if needed -->
             </div>
 
             {% if salaries %}
@@ -590,6 +661,7 @@
                     <table>
                         <thead>
                             <tr>
+                                <th>Entry Type</th>
                                 <th>Project</th>
                                 <th>User</th>
                                 <th>Role</th>
@@ -597,6 +669,8 @@
                                 <th>Base Salary</th>
                                 <th>Allowance</th>
                                 <th>PF</th>
+                                <th>Advance</th>
+                                <th>Net Amount</th>
                                 <th>Payment Mode</th>
                                 <th>Cheque No.</th>
                                 <th>Description</th>
@@ -606,21 +680,72 @@
                         </thead>
                         <tbody>
                             {% for s in salaries %}
-                            <tr>
+                            <tr class="{{ 'advance-row' if s.entry_type == 'Advance Payment' else '' }}">
+                                <td>
+                                    <span class="entry-type-badge {{ s.entry_type.lower().replace(' ', '-') if s.entry_type else 'other' }}">
+                                        {% if s.entry_type == 'Advance Payment' %}
+                                            <i class="fas fa-hand-holding-usd"></i>
+                                            Advance Payment
+                                        {% elif s.entry_type == 'Salary Payment' %}
+                                            <i class="fas fa-money-check"></i>
+                                            Salary Payment
+                                        {% elif s.entry_type == 'Salary with Advance Deduction' %}
+                                            <i class="fas fa-minus-circle"></i>
+                                            Salary with Advance Deduction
+                                        {% else %}
+                                            <i class="fas fa-money-check"></i>
+                                            Regular Salary
+                                        {% endif %}
+                                    </span>
+                                </td>
                                 <td><strong>{{ s.project_name }}</strong></td>
                                 <td>{{ s.user_name }}</td>
                                 <td>{{ s.role }}</td>
                                 <td>{{ s.month_year }}</td>
-                                <td><strong>₹{{ "%.2f"|format(s.base_salary) }}</strong></td>
-                                <td><strong>₹{{ "%.2f"|format(s.allowance) }}</strong></td>
-                                <td><strong>₹{{ "%.2f"|format(s.pf) }}</strong></td>
                                 <td>
-                                    <span class="payment-badge {{ s.payment_mode }}">
-                                        {{ s.payment_mode.upper() }}
-                                    </span>
+                                    {% if s.base_salary and s.base_salary > 0 %}
+                                        <span class="amount positive-amount">₹{{ "%.2f"|format(s.base_salary) }}</span>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if s.allowance and s.allowance > 0 %}
+                                        <span class="amount positive-amount">₹{{ "%.2f"|format(s.allowance) }}</span>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if s.pf and s.pf > 0 %}
+                                        <span class="amount text-danger">₹{{ "%.2f"|format(s.pf) }}</span>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if s.advance and s.advance > 0 %}
+                                        <span class="amount advance-amount">₹{{ "%.2f"|format(s.advance) }}</span>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <strong class="amount {{ 'advance-amount' if s.entry_type == 'Advance Payment' else 'positive-amount' }}">
+                                        ₹{{ "%.2f"|format(s.net_amount if s.net_amount else ((s.base_salary or 0) + (s.allowance or 0) - (s.pf or 0) - (s.advance or 0))) }}
+                                    </strong>
+                                </td>
+                                <td>
+                                    {% if s.payment_mode %}
+                                        <span class="payment-badge {{ s.payment_mode }}">
+                                            {{ s.payment_mode.upper() }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
                                 </td>
                                 <td>{{ s.cheque_number if s.cheque_number else '-' }}</td>
-                                <td>{{ s.description }}</td>
+                                <td>{{ s.description if s.description else '-' }}</td>
                                 <td>{{ s.created_by_name }}</td>
                                 <td>{{ s.created_on.strftime('%Y-%m-%d %H:%M') if s.created_on else '' }}</td>
                             </tr>
@@ -632,7 +757,7 @@
             {% else %}
             <div class="no-data">
                 <i class="fas fa-money-check-alt"></i>
-                <p>No salary entries found.</p>
+                <p>No salary entries or advance payments found.</p>
             </div>
             {% endif %}
         </div>

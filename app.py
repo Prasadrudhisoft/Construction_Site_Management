@@ -27,7 +27,7 @@ from flask import send_from_directory
 from reportlab.lib.styles import ParagraphStyle
 from config import get_connection
 from dotenv import load_dotenv
-
+from decimal import Decimal
 from PIL import Image as PILImage
 from reportlab.platypus import Image as RLImage
 
@@ -3606,6 +3606,237 @@ def mark_messages_read(sender_id):
     
 
 
+# Add this new route to your Flask app
+@app.route('/add_advance', methods=['POST'])
+def add_advance():
+    if 'role' not in session or session['role'] != 'accountant':
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 403
+
+    try:
+        data = request.get_json()
+        user_id = data['user_id']
+        project_id = data['project_id']
+        role = data['role']
+        month_year = data['month_year']
+        advance_amount = float(data['advance_amount'])
+        
+        org_id = session['org_id']
+        accountant_id = session['user_id']
+
+        conn = get_connection()
+        cur = conn.cursor(pymysql.cursors.DictCursor)
+
+        # Insert advance record (base_salary = 0 for pure advance entries)
+        cur.execute("""
+            INSERT INTO salaries (
+                project_id, user_id, role, month_year, base_salary, allowance, pf,
+                advance, description, payment_mode, cheque_number, created_by, created_on, org_id
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), %s)
+        """, (
+            project_id, user_id, role, month_year, 0, 0, 0,
+            advance_amount, 'Advance Payment', 'cash', None, accountant_id, org_id
+        ))
+
+        conn.commit()
+        cur.close()
+        conn.close()
+        
+        return jsonify({'success': True})
+        
+    except Exception as e:
+        if 'conn' in locals():
+            conn.rollback()
+            cur.close()
+            conn.close()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/get_user_advance', methods=['POST'])
+def get_user_advance():
+    if 'role' not in session or session['role'] != 'accountant':
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 403
+
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'success': False, 'error': 'No data provided'}), 400
+            
+        user_id = data.get('user_id')
+        if not user_id:
+            return jsonify({'success': False, 'error': 'User ID is required'}), 400
+            
+        project_id = data.get('project_id')
+        month_year = data.get('month_year')  # Optional for history view
+        
+        org_id = session['org_id']
+
+        conn = get_connection()
+        cur = conn.cursor(pymysql.cursors.DictCursor)
+
+        # Get user details
+        cur.execute("""
+            SELECT name, role FROM register WHERE id = %s AND org_id = %s
+        """, (user_id, org_id))
+        user_details = cur.fetchone()
+
+        response_data = {
+            'success': True,
+            'user_details': user_details,
+            'total_advance': 0.00,
+            'total_advance_given': 0.00,
+            'advance_history': []
+        }
+
+        # If month_year is provided, get current advance for that specific month
+        if month_year and project_id:
+            cur.execute("""
+                SELECT COALESCE(SUM(advance), 0) as total_advance
+                FROM salaries 
+                WHERE user_id = %s AND project_id = %s AND month_year = %s 
+                AND org_id = %s AND base_salary = 0 AND advance > 0
+            """, (user_id, project_id, month_year, org_id))
+            
+            result = cur.fetchone()
+            current_advance = float(result['total_advance']) if result and result['total_advance'] else 0.00
+            response_data['total_advance'] = current_advance
+
+        # FIXED: Get advance history - include ALL records with advance > 0, regardless of base_salary
+        if project_id:
+            history_query = """
+                SELECT s.month_year, s.advance, s.base_salary, s.description, s.created_on, 
+                       p.project_name,
+                       CASE 
+                           WHEN s.base_salary = 0 THEN 'Advance Payment'
+                           ELSE 'Salary Deduction'
+                       END as entry_type
+                FROM salaries s
+                JOIN projects p ON s.project_id = p.id
+                WHERE s.user_id = %s AND s.project_id = %s AND s.org_id = %s 
+                AND s.advance > 0
+                ORDER BY s.created_on DESC
+            """
+            cur.execute(history_query, (user_id, project_id, org_id))
+        else:
+            # If no project_id, get all advances for this user
+            history_query = """
+                SELECT s.month_year, s.advance, s.base_salary, s.description, s.created_on, 
+                       p.project_name,
+                       CASE 
+                           WHEN s.base_salary = 0 THEN 'Advance Payment'
+                           ELSE 'Salary Deduction'
+                       END as entry_type
+                FROM salaries s
+                JOIN projects p ON s.project_id = p.id
+                WHERE s.user_id = %s AND s.org_id = %s 
+                AND s.advance > 0
+                ORDER BY s.created_on DESC
+            """
+            cur.execute(history_query, (user_id, org_id))
+        
+        advance_history = cur.fetchall()
+        
+        # Convert Decimal to float for JSON serialization
+        for item in advance_history:
+            if 'advance' in item and item['advance'] is not None:
+                item['advance'] = float(item['advance'])
+            if 'base_salary' in item and item['base_salary'] is not None:
+                item['base_salary'] = float(item['base_salary'])
+            if 'created_on' in item and item['created_on'] is not None:
+                item['created_on'] = item['created_on'].isoformat() if hasattr(item['created_on'], 'isoformat') else str(item['created_on'])
+        
+        response_data['advance_history'] = advance_history
+        
+        # Calculate total advance given (sum of all advances where base_salary = 0, i.e., pure advances)
+        total_given = sum(float(item['advance']) for item in advance_history if item['advance'] and item['base_salary'] == 0)
+        response_data['total_advance_given'] = total_given
+
+        cur.close()
+        conn.close()
+        
+        return jsonify(response_data)
+        
+    except Exception as e:
+        if 'conn' in locals():
+            cur.close()
+            conn.close()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/update_advance', methods=['POST'])
+def update_advance():
+    if 'role' not in session or session['role'] != 'accountant':
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 403
+
+    try:
+        data = request.get_json()
+        user_id = data['user_id']
+        project_id = data['project_id']
+        month_year = data['month_year']
+        advance_deduction = float(data['advance_deduction'])
+        
+        org_id = session['org_id']
+
+        conn = get_connection()
+        cur = conn.cursor(pymysql.cursors.DictCursor)
+
+        # Get current advance total for this month (only pure advance entries)
+        cur.execute("""
+            SELECT SUM(advance) as total_advance
+            FROM salaries 
+            WHERE user_id = %s AND project_id = %s AND month_year = %s 
+            AND org_id = %s AND base_salary = 0
+        """, (user_id, project_id, month_year, org_id))
+        
+        result = cur.fetchone()
+        current_advance = float(result['total_advance']) if result and result['total_advance'] else 0.00
+        
+        # Calculate remaining advance
+        remaining_advance = current_advance - advance_deduction
+        
+        if remaining_advance < 0:
+            cur.close()
+            conn.close()
+            return jsonify({'success': False, 'error': 'Advance deduction cannot exceed total advance'})
+        
+        # Strategy: Reduce advances starting from the most recent entry (only pure advance entries)
+        cur.execute("""
+            SELECT id, advance FROM salaries 
+            WHERE user_id = %s AND project_id = %s AND month_year = %s 
+            AND org_id = %s AND base_salary = 0 AND advance > 0
+            ORDER BY created_on DESC
+        """, (user_id, project_id, month_year, org_id))
+        
+        advance_records = cur.fetchall()
+        deduction_left = advance_deduction
+        
+        for record in advance_records:
+            if deduction_left <= 0:
+                break
+                
+            record_advance = float(record['advance'])
+            record_id = record['id']
+            
+            if deduction_left >= record_advance:
+                # Delete this record completely
+                cur.execute("DELETE FROM salaries WHERE id = %s", (record_id,))
+                deduction_left -= record_advance
+            else:
+                # Reduce this record's advance
+                new_advance = record_advance - deduction_left
+                cur.execute("UPDATE salaries SET advance = %s WHERE id = %s", (new_advance, record_id))
+                deduction_left = 0
+        
+        conn.commit()
+        cur.close()
+        conn.close()
+        
+        return jsonify({'success': True, 'remaining_advance': remaining_advance})
+        
+    except Exception as e:
+        if 'conn' in locals():
+            conn.rollback()
+            cur.close()
+            conn.close()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/add_salary', methods=['GET', 'POST'])
 def add_salary():
     if 'role' not in session or session['role'] != 'accountant':
@@ -3623,7 +3854,7 @@ def add_salary():
         FROM accountant_projects ap
         JOIN projects p ON ap.project_id = p.id
         WHERE ap.accountant_id = %s AND ap.org_id = %s
-    """, (accountant_id,session['org_id']))
+    """, (accountant_id, org_id))
     projects = cur.fetchall()
 
     # Fetch relevant users: site engineers, architects, self (accountant)
@@ -3633,22 +3864,22 @@ def add_salary():
         JOIN projects p ON ap.project_id = p.id
         JOIN sites s ON p.site_id = s.site_id
         JOIN register r ON r.id = s.site_engineer_id
-        WHERE ap.accountant_id = %s
-
+        WHERE ap.accountant_id = %s AND ap.org_id = %s
+        
         UNION
-
+        
         SELECT DISTINCT r.id, r.name, r.role
         FROM accountant_projects ap
         JOIN projects p ON ap.project_id = p.id
         JOIN register r ON r.id = p.architect_id
-        WHERE ap.accountant_id = %s
-
+        WHERE ap.accountant_id = %s AND ap.org_id = %s
+        
         UNION
-
+        
         SELECT DISTINCT r.id, r.name, r.role
         FROM register r
         WHERE r.id = %s AND r.role = 'accountant' AND r.org_id = %s
-    """, (accountant_id, accountant_id, accountant_id,session['org_id']))
+    """, (accountant_id, org_id, accountant_id, org_id, accountant_id, org_id))
     users = cur.fetchall()
 
     if request.method == 'POST':
@@ -3660,22 +3891,38 @@ def add_salary():
             base_salary = float(request.form['base_salary'])
             allowance = float(request.form.get('allowance', 0) or 0)
             pf = float(request.form.get('pf', 0) or 0)
+            advance_deduction = float(request.form.get('advance', 0) or 0)  # This is the deduction amount
             description = request.form.get('description', '').strip()
             payment_mode = request.form['payment_mode']
             cheque_number = request.form.get('cheque_number', '').strip() if payment_mode == 'cheque' else None
 
+            # Check if salary already exists for this user, project, and month (with base_salary > 0)
+            cur.execute("""
+                SELECT id FROM salaries 
+                WHERE user_id = %s AND project_id = %s AND month_year = %s 
+                AND org_id = %s AND base_salary > 0
+            """, (user_id, project_id, month_year, org_id))
+            
+            existing_salary = cur.fetchone()
+            if existing_salary:
+                flash('Salary already exists for this user, project, and month.', 'warning')
+                return render_template('add_salary.html', projects=projects, users=users)
+
+            # Insert salary record - advance deduction will be recorded as a positive value
+            # This represents money deducted from salary (advance that was already given)
             cur.execute("""
                 INSERT INTO salaries (
                     project_id, user_id, role, month_year, base_salary, allowance, pf,
-                    description, payment_mode, cheque_number, created_by, created_on, org_id
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), %s)
+                    advance, description, payment_mode, cheque_number, created_by, created_on, org_id
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), %s)
             """, (
                 project_id, user_id, role, month_year, base_salary, allowance, pf,
-                description, payment_mode, cheque_number, accountant_id, org_id
+                advance_deduction, description, payment_mode, cheque_number, accountant_id, org_id
             ))
+
             conn.commit()
             flash('Salary entry added successfully.', 'success')
-            return redirect(url_for('add_salary'))
+
         except Exception as e:
             conn.rollback()
             flash(f'Error: {str(e)}', 'danger')
@@ -3683,11 +3930,11 @@ def add_salary():
             cur.close()
             conn.close()
 
+        return redirect(url_for('add_salary'))
+
     cur.close()
     conn.close()
     return render_template('add_salary.html', projects=projects, users=users)
-
-
 
 # Accountant: View Own Entered Salaries
 @app.route('/view_salaries')
@@ -3701,24 +3948,47 @@ def view_salaries():
     conn = get_connection()
     cur = conn.cursor(pymysql.cursors.DictCursor)
     
-    # Include payment mode and cheque number in the query with org_id filtering
+    # Updated query to include both salary entries and advance payments
     cur.execute("""
-        SELECT s.*, p.project_name, r.name AS user_name, cr.name AS created_by_name
+        SELECT 
+            s.*, 
+            p.project_name, 
+            r.name AS user_name, 
+            cr.name AS created_by_name
         FROM salaries s
         JOIN projects p ON s.project_id = p.id
         JOIN register r ON s.user_id = r.id
         JOIN register cr ON s.created_by = cr.id
         WHERE s.created_by = %s AND s.org_id = %s
-        ORDER BY s.month_year DESC, p.project_name
+        ORDER BY s.created_on DESC, s.month_year DESC, p.project_name
     """, (accountant_id, org_id))
     
     salaries = cur.fetchall()
+    
+    # Process each salary record to add computed fields
+    for salary in salaries:
+        # Determine entry type
+        if salary['base_salary'] == 0 and salary['advance'] > 0:
+            salary['entry_type'] = 'Advance Payment'
+        elif salary['base_salary'] > 0 and salary['advance'] > 0:
+            salary['entry_type'] = 'Salary with Advance Deduction'
+        elif salary['base_salary'] > 0 and (salary['advance'] == 0 or salary['advance'] is None):
+            salary['entry_type'] = 'Salary Payment'
+        else:
+            salary['entry_type'] = 'Other'
+        
+        # Calculate net amount
+        if salary['base_salary'] == 0:
+            salary['net_amount'] = float(salary['advance'] or 0)
+        else:
+            base = float(salary['base_salary'] or 0)
+            allowance = float(salary['allowance'] or 0)
+            pf = float(salary['pf'] or 0)
+            advance = float(salary['advance'] or 0)
+            salary['net_amount'] = base + allowance - pf - advance
+    
     conn.close()
     return render_template('view_salaries.html', salaries=salaries)
-
-
-
-# Admin: View All Salaries
 @app.route('/admin/view_salaries')
 def admin_view_salaries():
     if 'role' not in session or session['role'] != 'admin':

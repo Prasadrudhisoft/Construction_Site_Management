@@ -272,9 +272,7 @@ CREATE TABLE site_conditions (
     water_table_level VARCHAR(100),
     topo_counter_map_path VARCHAR(255),
     uploaded_on DATETIME DEFAULT CURRENT_TIMESTAMP,
-    org_id INT NOT NULL,
-    FOREIGN KEY (project_id) REFERENCES architect_projects(id) ON DELETE CASCADE,
-    FOREIGN KEY (architect_id) REFERENCES architects(id) ON DELETE SET NULL
+    org_id INT NOT NULL
 );
 
 
@@ -318,9 +316,7 @@ CREATE TABLE utilities_services (
     drainage_system_type VARCHAR(255),
     power_supply_source VARCHAR(255),
     uploaded_on DATETIME DEFAULT CURRENT_TIMESTAMP,
-    org_id INT NOT NULL,
-    FOREIGN KEY (project_id) REFERENCES architect_projects(id) ON DELETE CASCADE,
-    FOREIGN KEY (architect_id) REFERENCES architects(id) ON DELETE SET NULL
+    org_id INT NOT NULL
 );
 
 
@@ -369,9 +365,7 @@ CREATE TABLE cost_estimation (
     project_id INT,
     architect_id INT,
     generated_on DATETIME DEFAULT CURRENT_TIMESTAMP,
-    org_id INT NOT NULL,
-    FOREIGN KEY (architect_id) REFERENCES architects(id) ON DELETE SET NULL,
-    FOREIGN KEY (project_id) REFERENCES architect_projects(id) ON DELETE CASCADE
+    org_id INT NOT NULL
 );
 
 ################################### ORGANIZATION TABLE ##########################################

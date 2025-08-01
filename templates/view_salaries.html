@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Entered Salaries</title>
+    <title>My Entered Salaries & Advances</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -28,7 +28,7 @@
             color: #333;
         }
 
-        /* Navbar Styles - Same as invoice_detail.html */
+        /* Navbar Styles - Same as original */
         .navbar {
             position: fixed;
             top: 0;
@@ -325,6 +325,43 @@
             border: 1px solid #007bff;
         }
 
+        /* Entry Type Badges */
+        .entry-type-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .advance-payment {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            color: #856404;
+            border: 1px solid #ffc107;
+        }
+
+        .salary-payment {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+            border: 1px solid #28a745;
+        }
+
+        .salary-advance-deduction {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            color: #721c24;
+            border: 1px solid #dc3545;
+        }
+
+        .other {
+            background: linear-gradient(135deg, #e2e3e5, #d6d8db);
+            color: #383d41;
+            border: 1px solid #6c757d;
+        }
+
         .no-data {
             text-align: center;
             padding: 40px;
@@ -341,7 +378,30 @@
             opacity: 0.5;
         }
 
-        /* Mobile Responsive */
+        /* Highlight advance entries */
+        .advance-row {
+            background: rgba(255, 193, 7, 0.1);
+        }
+
+        .advance-row:hover {
+            background: rgba(255, 193, 7, 0.2);
+        }
+
+        /* Amount styling */
+        .amount {
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        .positive-amount {
+            color: #28a745;
+        }
+
+        .advance-amount {
+            color: #ffc107;
+        }
+
+        /* Mobile Responsive - keeping original styles */
         @media (max-width: 1100px) {
             .container {
                 max-width: 95vw;
@@ -528,6 +588,14 @@
             tr:hover {
                 background: #3a3a3a;
             }
+
+            .advance-row {
+                background: rgba(255, 193, 7, 0.15);
+            }
+
+            .advance-row:hover {
+                background: rgba(255, 193, 7, 0.25);
+            }
         }
     </style>
 </head>
@@ -574,21 +642,18 @@
 
     <div class="container">
         <div class="header">
-            <h2>My Entered Salaries</h2>
-            <p>Manage and review all salary entries</p>
+            <h2>My Entered Salaries & Advances</h2>
+            <p>Manage and review all salary entries and advance payments</p>
         </div>
 
         <div class="content">
             <!-- Action Buttons -->
             <div class="action-buttons">
-                <!-- <a href="{{ url_for('accountant_dashboard') }}" class="btn btn-secondary">
-                    <i class="fas fa-home"></i> Dashboard
+                <a href="{{ url_for('view_salaries') }}" class="btn btn-secondary">
+                    <i class="fas fa-eye"></i> View My Entries
                 </a>
                 <a href="{{ url_for('add_salary') }}" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Enter Salary
-                </a> -->
-                <a href="{{ url_for('view_salaries') }}" class="btn btn-secondary">
-                    <i class="fas fa-eye"></i> View My Entered Salaries
+                    <i class="fas fa-plus"></i> Add New Entry
                 </a>
             </div>
 
@@ -599,6 +664,7 @@
                     <table>
                         <thead>
                             <tr>
+                                <th>Entry Type</th>
                                 <th>Project</th>
                                 <th>User</th>
                                 <th>Role</th>
@@ -606,31 +672,79 @@
                                 <th>Base Salary</th>
                                 <th>Allowance</th>
                                 <th>PF</th>
+                                <th>Advance</th>
+                                <th>Net Amount</th>
                                 <th>Payment Mode</th>
                                 <th>Cheque No.</th>
                                 <th>Description</th>
-                                <th>Created By</th>
                                 <th>Created On</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for s in salaries %}
-                            <tr>
+                            <tr class="{{ 'advance-row' if s.entry_type == 'Advance Payment' else '' }}">
+                                <td>
+                                    <span class="entry-type-badge {{ s.entry_type.lower().replace(' ', '-') }}">
+                                        {% if s.entry_type == 'Advance Payment' %}
+                                            <i class="fas fa-hand-holding-usd"></i>
+                                        {% elif s.entry_type == 'Salary Payment' %}
+                                            <i class="fas fa-money-check"></i>
+                                        {% elif s.entry_type == 'Salary with Advance Deduction' %}
+                                            <i class="fas fa-minus-circle"></i>
+                                        {% else %}
+                                            <i class="fas fa-question"></i>
+                                        {% endif %}
+                                        {{ s.entry_type }}
+                                    </span>
+                                </td>
                                 <td><strong>{{ s.project_name }}</strong></td>
                                 <td>{{ s.user_name }}</td>
                                 <td>{{ s.role }}</td>
                                 <td>{{ s.month_year }}</td>
-                                <td><strong>₹{{ "%.2f"|format(s.base_salary) }}</strong></td>
-                                <td><strong>₹{{ "%.2f"|format(s.allowance) }}</strong></td>
-                                <td><strong>₹{{ "%.2f"|format(s.pf) }}</strong></td>
                                 <td>
-                                    <span class="payment-badge {{ s.payment_mode }}">
-                                        {{ s.payment_mode.upper() }}
-                                    </span>
+                                    {% if s.base_salary > 0 %}
+                                        <span class="amount positive-amount">₹{{ "%.2f"|format(s.base_salary) }}</span>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if s.allowance > 0 %}
+                                        <span class="amount positive-amount">₹{{ "%.2f"|format(s.allowance) }}</span>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if s.pf > 0 %}
+                                        <span class="amount text-danger">₹{{ "%.2f"|format(s.pf) }}</span>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if s.advance > 0 %}
+                                        <span class="amount advance-amount">₹{{ "%.2f"|format(s.advance) }}</span>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <strong class="amount {{ 'advance-amount' if s.entry_type == 'Advance Payment' else 'positive-amount' }}">
+                                        ₹{{ "%.2f"|format(s.net_amount) }}
+                                    </strong>
+                                </td>
+                                <td>
+                                    {% if s.payment_mode %}
+                                        <span class="payment-badge {{ s.payment_mode }}">
+                                            {{ s.payment_mode.upper() }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
                                 </td>
                                 <td>{{ s.cheque_number if s.cheque_number else '-' }}</td>
-                                <td>{{ s.description }}</td>
-                                <td>{{ s.created_by_name }}</td>
+                                <td>{{ s.description if s.description else '-' }}</td>
                                 <td>{{ s.created_on.strftime('%Y-%m-%d %H:%M') if s.created_on else '' }}</td>
                             </tr>
                             {% endfor %}
@@ -641,7 +755,7 @@
             {% else %}
             <div class="no-data">
                 <i class="fas fa-money-check-alt"></i>
-                <p>No salary entries found.</p>
+                <p>No salary entries or advance payments found.</p>
             </div>
             {% endif %}
         </div>
