@@ -600,6 +600,268 @@
 
         }
 
+        
+
+        /* Multiple Items Styles */
+
+        .materials-section {
+
+            border: 2px solid #e8f4fd;
+
+            border-radius: 12px;
+
+            padding: 20px;
+
+            background: #fafbfc;
+
+            margin-bottom: 28px;
+
+        }
+
+        
+
+        .materials-header {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            margin-bottom: 20px;
+
+        }
+
+        
+
+        .materials-title {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            color: #34495e;
+
+            font-weight: 500;
+
+            font-size: 1.08rem;
+
+        }
+
+        
+
+        .add-item-btn {
+
+            background: linear-gradient(90deg, #3498db 60%, #6dd5fa 100%);
+
+            color: white;
+
+            border: none;
+
+            padding: 8px 16px;
+
+            border-radius: 8px;
+
+            cursor: pointer;
+
+            font-size: 0.9rem;
+
+            font-weight: 500;
+
+            transition: all 0.3s ease;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 6px;
+
+        }
+
+        
+
+        .add-item-btn:hover {
+
+            background: linear-gradient(90deg, #2980b9 60%, #3498db 100%);
+
+            transform: translateY(-1px) scale(1.02);
+
+        }
+
+        
+
+        .material-item {
+
+            display: flex;
+
+            gap: 12px;
+
+            margin-bottom: 15px;
+
+            align-items: flex-start;
+
+            background: white;
+
+            padding: 15px;
+
+            border-radius: 10px;
+
+            border: 1px solid #e0e6ed;
+
+            animation: slideIn 0.3s ease-out;
+
+        }
+
+        
+
+        @keyframes slideIn {
+
+            from { opacity: 0; transform: translateY(-10px); }
+
+            to { opacity: 1; transform: translateY(0); }
+
+        }
+
+        
+
+        .material-item-content {
+
+            flex: 1;
+
+            display: flex;
+
+            gap: 12px;
+
+        }
+
+        
+
+        .material-desc-group {
+
+            flex: 2;
+
+        }
+
+        
+
+        .material-qty-group {
+
+            flex: 1;
+
+        }
+
+        
+
+        .material-item .form-control {
+
+            padding: 12px 16px;
+
+            font-size: 1rem;
+
+            margin-bottom: 0;
+
+        }
+
+        
+
+        .material-item .input-with-icon {
+
+            padding-left: 42px;
+
+        }
+
+        
+
+        .material-item .input-icon {
+
+            left: 12px;
+
+            font-size: 0.9rem;
+
+        }
+
+        
+
+        .remove-item-btn {
+
+            background: #e74c3c;
+
+            color: white;
+
+            border: none;
+
+            width: 36px;
+
+            height: 36px;
+
+            border-radius: 8px;
+
+            cursor: pointer;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            transition: all 0.3s ease;
+
+            flex-shrink: 0;
+
+            margin-top: 2px;
+
+        }
+
+        
+
+        .remove-item-btn:hover {
+
+            background: #c0392b;
+
+            transform: scale(1.05);
+
+        }
+
+        
+
+        .material-item-label {
+
+            font-size: 0.85rem;
+
+            color: #666;
+
+            margin-bottom: 4px;
+
+            font-weight: 500;
+
+        }
+
+        
+
+        .materials-summary {
+
+            background: #e8f4fd;
+
+            padding: 12px 16px;
+
+            border-radius: 8px;
+
+            margin-top: 15px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            font-size: 0.9rem;
+
+            color: #2c3e50;
+
+        }
+
 
 
         .submit-btn {
@@ -978,6 +1240,26 @@
 
             }
 
+            
+
+            .material-item-content {
+
+                flex-direction: column;
+
+                gap: 10px;
+
+            }
+
+            
+
+            .material-desc-group,
+
+            .material-qty-group {
+
+                flex: 1;
+
+            }
+
         }
 
 
@@ -1039,6 +1321,28 @@
                 font-size: 1rem;
 
                 padding: 12px 20px;
+
+            }
+
+            
+
+            .materials-header {
+
+                flex-direction: column;
+
+                gap: 10px;
+
+                align-items: flex-start;
+
+            }
+
+            
+
+            .add-item-btn {
+
+                font-size: 0.85rem;
+
+                padding: 6px 12px;
 
             }
 
@@ -1115,6 +1419,24 @@
                 font-size: 0.7rem;
 
                 padding: 3px 6px;
+
+            }
+
+            
+
+            .material-item {
+
+                padding: 12px;
+
+            }
+
+            
+
+            .remove-item-btn {
+
+                width: 32px;
+
+                height: 32px;
 
             }
 
@@ -1392,7 +1714,7 @@
 
             <ul>
 
-                <li>Provide detailed material descriptions for better tracking</li>
+                <li>You can add multiple materials at once with their individual quantities</li>
 
                 <li>Update status regularly to maintain accurate inventory</li>
 
@@ -1406,51 +1728,95 @@
 
         <form method="POST" action="{{ url_for('add_inventory') }}" id="inventoryForm">
 
-            <div class="form-group">
+            <!-- Materials Section -->
 
-                <label for="material_description">
+            <div class="materials-section">
 
-                    <i class="fas fa-clipboard-list"></i>
+                <div class="materials-header">
 
-                    Material Description
+                    <div class="materials-title">
 
-                </label>
+                        <i class="fas fa-clipboard-list"></i>
 
-                <div class="input-group">
+                        Materials & Quantities
 
-                    <i class="fas fa-clipboard-list input-icon"></i>
+                    </div>
 
-                    <input type="text" name="material_description" id="material_description"
+                    <button type="button" class="add-item-btn" id="addItemBtn">
 
-                           class="form-control input-with-icon" required
+                        <i class="fas fa-plus"></i>
 
-                           placeholder="e.g., Portland Cement - Grade 43">
+                        Add Item
+
+                    </button>
 
                 </div>
 
-            </div>
+                
 
+                <div id="materialsContainer">
 
+                    <!-- Initial material item -->
 
-            <div class="form-group">
+                    <div class="material-item">
 
-                <label for="quantity">
+                        <div class="material-item-content">
 
-                    <i class="fas fa-sort-numeric-up"></i>
+                            <div class="material-desc-group">
 
-                    Quantity
+                                <div class="material-item-label">Material Description</div>
 
-                </label>
+                                <div class="input-group">
 
-                <div class="input-group">
+                                    <i class="fas fa-clipboard-list input-icon"></i>
 
-                    <i class="fas fa-sort-numeric-up input-icon"></i>
+                                    <input type="text" name="material_description[]" 
 
-                    <input type="number" name="quantity" id="quantity"
+                                           class="form-control input-with-icon" required
 
-                           class="form-control input-with-icon" required min="0"
+                                           placeholder="e.g., Portland Cement - Grade 43">
 
-                           placeholder="Enter quantity">
+                                </div>
+
+                            </div>
+
+                            <div class="material-qty-group">
+
+                                <div class="material-item-label">Quantity</div>
+
+                                <div class="input-group">
+
+                                    <i class="fas fa-sort-numeric-up input-icon"></i>
+
+                                    <input type="number" name="quantity[]" 
+
+                                           class="form-control input-with-icon quantity-input" required min="0"
+
+                                           placeholder="Qty">
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <button type="button" class="remove-item-btn" disabled>
+
+                            <i class="fas fa-times"></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+                
+
+                <div class="materials-summary" id="materialsSummary">
+
+                    <i class="fas fa-info-circle"></i>
+
+                    <span id="summaryText">1 material item added</span>
 
                 </div>
 
@@ -1464,7 +1830,7 @@
 
                     <i class="fas fa-flag"></i>
 
-                    Status
+                    Status (applies to all items)
 
                 </label>
 
@@ -1527,241 +1893,203 @@
 
 
             <button type="submit" class="submit-btn" id="submitBtn">
-
                 <i class="fas fa-plus-circle"></i>
-
                 Add to Inventory
-
             </button>
-
         </form>
 
-
-
         <div class="action-links">
-
             <a href="{{ url_for('site_engineer_view_inventory') }}" class="action-link primary-link">
-
                 <i class="fas fa-eye"></i>
-
                 View Inventory
-
             </a>
-
             <a href="{{ url_for('logout') }}" class="action-link secondary-link">
-
                 <i class="fas fa-sign-out-alt"></i>
-
                 Logout
-
             </a>
-
         </div>
-
     </div>
 
-
-
     <script>
-
         document.addEventListener('DOMContentLoaded', function() {
-
-            // Mobile navbar toggle - Same as assign site
-
-            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-
-            const navbarNav = document.getElementById('navbarNav');
-
+            let materialCount = 1;
             
-
+            // Mobile navbar toggle - Same as assign site
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const navbarNav = document.getElementById('navbarNav');
+            
             if (mobileMenuToggle && navbarNav) {
-
                 mobileMenuToggle.addEventListener('click', function() {
-
                     const icon = this.querySelector('i');
-
                     navbarNav.classList.toggle('active');
-
                     
-
                     if (navbarNav.classList.contains('active')) {
-
                         icon.classList.remove('fa-bars');
-
                         icon.classList.add('fa-times');
-
                     } else {
-
                         icon.classList.remove('fa-times');
-
                         icon.classList.add('fa-bars');
-
                     }
-
                 });
-
                 
-
                 // Close mobile menu when clicking on nav links
-
                 document.querySelectorAll('.nav-link').forEach(link => {
-
                     link.addEventListener('click', function() {
-
                         navbarNav.classList.remove('active');
-
                         const icon = mobileMenuToggle.querySelector('i');
-
                         icon.classList.remove('fa-times');
-
                         icon.classList.add('fa-bars');
-
                     });
-
                 });
-
                 
-
                 // Close mobile menu when clicking outside
-
                 document.addEventListener('click', function(e) {
-
                     if (!mobileMenuToggle.contains(e.target) && !navbarNav.contains(e.target)) {
-
                         navbarNav.classList.remove('active');
-
                         const icon = mobileMenuToggle.querySelector('i');
-
                         icon.classList.remove('fa-times');
-
                         icon.classList.add('fa-bars');
-
                     }
-
                 });
-
             }
 
-
-
             // Set today's date as default
-
             document.getElementById('date').valueAsDate = new Date();
 
+            // Add Item functionality
+            document.getElementById('addItemBtn').addEventListener('click', function() {
+                materialCount++;
+                const materialsContainer = document.getElementById('materialsContainer');
+                
+                const newItem = document.createElement('div');
+                newItem.className = 'material-item';
+                newItem.innerHTML = `
+                    <div class="material-item-content">
+                        <div class="material-desc-group">
+                            <div class="material-item-label">Material Description</div>
+                            <div class="input-group">
+                                <i class="fas fa-clipboard-list input-icon"></i>
+                                <input type="text" name="material_description[]" 
+                                       class="form-control input-with-icon" required
+                                       placeholder="e.g., Portland Cement - Grade 43">
+                            </div>
+                        </div>
+                        <div class="material-qty-group">
+                            <div class="material-item-label">Quantity</div>
+                            <div class="input-group">
+                                <i class="fas fa-sort-numeric-up input-icon"></i>
+                                <input type="number" name="quantity[]" 
+                                       class="form-control input-with-icon quantity-input" required min="0"
+                                       placeholder="Qty">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="remove-item-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                materialsContainer.appendChild(newItem);
+                updateMaterialsSummary();
+                updateRemoveButtons();
+                
+                // Add event listeners to new inputs
+                addInputEventListeners(newItem);
+                
+                // Focus on the new material description input
+                newItem.querySelector('input[name="material_description[]"]').focus();
+            });
 
+            // Remove Item functionality
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.remove-item-btn') && !e.target.closest('.remove-item-btn').disabled) {
+                    const materialItem = e.target.closest('.material-item');
+                    materialItem.remove();
+                    materialCount--;
+                    updateMaterialsSummary();
+                    updateRemoveButtons();
+                }
+            });
+
+            // Update materials summary
+            function updateMaterialsSummary() {
+                const summaryText = document.getElementById('summaryText');
+                summaryText.textContent = `${materialCount} material item${materialCount !== 1 ? 's' : ''} added`;
+            }
+
+            // Update remove buttons state
+            function updateRemoveButtons() {
+                const removeButtons = document.querySelectorAll('.remove-item-btn');
+                removeButtons.forEach(btn => {
+                    btn.disabled = materialCount <= 1;
+                });
+            }
+
+            // Add event listeners to inputs
+            function addInputEventListeners(container) {
+                const inputs = container.querySelectorAll('.form-control');
+                inputs.forEach(input => {
+                    input.addEventListener('blur', function() {
+                        if (this.checkValidity()) {
+                            this.style.borderColor = '#27ae60';
+                        } else {
+                            this.style.borderColor = '#e74c3c';
+                        }
+                    });
+
+                    input.addEventListener('input', function() {
+                        if (this.style.borderColor === '#e74c3c') {
+                            this.style.borderColor = '#ddd';
+                        }
+                    });
+
+                    // Quantity validation
+                    if (input.classList.contains('quantity-input')) {
+                        input.addEventListener('input', function() {
+                            if (parseInt(this.value) < 0) {
+                                this.value = 0;
+                            }
+                        });
+                    }
+                });
+            }
+
+            // Initialize event listeners for existing inputs
+            addInputEventListeners(document);
 
             // Form submission handling
-
             document.getElementById('inventoryForm').addEventListener('submit', function(e) {
-
                 const submitBtn = document.getElementById('submitBtn');
-
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
-
                 submitBtn.classList.add('loading');
-
                 submitBtn.disabled = true;
-
             });
-
-
-
-            // Real-time validation feedback
-
-            const inputs = document.querySelectorAll('.form-control');
-
-            inputs.forEach(input => {
-
-                input.addEventListener('blur', function() {
-
-                    if (this.checkValidity()) {
-
-                        this.style.borderColor = '#27ae60';
-
-                    } else {
-
-                        this.style.borderColor = '#e74c3c';
-
-                    }
-
-                });
-
-
-
-                input.addEventListener('input', function() {
-
-                    if (this.style.borderColor === '#e74c3c') {
-
-                        this.style.borderColor = '#ddd';
-
-                    }
-
-                });
-
-            });
-
-
 
             // Status select enhancement
-
             document.getElementById('status').addEventListener('change', function() {
-
                 const badges = document.querySelectorAll('.status-badge');
-
                 badges.forEach(badge => badge.style.opacity = '0.3');
-
                 
-
                 const selectedStatus = this.value;
-
                 if (selectedStatus) {
-
                     const targetBadge = document.querySelector(`.status-${selectedStatus.replace('_', '')}`);
-
                     if (targetBadge) {
-
                         targetBadge.style.opacity = '1';
-
                         targetBadge.style.animation = 'pulse 0.5s ease-in-out';
-
                     }
-
                 } else {
-
                     badges.forEach(badge => badge.style.opacity = '1');
-
                 }
-
             });
-
-
 
             // Auto-focus first input after page load
-
             window.addEventListener('load', function() {
-
-                document.getElementById('material_description').focus();
-
+                document.querySelector('input[name="material_description[]"]').focus();
             });
 
-
-
-            // Quantity input validation
-
-            document.getElementById('quantity').addEventListener('input', function() {
-
-                if (parseInt(this.value) < 0) {
-
-                    this.value = 0;
-
-                }
-
-            });
-
+            // Initialize remove buttons state
+            updateRemoveButtons();
         });
-
     </script>
-
 </body>
-
 </html>

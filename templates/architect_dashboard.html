@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Architect Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -88,7 +90,8 @@
             white-space: nowrap;
         }
 
-        .nav-link:hover, .nav-link.active {
+        .nav-link:hover,
+        .nav-link.active {
             background: #34495e;
             color: #fff;
         }
@@ -164,14 +167,15 @@
         .section-block {
             background: #fff;
             border-radius: 14px;
-            box-shadow: 0 4px 15px rgba(52,152,219,0.07);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.07);
             padding: 25px;
             margin-bottom: 30px;
             transition: box-shadow 0.2s;
         }
 
-        .section-block:focus-within, .section-block:hover {
-            box-shadow: 0 8px 24px rgba(52,152,219,0.13);
+        .section-block:focus-within,
+        .section-block:hover {
+            box-shadow: 0 8px 24px rgba(52, 152, 219, 0.13);
         }
 
         .section-block h2 {
@@ -196,10 +200,11 @@
             margin-bottom: 6px;
         }
 
-        .section-block select, 
-        .section-block input[type="text"], 
-        .section-block input[type="number"], 
-        .section-block textarea {
+        .section-block select,
+        .section-block input[type="text"],
+        .section-block input[type="number"],
+        .section-block textarea,
+        .section-block input[type="file"] {
             padding: 12px 14px;
             border: 2px solid #e0e6ed;
             border-radius: 8px;
@@ -210,12 +215,12 @@
             width: 100%;
         }
 
-        .section-block select:focus, 
-        .section-block input:focus, 
+        .section-block select:focus,
+        .section-block input:focus,
         .section-block textarea:focus {
             outline: none;
             border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52,152,219,0.09);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.09);
         }
 
         .section-block button {
@@ -303,21 +308,66 @@
             animation: fadeIn 0.5s;
         }
 
-        .details-list ul { 
-            margin: 0; 
-            padding-left: 18px; 
+        .details-list ul {
+            margin: 0;
+            padding-left: 18px;
         }
 
-        .details-list li { 
-            margin-bottom: 7px; 
+        .details-list li {
+            margin-bottom: 7px;
         }
 
-        .details-list li:last-child { 
-            margin-bottom: 0; 
+        .details-list li:last-child {
+            margin-bottom: 0;
         }
 
-        .details-list strong { 
-            color: #2c3e50; 
+        .details-list strong {
+            color: #2c3e50;
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e6ed;
+        }
+
+        th {
+            background-color: #3498db;
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        /* File View Link Styles */
+        .file-view-link {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 8px;
+        }
+
+        .file-view-link:hover {
+            text-decoration: underline;
         }
 
         /* Overlay for mobile */
@@ -333,8 +383,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px);}
-            to { opacity: 1; transform: translateY(0);}
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* Tablet Styles */
@@ -342,11 +399,11 @@
             .main-content {
                 padding: 20px;
             }
-            
+
             .welcome-section {
                 padding: 25px;
             }
-            
+
             .welcome-section h1 {
                 font-size: 1.8rem;
             }
@@ -410,6 +467,12 @@
                 padding: 10px 15px;
                 font-size: 14px;
             }
+
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
         }
 
         /* Small Mobile Styles */
@@ -442,6 +505,11 @@
                 padding: 8px 12px;
                 font-size: 13px;
             }
+
+            th, td {
+                padding: 8px 10px;
+                font-size: 14px;
+            }
         }
 
         /* Very Small Mobile Styles */
@@ -473,11 +541,11 @@
             .main-content {
                 padding: 60px 15px 15px;
             }
-            
+
             .welcome-section {
                 padding: 15px;
             }
-            
+
             .welcome-section h1 {
                 font-size: 1.4rem;
             }
@@ -490,12 +558,12 @@
                 min-height: 48px;
                 align-items: center;
             }
-            
+
             .section-block button {
                 padding: 15px 0;
                 min-height: 50px;
             }
-            
+
             .mobile-menu-toggle {
                 min-height: 44px;
                 min-width: 44px;
@@ -508,6 +576,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="dashboard-container">
         <!-- Mobile Menu Toggle -->
@@ -582,7 +651,8 @@
                     <select name="selected_project_id" id="selected_project_id" onchange="this.form.submit()" required>
                         <option value="">-- Choose a Project --</option>
                         {% for p in project_list %}
-                            <option value="{{ p.id }}" {% if selected_project and selected_project.id == p.id %}selected{% endif %}>{{ p.project_name }}</option>
+                        <option value="{{ p.id }}" {% if selected_project and selected_project.id==p.id %}selected{%
+                            endif %}>{{ p.project_name }}</option>
                         {% endfor %}
                     </select>
                 </form>
@@ -591,75 +661,112 @@
             {% if selected_project %}
             <div class="tabs-container">
                 <div class="tabs">
-                    <button class="tab-link active" onclick="openTab(event, 'design')"><i class="fas fa-drafting-compass"></i> Design</button>
-                    <button class="tab-link" onclick="openTab(event, 'structural')"><i class="fas fa-hammer"></i> Structural</button>
-                    <button class="tab-link" onclick="openTab(event, 'material')"><i class="fas fa-cubes"></i> Materials</button>
-                    <button class="tab-link" onclick="openTab(event, 'drawings')"><i class="fas fa-file-upload"></i> Drawings</button>
-                    <button class="tab-link" onclick="openTab(event, 'site')"><i class="fas fa-map-marker-alt"></i> Site</button>
-                    <button class="tab-link" onclick="openTab(event, 'utilities')"><i class="fas fa-tools"></i> Utilities</button>
-                    <button class="tab-link" onclick="openTab(event, 'cost')"><i class="fas fa-calculator"></i> Cost</button>
+                    <button class="tab-link active" onclick="openTab(event, 'design')"><i
+                            class="fas fa-drafting-compass"></i> Design</button>
+                    <button class="tab-link" onclick="openTab(event, 'structural')"><i class="fas fa-hammer"></i>
+                        Structural</button>
+                    <button class="tab-link" onclick="openTab(event, 'material')"><i class="fas fa-cubes"></i>
+                        Materials</button>
+                    <button class="tab-link" onclick="openTab(event, 'drawings')"><i class="fas fa-file-upload"></i>
+                        Drawings</button>
+                    <button class="tab-link" onclick="openTab(event, 'site')"><i class="fas fa-map-marker-alt"></i>
+                        Site</button>
+                    <button class="tab-link" onclick="openTab(event, 'utilities')"><i class="fas fa-tools"></i>
+                        Utilities</button>
+                    <button class="tab-link" onclick="openTab(event, 'cost')"><i class="fas fa-calculator"></i>
+                        Cost</button>
                 </div>
 
+                <!-- Design Tab Content -->
                 <div id="design" class="tab-content active">
                     <div class="section-block" tabindex="0">
                         <h2><i class="fas fa-drafting-compass"></i> Design Details for {{ selected_project.project_name }}</h2>
                         <form method="POST" action="{{ url_for('add_design_details') }}">
                             <input type="hidden" name="project_id" value="{{ selected_project.id }}">
                             <label>Building Usage:</label>
-                            <input type="text" name="building_usage" value="{{ details.design_details.building_usage if details.design_details else '' }}" required>
+                            <input type="text" name="building_usage"
+                                value="{{ details.design_details.building_usage if details.design_details else '' }}"
+                                required>
                             <label>Number of Floors:</label>
-                            <input type="number" name="num_floors" value="{{ details.design_details.num_floors if details.design_details else '' }}" required>
+                            <input type="number" name="num_floors"
+                                value="{{ details.design_details.num_floors if details.design_details else '' }}"
+                                required>
                             <label>Area (sqft):</label>
-                            <input type="number" step="0.01" name="area_sqft" value="{{ details.design_details.area_sqft if details.design_details else '' }}" required>
+                            <input type="number" step="0.01" name="area_sqft"
+                                value="{{ details.design_details.area_sqft if details.design_details else '' }}"
+                                required>
                             <label>Plot Area:</label>
-                            <input type="number" step="0.01" name="plot_area" value="{{ details.design_details.plot_area if details.design_details else '' }}" required>
+                            <input type="number" step="0.01" name="plot_area"
+                                value="{{ details.design_details.plot_area if details.design_details else '' }}"
+                                required>
                             <label>FSI:</label>
-                            <input type="text" name="fsi" value="{{ details.design_details.fsi if details.design_details else '' }}" required>
+                            <input type="text" name="fsi"
+                                value="{{ details.design_details.fsi if details.design_details else '' }}" required>
                             <button type="submit"><i class="fas fa-save"></i> {{ 'Update' if details.design_details else 'Submit' }} Design Details</button>
                         </form>
                     </div>
                 </div>
 
+                <!-- Structural Tab Content -->
                 <div id="structural" class="tab-content">
                     <div class="section-block" tabindex="0">
                         <h2><i class="fas fa-hammer"></i> Structural Details for {{ selected_project.project_name }}</h2>
                         <form method="POST" action="{{ url_for('add_structural_details') }}">
                             <input type="hidden" name="project_id" value="{{ selected_project.id }}">
                             <label>Foundation Type:</label>
-                            <input type="text" name="foundation_type" value="{{ details.structural_details.foundation_type if details.structural_details else '' }}" required>
+                            <input type="text" name="foundation_type"
+                                value="{{ details.structural_details.foundation_type if details.structural_details else '' }}"
+                                required>
                             <label>Framing System:</label>
-                            <input type="text" name="framing_system" value="{{ details.structural_details.framing_system if details.structural_details else '' }}" required>
+                            <input type="text" name="framing_system"
+                                value="{{ details.structural_details.framing_system if details.structural_details else '' }}"
+                                required>
                             <label>Slab Type:</label>
-                            <input type="text" name="slab_type" value="{{ details.structural_details.slab_type if details.structural_details else '' }}" required>
+                            <input type="text" name="slab_type"
+                                value="{{ details.structural_details.slab_type if details.structural_details else '' }}"
+                                required>
                             <label>Beam Details:</label>
-                            <textarea name="beam_details" required>{{ details.structural_details.beam_details if details.structural_details else '' }}</textarea>
+                            <textarea name="beam_details"
+                                required>{{ details.structural_details.beam_details if details.structural_details else '' }}</textarea>
                             <label>Load Calculation:</label>
-                            <textarea name="load_calculation" required>{{ details.structural_details.load_calculation if details.structural_details else '' }}</textarea>
+                            <textarea name="load_calculation"
+                                required>{{ details.structural_details.load_calculation if details.structural_details else '' }}</textarea>
                             <button type="submit"><i class="fas fa-save"></i> {{ 'Update' if details.structural_details else 'Submit' }} Structural Details</button>
                         </form>
                     </div>
                 </div>
 
+                <!-- Material Tab Content -->
                 <div id="material" class="tab-content">
                     <div class="section-block" tabindex="0">
                         <h2><i class="fas fa-cubes"></i> Material Specification for {{ selected_project.project_name }}</h2>
                         <form method="POST" action="{{ url_for('add_material_specification') }}">
                             <input type="hidden" name="project_id" value="{{ selected_project.id }}">
                             <label>Primary Material:</label>
-                            <input type="text" name="primary_material" value="{{ details.material_specifications.primary_material if details.material_specifications else '' }}" required>
+                            <input type="text" name="primary_material"
+                                value="{{ details.material_specifications.primary_material if details.material_specifications else '' }}"
+                                required>
                             <label>Wall Material:</label>
-                            <input type="text" name="wall_material" value="{{ details.material_specifications.wall_material if details.material_specifications else '' }}" required>
+                            <input type="text" name="wall_material"
+                                value="{{ details.material_specifications.wall_material if details.material_specifications else '' }}"
+                                required>
                             <label>Roofing Material:</label>
-                            <input type="text" name="roofing_material" value="{{ details.material_specifications.roofing_material if details.material_specifications else '' }}" required>
+                            <input type="text" name="roofing_material"
+                                value="{{ details.material_specifications.roofing_material if details.material_specifications else '' }}"
+                                required>
                             <label>Flooring Material:</label>
-                            <input type="text" name="flooring_material" value="{{ details.material_specifications.flooring_material if details.material_specifications else '' }}" required>
+                            <input type="text" name="flooring_material"
+                                value="{{ details.material_specifications.flooring_material if details.material_specifications else '' }}"
+                                required>
                             <label>Fire Safety Materials:</label>
-                            <textarea name="fire_safety_materials" required>{{ details.material_specifications.fire_safety_materials if details.material_specifications else '' }}</textarea>
+                            <textarea name="fire_safety_materials"
+                                required>{{ details.material_specifications.fire_safety_materials if details.material_specifications else '' }}</textarea>
                             <button type="submit"><i class="fas fa-save"></i> {{ 'Update' if details.material_specifications else 'Submit' }} Material Specifications</button>
                         </form>
                     </div>
                 </div>
 
+                <!-- Drawings Tab Content -->
                 <div id="drawings" class="tab-content">
                     <div class="section-block" tabindex="0">
                         <h2><i class="fas fa-file-upload"></i> Upload Drawing Document for {{ selected_project.project_name }}</h2>
@@ -678,30 +785,126 @@
                             <input type="text" name="document_title" required>
                             <label>Select PDF File:</label>
                             <input type="file" name="layout_file" accept=".pdf" required>
-                            <button type="submit"><i class="fas fa-upload"></i> Upload Drawing</button>
+                            <button type="submit" id="uploadDrawingBtn">
+                                <i class="fas fa-upload"></i> Upload Drawing
+                            </button>
                         </form>
+                    </div>
+
+                    <div class="section-block" tabindex="0">
+                        <h2><i class="fas fa-file-upload"></i> Drawing Layouts for {{ selected_project.project_name }}</h2>
+                        {% if details.drawing_documents %}
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Layout Type</th>
+                                    <th>Document Title</th>
+                                    <th>File</th>
+                                    <th>Update</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for doc in details.drawing_documents %}
+                                <form method="POST" action="{{ url_for('upload_layout') }}" enctype="multipart/form-data">
+                                    <input type="hidden" name="project_id" value="{{ selected_project.id }}">
+                                    <input type="hidden" name="layout_type" value="{{ doc.layout_type }}">
+                                    <tr>
+                                        <td>{{ doc.layout_type }}</td>
+                                        <td>
+                                            <input type="text" name="document_title" value="{{ doc.document_title }}" required>
+                                        </td>
+                                        <td>
+                                            {% if doc.file_path %}
+                                            <a href="{{ url_for('static', filename=doc.file_path) }}" target="_blank" class="file-view-link">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                            {% else %}
+                                            <span>No file</span>
+                                            {% endif %}
+                                            <br>
+                                            <input type="file" name="layout_file" accept=".pdf">
+                                        </td>
+                                        <td>
+                                            <button type="submit"><i class="fas fa-save"></i> Update</button>
+                                        </td>
+                                    </tr>
+                                </form>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <p>No drawings uploaded yet for this project.</p>
+                        {% endif %}
                     </div>
                 </div>
 
+                <!-- Site Tab Content -->
                 <div id="site" class="tab-content">
                     <div class="section-block" tabindex="0">
-                        <h2><i class="fas fa-map-marker-alt"></i> Upload Site Conditions for {{ selected_project.project_name }}</h2>
+                        <h2><i class="fas fa-map-marker-alt"></i> Site Conditions for {{ selected_project.project_name }}</h2>
+                        
+                        {% if not details.site_conditions %}
+                        <!-- Add Site Conditions Form -->
                         <form method="POST" action="{{ url_for('upload_site_conditions') }}" enctype="multipart/form-data">
                             <input type="hidden" name="project_id" value="{{ selected_project.id }}">
+
                             <label>Soil Report (PDF):</label>
                             <input type="file" name="soil_report" accept=".pdf" required>
+
                             <label>Water Table Level:</label>
                             <input type="text" name="water_table_level" required>
+
                             <label>Topography Counter Map (PDF):</label>
                             <input type="file" name="topo_map" accept=".pdf" required>
-                            <button type="submit"><i class="fas fa-upload"></i> Upload Site Conditions</button>
+
+                            <button type="submit"><i class="fas fa-plus-circle"></i> Add Site Conditions</button>
                         </form>
+                        {% else %}
+                        <!-- Update Site Conditions Form -->
+                        <form method="POST" action="{{ url_for('upload_site_conditions') }}" enctype="multipart/form-data">
+                            <input type="hidden" name="project_id" value="{{ selected_project.id }}">
+
+                            <label>Current Soil Report:</label>
+                            {% if details.site_conditions.soil_report_path %}
+                            <a href="{{ url_for('static', filename=details.site_conditions.soil_report_path) }}" 
+                               target="_blank" class="file-view-link">
+                                <i class="fas fa-file-pdf"></i> View Current Report
+                            </a>
+                            {% else %}
+                            <p>No soil report uploaded</p>
+                            {% endif %}
+                            <label>Update Soil Report (PDF):</label>
+                            <input type="file" name="soil_report" accept=".pdf">
+
+                            <label>Water Table Level:</label>
+                            <input type="text" name="water_table_level" 
+                                   value="{{ details.site_conditions.water_table_level or '' }}" required>
+
+                            <label>Current Topography Map:</label>
+                            {% if details.site_conditions.topo_counter_map_path %}
+                            <a href="{{ url_for('static', filename=details.site_conditions.topo_counter_map_path) }}" 
+                               target="_blank" class="file-view-link">
+                                <i class="fas fa-file-pdf"></i> View Current Map
+                            </a>
+                            {% else %}
+                            <p>No topography map uploaded</p>
+                            {% endif %}
+                            <label>Update Topography Counter Map (PDF):</label>
+                            <input type="file" name="topo_map" accept=".pdf">
+
+                            <button type="submit"><i class="fas fa-save"></i> Update Site Conditions</button>
+                        </form>
+                        {% endif %}
                     </div>
                 </div>
 
+                <!-- Utilities Tab Content -->
                 <div id="utilities" class="tab-content">
                     <div class="section-block" tabindex="0">
-                        <h2><i class="fas fa-tools"></i> Submit Utilities Services for {{ selected_project.project_name }}</h2>
+                        <h2><i class="fas fa-tools"></i> Utilities Services for {{ selected_project.project_name }}</h2>
+                        
+                        {% if not details.utilities_services %}
+                        <!-- Add Utilities Services Form -->
                         <form method="POST" action="{{ url_for('upload_utilities_services') }}">
                             <input type="hidden" name="project_id" value="{{ selected_project.id }}">
                             <label>Water Supply Source:</label>
@@ -710,41 +913,101 @@
                             <input type="text" name="drainage_system_type" required>
                             <label>Power Supply Source:</label>
                             <input type="text" name="power_supply_source" required>
-                            <button type="submit"><i class="fas fa-save"></i> Submit Utilities Services</button>
+                            <button type="submit"><i class="fas fa-plus-circle"></i> Add Utilities Services</button>
                         </form>
+                        {% else %}
+                        <!-- Update Utilities Services Form -->
+                        <form method="POST" action="{{ url_for('upload_utilities_services') }}">
+                            <input type="hidden" name="project_id" value="{{ selected_project.id }}">
+                            <label>Water Supply Source:</label>
+                            <input type="text" name="water_supply_source" 
+                                   value="{{ details.utilities_services.water_supply_source or '' }}" required>
+                            <label>Drainage System Type:</label>
+                            <input type="text" name="drainage_system_type" 
+                                   value="{{ details.utilities_services.drainage_system_type or '' }}" required>
+                            <label>Power Supply Source:</label>
+                            <input type="text" name="power_supply_source" 
+                                   value="{{ details.utilities_services.power_supply_source or '' }}" required>
+                            <button type="submit"><i class="fas fa-save"></i> Update Utilities Services</button>
+                        </form>
+                        {% endif %}
                     </div>
                 </div>
 
+                <!-- Cost Tab Content -->
                 <div id="cost" class="tab-content">
                     <div class="section-block" tabindex="0">
-                        <h2><i class="fas fa-calculator"></i> Generate Cost Estimation for {{ selected_project.project_name }}</h2>
+                        <h2><i class="fas fa-calculator"></i> Cost Estimation for {{ selected_project.project_name }}</h2>
+                        
+                        {% if not details.cost_estimation %}
+                        <!-- Add Cost Estimation Form -->
                         <form method="POST" action="{{ url_for('generate_cost_estimation_pdf') }}">
                             <input type="hidden" name="project_id" value="{{ selected_project.id }}">
+                            
                             <label>Architectural Design Cost:</label>
                             <input type="number" step="0.01" name="architectural_design_cost" required>
+                            
                             <label>Structural Design Cost:</label>
                             <input type="number" step="0.01" name="structural_design_cost" required>
+                            
                             <label>Estimation Summary:</label>
                             <textarea name="estimation_summary" required></textarea>
+                            
                             <label>BOQ Reference:</label>
                             <textarea name="boq_reference" required></textarea>
+                            
                             <label>Cost per Sqft:</label>
                             <input type="number" step="0.01" name="cost_per_sqft" required>
-                            <button type="submit"><i class="fas fa-file-pdf"></i> Generate Cost Estimation PDF</button>
+                            
+                            <button type="submit"><i class="fas fa-plus-circle"></i> Add Cost Estimation</button>
                         </form>
+                        {% else %}
+                        <!-- Update Cost Estimation Form -->
+                        <form method="POST" action="{{ url_for('generate_cost_estimation_pdf') }}">
+                            <input type="hidden" name="project_id" value="{{ selected_project.id }}">
+                            
+                            <label>Architectural Design Cost:</label>
+                            <input type="number" step="0.01" name="architectural_design_cost" 
+                                   value="{{ details.cost_estimation.architectural_design_cost or '' }}" required>
+                            
+                            <label>Structural Design Cost:</label>
+                            <input type="number" step="0.01" name="structural_design_cost" 
+                                   value="{{ details.cost_estimation.structural_design_cost or '' }}" required>
+                            
+                            <label>Estimation Summary:</label>
+                            <textarea name="estimation_summary" required>{{ details.cost_estimation.estimation_summary or '' }}</textarea>
+                            
+                            <label>BOQ Reference:</label>
+                            <textarea name="boq_reference" required>{{ details.cost_estimation.boq_reference or '' }}</textarea>
+                            
+                            <label>Cost per Sqft:</label>
+                            <input type="number" step="0.01" name="cost_per_sqft" 
+                                   value="{{ details.cost_estimation.cost_per_sqft or '' }}" required>
+                            
+                            <button type="submit"><i class="fas fa-save"></i> Update Cost Estimation</button>
+                        </form>
+
+                        <!-- PDF Generation Form
+                        <form method="POST" action="{{ url_for('generate_cost_estimation_pdf') }}" style="margin-top: 20px;">
+                            <input type="hidden" name="project_id" value="{{ selected_project.id }}">
+                            <button type="submit" class="section-block" style="background-color: #e74c3c;">
+                                <i class="fas fa-file-pdf"></i> Generate PDF Report
+                            </button>
+                        </form>
+                        {% endif %}
                     </div>
                 </div>
             </div>
             {% endif %}
         </div>
-    </div>
+    </div> -->
 
     <script>
         // Mobile menu toggle functionality
         function toggleMobileMenu() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.querySelector('.sidebar-overlay');
-            
+
             sidebar.classList.toggle('active');
             overlay.classList.toggle('active');
         }
@@ -752,11 +1015,10 @@
         function closeMobileMenu() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.querySelector('.sidebar-overlay');
-            
+
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
         }
-
         // Tab functionality
         function openTab(evt, tabName) {
             var i, tabcontent, tablinks;
