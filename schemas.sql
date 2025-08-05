@@ -94,7 +94,7 @@ CREATE TABLE design_details (
 --############################################### drawing_documents table ###################################
 
 CREATE TABLE drawing_documents (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     project_id INT NOT NULL,
     architect_id INT,
     layout_type ENUM(
@@ -108,9 +108,9 @@ CREATE TABLE drawing_documents (
     file_path VARCHAR(255) NOT NULL,
     uploaded_on DATETIME DEFAULT CURRENT_TIMESTAMP,
     uploaded_by INT,
-    org_id INT NOT NULL,
-    FOREIGN KEY (project_id) REFERENCES architect_projects(id) ON DELETE CASCADE
+    org_id INT NOT NULL
 );
+
 
 
 
@@ -222,8 +222,7 @@ CREATE TABLE progress_reports (
     pdf_path VARCHAR(255),
     report_date DATE NOT NULL,
     remark VARCHAR(255),
-    org_id INT NOT NULL,
-    FOREIGN KEY (site_id) REFERENCES projects(id) ON DELETE CASCADE
+    org_id INT NOT NULL
 );
 
 -- ########################################## messages table##########################################
@@ -265,8 +264,8 @@ CREATE TABLE salaries (
 -- ####################################site_conditions table#######################################
 
 CREATE TABLE site_conditions (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    project_id INT NOT NULL,
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    project_id INT NOT NULL UNIQUE,
     architect_id INT,
     soil_report_path VARCHAR(255),
     water_table_level VARCHAR(100),
@@ -274,7 +273,6 @@ CREATE TABLE site_conditions (
     uploaded_on DATETIME DEFAULT CURRENT_TIMESTAMP,
     org_id INT NOT NULL
 );
-
 
 -- ########################################sites table ###############################################
 
@@ -309,8 +307,8 @@ CREATE TABLE structural_details (
 -- #######################utilities_services table#############################################
 
 CREATE TABLE utilities_services (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    project_id INT NOT NULL,
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    project_id INT NOT NULL UNIQUE,
     architect_id INT,
     water_supply_source VARCHAR(255),
     drainage_system_type VARCHAR(255),
@@ -369,13 +367,18 @@ CREATE TABLE cost_estimation (
 );
 
 ################################### ORGANIZATION TABLE ##########################################
-Create table organization_master (
-    org_id INT AUTO_INCREMENT PRIMARY KEY,
-    admin_id INT NOT NULL,
+CREATE TABLE organization_master (
+    org_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    admin_id INT DEFAULT NULL,
     role ENUM('super_admin', 'admin', 'project_manager', 'architect', 'accountant', 'site_engineer') NOT NULL,
     company_name VARCHAR(255) NOT NULL,
     company_address VARCHAR(255) NOT NULL,
     company_phone VARCHAR(20) NOT NULL,
     company_email VARCHAR(100) NOT NULL,
-    FOREIGN KEY (admin_id) REFERENCES register(id) ON DELETE CASCADE
+    bank_name VARCHAR(100),
+    bank_account VARCHAR(50),
+    ifsc_code VARCHAR(20),
+    gst_number VARCHAR(20),
+    terms_conditions VARCHAR(200)
 );
+######################################## daily_expenses table ##########################################
