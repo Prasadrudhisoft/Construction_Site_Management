@@ -1343,26 +1343,34 @@ def site_engineer_approved_vendor_quotations():
 def add_enquiry():
     if 'role' in session and session['role'] == 'site_engineer':
         if request.method == 'POST':
-            name = request.form['name']
-            address = request.form['address']
-            contact_no = request.form['contact_no']
-            requirement = request.form['requirement']
-            engineer_id = session['user_id']
-            org_id = session.get('org_id')  # Fetch org_id from session
+            try:
+                name = request.form['name']
+                address = request.form['address']
+                contact_no = request.form['contact_no']
+                requirement = request.form['requirement']
+                engineer_id = session['user_id']
+                org_id = session.get('org_id')  # Fetch org_id from session
 
-            conn = get_connection()
-            cur = conn.cursor()
-            cur.execute(
-                """
-                INSERT INTO enquiries (site_engineer_id, name, address, contact_no, requirement, org_id)
-                VALUES (%s, %s, %s, %s, %s, %s)
-                """,
-                (engineer_id, name, address, contact_no, requirement, org_id)
-            )
-            conn.commit()
-            conn.close()
-            flash('Enquiry submitted successfully.')
-            return redirect(url_for('site_engineer_dashboard'))
+                conn = get_connection()
+                cur = conn.cursor()
+                cur.execute(
+                    """
+                    INSERT INTO enquiries (site_engineer_id, name, address, contact_no, requirement, org_id)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                    """,
+                    (engineer_id, name, address, contact_no, requirement, org_id)
+                )
+                conn.commit()
+                conn.close()
+                
+                # Flash success message and redirect back to add_enquiry page
+                flash('Enquiry submitted successfully!', 'success')
+                return redirect(url_for('add_enquiry'))
+                
+            except Exception as e:
+                # Handle any database errors
+                flash('Error submitting enquiry. Please try again.', 'error')
+                return redirect(url_for('add_enquiry'))
 
         return render_template('add_enquiry.html')
 
