@@ -41,8 +41,8 @@ app.secret_key = 'your_secret_key'
 
 moment = Moment(app)
 
-EMAIL = "rudhisoft@gmail.com"
-EMAIL_PASSWORD = "adko lzta nznk chms"
+EMAIL = "omg.comp_ioe@bkc.met.edu"
+EMAIL_PASSWORD = "lpmy ozqr biuj hbgg"
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -86,7 +86,9 @@ def send_otp_email(email, otp):
 def forgot_password():
     if request.method == 'POST':
         email = request.form['email']
-        cursor = get_connection()
+        conn = get_connection()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        #cursor = get_connection()
         cursor.execute("SELECT * FROM register WHERE email = %s", (email,))
         user = cursor.fetchone()
 
@@ -144,10 +146,10 @@ def reset_password():
 
         hashed_pw = generate_password_hash(new_password)
         email = session.get('reset_email')
-        cursor = get_connection()
-        db = cursor.cursor(pymysql.cursors.DictCursor) 
+        conn = get_connection()
+        cursor = conn.cursor(pymysql.cursors.DictCursor) 
         cursor.execute("UPDATE register SET password_hash = %s WHERE email = %s", (hashed_pw, email))
-        db.commit()
+        conn.commit()
 
         # Clear session values
         session.pop('reset_email', None)
@@ -241,24 +243,19 @@ def login():
         print("Fetched user:", user)  # Debug line
 
         if user and check_password_hash(user['password_hash'], password):
-            session['user_id'] = user['id']
-            session['role'] = user['role']
-            session['name'] = user['name']
-            session['org_id'] = user['org_id']
-            print("User session set:", session)  # Debug line
-            flash('Login successful!')
-
-             # ✅ Generate and send OTP
+            print("Password verified, generating OTP...")  # Debug line
+            
+            # ✅ Generate and send OTP
             otp = generate_otp()
             success, error = send_otp_email(email, otp)
-            session['user_id'] = user['id']
-            session['role'] = user['role']
-            flash('Login successful!')
 
             if success:
+                # ✅ Store pending user data for OTP verification
                 session['pending_user'] = {
                     'id': user['id'],
                     'role': user['role'],
+                    'name': user['name'],
+                    'org_id': user['org_id'],
                     'email': email,
                     'otp': otp,
                     'otp_expiry': (datetime.now() + timedelta(minutes=5)).timestamp()
@@ -267,16 +264,7 @@ def login():
                 return redirect(url_for('verify_otp'))
             else:
                 flash(f'Error sending OTP: {error}')
-
-            # Redirect based on role
-            if user['role'] == 'admin':
-                return redirect(url_for('admin_dashboard'))
-            elif user['role'] == 'architect':
-                return redirect(url_for('architect_dashboard'))
-            elif user['role'] == 'site_engineer':
-                return redirect(url_for('site_engineer_dashboard'))
-            elif user['role'] == 'accountant':
-                return redirect(url_for('accountant_dashboard'))
+                return render_template('login.html')
         else:
             flash('Invalid email or password.')
 
@@ -295,14 +283,19 @@ def verify_otp():
 
         if time.time() > pending_user['otp_expiry']:
             flash("OTP expired. Please login again.")
+            session.pop('pending_user', None)  # ✅ Clear expired session
             return redirect(url_for('login'))
 
         if user_otp == pending_user['otp']:
             # ✅ OTP correct: promote to logged-in user
             session['user_id'] = pending_user['id']
             session['role'] = pending_user['role']
-            session.pop('pending_user', None)
+            session['name'] = pending_user['name']      # ✅ Include name
+            session['org_id'] = pending_user['org_id']  # ✅ Include org_id
+            session.pop('pending_user', None)           # ✅ Clear pending data
 
+            flash('Login successful!')
+            
             # Redirect based on role
             role = session['role']
             if role == 'admin':
@@ -313,9 +306,13 @@ def verify_otp():
                 return redirect(url_for('architect_dashboard'))
             elif role == 'accountant':
                 return redirect(url_for('accountant_dashboard'))
-
+            else:
+                # ✅ Fallback for unknown roles
+                flash('Invalid user role.')
+                return redirect(url_for('login'))
         else:
             flash("Invalid OTP.")
+            
     return render_template("verify.html")
 ########################################admin routes######################################
 @app.route('/admin1')
