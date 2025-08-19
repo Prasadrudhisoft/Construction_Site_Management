@@ -2045,7 +2045,7 @@ def submit_legal_compliances():
             cur.execute("SELECT * FROM legal_and_compliances WHERE project_id = %s AND org_id = %s", (project_id, session['org_id']))
             old = cur.fetchone()
 
-            # ✅ FIXED: Use column names instead of indexes
+            # Use column names instead of indexes
             municipal_pdf = municipal_pdf or old['municipal_approval_pdf']
             building_permit_pdf = building_permit_pdf or old['building_permit_pdf']
             sanction_plan_pdf = sanction_plan_pdf or old['sanction_plan_pdf']
@@ -2067,7 +2067,7 @@ def submit_legal_compliances():
                 sanction_plan_pdf, fire_noc_pdf, environmental_clearance,
                 mngl_pdf, project_id, session['org_id']
             ))
-            flash('Legal compliances updated successfully.')
+            flash('Legal compliances updated successfully.', 'success')
         else:
             cur.execute("""
                 INSERT INTO legal_and_compliances (
@@ -2080,14 +2080,16 @@ def submit_legal_compliances():
                 building_permit_pdf, sanction_plan_pdf, fire_noc_pdf,
                 environmental_clearance, mngl_pdf, session['org_id']
             ))
-            flash('Legal compliances submitted successfully.')
+            flash('Legal compliances submitted successfully.', 'success')
 
         conn.commit()
         cur.close()
         conn.close()
-        return redirect(url_for('admin_dashboard'))
+        
+        # SOLUTION 1: Redirect back to the same page to show flash message
+        return redirect(url_for('submit_legal_compliances'))
 
-    # ✅ GET method - Fetch project list
+    # GET method - Fetch project list
     user_id = session.get('user_id')
     role = session.get('role')
 
@@ -2103,7 +2105,7 @@ def submit_legal_compliances():
     else:
         cur.close()
         conn.close()
-        flash("Unauthorized access.")
+        flash("Unauthorized access.", 'error')
         return redirect(url_for('login'))
 
     projects = cur.fetchall()
