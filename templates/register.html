@@ -3,9 +3,46 @@
 <head>
     <title>Register - Construction Management</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         * {
             box-sizing: border-box;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 1rem;
+            z-index: 1000;
+        }
+
+        .navbar-nav {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
+
+        .navbar-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            transition: color 0.3s ease;
+        }
+
+        .navbar-link i {
+            margin-right: 0.5rem;
+        }
+
+        .navbar-link:hover {
+            color: #ffd700;
         }
 
         body {
@@ -22,6 +59,7 @@
             background-position: center;
             background-repeat: no-repeat;
             background-attachment: fixed;
+            padding-top: 80px; /* Add padding for navbar */
         }
 
         .register-container {
@@ -410,6 +448,22 @@
     </style>
 </head>
 <body>
+    <nav class="navbar">
+        <ul class="navbar-nav">
+            <li>
+                <a href="{{ url_for('dashboard') }}" class="navbar-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('login') }}" class="navbar-link">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login
+                </a>
+            </li>
+        </ul>
+    </nav>
 
 <div class="register-container">
     <div class="logo">

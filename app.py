@@ -298,19 +298,24 @@ def verify_otp():
             
             # Redirect based on role
             role = session['role']
+            response = None
             if role == 'admin':
-                return redirect(url_for('admin_dashboard'))
+                response = redirect(url_for('admin_dashboard'))
             elif role == 'site_engineer':
-                return redirect(url_for('site_engineer_dashboard'))
+                response = redirect(url_for('site_engineer_dashboard'))
             elif role == 'architect':
-                return redirect(url_for('architect_dashboard'))
+                response = redirect(url_for('architect_dashboard'))
             elif role == 'accountant':
-                return redirect(url_for('accountant_dashboard'))
-            else:
+                response = redirect(url_for('accountant_dashboard'))
+            
+            # Clear flash messages before redirecting
+            session.pop('_flashes', None)
+            return response
+        else:
                 # ✅ Fallback for unknown roles
                 flash('Invalid user role.')
                 return redirect(url_for('login'))
-        else:
+    else:
             flash("Invalid OTP.")
             
     return render_template("verify.html")
@@ -318,6 +323,8 @@ def verify_otp():
 @app.route('/admin1')
 def admin_dashboard():
     if 'role' in session and session['role'] == 'admin':
+        # Clear any lingering flash messages
+        session.pop('_flashes', None)
         admin_name = session.get('name')
         return render_template('admin_dashboard.html', admin_name=admin_name)
     return redirect('/')
