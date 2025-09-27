@@ -382,3 +382,14 @@ CREATE TABLE organization_master (
     terms_conditions VARCHAR(200)
 );
 ######################################## daily_expenses table ##########################################
+CREATE TABLE daily_expenses (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    site_engineer_id INT,
+    org_id INT,
+    project_id INT,
+    date DATE,
+    description TEXT,
+    amount DECIMAL(10,2),
+    status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
+    admin_comment TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
