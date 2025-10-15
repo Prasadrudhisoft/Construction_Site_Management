@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Submit Enquiry</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -34,6 +36,7 @@
             display: flex;
             align-items: center;
         }
+
         .navbar-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -44,6 +47,7 @@
             padding: 0 20px;
             height: 70px;
         }
+
         .navbar-brand {
             display: flex;
             align-items: center;
@@ -54,10 +58,12 @@
             font-size: 1.4rem;
             flex-shrink: 0;
         }
+
         .navbar-brand i {
             color: #3498db;
             font-size: 1.8rem;
         }
+
         .navbar-menu {
             display: flex;
             list-style: none;
@@ -65,6 +71,7 @@
             align-items: center;
             margin: 0;
         }
+
         .navbar-link {
             text-decoration: none;
             color: #2c3e50;
@@ -77,23 +84,28 @@
             gap: 8px;
             white-space: nowrap;
         }
+
         .navbar-link:hover {
             background: rgba(52, 152, 219, 0.1);
             color: #3498db;
             transform: translateY(-2px);
         }
+
         .navbar-link.active {
             background: #3498db;
             color: white;
         }
+
         .navbar-link.logout {
             background: #e74c3c;
             color: white;
         }
+
         .navbar-link.logout:hover {
             background: #c0392b;
             transform: translateY(-2px);
         }
+
         .navbar-toggle {
             display: none;
             background: none;
@@ -105,6 +117,7 @@
             border-radius: 4px;
             transition: background 0.3s ease;
         }
+
         .navbar-toggle:hover {
             background: rgba(52, 152, 219, 0.1);
         }
@@ -213,10 +226,12 @@
             box-shadow: none;
         }
 
+        .flash-messages {
+            width: 100%;
+            margin-bottom: 20px;
+        }
         .flash-message {
-            background: #27ae60;
-            color: #fff;
-            padding: 15px;
+            padding: 15px 20px;
             border-radius: 8px;
             margin-bottom: 20px;
             text-align: center;
@@ -226,20 +241,24 @@
             justify-content: center;
             gap: 10px;
             animation: slideDown 0.5s ease-out;
+            font-size: 1.08rem;
         }
-
         .flash-message.success {
             background: #27ae60;
+            color: white;
         }
-
         .flash-message.error {
             background: #e74c3c;
+            color: white;
         }
-
         .flash-message.info {
             background: #3498db;
+            color: white;
         }
-
+        .flash-message.warning {
+            background: #f39c12;
+            color: white;
+        }
         @keyframes slideDown {
             from {
                 opacity: 0;
@@ -284,18 +303,6 @@
             margin-right: 8px;
         }
 
-        .logout-link {
-            background: white;
-            color: #e74c3c;
-            border-color: #e74c3c;
-        }
-
-        .logout-link:hover {
-            background: #e74c3c;
-            color: white;
-            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
-        }
-
         /* Form validation styles */
         .form-group input.error,
         .form-group textarea.error {
@@ -328,8 +335,13 @@
         }
 
         @keyframes loading {
-            0% { left: -100%; }
-            100% { left: 100%; }
+            0% {
+                left: -100%;
+            }
+
+            100% {
+                left: 100%;
+            }
         }
 
         /* Responsive Design */
@@ -337,13 +349,16 @@
             .navbar-menu {
                 gap: 20px;
             }
+
             .navbar-link {
                 padding: 8px 12px;
                 font-size: 0.95rem;
             }
+
             .navbar-brand {
                 font-size: 1.3rem;
             }
+
             .navbar-brand i {
                 font-size: 1.7rem;
             }
@@ -353,18 +368,23 @@
             body {
                 padding: 100px 20px 20px 20px;
             }
+
             .navbar-container {
                 padding: 0 20px;
             }
+
             .container {
                 max-width: 100%;
             }
+
             .form-card {
                 padding: 30px;
             }
+
             .page-header {
                 padding: 25px;
             }
+
             .page-header h2 {
                 font-size: 1.8rem;
             }
@@ -374,19 +394,24 @@
             body {
                 padding: 80px 15px 15px 15px;
             }
+
             .navbar {
                 height: 60px;
             }
+
             .navbar-container {
                 height: 60px;
                 padding: 0 15px;
             }
+
             .navbar-brand {
                 font-size: 1.2rem;
             }
+
             .navbar-brand i {
                 font-size: 1.5rem;
             }
+
             .navbar-menu {
                 position: fixed;
                 top: 60px;
@@ -403,12 +428,15 @@
                 gap: 20px;
                 z-index: 2000;
             }
+
             .navbar-menu.active {
                 left: 0;
             }
+
             .navbar-toggle {
                 display: block;
             }
+
             .navbar-link {
                 width: 100%;
                 max-width: 300px;
@@ -416,23 +444,33 @@
                 padding: 15px 20px;
                 font-size: 1.1rem;
             }
+
             .form-card {
                 padding: 25px;
             }
+
             .page-header {
                 padding: 20px;
             }
+
             .page-header h2 {
                 font-size: 1.6rem;
             }
+
             .action-links {
                 flex-direction: column;
                 align-items: center;
             }
+
             .action-link {
                 width: 100%;
                 max-width: 300px;
                 justify-content: center;
+            }
+
+            .flash-message {
+                font-size: 1rem;
+                padding: 12px 15px;
             }
         }
 
@@ -440,53 +478,67 @@
             body {
                 padding: 70px 10px 10px 10px;
             }
+
             .navbar {
                 height: 55px;
             }
+
             .navbar-container {
                 height: 55px;
                 padding: 0 10px;
             }
+
             .navbar-brand {
                 font-size: 1.1rem;
                 gap: 8px;
             }
+
             .navbar-brand i {
                 font-size: 1.4rem;
             }
+
             .navbar-menu {
                 top: 55px;
                 height: calc(100vh - 55px);
                 padding: 30px 15px;
             }
+
             .form-card {
                 padding: 20px;
             }
+
             .page-header {
                 padding: 15px;
             }
+
             .page-header h2 {
                 font-size: 1.4rem;
             }
+
             .page-header p {
                 font-size: 0.9rem;
             }
+
             .form-group label {
                 font-size: 0.95rem;
             }
+
             .form-group input,
             .form-group textarea {
                 padding: 10px 12px;
                 font-size: 0.95rem;
             }
+
             .submit-btn {
                 padding: 12px 25px;
                 font-size: 0.95rem;
             }
+
             .action-link {
                 padding: 10px 15px;
                 font-size: 0.9rem;
             }
+
             .flash-message {
                 padding: 12px;
                 font-size: 0.9rem;
@@ -497,30 +549,38 @@
             body {
                 padding: 65px 5px 5px 5px;
             }
+
             .navbar {
                 height: 50px;
             }
+
             .navbar-container {
                 height: 50px;
                 padding: 0 5px;
             }
+
             .navbar-brand {
                 font-size: 1rem;
             }
+
             .navbar-brand i {
                 font-size: 1.3rem;
             }
+
             .navbar-menu {
                 top: 50px;
                 height: calc(100vh - 50px);
                 padding: 25px 10px;
             }
+
             .form-card {
                 padding: 15px;
             }
+
             .page-header {
                 padding: 12px;
             }
+
             .page-header h2 {
                 font-size: 1.2rem;
             }
@@ -531,20 +591,25 @@
             body {
                 padding: 60px 15px 15px 15px;
             }
+
             .navbar {
                 height: 50px;
             }
+
             .navbar-container {
                 height: 50px;
             }
+
             .navbar-menu {
                 top: 50px;
                 height: calc(100vh - 50px);
                 padding: 20px 15px;
             }
+
             .page-header {
                 padding: 15px;
             }
+
             .page-header h2 {
                 font-size: 1.4rem;
             }
@@ -555,15 +620,18 @@
             .navbar {
                 display: none;
             }
+
             body {
                 padding: 0;
             }
+
             .action-links {
                 display: none;
             }
         }
     </style>
 </head>
+
 <body>
     <nav class="navbar">
         <div class="navbar-container">
@@ -573,48 +641,53 @@
             </a>
             <ul class="navbar-menu" id="navbarNav">
                 <li><a href="{{ url_for('site_engineer_dashboard') }}" class="navbar-link">
-                    <i class="fas fa-tachometer-alt"></i>
-                    Dashboard
-                </a></li>
+                        <i class="fas fa-tachometer-alt"></i>
+                        Dashboard
+                    </a></li>
                 <li><a href="{{ url_for('add_enquiry') }}" class="navbar-link active">
-                    <i class="fas fa-question-circle"></i>
-                    Add Enquiry
-                </a></li>
+                        <i class="fas fa-question-circle"></i>
+                        Add Enquiry
+                    </a></li>
                 <li><a href="{{ url_for('view_enquiries') }}" class="navbar-link">
-                    <i class="fas fa-list"></i>
-                    View Enquiries
-                </a></li>
+                        <i class="fas fa-list"></i>
+                        View Enquiries
+                    </a></li>
                 <li><a href="{{ url_for('logout') }}" class="navbar-link logout">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Logout
-                </a></li>
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </a></li>
             </ul>
             <button class="navbar-toggle" id="mobileMenuToggle">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
     </nav>
-    
+
     <div class="container">
         <div class="page-header">
             <h2><i class="fas fa-question-circle"></i> Visitor Enquiry Form</h2>
             <p>Please fill out the form below to submit your enquiry</p>
         </div>
 
-        {% with msgs=get_flashed_messages(with_categories=true) %}
-            {% if msgs %}
-                {% for category, message in msgs %}
-                    <div class="flash-message {{ category }}">
-                        {% if category == 'success' %}
-                            <i class="fas fa-check-circle"></i>
-                        {% elif category == 'error' %}
-                            <i class="fas fa-exclamation-circle"></i>
-                        {% else %}
-                            <i class="fas fa-info-circle"></i>
-                        {% endif %}
-                        {{ message }}
-                    </div>
-                {% endfor %}
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}">
+                            {% if category == 'success' %}
+                                <i class="fas fa-check-circle"></i>
+                            {% elif category == 'error' %}
+                                <i class="fas fa-exclamation-circle"></i>
+                            {% elif category == 'warning' %}
+                                <i class="fas fa-exclamation-triangle"></i>
+                            {% elif category == 'info' %}
+                                <i class="fas fa-info-circle"></i>
+                            {% endif %}
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
             {% endif %}
         {% endwith %}
 
@@ -622,30 +695,30 @@
             <form method="POST" action="{{ url_for('add_enquiry') }}" id="enquiryForm">
                 <div class="form-group">
                     <label for="name"><i class="fas fa-user"></i> Name:</label>
-                    <input type="text" id="name" name="name" required placeholder="Enter your full name" 
-                           value="{{ request.form.name if request.form.name }}">
+                    <input type="text" id="name" name="name" required placeholder="Enter your full name"
+                        value="{{ request.form.name if request.form.name }}">
                     <div class="error-message" id="nameError">Please enter a valid name</div>
                 </div>
 
                 <div class="form-group">
                     <label for="address"><i class="fas fa-map-marker-alt"></i> Address:</label>
                     <input type="text" id="address" name="address" required placeholder="Enter your address"
-                           value="{{ request.form.address if request.form.address }}">
+                        value="{{ request.form.address if request.form.address }}">
                     <div class="error-message" id="addressError">Please enter a valid address</div>
                 </div>
 
                 <div class="form-group">
                     <label for="contact"><i class="fas fa-phone"></i> Contact:</label>
                     <input type="tel" id="contact" name="contact_no" required placeholder="Enter your contact number"
-                           pattern="[0-9]{10}" title="Please enter a 10-digit contact number"
-                           value="{{ request.form.contact_no if request.form.contact_no }}">
+                        pattern="[0-9]{10}" title="Please enter a 10-digit contact number"
+                        value="{{ request.form.contact_no if request.form.contact_no }}">
                     <div class="error-message" id="contactError">Please enter a valid 10-digit contact number</div>
                 </div>
 
                 <div class="form-group">
                     <label for="requirement"><i class="fas fa-clipboard-list"></i> Requirement:</label>
-                    <textarea id="requirement" name="requirement" required 
-                              placeholder="Please describe your requirements in detail...">{{ request.form.requirement if request.form.requirement }}</textarea>
+                    <textarea id="requirement" name="requirement" required
+                        placeholder="Please describe your requirements in detail...">{{ request.form.requirement if request.form.requirement }}</textarea>
                     <div class="error-message" id="requirementError">Please describe your requirements</div>
                 </div>
 
@@ -664,7 +737,7 @@
 
     <script>
         // Mobile menu toggle
-        document.getElementById('mobileMenuToggle').addEventListener('click', function() {
+        document.getElementById('mobileMenuToggle').addEventListener('click', function () {
             const navbarNav = document.getElementById('navbarNav');
             const icon = this.querySelector('i');
             navbarNav.classList.toggle('active');
@@ -679,7 +752,7 @@
 
         // Close mobile menu when clicking on a link
         document.querySelectorAll('.navbar-link').forEach(link => {
-            link.addEventListener('click', function() {
+            link.addEventListener('click', function () {
                 const navbarNav = document.getElementById('navbarNav');
                 const mobileToggle = document.getElementById('mobileMenuToggle');
                 const icon = mobileToggle.querySelector('i');
@@ -694,20 +767,20 @@
         const submitBtn = document.getElementById('submitBtn');
 
         // Real-time validation
-        document.getElementById('name').addEventListener('input', function() {
+        document.getElementById('name').addEventListener('input', function () {
             validateField(this, 'nameError', this.value.trim().length >= 2);
         });
 
-        document.getElementById('address').addEventListener('input', function() {
+        document.getElementById('address').addEventListener('input', function () {
             validateField(this, 'addressError', this.value.trim().length >= 5);
         });
 
-        document.getElementById('contact').addEventListener('input', function() {
+        document.getElementById('contact').addEventListener('input', function () {
             const phoneRegex = /^[0-9]{10}$/;
             validateField(this, 'contactError', phoneRegex.test(this.value));
         });
 
-        document.getElementById('requirement').addEventListener('input', function() {
+        document.getElementById('requirement').addEventListener('input', function () {
             validateField(this, 'requirementError', this.value.trim().length >= 10);
         });
 
@@ -723,7 +796,7 @@
         }
 
         // Form submission with loading state
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', function (e) {
             const name = document.getElementById('name').value.trim();
             const address = document.getElementById('address').value.trim();
             const contact = document.getElementById('contact').value.trim();
@@ -731,23 +804,23 @@
 
             // Validate all fields
             let isValid = true;
-            
+
             if (name.length < 2) {
                 validateField(document.getElementById('name'), 'nameError', false);
                 isValid = false;
             }
-            
+
             if (address.length < 5) {
                 validateField(document.getElementById('address'), 'addressError', false);
                 isValid = false;
             }
-            
+
             const phoneRegex = /^[0-9]{10}$/;
             if (!phoneRegex.test(contact)) {
                 validateField(document.getElementById('contact'), 'contactError', false);
                 isValid = false;
             }
-            
+
             if (requirement.length < 10) {
                 validateField(document.getElementById('requirement'), 'requirementError', false);
                 isValid = false;
@@ -768,26 +841,23 @@
         const flashMessages = document.querySelectorAll('.flash-message');
         flashMessages.forEach(function(message) {
             setTimeout(function() {
-                message.style.opacity = '0';
-                message.style.transform = 'translateY(-20px)';
+                message.style.animation = 'fadeOut 0.5s ease-out';
                 setTimeout(function() {
-                    message.style.display = 'none';
-                }, 300);
+                    message.remove();
+                }, 500);
             }, 5000);
         });
 
-        // Clear form after successful submission
-        const hasSuccessMessage = document.querySelector('.flash-message.success');
-        if (hasSuccessMessage) {
-            // Clear the form when success message is shown
-            setTimeout(function() {
-                form.reset();
-                // Reset submit button state
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Enquiry';
-                submitBtn.classList.remove('loading');
-            }, 1000);
-        }
+        // Fade out animation for flash messages
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeOut {
+                from { opacity: 1; transform: translateY(0); }
+                to { opacity: 0; transform: translateY(-20px); }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
+
 </html>

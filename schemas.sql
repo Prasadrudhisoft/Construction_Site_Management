@@ -1,4 +1,4 @@
--- ##############################register table##############################
+-- ############################## register table ##############################
 
 CREATE TABLE register (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -26,7 +26,7 @@ CREATE TABLE architects (
     FOREIGN KEY (register_id) REFERENCES register(id) ON DELETE SET NULL
 );
 
--- ########################################architect_projects table ##########################################
+-- ######################################## architect_projects table ##########################################
 
 CREATE TABLE architect_projects (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -42,7 +42,7 @@ CREATE TABLE architect_projects (
     FOREIGN KEY (architect_id) REFERENCES architects(id) ON DELETE SET NULL
 );
 
--- ##########################projects table###################################
+-- ########################## projects table ###################################
 
 CREATE TABLE projects (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -53,15 +53,6 @@ CREATE TABLE projects (
     org_id INT NOT NULL
 );
 
---################################ attendance table #######################################
-
--- CREATE TABLE attendance (
---     id INT AUTO_INCREMENT PRIMARY KEY,
---     worker_name VARCHAR(100) NOT NULL,
---     date DATE NOT NULL,
---     status ENUM('present', 'absent', 'halfday') NOT NULL,
---     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
--- );
 
 -- ############################## daily_worker_report table ######################################
 
@@ -180,7 +171,7 @@ CREATE TABLE invoices (
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL
 );
 
--- ###############################legal_and_compliances table#########################################
+-- ############################### legal_and_compliances table #########################################
 
 CREATE TABLE legal_and_compliances (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -198,7 +189,7 @@ CREATE TABLE legal_and_compliances (
 );
 
 
--- ############################material_specifications table######################################### 
+-- ############################ material_specifications table ######################################### 
 
 CREATE TABLE material_specifications (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -212,20 +203,22 @@ CREATE TABLE material_specifications (
     org_id INT NOT NULL
 );
 
---################################progress_reports table############################
+--################################ progress_reports table ############################
 
 CREATE TABLE progress_reports (
-    report_id INT AUTO_INCREMENT PRIMARY KEY,
+    report_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     site_id INT NOT NULL,
     progress_percent INT NOT NULL,
-    image_path VARCHAR(255),
-    pdf_path VARCHAR(255),
+    image_path VARCHAR(255) DEFAULT NULL,
+    pdf_path VARCHAR(255) DEFAULT NULL,
     report_date DATE NOT NULL,
-    remark VARCHAR(255),
-    org_id INT NOT NULL
+    remark VARCHAR(255) DEFAULT NULL,
+    org_id INT NOT NULL,
+    INDEX (site_id),
+    INDEX (org_id)
 );
 
--- ########################################## messages table##########################################
+-- ########################################## messages table ##########################################
 CREATE TABLE messages (
     id INT AUTO_INCREMENT PRIMARY KEY,
     sender_id INT NOT NULL,
@@ -249,6 +242,7 @@ CREATE TABLE salaries (
     base_salary DECIMAL(10,2),
     allowance DECIMAL(10,2),
     pf DECIMAL(10,2),
+    advance DECIMAL(10,2) DEFAULT 0.00,
     description VARCHAR(255),
     created_by INT,
     created_on DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -261,7 +255,7 @@ CREATE TABLE salaries (
 );
 
 
--- ####################################site_conditions table#######################################
+-- #################################### site_conditions table #######################################
 
 CREATE TABLE site_conditions (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -274,7 +268,7 @@ CREATE TABLE site_conditions (
     org_id INT NOT NULL
 );
 
--- ########################################sites table ###############################################
+-- ######################################## sites table ###############################################
 
 CREATE TABLE sites (
     site_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -333,7 +327,7 @@ CREATE TABLE vendor_inventory (
     admin_remark VARCHAR(255),
     admin_approval ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
     vendor_type ENUM('electrical', 'plumber', 'carpenter', 'painter', 'other') NOT NULL DEFAULT 'other',
-        org_id INT NOT NULL
+    org_id INT NOT NULL
 );
 
 
@@ -349,7 +343,7 @@ CREATE TABLE accountant_projects (
 
 
 
------------############cost_estimation table#########################
+-----------############ cost_estimation table #######################################################
 
 CREATE TABLE cost_estimation (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -366,7 +360,7 @@ CREATE TABLE cost_estimation (
     org_id INT NOT NULL
 );
 
-################################### ORGANIZATION TABLE ##########################################
+-----------################################### ORGANIZATION TABLE ##########################################
 CREATE TABLE organization_master (
     org_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     admin_id INT DEFAULT NULL,
@@ -381,7 +375,7 @@ CREATE TABLE organization_master (
     gst_number VARCHAR(20),
     terms_conditions VARCHAR(200)
 );
-######################################## daily_expenses table ##########################################
+-----------######################################## daily_expenses table ##########################################
 CREATE TABLE daily_expenses (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     site_engineer_id INT,

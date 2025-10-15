@@ -532,7 +532,6 @@ def accountant_dashboard():
 def add_design_details():
     if 'role' in session and session['role'] == 'architect':
         project_id = request.form['project_id']
-        # ... (get other form data)
         building_usage = request.form['building_usage']
         num_floors = request.form['num_floors']
         area_sqft = request.form['area_sqft']
@@ -541,19 +540,35 @@ def add_design_details():
 
         conn = get_connection()
         cur = conn.cursor()
-        cur.execute("""
-            INSERT INTO design_details (project_id, building_usage, num_floors, area_sqft, plot_area, fsi,org_id)
-            VALUES (%s, %s, %s, %s, %s, %s,%s)
-            ON DUPLICATE KEY UPDATE
-            building_usage = VALUES(building_usage),
-            num_floors = VALUES(num_floors),
-            area_sqft = VALUES(area_sqft),
-            plot_area = VALUES(plot_area),
-            fsi = VALUES(fsi)
-        """, (project_id, building_usage, num_floors, area_sqft, plot_area, fsi,session['org_id']))
+
+        # Check if design details already exist for this project
+        cur.execute("SELECT id FROM design_details WHERE project_id = %s AND org_id = %s",
+                    (project_id, session['org_id']))
+        existing = cur.fetchone()
+        print("existing  : ",existing)
+
+        if existing:
+            # Update existing record
+            cur.execute("""
+                UPDATE design_details
+                SET building_usage = %s,
+                    num_floors = %s,
+                    area_sqft = %s,
+                    plot_area = %s,
+                    fsi = %s
+                WHERE project_id = %s AND org_id = %s
+            """, (building_usage, num_floors, area_sqft, plot_area, fsi, project_id, session['org_id']))
+            flash("Design details updated successfully.")
+        else:
+            # Insert new record if not present
+            cur.execute("""
+                INSERT INTO design_details (project_id, building_usage, num_floors, area_sqft, plot_area, fsi, org_id)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """, (project_id, building_usage, num_floors, area_sqft, plot_area, fsi, session['org_id']))
+            flash("Design details added successfully.")
+
         conn.commit()
         conn.close()
-        flash("Design details saved successfully.")
         return redirect(url_for('architect_dashboard', project_id=project_id))
 
     return redirect(url_for('login'))
@@ -564,7 +579,6 @@ def add_design_details():
 def add_structural_details():
     if 'role' in session and session['role'] == 'architect':
         project_id = request.form['project_id']
-        # ... (get other form data)
         foundation_type = request.form['foundation_type']
         framing_system = request.form['framing_system']
         slab_type = request.form['slab_type']
@@ -573,19 +587,35 @@ def add_structural_details():
 
         conn = get_connection()
         cur = conn.cursor()
-        cur.execute("""
-            INSERT INTO structural_details (project_id, foundation_type, framing_system, slab_type, beam_details, load_calculation,org_id)
-            VALUES (%s, %s, %s, %s, %s, %s,%s)
-            ON DUPLICATE KEY UPDATE
-            foundation_type = VALUES(foundation_type),
-            framing_system = VALUES(framing_system),
-            slab_type = VALUES(slab_type),
-            beam_details = VALUES(beam_details),
-            load_calculation = VALUES(load_calculation)
-        """, (project_id, foundation_type, framing_system, slab_type, beam_details, load_calculation,session['org_id']))
+
+        # Check if structural details already exist for this project and org
+        cur.execute("SELECT id FROM structural_details WHERE project_id = %s AND org_id = %s",
+                    (project_id, session['org_id']))
+        existing = cur.fetchone()
+
+        if existing:
+            # --- Update existing record ---
+            cur.execute("""
+                UPDATE structural_details
+                SET foundation_type = %s,
+                    framing_system = %s,
+                    slab_type = %s,
+                    beam_details = %s,
+                    load_calculation = %s
+                WHERE project_id = %s AND org_id = %s
+            """, (foundation_type, framing_system, slab_type, beam_details, load_calculation, project_id, session['org_id']))
+            flash("Structural details updated successfully.")
+        else:
+            # --- Insert new record ---
+            cur.execute("""
+                INSERT INTO structural_details (project_id, foundation_type, framing_system, slab_type, beam_details, load_calculation, org_id)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """, (project_id, foundation_type, framing_system, slab_type, beam_details, load_calculation, session['org_id']))
+            flash("Structural details added successfully.")
+
         conn.commit()
         conn.close()
-        flash("Structural details saved successfully.")
+
         return redirect(url_for('architect_dashboard', project_id=project_id))
 
     return redirect(url_for('login'))
@@ -597,7 +627,6 @@ def add_structural_details():
 def add_material_specification():
     if 'role' in session and session['role'] == 'architect':
         project_id = request.form['project_id']
-        # ... (get other form data)
         primary_material = request.form['primary_material']
         wall_material = request.form['wall_material']
         roofing_material = request.form['roofing_material']
@@ -606,22 +635,38 @@ def add_material_specification():
 
         conn = get_connection()
         cur = conn.cursor()
-        cur.execute("""
-            INSERT INTO material_specifications (project_id, primary_material, wall_material, roofing_material, flooring_material, fire_safety_materials,org_id)
-            VALUES (%s, %s, %s, %s, %s, %s,%s)
-            ON DUPLICATE KEY UPDATE
-            primary_material = VALUES(primary_material),
-            wall_material = VALUES(wall_material),
-            roofing_material = VALUES(roofing_material),
-            flooring_material = VALUES(flooring_material),
-            fire_safety_materials = VALUES(fire_safety_materials)
-        """, (project_id, primary_material, wall_material, roofing_material, flooring_material, fire_safety_materials,session['org_id']))
+
+        # Check if material specification already exists for this project and org
+        cur.execute("SELECT id FROM material_specifications WHERE project_id = %s AND org_id = %s",
+                    (project_id, session['org_id']))
+        existing = cur.fetchone()
+
+        if existing:
+            # --- Update existing record ---
+            cur.execute("""
+                UPDATE material_specifications
+                SET primary_material = %s,
+                    wall_material = %s,
+                    roofing_material = %s,
+                    flooring_material = %s,
+                    fire_safety_materials = %s
+                WHERE project_id = %s AND org_id = %s
+            """, (primary_material, wall_material, roofing_material, flooring_material, fire_safety_materials, project_id, session['org_id']))
+            flash("Material specifications updated successfully.")
+        else:
+            # --- Insert new record ---
+            cur.execute("""
+                INSERT INTO material_specifications (project_id, primary_material, wall_material, roofing_material, flooring_material, fire_safety_materials, org_id)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """, (project_id, primary_material, wall_material, roofing_material, flooring_material, fire_safety_materials, session['org_id']))
+            flash("Material specifications added successfully.")
+
         conn.commit()
         conn.close()
-        flash("Material specifications saved successfully.")
         return redirect(url_for('architect_dashboard', project_id=project_id))
 
     return redirect(url_for('login'))
+
     
 import os
 from werkzeug.utils import secure_filename
@@ -3794,47 +3839,36 @@ def assign_accountant():
 def landing(): 
   return render_template('landing_page.html')
 
+from flask import Flask, render_template, request, session, redirect, url_for, jsonify
+import json
+from datetime import datetime, date
+
+def default_json_serializer(obj):
+    """JSON serializer for objects not serializable by default json code"""
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    raise TypeError("Type %s not serializable" % type(obj))
+
 @app.route('/communication')
-
 def communication():
-
     if 'user_id' not in session:
-
         return redirect(url_for('login'))
-
     return render_template('communication.html')
 
-
-
 @app.route('/get_current_user_role')
-
 def get_current_user_role():
-
     if 'user_id' not in session:
-
         return jsonify({'error': 'Not logged in'})
-
     
-
     conn = get_connection()
-
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-
-    cursor.execute("SELECT role FROM register WHERE id = %s and org_id = %s", (session['user_id'],session['org_id']))
-
+    cursor.execute("SELECT role FROM register WHERE id = %s and org_id = %s", (session['user_id'], session['org_id']))
     result = cursor.fetchone()
-
     conn.close()
-
     
-
     if result:
-
         return jsonify({'role': result['role']})
-
     return jsonify({'error': 'User not found'})
-
-
 
 @app.route('/get_users')
 def get_users():
@@ -3905,175 +3939,122 @@ def get_users():
 
     return jsonify(users)
 
-
-
-
 @app.route('/get_messages/<int:receiver_id>')
-
 def get_messages(receiver_id):
-
     if 'user_id' not in session:
-
         return jsonify([])
-
     
-
     sender_id = session['user_id']
     org_id = session['org_id']
-
     
-
     conn = get_connection()
-
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-
     
-
     # Get all messages between the two users
-
     cursor.execute("""
-
         SELECT * FROM messages
-
-        WHERE (sender_id = %s AND receiver_id = %s) OR (sender_id = %s AND receiver_id = %s) AND org_id = %s
-
+        WHERE ((sender_id = %s AND receiver_id = %s) OR (sender_id = %s AND receiver_id = %s)) AND org_id = %s
         ORDER BY timestamp ASC
-
-    """, (sender_id, receiver_id, receiver_id, sender_id,org_id))
-
+    """, (sender_id, receiver_id, receiver_id, sender_id, org_id))
     messages = cursor.fetchall()
-
     
-
     # Mark messages as read where current user is the receiver
-
     cursor.execute("""
-
         UPDATE messages 
-
         SET is_read = TRUE 
-
         WHERE sender_id = %s AND receiver_id = %s AND is_read = FALSE
-
     """, (receiver_id, sender_id))
-
     
-
     conn.commit()
-
     conn.close()
-
     
-
-    import json
-
-    from datetime import datetime, date
-
+    # Convert datetime objects to ISO format strings for proper JSON serialization
+    for message in messages:
+        if 'timestamp' in message and message['timestamp']:
+            if isinstance(message['timestamp'], (datetime, date)):
+                message['timestamp'] = message['timestamp'].isoformat()
+    
     return jsonify(messages)
-from flask import Flask, render_template, request, session, redirect, url_for, jsonify
-
-
 
 @app.route('/send_message', methods=['POST'])
-
 def send_message():
-
     if 'user_id' not in session:
-
         return jsonify({'success': False, 'error': 'Not logged in'})
 
-
-
     data = request.get_json()
-
     if not data:
-
         return jsonify({'success': False, 'error': 'Invalid JSON'})
-
         
-
     receiver_id = data.get('receiver_id')
-
     message = data.get('message')
-
     sender_id = session['user_id']
     org_id = session['org_id']
 
-
-
     if not receiver_id or not message:
-
         return jsonify({'success': False, 'error': 'Missing data'})
 
-
-
     try:
-
         conn = get_connection()
-
         cursor = conn.cursor()
-
         cursor.execute("""
-
-            INSERT INTO messages (sender_id, receiver_id, message,org_id)
-
-            VALUES (%s, %s, %s,%s)
-
-        """, (sender_id, receiver_id, message,org_id))
-
+            INSERT INTO messages (sender_id, receiver_id, message, org_id)
+            VALUES (%s, %s, %s, %s)
+        """, (sender_id, receiver_id, message, org_id))
         conn.commit()
-
         conn.close()
-
         return jsonify({'success': True})
-
     except Exception as e:
-
         return jsonify({'success': False, 'error': str(e)})
 
-
+@app.route('/mark_as_read', methods=['POST'])
+def mark_as_read():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'error': 'Not logged in'})
+    
+    data = request.get_json()
+    if not data:
+        return jsonify({'success': False, 'error': 'Invalid JSON'})
+    
+    sender_id = data.get('sender_id')
+    receiver_id = session['user_id']
+    
+    if not sender_id:
+        return jsonify({'success': False, 'error': 'Missing sender_id'})
+    
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE messages 
+            SET is_read = TRUE 
+            WHERE sender_id = %s AND receiver_id = %s AND is_read = FALSE
+        """, (sender_id, receiver_id))
+        conn.commit()
+        conn.close()
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/mark_messages_read/<int:sender_id>', methods=['POST'])
-
 def mark_messages_read(sender_id):
-
     if 'user_id' not in session:
-
         return jsonify({'success': False, 'error': 'Not logged in'})
-
     
-
     receiver_id = session['user_id']
-
     
-
     try:
-
         conn = get_connection()
-
         cursor = conn.cursor()
-
         cursor.execute("""
-
             UPDATE messages 
-
             SET is_read = TRUE 
-
             WHERE sender_id = %s AND receiver_id = %s AND is_read = FALSE
-
         """, (sender_id, receiver_id))
-
         conn.commit()
-
         conn.close()
-
         return jsonify({'success': True})
-
     except Exception as e:
-
         return jsonify({'success': False, 'error': str(e)})
-    
-
 
 # Add this new route to your Flask app
 @app.route('/add_advance', methods=['POST'])
