@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Upload Progress Report - Site Engineer Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,9 +13,12 @@
             box-sizing: border-box;
             font-family: 'Poppins', sans-serif;
         }
-        html, body {
+
+        html,
+        body {
             height: 100%;
         }
+
         body {
             min-height: 100vh;
             background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
@@ -22,6 +26,7 @@
             margin: 0;
             padding-top: 80px;
         }
+
         /* Navbar Styles */
         .navbar {
             position: fixed;
@@ -34,12 +39,21 @@
             padding: 15px 0;
             z-index: 1000;
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-            animation: slideDown 0.7s cubic-bezier(.77,0,.18,1) 0s 1;
+            animation: slideDown 0.7s cubic-bezier(.77, 0, .18, 1) 0s 1;
         }
+
         @keyframes slideDown {
-            from { transform: translateY(-100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
+
         .navbar-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -48,6 +62,7 @@
             align-items: center;
             padding: 0 20px;
         }
+
         .navbar-brand {
             display: flex;
             align-items: center;
@@ -58,66 +73,80 @@
             font-size: 1.4rem;
             transition: color 0.2s;
         }
+
         .navbar-brand:hover {
             color: #3498db;
         }
+
         .navbar-brand i {
             color: #3498db;
             font-size: 1.8rem;
             transition: transform 0.2s;
         }
+
         .navbar-brand:hover i {
             transform: rotate(-15deg) scale(1.1);
         }
+
         .navbar-nav {
             display: flex;
             list-style: none;
             gap: 30px;
             align-items: center;
         }
+
         .nav-link {
             text-decoration: none;
             color: #2c3e50;
             font-weight: 500;
             padding: 10px 15px;
             border-radius: 8px;
-            transition: all 0.3s cubic-bezier(.77,0,.18,1);
+            transition: all 0.3s cubic-bezier(.77, 0, .18, 1);
             display: flex;
             align-items: center;
             gap: 8px;
             position: relative;
             overflow: hidden;
         }
+
         .nav-link::after {
             content: "";
             position: absolute;
-            left: 0; bottom: 0;
+            left: 0;
+            bottom: 0;
             width: 0;
             height: 3px;
             background: #3498db;
-            transition: width 0.3s cubic-bezier(.77,0,.18,1);
+            transition: width 0.3s cubic-bezier(.77, 0, .18, 1);
         }
-        .nav-link:hover::after, .nav-link.active::after {
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
             width: 100%;
         }
+
         .nav-link:hover {
             background: rgba(52, 152, 219, 0.12);
             color: #3498db;
             transform: translateY(-2px) scale(1.04);
         }
+
         .nav-link.active {
             background: #3498db;
             color: white;
-            box-shadow: 0 4px 16px rgba(52,152,219,0.08);
+            box-shadow: 0 4px 16px rgba(52, 152, 219, 0.08);
         }
+
         .nav-link.logout {
             background: #e74c3c;
             color: white;
         }
+
         .nav-link.logout:hover {
             background: #c0392b;
             transform: translateY(-2px) scale(1.04);
         }
+
         .mobile-menu-toggle {
             display: none;
             background: none;
@@ -127,26 +156,37 @@
             cursor: pointer;
             transition: color 0.2s;
         }
+
         .mobile-menu-toggle:hover {
             color: #3498db;
         }
+
         .container {
             max-width: 700px;
             width: 98vw;
             margin: 60px auto 0 auto;
             background: #fff;
             border-radius: 22px;
-            box-shadow: 0 8px 32px rgba(52,152,219,0.13);
+            box-shadow: 0 8px 32px rgba(52, 152, 219, 0.13);
             padding: 40px 30px 30px 30px;
-            animation: fadeIn 0.7s cubic-bezier(.77,0,.18,1);
+            animation: fadeIn 0.7s cubic-bezier(.77, 0, .18, 1);
             display: flex;
             flex-direction: column;
             align-items: center;
         }
+
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(30px);}
-            to { opacity: 1; transform: translateY(0);}
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
+
         .form-title {
             color: #2c3e50;
             margin-bottom: 30px;
@@ -157,11 +197,13 @@
             display: inline-block;
             letter-spacing: 1px;
         }
+
         .form-group {
             margin-bottom: 22px;
             position: relative;
             width: 100%;
         }
+
         .form-group label {
             display: block;
             margin-bottom: 8px;
@@ -170,6 +212,7 @@
             letter-spacing: 0.5px;
             font-size: 1.08rem;
         }
+
         .form-group input[type="text"],
         .form-group input[type="number"],
         .form-group select {
@@ -182,19 +225,22 @@
             background-color: #f8fafd;
             transition: all 0.3s;
         }
+
         .form-group input[type="file"] {
             width: 100%;
             padding: 10px 0;
             border: none;
             background: none;
         }
+
         .form-group input:focus,
         .form-group select:focus {
             outline: none;
             border-color: #3498db;
-            box-shadow: 0 0 0 2px rgba(52,152,219,0.13);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.13);
             background: #fff;
         }
+
         .form-group button,
         .submit-btn {
             background: linear-gradient(90deg, #3498db 60%, #6dd5fa 100%);
@@ -204,17 +250,19 @@
             font-weight: 600;
             margin-top: 10px;
             transition: background 0.2s, transform 0.2s;
-            box-shadow: 0 2px 8px rgba(52,152,219,0.10);
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.10);
             font-size: 1.12rem;
             border-radius: 10px;
             padding: 15px 0;
             width: 100%;
         }
+
         .form-group button:hover,
         .submit-btn:hover {
             background: linear-gradient(90deg, #2980b9 60%, #3498db 100%);
             transform: translateY(-2px) scale(1.03);
         }
+
         .alert {
             padding: 15px 20px;
             border-radius: 8px;
@@ -224,30 +272,37 @@
             align-items: center;
             gap: 10px;
         }
+
         .alert i {
             font-size: 1.2rem;
         }
+
         .alert.success {
             background-color: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
         }
+
         .alert.danger {
             background-color: #f8d7da;
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
+
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
+
         .progress-input-group {
             position: relative;
         }
+
         .progress-input-group input[type="number"] {
             padding-right: 40px;
         }
+
         .progress-input-group::after {
             content: '%';
             position: absolute;
@@ -257,11 +312,13 @@
             color: #666;
             font-weight: 500;
         }
+
         .file-input-wrapper {
             position: relative;
             display: inline-block;
             width: 100%;
         }
+
         .file-input {
             width: 100%;
             padding: 12px 15px;
@@ -273,10 +330,12 @@
             text-align: center;
             color: #666;
         }
+
         .file-input:hover {
             border-color: #3498db;
             background-color: #ebf3fd;
         }
+
         .file-input input[type="file"] {
             position: absolute;
             width: 100%;
@@ -284,34 +343,41 @@
             opacity: 0;
             cursor: pointer;
         }
+
         .file-input-text {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
         }
+
         .file-input-text i {
             font-size: 1.2rem;
             color: #3498db;
         }
+
         @media (max-width: 900px) {
             .container {
                 max-width: 99vw;
                 padding: 30px 2vw 20px 2vw;
             }
         }
+
         @media (max-width: 700px) {
             .container {
                 padding: 10px 0 10px 0;
             }
+
             .form-title {
                 font-size: 1.2rem;
                 padding-bottom: 7px;
             }
+
             .form-row {
                 grid-template-columns: 1fr;
             }
         }
+
         @media (max-width: 600px) {
             .navbar-nav {
                 flex-direction: column;
@@ -325,15 +391,18 @@
                 justify-content: flex-start;
                 align-items: center;
                 padding: 40px 20px;
-                transition: left 0.3s cubic-bezier(.77,0,.18,1);
+                transition: left 0.3s cubic-bezier(.77, 0, .18, 1);
                 gap: 20px;
             }
+
             .navbar-nav.active {
                 left: 0;
             }
+
             .mobile-menu-toggle {
                 display: block;
             }
+
             .nav-link {
                 width: 100%;
                 max-width: 300px;
@@ -341,40 +410,49 @@
                 padding: 15px 20px;
                 font-size: 1.1rem;
             }
+
             .container {
                 padding: 10px 2vw 10px 2vw;
                 margin: 10px 2vw 0 2vw;
             }
+
             .form-title {
                 font-size: 1.1rem;
                 padding-bottom: 7px;
             }
         }
+
         @media (max-width: 480px) {
             .navbar-container {
                 padding: 0 2vw;
             }
+
             .navbar-brand {
                 font-size: 1rem;
             }
+
             .container {
                 margin: 8px 1vw 0 1vw;
                 padding: 8px 1vw 10px 1vw;
             }
+
             .form-title {
                 font-size: 1rem;
             }
         }
+
         @media (max-width: 400px) {
             .container {
                 padding: 4px 1vw 6px 1vw;
             }
+
             .form-title {
                 font-size: 0.95rem;
             }
         }
     </style>
 </head>
+
 <body>
     <!-- Navbar -->
     <nav class="navbar">
@@ -412,14 +490,14 @@
         <h2 class="form-title"><i class="fas fa-upload" style="color:#3498db"></i> Upload Progress Report</h2>
         <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div class="alert {{ 'success' if category == 'success' else 'danger' }}">
-                <i class="fas {{ 'fa-check-circle' if category == 'success' else 'fa-exclamation-triangle' }}"></i>
-                {{ message }}
-              </div>
-            {% endfor %}
-          {% endif %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert {{ 'success' if category == 'success' else 'danger' }}">
+            <i class="fas {{ 'fa-check-circle' if category == 'success' else 'fa-exclamation-triangle' }}"></i>
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
         {% endwith %}
         <form method="POST" enctype="multipart/form-data">
             <div class="form-group">
@@ -430,7 +508,7 @@
                 <select name="site_id" id="site_id" required>
                     <option value="">Choose a site...</option>
                     {% for site in sites %}
-                        <option value="{{ site.site_id }}">{{ site.site_name }}</option>
+                    <option value="{{ site.site_id }}">{{ site.site_name }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -441,7 +519,8 @@
                         Progress Percentage *
                     </label>
                     <div class="progress-input-group">
-                        <input type="number" name="progress" id="progress" min="0" max="100" placeholder="Enter progress percentage" required>
+                        <input type="number" name="progress" id="progress" min="0" max="100"
+                            placeholder="Enter progress percentage" required>
                     </div>
                 </div>
                 <div class="form-group">
@@ -466,6 +545,8 @@
                                 <span>Click to upload image or drag and drop</span>
                             </div>
                         </div>
+                        <small style="color:#7f8c8d;font-size:0.85rem;margin-top:6px;display:block;">Maximum file size:
+                            10MB</small>
                     </div>
                 </div>
                 <div class="form-group">
@@ -481,6 +562,8 @@
                                 <span>Click to upload PDF or drag and drop</span>
                             </div>
                         </div>
+                        <small style="color:#7f8c8d;font-size:0.85rem;margin-top:6px;display:block;">Maximum file size:
+                            10MB</small>
                     </div>
                 </div>
             </div>
@@ -492,7 +575,7 @@
     </div>
     <script>
         // Mobile menu toggle
-        document.getElementById('mobileMenuToggle').addEventListener('click', function() {
+        document.getElementById('mobileMenuToggle').addEventListener('click', function () {
             const navbarNav = document.getElementById('navbarNav');
             const icon = this.querySelector('i');
             navbarNav.classList.toggle('active');
@@ -506,7 +589,7 @@
         });
         // Close mobile menu when clicking on a link
         document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', function() {
+            link.addEventListener('click', function () {
                 const navbarNav = document.getElementById('navbarNav');
                 const mobileToggle = document.getElementById('mobileMenuToggle');
                 const icon = mobileToggle.querySelector('i');
@@ -517,12 +600,35 @@
         });
 
         // File input enhancement
+        // File input enhancement with 10MB size validation
         document.querySelectorAll('input[type="file"]').forEach(input => {
-            input.addEventListener('change', function() {
+            input.addEventListener('change', function () {
                 const wrapper = this.closest('.file-input');
                 const textElement = wrapper.querySelector('.file-input-text span');
+                const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+
                 if (this.files.length > 0) {
-                    textElement.textContent = this.files[0].name;
+                    const file = this.files[0];
+
+                    // Check file size
+                    if (file.size > maxSize) {
+                        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                        alert('❌ File size exceeds 10MB!\n\n' +
+                            'File: ' + file.name + '\n' +
+                            'Size: ' + fileSizeMB + 'MB\n' +
+                            'Maximum allowed: 10MB\n\n' +
+                            'Please upload a smaller file.');
+                        this.value = ''; // Clear the file input
+                        textElement.textContent = this.accept.includes('image') ?
+                            'Click to upload image or drag and drop' :
+                            'Click to upload PDF or drag and drop';
+                        wrapper.style.borderColor = '#e74c3c';
+                        wrapper.style.backgroundColor = '#fadbd8';
+                        return;
+                    }
+
+                    // File is valid
+                    textElement.textContent = file.name;
                     wrapper.style.borderColor = '#27ae60';
                     wrapper.style.backgroundColor = '#d4edda';
                 } else {
@@ -536,9 +642,13 @@
         });
 
         // Form validation enhancement
-        document.querySelector('form').addEventListener('submit', function(e) {
+        // Form validation enhancement with file size check
+        document.querySelector('form').addEventListener('submit', function (e) {
             const siteSelect = document.getElementById('site_id');
             const progressInput = document.getElementById('progress');
+            const maxSize = 10 * 1024 * 1024; // 10MB
+
+            // Validate required fields
             if (!siteSelect.value) {
                 e.preventDefault();
                 siteSelect.focus();
@@ -551,10 +661,29 @@
                 progressInput.style.borderColor = '#e74c3c';
                 return;
             }
-        });
 
+            // Validate file sizes before submission
+            const fileInputs = document.querySelectorAll('input[type="file"]');
+            for (let input of fileInputs) {
+                if (input.files.length > 0) {
+                    const file = input.files[0];
+                    if (file.size > maxSize) {
+                        e.preventDefault();
+                        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                        const fileType = input.accept.includes('image') ? 'Image' : 'PDF';
+                        alert('❌ ' + fileType + ' file size exceeds 10MB!\n\n' +
+                            'File: ' + file.name + '\n' +
+                            'Size: ' + fileSizeMB + 'MB\n' +
+                            'Maximum allowed: 10MB\n\n' +
+                            'Please upload a smaller file before submitting.');
+                        input.focus();
+                        return;
+                    }
+                }
+            }
+        });
         // Real-time progress validation
-        document.getElementById('progress').addEventListener('input', function() {
+        document.getElementById('progress').addEventListener('input', function () {
             const value = parseInt(this.value);
             if (value < 0) this.value = 0;
             if (value > 100) this.value = 100;
@@ -565,4 +694,5 @@
         });
     </script>
 </body>
+
 </html>

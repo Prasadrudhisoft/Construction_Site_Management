@@ -30,6 +30,7 @@ from dotenv import load_dotenv
 from decimal import Decimal
 from PIL import Image as PILImage
 from reportlab.platypus import Image as RLImage
+import requests
 
 load_dotenv()
 
@@ -41,8 +42,10 @@ app.secret_key = 'your_secret_key'
 
 moment = Moment(app)
 
-EMAIL = "omg.comp_ioe@bkc.met.edu"
-EMAIL_PASSWORD = "lpmy ozqr biuj hbgg"
+ZEPTOMAIL_API_URL = "https://api.zeptomail.in/v1.1/email"
+ZEPTOMAIL_API_TOKEN = "PHtE6r1fFu65gzMt8UAJ5/7rHsGsN40m+uJufQkRtYxAXKABS01XrNooxGfkq018A/cXF/DPwNpque6ateiAd23lYGpNVGqyqK3sx/VYSPOZsbq6x00ftFsadUXVV4brdtRv0SXXvdrbNA=="  # Replace with your actual token
+ZEPTOMAIL_FROM_EMAIL = "contact@rudhisoft.com"
+ZEPTOMAIL_FROM_NAME = "SAM"
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -64,23 +67,78 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def generate_otp():
-    return "123456"  # Static OTP for testing
+    """Generate a random 6-digit OTP"""
+    return str(random.randint(100000, 999999))
+
 
 def send_otp_email(email, otp):
+    """
+    Send OTP email using ZeptoMail
+    Returns: (success: bool, error_message: str or None)
+    """
     try:
-        msg = MIMEText(f"Hello,\nYour OTP is {otp}. It will expire in 5 minutes.")
-        msg['Subject'] = "Your OTP for Login"
-        msg['From'] = EMAIL
-        msg['To'] = email
-
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.login(EMAIL, EMAIL_PASSWORD)
-        server.sendmail(EMAIL, email, msg.as_string())
-        server.quit()
+        headers = {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "authorization": f"Zoho-enczapikey {ZEPTOMAIL_API_TOKEN}"
+        }
+        
+        payload = {
+            "from": {
+                "address": ZEPTOMAIL_FROM_EMAIL,
+                "name": ZEPTOMAIL_FROM_NAME
+            },
+            "to": [
+                {
+                    "email_address": {
+                        "address": email
+                    }
+                }
+            ],
+            "subject": "Your OTP Code for Verification",
+            "htmlbody": f"""
+                <html>
+                    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                        <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+                            <h2 style="color: #1e3a8a; text-align: center;">OTP Verification</h2>
+                            <p>Hello,</p>
+                            <p>Your One-Time Password (OTP) for verification is:</p>
+                            <div style="text-align: center; margin: 30px 0;">
+                                <span style="font-size: 32px; font-weight: bold; color: #1e3a8a; letter-spacing: 5px; padding: 15px 30px; border: 2px dashed #1e3a8a; border-radius: 8px; display: inline-block;">
+                                    {otp}
+                                </span>
+                            </div>
+                            <p style="color: #e74c3c; font-weight: bold;">⚠️ This code will expire in 5 minutes.</p>
+                            <p>If you didn't request this code, please ignore this email.</p>
+                            <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+                            <p style="font-size: 12px; color: #666;">
+                                Best regards,<br>
+                                <strong>SAM Team</strong>
+                            </p>
+                        </div>
+                    </body>
+                </html>
+            """
+        }
+        
+        response = requests.post(ZEPTOMAIL_API_URL, headers=headers, json=payload, timeout=10)
+        
+        # Log response for debugging
+        print(f"ZeptoMail Status Code: {response.status_code}")
+        print(f"ZeptoMail Response: {response.text}")
+        
+        response.raise_for_status()
         return True, None
+        
+    except requests.exceptions.Timeout:
+        return False, "Email service timeout. Please try again."
+    except requests.exceptions.RequestException as e:
+        error_msg = f"Failed to send email: {str(e)}"
+        if hasattr(e, 'response') and e.response is not None:
+            error_msg += f" - {e.response.text}"
+        return False, error_msg
     except Exception as e:
-        return False, str(e)
+        return False, f"Unexpected error: {str(e)}"
  ######################forgot password routes######################################   
 @app.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
@@ -88,21 +146,21 @@ def forgot_password():
         email = request.form['email']
         conn = get_connection()
         cursor = conn.cursor(pymysql.cursors.DictCursor)
-        #cursor = get_connection()
+        
         cursor.execute("SELECT * FROM register WHERE email = %s", (email,))
         user = cursor.fetchone()
+        conn.close()
 
         if user:
-            otp = generate_otp()
+            otp = generate_otp()  # Generate random 6-digit OTP
             success, error = send_otp_email(email, otp)
 
             if success:
                 session['reset_email'] = email
                 session['reset_otp'] = otp
-                # ✅ Store expiry in session
                 session['reset_otp_expiry'] = (datetime.now() + timedelta(minutes=5)).timestamp()
 
-                flash('OTP sent to your email.')
+                flash('OTP sent to your email. Please check your inbox.')
                 return redirect(url_for('verify_reset_otp'))
             else:
                 flash(f"Error sending OTP: {error}")
@@ -116,26 +174,37 @@ def forgot_password():
 @app.route('/verify_reset_otp', methods=['GET', 'POST'])
 def verify_reset_otp():
     if request.method == 'POST':
-        otp_input = request.form.get('otp')
+        otp_input = request.form.get('otp', '').strip()
+        
         if 'reset_otp' not in session or 'reset_email' not in session:
             flash("Session expired. Please try again.")
             return redirect(url_for('forgot_password'))
 
+        # Check if OTP has expired
         if time.time() > session.get('reset_otp_expiry', 0):
-            flash("OTP expired.")
+            flash("OTP expired. Please request a new one.")
+            session.pop('reset_email', None)
+            session.pop('reset_otp', None)
+            session.pop('reset_otp_expiry', None)
             return redirect(url_for('forgot_password'))
 
+        # Verify OTP
         if otp_input == session['reset_otp']:
-            flash("OTP verified. Set a new password.")
-            return redirect(url_for('reset_password'))  # ✅ Redirects to password reset
+            flash("OTP verified successfully. Please set a new password.")
+            return redirect(url_for('reset_password'))
         else:
-            flash("Invalid OTP.")
+            flash("Invalid OTP. Please try again.")
+    
     return render_template("verify_reset_otp.html")
-
 ##################################### reset password ######################################
 
 @app.route('/reset_password', methods=['GET', 'POST'])
 def reset_password():
+    # Ensure user has verified OTP first
+    if 'reset_email' not in session:
+        flash("Unauthorized access. Please start the password reset process again.")
+        return redirect(url_for('forgot_password'))
+    
     if request.method == 'POST':
         new_password = request.form['new_password']
         confirm_password = request.form['confirm_password']
@@ -146,17 +215,19 @@ def reset_password():
 
         hashed_pw = generate_password_hash(new_password)
         email = session.get('reset_email')
+        
         conn = get_connection()
-        cursor = conn.cursor(pymysql.cursors.DictCursor) 
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
         cursor.execute("UPDATE register SET password_hash = %s WHERE email = %s", (hashed_pw, email))
         conn.commit()
+        conn.close()
 
-        # Clear session values
+        # Clear all reset session values
         session.pop('reset_email', None)
         session.pop('reset_otp', None)
         session.pop('reset_otp_expiry', None)
 
-        flash("Password reset successful. You can now login.")
+        flash("Password reset successful. You can now login with your new password.")
         return redirect(url_for('login'))
 
     return render_template('reset_password.html')
@@ -245,12 +316,12 @@ def login():
         if user and check_password_hash(user['password_hash'], password):
             print("Password verified, generating OTP...")  # Debug line
             
-            # ✅ Generate and send OTP
-            otp = generate_otp()
+            # Generate and send OTP
+            otp = generate_otp()  # Generate random 6-digit OTP
             success, error = send_otp_email(email, otp)
 
             if success:
-                # ✅ Store pending user data for OTP verification
+                # Store pending user data for OTP verification
                 session['pending_user'] = {
                     'id': user['id'],
                     'role': user['role'],
@@ -260,7 +331,7 @@ def login():
                     'otp': otp,
                     'otp_expiry': (datetime.now() + timedelta(minutes=5)).timestamp()
                 }
-                flash('OTP sent to your email. Please verify.')
+                flash('OTP sent to your email. Please verify to complete login.')
                 return redirect(url_for('verify_otp'))
             else:
                 flash(f'Error sending OTP: {error}')
@@ -274,31 +345,32 @@ def login():
 @app.route('/verify_otp', methods=['GET', 'POST'])
 def verify_otp():
     if request.method == 'POST':
-        user_otp = request.form.get('otp')
+        user_otp = request.form.get('otp', '').strip()
         pending_user = session.get('pending_user')
 
         if not pending_user:
-            flash("Session expired or invalid.")
+            flash("Session expired or invalid. Please login again.")
             return redirect(url_for('login'))
 
+        # Check if OTP has expired
         if time.time() > pending_user['otp_expiry']:
             flash("OTP expired. Please login again.")
-            session.pop('pending_user', None)  # ✅ Clear expired session
+            session.pop('pending_user', None)
             return redirect(url_for('login'))
 
+        # Verify OTP
         if user_otp == pending_user['otp']:
-            # ✅ OTP correct: promote to logged-in user
+            # OTP correct: promote to logged-in user
             session['user_id'] = pending_user['id']
             session['role'] = pending_user['role']
-            session['name'] = pending_user['name']      # ✅ Include name
-            session['org_id'] = pending_user['org_id']  # ✅ Include org_id
-            session.pop('pending_user', None)           # ✅ Clear pending data
+            session['name'] = pending_user['name']
+            session['org_id'] = pending_user['org_id']
+            session.pop('pending_user', None)
 
             flash('Login successful!')
             
             # Redirect based on role
             role = session['role']
-            response = None
             if role == 'admin':
                 response = redirect(url_for('admin_dashboard'))
             elif role == 'site_engineer':
@@ -307,16 +379,15 @@ def verify_otp():
                 response = redirect(url_for('architect_dashboard'))
             elif role == 'accountant':
                 response = redirect(url_for('accountant_dashboard'))
+            else:
+                flash('Invalid user role.')
+                return redirect(url_for('login'))
             
             # Clear flash messages before redirecting
             session.pop('_flashes', None)
             return response
         else:
-                # ✅ Fallback for unknown roles
-                flash('Invalid user role.')
-                return redirect(url_for('login'))
-    else:
-            flash("Invalid OTP.")
+            flash("Invalid OTP. Please try again.")
             
     return render_template("verify.html")
 ########################################admin routes######################################

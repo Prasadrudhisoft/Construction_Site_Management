@@ -639,6 +639,8 @@
                                 <span class="status-badge pending">Pending</span>
                             </div>
                             <input type="file" name="municipal_approval_pdf" id="municipal_pdf" accept=".pdf">
+                            <small style="color:#7f8c8d;font-size:0.85rem;margin-top:4px;display:block;">Maximum file
+                                size: 10MB</small>
                             <div class="file-info">Please upload the official municipal approval document in PDF format
                             </div>
                         </div>
@@ -657,6 +659,8 @@
                             <span class="status-badge pending">Pending</span>
                         </div>
                         <input type="file" name="building_permit_pdf" id="building_permit" accept=".pdf">
+                        <small style="color:#7f8c8d;font-size:0.85rem;margin-top:4px;display:block;">Maximum file size:
+                            10MB</small>
                         <div class="file-info">Upload the official building permit document</div>
                     </div>
                     <div class="form-group">
@@ -666,6 +670,8 @@
                             <span class="status-badge pending">Pending</span>
                         </div>
                         <input type="file" name="sanction_plan_pdf" id="sanction_plan" accept=".pdf">
+                        <small style="color:#7f8c8d;font-size:0.85rem;margin-top:4px;display:block;">Maximum file size:
+                            10MB</small>
                         <div class="file-info">Upload the approved architectural sanction plan</div>
                     </div>
                     <div class="form-group">
@@ -675,6 +681,8 @@
                             <span class="status-badge pending">Pending</span>
                         </div>
                         <input type="file" name="fire_department_noc_pdf" id="fire_noc" accept=".pdf">
+                        <small style="color:#7f8c8d;font-size:0.85rem;margin-top:4px;display:block;">Maximum file size:
+                            10MB</small>
                         <div class="file-info">Upload the No Objection Certificate from Fire Department</div>
                     </div>
                     <div class="form-group">
@@ -683,6 +691,8 @@
                             <span class="status-badge pending">Pending</span>
                         </div>
                         <input type="file" name="mngl_pdf" id="mngl_pdf" accept=".pdf">
+                        <small style="color:#7f8c8d;font-size:0.85rem;margin-top:4px;display:block;">Maximum file size:
+                            10MB</small>
                         <div class="file-info">Upload the MNGL (Maharashtra Natural Gas Limited) approval document</div>
                     </div>
                 </div>
@@ -831,6 +841,72 @@
             // Reset environmental clearance
             document.getElementById('environmental_clearance').value = '';
         }
+
+        // ==================== FILE SIZE VALIDATION (10MB LIMIT) ====================
+        document.addEventListener('DOMContentLoaded', function () {
+            const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+
+            // Get all file inputs
+            const fileInputs = document.querySelectorAll('input[type="file"]');
+
+            // Add change event listener to each file input
+            fileInputs.forEach(input => {
+                input.addEventListener('change', function (e) {
+                    const file = e.target.files[0];
+
+                    if (file && file.size > maxSize) {
+                        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                        const fileName = file.name;
+
+                        // Show alert with file details
+                        alert('❌ File size exceeds 10MB!\n\n' +
+                            'File: ' + fileName + '\n' +
+                            'Size: ' + fileSizeMB + 'MB\n' +
+                            'Maximum allowed: 10MB\n\n' +
+                            'Please upload a smaller PDF file.');
+
+                        // Clear the file input
+                        e.target.value = '';
+
+                        // Optional: Add visual feedback
+                        e.target.style.borderColor = '#e74c3c';
+                        setTimeout(() => {
+                            e.target.style.borderColor = '';
+                        }, 3000);
+                    }
+                });
+            });
+        });
+
+        // Add validation on form submit as well
+        document.querySelector('form').addEventListener('submit', function (e) {
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            const fileInputs = document.querySelectorAll('input[type="file"]');
+
+            for (let input of fileInputs) {
+                if (input.files.length > 0) {
+                    const file = input.files[0];
+
+                    if (file.size > maxSize) {
+                        e.preventDefault();
+                        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                        const inputLabel = input.previousElementSibling?.textContent || 'One of the files';
+
+                        alert('❌ File size validation failed!\n\n' +
+                            inputLabel + '\n' +
+                            'File: ' + file.name + '\n' +
+                            'Size: ' + fileSizeMB + 'MB\n' +
+                            'Maximum allowed: 10MB\n\n' +
+                            'Please upload a smaller file before submitting.');
+
+                        // Scroll to the problematic input
+                        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        input.focus();
+                        return;
+                    }
+                }
+            }
+        });
     </script>
 </body>
 
