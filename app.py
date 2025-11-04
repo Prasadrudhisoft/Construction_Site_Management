@@ -45,7 +45,7 @@ moment = Moment(app)
 ZEPTOMAIL_API_URL = "https://api.zeptomail.in/v1.1/email"
 ZEPTOMAIL_API_TOKEN = "PHtE6r1fFu65gzMt8UAJ5/7rHsGsN40m+uJufQkRtYxAXKABS01XrNooxGfkq018A/cXF/DPwNpque6ateiAd23lYGpNVGqyqK3sx/VYSPOZsbq6x00ftFsadUXVV4brdtRv0SXXvdrbNA=="  # Replace with your actual token
 ZEPTOMAIL_FROM_EMAIL = "contact@rudhisoft.com"
-ZEPTOMAIL_FROM_NAME = "SAM"
+ZEPTOMAIL_FROM_NAME = "Rudhiarch"
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -113,7 +113,7 @@ def send_otp_email(email, otp):
                             <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
                             <p style="font-size: 12px; color: #666;">
                                 Best regards,<br>
-                                <strong>SAM Team</strong>
+                                <strong>Rudhiarch Team</strong>
                             </p>
                         </div>
                     </body>
