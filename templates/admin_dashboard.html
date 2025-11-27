@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Admin Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -197,15 +199,15 @@
             .dashboard-grid {
                 grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             }
-            
+
             .main-content {
                 padding: 20px;
             }
-            
+
             .welcome-section {
                 padding: 25px;
             }
-            
+
             .welcome-section h1 {
                 font-size: 1.8rem;
             }
@@ -353,11 +355,11 @@
             .main-content {
                 padding: 60px 15px 15px;
             }
-            
+
             .welcome-section {
                 padding: 15px;
             }
-            
+
             .welcome-section h1 {
                 font-size: 1.4rem;
             }
@@ -370,7 +372,7 @@
                 min-height: 48px;
                 align-items: center;
             }
-            
+
             .card-link {
                 padding: 12px 16px;
                 min-height: 44px;
@@ -378,7 +380,7 @@
                 align-items: center;
                 justify-content: center;
             }
-            
+
             .mobile-menu-toggle {
                 min-height: 44px;
                 min-width: 44px;
@@ -386,6 +388,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="dashboard-container">
         <!-- Mobile Menu Toggle -->
@@ -476,6 +479,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="{{ url_for('admin_change_password') }}" class="nav-link">
+                        <i class="fas fa-key"></i>
+                        <span>Change Password</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="{{ url_for('logout') }}" class="nav-link">
                         <i class="fas fa-sign-out-alt"></i>
                         <span>Logout</span>
@@ -513,7 +522,7 @@
                         <a href="{{ url_for('view_inventory') }}" class="card-link">View Inventory</a>
                     </div>
                 </div>
- 
+
                 <div class="dashboard-card">
                     <div class="card-header">
                         <i class="fas fa-map-marked-alt"></i>
@@ -555,7 +564,7 @@
         function toggleMobileMenu() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.querySelector('.sidebar-overlay');
-            
+
             sidebar.classList.toggle('active');
             overlay.classList.toggle('active');
         }
@@ -563,7 +572,7 @@
         function closeMobileMenu() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.querySelector('.sidebar-overlay');
-            
+
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
         }
@@ -574,11 +583,12 @@
         });
 
         // Handle window resize
-        window.addEventListener('resize', function() {
+        window.addEventListener('resize', function () {
             if (window.innerWidth > 768) {
                 closeMobileMenu();
             }
         });
     </script>
 </body>
+
 </html>

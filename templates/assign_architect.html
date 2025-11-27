@@ -351,7 +351,7 @@
     <!-- Navbar -->
     <nav class="navbar">
         <div class="navbar-container">
-            <a href="{% if session.role == 'admin' %}{{ url_for('admin_dashboard') }}{% else %}{{ url_for('site_engineer_dashboard') }}{% endif %}" class="navbar-brand">
+            <a href="{% if session.role == 'admin' %}{{ url_for('assign_architect') }}{% else %}{{ url_for('site_engineer_dashboard') }}{% endif %}" class="navbar-brand">
                 <i class="fas fa-hard-hat"></i>
                 Assign Architect
             </a>

@@ -418,7 +418,7 @@
     <!-- Navbar -->
     <nav class="navbar">
         <div class="navbar-container">
-            <a href="{% if current_user.role == 'admin' %}{{ url_for('admin_dashboard') }}{% else %}{{ url_for('site_engineer_dashboard') }}{% endif %}" class="navbar-brand">
+            <a href="{% if current_user.role == 'admin' %}{{ url_for('assign_accountant') }}{% else %}{{ url_for('site_engineer_dashboard') }}{% endif %}" class="navbar-brand">
                 <i class="fas fa-calculator"></i>
                 Assign Accountant
             </a>

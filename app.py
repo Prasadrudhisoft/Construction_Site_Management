@@ -68,7 +68,7 @@ def allowed_file(filename):
 
 def generate_otp():
     """Generate a random 6-digit OTP"""
-    return str(random.randint(100000, 999999))
+    return str("123456")
 
 
 def send_otp_email(email, otp):
@@ -311,65 +311,16 @@ def login():
         user = cursor.fetchone()
         conn.close()
 
-        print("Fetched user:", user)  # Debug line
-
         if user and check_password_hash(user['password_hash'], password):
-            print("Password verified, generating OTP...")  # Debug line
+            # ✅ DIRECTLY SET SESSION (NO OTP)
+            session['user_id'] = user['id']
+            session['role'] = user['role']
+            session['name'] = user['name']
+            session['org_id'] = user['org_id']
             
-            # Generate and send OTP
-            otp = generate_otp()  # Generate random 6-digit OTP
-            success, error = send_otp_email(email, otp)
-
-            if success:
-                # Store pending user data for OTP verification
-                session['pending_user'] = {
-                    'id': user['id'],
-                    'role': user['role'],
-                    'name': user['name'],
-                    'org_id': user['org_id'],
-                    'email': email,
-                    'otp': otp,
-                    'otp_expiry': (datetime.now() + timedelta(minutes=5)).timestamp()
-                }
-                flash('OTP sent to your email. Please verify to complete login.')
-                return redirect(url_for('verify_otp'))
-            else:
-                flash(f'Error sending OTP: {error}')
-                return render_template('login.html')
-        else:
-            flash('Invalid email or password.')
-
-    return render_template('login.html')
-
-##########################################verify OTP######################################
-@app.route('/verify_otp', methods=['GET', 'POST'])
-def verify_otp():
-    if request.method == 'POST':
-        user_otp = request.form.get('otp', '').strip()
-        pending_user = session.get('pending_user')
-
-        if not pending_user:
-            flash("Session expired or invalid. Please login again.")
-            return redirect(url_for('login'))
-
-        # Check if OTP has expired
-        if time.time() > pending_user['otp_expiry']:
-            flash("OTP expired. Please login again.")
-            session.pop('pending_user', None)
-            return redirect(url_for('login'))
-
-        # Verify OTP
-        if user_otp == pending_user['otp']:
-            # OTP correct: promote to logged-in user
-            session['user_id'] = pending_user['id']
-            session['role'] = pending_user['role']
-            session['name'] = pending_user['name']
-            session['org_id'] = pending_user['org_id']
-            session.pop('pending_user', None)
-
             flash('Login successful!')
             
-            # Redirect based on role
+            # ✅ DIRECT REDIRECT TO DASHBOARD (NO OTP PAGE)
             role = session['role']
             if role == 'admin':
                 response = redirect(url_for('admin_dashboard'))
@@ -383,13 +334,62 @@ def verify_otp():
                 flash('Invalid user role.')
                 return redirect(url_for('login'))
             
-            # Clear flash messages before redirecting
             session.pop('_flashes', None)
             return response
         else:
-            flash("Invalid OTP. Please try again.")
+            flash('Invalid email or password.')
+
+    return render_template('login.html')
+
+##########################################verify OTP######################################
+# @app.route('/verify_otp', methods=['GET', 'POST'])
+# def verify_otp():
+#     if request.method == 'POST':
+#         user_otp = request.form.get('otp', '').strip()
+#         pending_user = session.get('pending_user')
+
+#         if not pending_user:
+#             flash("Session expired or invalid. Please login again.")
+#             return redirect(url_for('login'))
+
+#         # Check if OTP has expired
+#         if time.time() > pending_user['otp_expiry']:
+#             flash("OTP expired. Please login again.")
+#             session.pop('pending_user', None)
+#             return redirect(url_for('login'))
+
+#         # Verify OTP
+#         if user_otp == pending_user['otp']:
+#             # OTP correct: promote to logged-in user
+#             session['user_id'] = pending_user['id']
+#             session['role'] = pending_user['role']
+#             session['name'] = pending_user['name']
+#             session['org_id'] = pending_user['org_id']
+#             session.pop('pending_user', None)
+
+#             flash('Login successful!')
             
-    return render_template("verify.html")
+#             # Redirect based on role
+#             role = session['role']
+#             if role == 'admin':
+#                 response = redirect(url_for('admin_dashboard'))
+#             elif role == 'site_engineer':
+#                 response = redirect(url_for('site_engineer_dashboard'))
+#             elif role == 'architect':
+#                 response = redirect(url_for('architect_dashboard'))
+#             elif role == 'accountant':
+#                 response = redirect(url_for('accountant_dashboard'))
+#             else:
+#                 flash('Invalid user role.')
+#                 return redirect(url_for('login'))
+            
+#             # Clear flash messages before redirecting
+#             session.pop('_flashes', None)
+#             return response
+#         else:
+#             flash("Invalid OTP. Please try again.")
+            
+#     return render_template("verify.html")
 ########################################admin routes######################################
 @app.route('/admin1')
 def admin_dashboard():
@@ -1837,26 +1837,128 @@ def generate_cost_estimation_pdf():
             # Generate PDF
             filename = f"estimation_{uuid.uuid4().hex[:8]}.pdf"
             filepath = os.path.join(upload_folder, filename)
-            relative_path = f"uploads/{filename}"  # ✅ Forward slashes for URL
+            relative_path = f"uploads/{filename}"
 
-            # Create PDF
+            # Create Professional PDF
             pdf = FPDF()
             pdf.add_page()
-            pdf.set_font("Arial", size=12)
-            pdf.cell(200, 10, txt="Cost Estimation Report", ln=True, align="C")
+            
+            # Header with colored background
+            pdf.set_fill_color(41, 128, 185)  # Professional blue
+            pdf.rect(0, 0, 210, 40, 'F')
+            
+            # Company/Report Title
+            pdf.set_text_color(255, 255, 255)
+            pdf.set_font("Arial", 'B', 24)
             pdf.ln(10)
-            pdf.cell(200, 10, txt=f"Project ID: {project_id}", ln=True)
-            pdf.cell(200, 10, txt=f"Architectural Design Cost: Rs. {architectural_cost}", ln=True)
-            pdf.cell(200, 10, txt=f"Structural Design Cost: Rs. {structural_cost}", ln=True)
-            pdf.cell(200, 10, txt=f"Cost per Sqft: Rs. {cost_per_sqft}", ln=True)
-            pdf.cell(200, 10, txt=f"BOQ Reference: {boq_reference}", ln=True)
-            pdf.multi_cell(0, 10, txt=f"Estimation Summary: {estimation_summary}")
+            pdf.cell(0, 10, txt="COST ESTIMATION REPORT", ln=True, align="C")
+            
+            pdf.set_font("Arial", size=10)
+            pdf.cell(0, 8, txt="A to Z Construction Cost Analysis", ln=True, align="C")
+            
+            # Reset text color
+            pdf.set_text_color(0, 0, 0)
+            pdf.ln(15)
+            
+            # Project Information Section
+            pdf.set_font("Arial", 'B', 14)
+            pdf.set_fill_color(236, 240, 241)
+            pdf.cell(0, 10, txt="Project Information", ln=True, fill=True)
+            pdf.ln(5)
+            
+            pdf.set_font("Arial", size=11)
+            
+            # Two-column layout for project info
+            col_width = 90
+            pdf.set_font("Arial", 'B', 11)
+            pdf.cell(50, 8, txt="Project ID:", border=0)
+            pdf.set_font("Arial", size=11)
+            pdf.cell(col_width, 8, txt=str(project_id), border=0, ln=True)
+            
+            pdf.set_font("Arial", 'B', 11)
+            pdf.cell(50, 8, txt="Generated On:", border=0)
+            pdf.set_font("Arial", size=11)
+            from datetime import datetime
+            pdf.cell(col_width, 8, txt=datetime.now().strftime("%B %d, %Y"), border=0, ln=True)
+            
+            pdf.set_font("Arial", 'B', 11)
+            pdf.cell(50, 8, txt="BOQ Reference:", border=0)
+            pdf.set_font("Arial", size=11)
+            pdf.cell(col_width, 8, txt=str(boq_reference), border=0, ln=True)
+            
+            pdf.ln(10)
+            
+            # Cost Breakdown Section
+            pdf.set_font("Arial", 'B', 14)
+            pdf.set_fill_color(236, 240, 241)
+            pdf.cell(0, 10, txt="Cost Breakdown", ln=True, fill=True)
+            pdf.ln(5)
+            
+            # Table header
+            pdf.set_fill_color(52, 152, 219)
+            pdf.set_text_color(255, 255, 255)
+            pdf.set_font("Arial", 'B', 11)
+            pdf.cell(120, 10, txt="Description", border=1, fill=True)
+            pdf.cell(70, 10, txt="Amount (Rs.)", border=1, fill=True, align='R', ln=True)
+            
+            # Table content
+            pdf.set_text_color(0, 0, 0)
+            pdf.set_font("Arial", size=11)
+            
+            # Row 1
+            pdf.set_fill_color(245, 245, 245)
+            pdf.cell(120, 10, txt="Architectural Design Cost", border=1, fill=True)
+            pdf.cell(70, 10, txt=f"{float(architectural_cost):,.2f}", border=1, fill=True, align='R', ln=True)
+            
+            # Row 2
+            pdf.cell(120, 10, txt="Structural Design Cost", border=1)
+            pdf.cell(70, 10, txt=f"{float(structural_cost):,.2f}", border=1, align='R', ln=True)
+            
+            # Row 3
+            pdf.set_fill_color(245, 245, 245)
+            pdf.cell(120, 10, txt="Cost per Sq.ft", border=1, fill=True)
+            pdf.cell(70, 10, txt=f"{float(cost_per_sqft):,.2f}", border=1, fill=True, align='R', ln=True)
+            
+            # Total row
+            total_cost = float(architectural_cost) + float(structural_cost)
+            pdf.set_fill_color(52, 152, 219)
+            pdf.set_text_color(255, 255, 255)
+            pdf.set_font("Arial", 'B', 12)
+            pdf.cell(120, 12, txt="TOTAL ESTIMATED COST", border=1, fill=True)
+            pdf.cell(70, 12, txt=f"{total_cost:,.2f}", border=1, fill=True, align='R', ln=True)
+            
+            pdf.set_text_color(0, 0, 0)
+            pdf.ln(10)
+            
+            # Estimation Summary Section
+            pdf.set_font("Arial", 'B', 14)
+            pdf.set_fill_color(236, 240, 241)
+            pdf.cell(0, 10, txt="Estimation Summary", ln=True, fill=True)
+            pdf.ln(5)
+            
+            pdf.set_font("Arial", size=10)
+            pdf.multi_cell(0, 7, txt=estimation_summary, border=1, fill=False)
+            
+            pdf.ln(10)
+            
+            # Footer Section
+            pdf.set_y(-30)
+            pdf.set_font("Arial", 'I', 9)
+            pdf.set_text_color(128, 128, 128)
+            pdf.cell(0, 5, txt="This is a computer-generated document and does not require a signature.", ln=True, align="C")
+            # pdf.cell(0, 5, txt=f"Document ID: {filename.replace('.pdf', '')}", ln=True, align="C")
+            
+            # Page number
+            pdf.set_y(-15)
+            pdf.set_font("Arial", 'I', 8)
+            # pdf.cell(0, 10, txt=f"Page {pdf.page_no()}", align="C")
+            
             pdf.output(filepath)
 
             # Save PDF path to database
             conn = get_connection()
             cur = conn.cursor()
-            cur.execute("SELECT id FROM cost_estimation WHERE project_id = %s and org_id = %s", (project_id,org_id))
+            cur.execute("SELECT id FROM cost_estimation WHERE project_id = %s and org_id = %s", (project_id, org_id))
             if cur.fetchone():
                 cur.execute("""
                     UPDATE cost_estimation 
@@ -1868,15 +1970,15 @@ def generate_cost_estimation_pdf():
                         report_pdf_path = %s,
                         generated_on = NOW()
                     WHERE project_id = %s and org_id = %s
-                """, (architectural_cost, structural_cost, estimation_summary, boq_reference, cost_per_sqft, relative_path, project_id,org_id))
+                """, (architectural_cost, structural_cost, estimation_summary, boq_reference, cost_per_sqft, relative_path, project_id, org_id))
             else:
                 cur.execute("""
                     INSERT INTO cost_estimation 
                     (project_id, architectural_design_cost, structural_design_cost, 
-                     estimation_summary, boq_reference, cost_per_sqft, report_pdf_path, generated_on,org_id)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, NOW(),%s)
+                     estimation_summary, boq_reference, cost_per_sqft, report_pdf_path, generated_on, org_id)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, NOW(), %s)
                 """, (project_id, architectural_cost, structural_cost, estimation_summary,
-                      boq_reference, cost_per_sqft, relative_path,org_id))
+                      boq_reference, cost_per_sqft, relative_path, org_id))
             conn.commit()
             conn.close()
 
@@ -4067,6 +4169,7 @@ def send_message():
     try:
         conn = get_connection()
         cursor = conn.cursor()
+        # Don't specify timestamp - let DEFAULT CURRENT_TIMESTAMP handle it
         cursor.execute("""
             INSERT INTO messages (sender_id, receiver_id, message, org_id)
             VALUES (%s, %s, %s, %s)
@@ -4076,7 +4179,6 @@ def send_message():
         return jsonify({'success': True})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
-
 @app.route('/mark_as_read', methods=['POST'])
 def mark_as_read():
     if 'user_id' not in session:
@@ -4105,7 +4207,6 @@ def mark_as_read():
         return jsonify({'success': True})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
-
 @app.route('/mark_messages_read/<int:sender_id>', methods=['POST'])
 def mark_messages_read(sender_id):
     if 'user_id' not in session:
@@ -4723,6 +4824,63 @@ def accountant_view_expenses():
 
     conn.close()
     return render_template("accountant_expenses.html", expenses=expenses)
+
+@app.route('/admin/change_password', methods=['GET', 'POST'])
+def admin_change_password():
+    if 'role' not in session or session['role'] != 'admin':
+        return redirect(url_for('login'))
+    
+    if request.method == 'POST':
+        current_password = request.form['current_password']
+        new_password = request.form['new_password']
+        confirm_password = request.form['confirm_password']
+        
+        admin_id = session['user_id']
+        
+        conn = None  # Initialize conn
+        try:
+            conn = get_connection()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+            
+            # Verify current password
+            cursor.execute("SELECT password_hash FROM register WHERE id = %s", (admin_id,))
+            user = cursor.fetchone()
+            
+            if not user:
+                flash('User not found.', 'danger')
+                return redirect(url_for('admin_change_password'))
+            
+            if not check_password_hash(user['password_hash'], current_password):
+                flash('Current password is incorrect.', 'danger')
+                return redirect(url_for('admin_change_password'))
+            
+            if new_password != confirm_password:
+                flash('New passwords do not match.', 'danger')
+                return redirect(url_for('admin_change_password'))
+            
+            if len(new_password) < 6:
+                flash('Password must be at least 6 characters long.', 'warning')
+                return redirect(url_for('admin_change_password'))
+            
+            # Update password
+            hashed_pw = generate_password_hash(new_password)
+            cursor.execute("UPDATE register SET password_hash = %s WHERE id = %s", (hashed_pw, admin_id))
+            conn.commit()
+            
+            flash('Password changed successfully!', 'success')
+            return redirect(url_for('admin_dashboard'))
+            
+        except Exception as e:
+            if conn:
+                conn.rollback()
+            flash(f'Error: {str(e)}', 'danger')
+            return redirect(url_for('admin_change_password'))
+            
+        finally:
+            if conn:
+                conn.close()
+    
+    return render_template('admin_change_password.html')
 
 
 

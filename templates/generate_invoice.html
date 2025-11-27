@@ -214,7 +214,7 @@
     <nav class="navbar">
         <div class="navbar-container">
             <!-- Fixed navbar brand to redirect based on user role -->
-            <a href="{{ url_for('admin_dashboard') if user_role == 'admin' else url_for('site_engineer_dashboard') }}"
+            <a href="{{ url_for('admin_dashboard') if user_role == 'admin' else url_for('generate_invoice') }}"
                 class="navbar-brand">
                 <i class="fas fa-hard-hat"></i>
                 Invoices
