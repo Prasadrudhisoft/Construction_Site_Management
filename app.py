@@ -43,7 +43,7 @@ app.secret_key = 'your_secret_key'
 moment = Moment(app)
 
 ZEPTOMAIL_API_URL = "https://api.zeptomail.in/v1.1/email"
-ZEPTOMAIL_API_TOKEN = "PHtE6r1fFu65gzMt8UAJ5/7rHsGsN40m+uJufQkRtYxAXKABS01XrNooxGfkq018A/cXF/DPwNpque6ateiAd23lYGpNVGqyqK3sx/VYSPOZsbq6x00ftFsadUXVV4brdtRv0SXXvdrbNA=="  # Replace with your actual token
+ZEPTOMAIL_API_TOKEN = os.environ.get("ZEPTO_TOKEN")
 ZEPTOMAIL_FROM_EMAIL = "contact@rudhisoft.com"
 ZEPTOMAIL_FROM_NAME = "Rudhiarch"
 
@@ -68,7 +68,7 @@ def allowed_file(filename):
 
 def generate_otp():
     """Generate a random 6-digit OTP"""
-    return str("123456")
+    return str(random.randint(100000, 999999))
 
 
 def send_otp_email(email, otp):
