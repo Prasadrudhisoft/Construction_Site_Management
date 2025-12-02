@@ -251,50 +251,50 @@ def register():
         license_number = request.form.get('license_number') if role == 'architect' else None
         contact_no = request.form.get('contact_no') if role == 'architect' else None
 
-        password_hash = generate_password_hash(password)
-
+        # Check if email already exists
         try:
             conn = get_connection()
             cursor = conn.cursor(pymysql.cursors.DictCursor)
 
-            # ✅ Get admin's org_id using session['user_id']
-            admin_id = session['user_id']
-            cursor.execute("SELECT org_id FROM register WHERE id = %s", (admin_id,))
-            admin_data = cursor.fetchone()
-            if not admin_data:
-                flash("Unable to retrieve admin's organization.")
+            cursor.execute("SELECT email FROM register WHERE email = %s", (email,))
+            existing_user = cursor.fetchone()
+            
+            if existing_user:
+                flash('Email already exists.', 'error')
+                conn.close()
                 return redirect(url_for('register'))
-            org_id = admin_data['org_id']
 
-            # ✅ Insert user with org_id
-            cursor.execute("""
-                INSERT INTO register (name, email, password_hash, role, org_id)
-                VALUES (%s, %s, %s, %s, %s)
-            """, (name, email, password_hash, role, org_id))
-            register_id = cursor.lastrowid
-            conn.commit()
-
-            # If architect, insert into architects table
-            if role == 'architect':
-                cursor.execute("""
-                    INSERT INTO architects (name, email, license_number, contact_no, register_id,org_id)
-                    VALUES (%s, %s, %s, %s, %s,%s)
-                """, (name, email, license_number, contact_no, register_id,org_id))
-                conn.commit()
-
-            flash('User registered successfully.')
-            return redirect(url_for('admin_dashboard'))
-
-        except pymysql.err.IntegrityError:
-            conn.rollback()
-            flash('Email already exists.')
+            # Generate OTP
+            otp = generate_otp()
+            
+            # Send OTP email
+            success, error = send_otp_email(email, otp)
+            
+            if success:
+                # Store registration data in session temporarily
+                session['pending_registration'] = {
+                    'name': name,
+                    'email': email,
+                    'password': password,
+                    'role': role,
+                    'license_number': license_number,
+                    'contact_no': contact_no,
+                    'otp': otp,
+                    'otp_expiry': (datetime.now() + timedelta(minutes=5)).timestamp()
+                }
+                
+                flash('OTP sent to the user\'s email. Please verify to complete registration.', 'success')
+                return redirect(url_for('verify_registration_otp'))
+            else:
+                flash(f"Error sending OTP: {error}", 'error')
+                conn.close()
+                return redirect(url_for('register'))
 
         except Exception as e:
-            conn.rollback()
-            flash(f'Registration failed: {e}')
-
-        finally:
-            conn.close()
+            flash(f'Registration failed: {e}', 'error')
+            if conn:
+                conn.close()
+            return redirect(url_for('register'))
 
     return render_template('register.html')
 
@@ -390,6 +390,106 @@ def login():
 #             flash("Invalid OTP. Please try again.")
             
 #     return render_template("verify.html")
+@app.route('/verify_registration_otp', methods=['GET', 'POST'])
+def verify_registration_otp():
+    if 'role' not in session or session['role'] != 'admin':
+        flash("Only admin can register new users.")
+        return redirect(url_for('login'))
+    
+    if 'pending_registration' not in session:
+        flash("No pending registration found. Please start registration again.")
+        return redirect(url_for('register'))
+    
+    if request.method == 'POST':
+        otp_input = request.form.get('otp', '').strip()
+        pending_data = session.get('pending_registration')
+        
+        if not pending_data:
+            flash("Session expired. Please try again.")
+            return redirect(url_for('register'))
+
+        # Check if OTP has expired
+        if time.time() > pending_data.get('otp_expiry', 0):
+            flash("OTP expired. Please register again.")
+            session.pop('pending_registration', None)
+            return redirect(url_for('register'))
+
+        # Verify OTP
+        if otp_input == pending_data['otp']:
+            # OTP is correct, proceed with registration
+            try:
+                conn = get_connection()
+                cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+                # Get admin's org_id
+                admin_id = session['user_id']
+                cursor.execute("SELECT org_id FROM register WHERE id = %s", (admin_id,))
+                admin_data = cursor.fetchone()
+                
+                if not admin_data:
+                    flash("Unable to retrieve admin's organization.")
+                    return redirect(url_for('register'))
+                
+                org_id = admin_data['org_id']
+
+                # Hash password
+                password_hash = generate_password_hash(pending_data['password'])
+
+                # Insert user with org_id
+                cursor.execute("""
+                    INSERT INTO register (name, email, password_hash, role, org_id)
+                    VALUES (%s, %s, %s, %s, %s)
+                """, (
+                    pending_data['name'], 
+                    pending_data['email'], 
+                    password_hash, 
+                    pending_data['role'], 
+                    org_id
+                ))
+                register_id = cursor.lastrowid
+                conn.commit()
+
+                # If architect, insert into architects table
+                if pending_data['role'] == 'architect':
+                    cursor.execute("""
+                        INSERT INTO architects (name, email, license_number, contact_no, register_id, org_id)
+                        VALUES (%s, %s, %s, %s, %s, %s)
+                    """, (
+                        pending_data['name'], 
+                        pending_data['email'], 
+                        pending_data['license_number'], 
+                        pending_data['contact_no'], 
+                        register_id, 
+                        org_id
+                    ))
+                    conn.commit()
+
+                conn.close()
+                
+                # Clear pending registration data
+                session.pop('pending_registration', None)
+                
+                flash('User registered successfully!', 'success')
+                return redirect(url_for('admin_dashboard'))
+
+            except pymysql.err.IntegrityError:
+                conn.rollback()
+                conn.close()
+                session.pop('pending_registration', None)
+                flash('Email already exists.', 'error')
+                return redirect(url_for('register'))
+
+            except Exception as e:
+                conn.rollback()
+                conn.close()
+                session.pop('pending_registration', None)
+                flash(f'Registration failed: {e}', 'error')
+                return redirect(url_for('register'))
+        else:
+            flash("Invalid OTP. Please try again.", 'error')
+    
+    # Show OTP verification form
+    return render_template("verify_registration_otp.html", email=session.get('pending_registration', {}).get('email'))
 ########################################admin routes######################################
 @app.route('/admin1')
 def admin_dashboard():

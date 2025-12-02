@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Verify Registration OTP - Construction Management</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+                        url('/static/images/construction.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .otp-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 420px;
+            backdrop-filter: blur(10px);
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .otp-container:hover {
+            transform: translateY(-5px);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo img {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 15px;
+        }
+
+        .otp-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #1a73e8;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #666;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .otp-info {
+            background-color: rgba(26, 115, 232, 0.1);
+            color: #1a73e8;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .email-display {
+            background-color: rgba(30, 142, 62, 0.1);
+            color: #1e8e3e;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 14px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 15px;
+            text-align: center;
+            letter-spacing: 3px;
+            font-weight: 600;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: #1a73e8;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            background-color: #1a73e8;
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #1557b0;
+        }
+
+        .message {
+            color: #d93025;
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: rgba(217, 48, 37, 0.1);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .success-message {
+            color: #1e8e3e;
+            background-color: rgba(30, 142, 62, 0.1);
+        }
+
+        .resend-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 15px;
+            color: #555;
+        }
+
+        a {
+            color: #1a73e8;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: #1557b0;
+            text-decoration: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 480px) {
+            .otp-container {
+                margin: 20px;
+                padding: 30px 25px;
+            }
+
+            .otp-container h2 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="otp-container">
+        <div class="logo">
+            <img src="/static/images/engineers.png" alt="Civil Engineer Logo">
+        </div>
+
+        <h2>Registration OTP Verification</h2>
+        <p class="subtitle">Please verify the new user's email address by entering the OTP code sent to their email.</p>
+        
+        {% if email %}
+        <div class="email-display">
+            OTP sent to: {{ email }}
+        </div>
+        {% endif %}
+        
+        <div class="otp-info">
+            <strong>Enter the 6-digit verification code</strong><br>
+            <small>Code expires in 5 minutes</small>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="message {% if category == 'success' %}success-message{% endif %}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <input type="text" name="otp" placeholder="Enter OTP" maxlength="6" required autocomplete="off">
+            <button type="submit">Verify & Complete Registration</button>
+        </form>
+
+        <div class="resend-link">
+            Need to resend? <a href="{{ url_for('register') }}">Start registration again</a>
+        </div>
+
+        <div class="back-link">
+            <a href="{{ url_for('admin_dashboard') }}">Back to Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>
