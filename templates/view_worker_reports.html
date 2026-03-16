@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>View Worker Reports</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -33,7 +35,7 @@
             display: flex;
             align-items: center;
         }
-        
+
         .navbar-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -44,7 +46,7 @@
             padding: 0 15px;
             height: 70px;
         }
-        
+
         .navbar-brand {
             display: flex;
             align-items: center;
@@ -54,28 +56,54 @@
             font-weight: 700;
             font-size: 1.2rem;
         }
-        
+
         .navbar-brand i {
             color: #3498db;
             font-size: 1.4rem;
         }
-        
+
         .navbar-menu {
             display: flex;
             list-style: none;
             gap: 20px;
         }
-        
+
         .navbar-menu a {
             text-decoration: none;
             color: #2c3e50;
-            font-weight: 500;
-            transition: color 0.3s ease;
+            font-weight: 600;
+            transition: all 0.3s ease;
             font-size: 0.9rem;
+            padding: 10px 18px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        
+
         .navbar-menu a:hover {
-            color: #3498db;
+            color: #2c3e50;
+            background-color: #f0f0f0;
+        }
+
+        .navbar-menu a.active {
+            background-color: #3498DB;
+            color: white !important;
+        }
+
+        .navbar-menu a.active:hover {
+            background-color: #2980b9;
+            color: white;
+        }
+
+        .navbar-menu a.logout-link {
+            background-color: #e74c3c;
+            color: white !important;
+        }
+
+        .navbar-menu a.logout-link:hover {
+            background-color: #c0392b;
+            color: white;
         }
 
         .navbar-toggle {
@@ -85,7 +113,26 @@
             padding: 5px;
             gap: 3px;
         }
-        
+
+        .navbar-menu a.active {
+            background-color: #3498DB;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+
+        .navbar-menu a.logout-link {
+            background-color: #e74c3c;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+
+        .navbar-menu a.logout-link:hover {
+            background-color: #c0392b;
+            color: white;
+        }
+
         .navbar-toggle span {
             width: 25px;
             height: 3px;
@@ -93,15 +140,15 @@
             transition: all 0.3s ease;
             transform-origin: center;
         }
-        
+
         .navbar-toggle.active span:nth-child(1) {
             transform: rotate(45deg) translate(5px, 5px);
         }
-        
+
         .navbar-toggle.active span:nth-child(2) {
             opacity: 0;
         }
-        
+
         .navbar-toggle.active span:nth-child(3) {
             transform: rotate(-45deg) translate(7px, -6px);
         }
@@ -130,7 +177,7 @@
             right: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
             animation: pulse 4s ease-in-out infinite;
         }
 
@@ -272,7 +319,7 @@
         }
 
         .table-header {
-            background: linear-gradient(135deg, #34495e, #2c3e50);
+            background: linear-gradient(135deg, #3498db, #2c3e50);
             color: white;
             padding: 20px 25px;
             font-size: 1.1rem;
@@ -414,8 +461,15 @@
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 0.8; }
+
+            0%,
+            100% {
+                opacity: 0.5;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
         }
 
         /* Tablet styles */
@@ -423,25 +477,25 @@
             .container {
                 padding: 0 15px;
             }
-            
+
             .navbar-container {
                 padding: 0 15px;
             }
-            
+
             .controls-section {
                 flex-direction: column;
                 align-items: stretch;
                 gap: 15px;
             }
-            
+
             .search-box {
                 min-width: auto;
             }
-            
+
             .filter-buttons {
                 justify-content: center;
             }
-            
+
             .stats-cards {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -452,31 +506,31 @@
             body {
                 padding: 60px 5px 20px 5px;
             }
-            
+
             .navbar {
                 height: 60px;
             }
-            
+
             .navbar-container {
                 height: 60px;
                 padding: 0 15px;
                 position: relative;
             }
-            
+
             .navbar-brand {
                 font-size: 1.1rem;
                 gap: 6px;
             }
-            
+
             .navbar-brand i {
                 font-size: 1.2rem;
             }
-            
+
             .navbar-toggle {
                 display: flex;
                 z-index: 1001;
             }
-            
+
             .navbar-menu {
                 position: fixed;
                 top: 60px;
@@ -495,11 +549,11 @@
                 border-top: 1px solid #e9ecef;
                 box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
             }
-            
+
             .navbar-menu.active {
                 transform: translateX(0);
             }
-            
+
             .navbar-menu a {
                 font-size: 1.1rem;
                 font-weight: 600;
@@ -511,14 +565,14 @@
                 text-align: center;
                 min-width: 200px;
             }
-            
+
             .navbar-menu a:hover,
             .navbar-menu a.active {
                 background: #3498db;
                 color: white;
                 transform: translateY(-2px);
             }
-            
+
             .container {
                 padding: 0 10px;
             }
@@ -534,7 +588,7 @@
                 gap: 10px;
                 justify-content: center;
             }
-            
+
             .header-section h1 i {
                 font-size: 1.5rem;
             }
@@ -581,22 +635,22 @@
                 gap: 12px;
                 margin-bottom: 15px;
             }
-            
+
             .stat-card {
                 padding: 18px 15px;
                 text-align: center;
             }
-            
+
             .stat-card i {
                 font-size: 1.6rem;
                 margin-bottom: 8px;
             }
-            
+
             .stat-card h3 {
                 font-size: 1.5rem;
                 margin-bottom: 4px;
             }
-            
+
             .stat-card p {
                 font-size: 0.85rem;
             }
@@ -620,22 +674,26 @@
                 min-width: 650px;
             }
 
-            th, td {
+            th,
+            td {
                 padding: 14px 10px;
                 font-size: 0.85rem;
                 text-align: center;
             }
 
-            th:first-child, td:first-child {
+            th:first-child,
+            td:first-child {
                 text-align: left;
                 min-width: 60px;
             }
 
-            th:nth-child(2), td:nth-child(2) {
+            th:nth-child(2),
+            td:nth-child(2) {
                 min-width: 120px;
             }
 
-            th:nth-child(3), td:nth-child(3) {
+            th:nth-child(3),
+            td:nth-child(3) {
                 min-width: 130px;
             }
 
@@ -651,7 +709,7 @@
                 gap: 12px;
                 margin-top: 15px;
             }
-            
+
             .nav-link {
                 justify-content: center;
                 padding: 14px 20px;
@@ -665,20 +723,20 @@
             body {
                 padding: 60px 5px 20px 5px;
             }
-            
+
             .navbar-container {
                 padding: 0 12px;
             }
-            
+
             .navbar-brand {
                 font-size: 1rem;
                 gap: 6px;
             }
-            
+
             .navbar-brand i {
                 font-size: 1.1rem;
             }
-            
+
             .container {
                 padding: 0 8px;
             }
@@ -728,7 +786,7 @@
                 gap: 12px;
                 margin-bottom: 15px;
             }
-            
+
             .stat-card {
                 padding: 20px 15px;
                 text-align: center;
@@ -738,12 +796,12 @@
                 font-size: 1.8rem;
                 margin-bottom: 10px;
             }
-            
+
             .stat-card h3 {
                 font-size: 1.6rem;
                 margin-bottom: 5px;
             }
-            
+
             .stat-card p {
                 font-size: 0.9rem;
             }
@@ -763,23 +821,25 @@
                 min-width: 600px;
             }
 
-            th, td {
+            th,
+            td {
                 padding: 12px 8px;
                 font-size: 0.8rem;
             }
-            
+
             th {
                 background: #f8f9fa;
                 position: sticky;
                 top: 0;
                 z-index: 1;
             }
-            
+
             th i {
                 display: none;
             }
 
-            th:first-child, td:first-child {
+            th:first-child,
+            td:first-child {
                 text-align: left;
                 min-width: 50px;
             }
@@ -794,12 +854,12 @@
             .empty-state {
                 padding: 50px 15px;
             }
-            
+
             .empty-state i {
                 font-size: 2.5rem;
                 margin-bottom: 15px;
             }
-            
+
             .empty-state h3 {
                 font-size: 1.2rem;
                 margin-bottom: 8px;
@@ -808,7 +868,7 @@
             .empty-state p {
                 font-size: 0.9rem;
             }
-            
+
             .nav-link {
                 padding: 12px 15px;
                 font-size: 0.9rem;
@@ -820,16 +880,16 @@
             .navbar-container {
                 padding: 0 10px;
             }
-            
+
             .navbar-brand {
                 font-size: 0.9rem;
                 gap: 4px;
             }
-            
+
             .navbar-brand i {
                 font-size: 1rem;
             }
-            
+
             .container {
                 padding: 0 5px;
             }
@@ -857,17 +917,17 @@
                 padding: 10px 35px 10px 10px;
                 font-size: 0.9rem;
             }
-            
+
             .filter-buttons {
                 gap: 6px;
             }
-            
+
             .filter-btn {
                 padding: 6px 8px;
                 font-size: 0.75rem;
                 min-width: calc(50% - 3px);
             }
-            
+
             .stats-cards {
                 grid-template-columns: 1fr;
                 gap: 10px;
@@ -881,16 +941,16 @@
                 font-size: 1.6rem;
                 margin-bottom: 8px;
             }
-            
+
             .stat-card h3 {
                 font-size: 1.4rem;
                 margin-bottom: 4px;
             }
-            
+
             .stat-card p {
                 font-size: 0.8rem;
             }
-            
+
             .table-header {
                 padding: 14px 10px;
                 font-size: 0.9rem;
@@ -899,13 +959,15 @@
             table {
                 min-width: 550px;
             }
-            
-            th, td {
+
+            th,
+            td {
                 padding: 10px 6px;
                 font-size: 0.75rem;
             }
 
-            th:first-child, td:first-child {
+            th:first-child,
+            td:first-child {
                 min-width: 40px;
             }
 
@@ -918,11 +980,11 @@
             .empty-state {
                 padding: 40px 10px;
             }
-            
+
             .empty-state i {
                 font-size: 2rem;
             }
-            
+
             .empty-state h3 {
                 font-size: 1rem;
             }
@@ -938,6 +1000,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="navbar">
         <div class="navbar-container">
@@ -951,9 +1014,11 @@
                 <span></span>
             </div>
             <ul class="navbar-menu" id="navbar-menu">
-                <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
-                <li><a href="{{ url_for('view_worker_reports') }}" class="active">View Reports</a></li>
-                <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="{{ url_for('view_worker_reports') }}" class="active"><i class="fas fa-users"></i> View
+                        Reports</a></li>
+                <li><a href="{{ url_for('logout') }}" class="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </li>
             </ul>
         </div>
     </div>
@@ -1068,15 +1133,15 @@
         // Mobile menu toggle functionality
         const navbarToggle = document.getElementById('navbar-toggle');
         const navbarMenu = document.getElementById('navbar-menu');
-        
+
         if (navbarToggle && navbarMenu) {
-            navbarToggle.addEventListener('click', function() {
+            navbarToggle.addEventListener('click', function () {
                 navbarToggle.classList.toggle('active');
                 navbarMenu.classList.toggle('active');
             });
 
             // Close mobile menu when clicking on a link
-            navbarMenu.addEventListener('click', function(e) {
+            navbarMenu.addEventListener('click', function (e) {
                 if (e.target.tagName === 'A') {
                     navbarToggle.classList.remove('active');
                     navbarMenu.classList.remove('active');
@@ -1084,7 +1149,7 @@
             });
 
             // Close mobile menu when clicking outside
-            document.addEventListener('click', function(e) {
+            document.addEventListener('click', function (e) {
                 if (!navbarToggle.contains(e.target) && !navbarMenu.contains(e.target)) {
                     navbarToggle.classList.remove('active');
                     navbarMenu.classList.remove('active');
@@ -1109,7 +1174,7 @@
 
                 engineers.add(engineer);
                 projects.add(project);
-                
+
                 if (date === today) {
                     totalWorkers += workerCount;
                 }
@@ -1121,7 +1186,7 @@
         }
 
         // Search functionality
-        document.getElementById('searchInput').addEventListener('input', function() {
+        document.getElementById('searchInput').addEventListener('input', function () {
             const searchTerm = this.value.toLowerCase();
             const rows = document.querySelectorAll('#reportsTable tbody tr');
 
@@ -1133,7 +1198,7 @@
 
         // Filter functionality
         document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', function () {
                 // Update active button
                 document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
@@ -1149,7 +1214,7 @@
                     const reportDate = new Date(dateCell.textContent);
                     let show = true;
 
-                    switch(filter) {
+                    switch (filter) {
                         case 'today':
                             show = reportDate.toDateString() === today.toDateString();
                             break;
@@ -1184,4 +1249,5 @@
         });
     </script>
 </body>
+
 </html>

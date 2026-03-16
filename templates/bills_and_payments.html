@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bills & Payments</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 80px;
+            background-color: #f4f6f8;
+        }
+
+        .invoice-form {
+            background: #fff;
+            padding: 4rem;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 0 20px;
+            height: 70px;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: 1.4rem;
+        }
+
+        .navbar-brand i {
+            color: #3498db;
+            font-size: 1.8rem;
+        }
+
+        .navbar-menu {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+            align-items: center;
+            margin: 0;
+        }
+
+        .navbar-link {
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 500;
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .navbar-link:hover {
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+            transform: translateY(-2px);
+        }
+
+        .navbar-link.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .navbar-link.logout {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .navbar-link.logout:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .navbar-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #2c3e50;
+            cursor: pointer;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .tab-btn {
+            padding: 12px 30px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #6b7280;
+            transition: all 0.3s;
+            margin-bottom: -2px;
+        }
+
+        .tab-btn.active {
+            color: #3498db;
+            border-bottom-color: #3498db;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Form */
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .form-section-title {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e5e7eb;
+            font-size: 1.05rem;
+            font-weight: 600;
+        }
+
+        /* Calculated amounts display */
+        .calc-box {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px solid #ffffff;
+        }
+
+        .calc-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .calc-item { text-align: center; }
+
+        .calc-label {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+        }
+
+        .calc-value {
+            display: inline-block;
+            padding: 8px 16px;
+            background: white;
+            color: #2c3e50;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid #dee2e6;
+        }
+
+        .calc-value.net {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            font-size: 1.1rem;
+            border: none;
+        }
+
+        /* Table */
+        .table-wrapper { overflow-x: auto; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+
+        th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #e5e7eb; font-size: 0.9rem; }
+
+        th {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        tr:hover { background: #f9fafb; }
+
+        .badge { padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 500; display: inline-block; }
+        .badge-paid { background: #d1fae5; color: #065f46; }
+        .badge-unpaid { background: #fee2e2; color: #991b1b; }
+        .badge-advance { background: #fef3c7; color: #92400e; }
+        .badge-running { background: #dbeafe; color: #1e40af; }
+        .badge-final { background: #f3e8ff; color: #6b21a8; }
+
+        .action-btn { padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; margin-right: 4px; display: inline-block; transition: all 0.3s; cursor: pointer; border: none; }
+        .btn-download { background: #28a745; color: white; }
+        .btn-download:hover { background: #218838; }
+        .btn-view-file { background: #6f42c1; color: white; }
+        .btn-view-file:hover { background: #5a32a3; }
+
+        .no-data { text-align: center; padding: 50px; color: #6b7280; font-size: 1.1rem; }
+
+        /* Flash Messages */
+        .flash-messages { position: fixed; top: 80px; right: 20px; z-index: 9999; max-width: 400px; }
+        .flash-message { background: white; padding: 15px 20px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 12px; animation: slideIn 0.3s ease-out; }
+        .flash-message.success { border-left: 4px solid #28a745; }
+        .flash-message.danger { border-left: 4px solid #dc3545; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        /* Modal */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; justify-content: center; align-items: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-box { background: white; border-radius: 12px; padding: 20px; max-width: 90vw; max-height: 90vh; overflow: auto; position: relative; min-width: 400px; }
+        .modal-close { position: absolute; top: 12px; right: 16px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 1rem; }
+        .modal-box img { max-width: 100%; border-radius: 8px; }
+        .modal-box iframe { width: 75vw; height: 80vh; border: none; border-radius: 8px; }
+        .modal-title { font-size: 1.1rem; font-weight: 600; color: #2c3e50; margin-bottom: 15px; padding-right: 40px; }
+
+        /* Search & Filter */
+        .history-controls { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+        .search-input { padding: 10px 15px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 0.95rem; min-width: 250px; }
+        .filter-select { padding: 10px 15px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 0.95rem; }
+
+        /* Summary Cards */
+        .summary-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
+        .summary-card { background: white; border-radius: 10px; padding: 15px 20px; border-left: 4px solid; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .summary-card.total { border-color: #3498db; }
+        .summary-card.paid { border-color: #28a745; }
+        .summary-card.unpaid { border-color: #dc3545; }
+        .summary-card.gross { border-color: #f59e0b; }
+        .summary-card .s-label { font-size: 0.8rem; color: #6b7280; font-weight: 500; }
+        .summary-card .s-value { font-size: 1.3rem; font-weight: 700; color: #2c3e50; margin-top: 4px; }
+
+        @media (max-width: 900px) {
+            .navbar-container { padding: 0 10px; }
+        }
+
+        @media (max-width: 768px) {
+            body { padding-top: 70px !important; }
+
+            .navbar { height: 60px; }
+            .navbar-container { height: 60px; padding: 0 15px; }
+
+            .navbar-menu {
+                position: fixed;
+                top: 60px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 60px);
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
+                padding: 30px 20px;
+                transition: left 0.3s ease;
+                gap: 20px;
+            }
+
+            .navbar-menu.active { left: 0; }
+            .navbar-toggle { display: block; }
+
+            .navbar-link {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+                padding: 15px 20px;
+                font-size: 1.05rem;
+            }
+
+            .invoice-form { padding: 20px; }
+
+            .calc-grid { grid-template-columns: 1fr; }
+            .summary-cards { grid-template-columns: repeat(2, 1fr); }
+            .modal-box { min-width: 90vw; }
+
+            .text-center .btn {
+                width: 100%;
+                font-size: 14px;
+                padding: 10px 12px;
+                margin-bottom: 10px;
+                white-space: nowrap;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="{{ url_for('admin_dashboard') if session.role == 'admin' else url_for('accountant_dashboard') }}" class="navbar-brand">
+                <i class="fas fa-hard-hat"></i>
+                Bills & Payments
+            </a>
+            <ul class="navbar-menu" id="navbarNav">
+                <li>
+                    <a href="{{ url_for('admin_dashboard') if session.role == 'admin' else url_for('accountant_dashboard') }}" class="navbar-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('logout') }}" class="navbar-link logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </a>
+                </li>
+            </ul>
+            <button class="navbar-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-messages">
+        {% for category, message in messages %}
+        <div class="flash-message {{ category }}">
+            <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' }}"></i>
+            <span>{{ message }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- File View Modal -->
+    <div class="modal-overlay" id="fileModal">
+        <div class="modal-box" id="fileModalBox">
+            <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            <div class="modal-title" id="modalTitle">View File</div>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <div class="container-fluid mt-4 px-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="invoice-form">
+
+                    <!-- Page Header -->
+                    <div class="section-header text-center">
+                        <div class="header-icon mb-2">
+                            <i class="fas fa-file-invoice-dollar" style="font-size:2.5rem;"></i>
+                        </div>
+                        <h2 class="mb-0" style="font-size:2rem;">Bills & Payments</h2>
+                    </div>
+
+                    <!-- Tabs -->
+                    <div class="tabs">
+                        <button class="tab-btn {{ 'active' if active_tab == 'add' else '' }}" onclick="switchTab('add', this)">
+                            <i class="fas fa-plus-circle me-2"></i>Add New Bill
+                        </button>
+                        <button class="tab-btn {{ 'active' if active_tab == 'history' else '' }}" onclick="switchTab('history', this)">
+                            <i class="fas fa-history me-2"></i>Bill History ({{ bills|length }})
+                        </button>
+                    </div>
+
+                    <!-- ===================== ADD NEW BILL TAB ===================== -->
+                    <div id="tab-add" class="tab-content {{ 'active' if active_tab == 'add' else '' }}">
+                        <form method="POST" enctype="multipart/form-data" id="billForm">
+
+                            <!-- Basic Information -->
+                            <div class="form-section">
+                                <h5 class="form-section-title"><i class="fas fa-info-circle me-2"></i>Basic Information</h5>
+                                <div class="row mb-3">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Bill No <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="bill_no" placeholder="e.g. BILL/2024/001" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Date of Bill <span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" name="bill_date" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Bill Type <span class="text-danger">*</span></label>
+                                        <select class="form-select" name="bill_type" required>
+                                            <option value="">-- Select Bill Type --</option>
+                                            <option value="Advance Bill">Advance Bill</option>
+                                            <option value="Running Account Bill">Running Account Bill</option>
+                                            <option value="Final Bill">Final Bill</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Upload Bill (PDF or Image)</label>
+                                        <input type="file" class="form-control" name="bill_file" accept=".pdf,.png,.jpg,.jpeg,.gif">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Amount Details -->
+                            <div class="form-section">
+                                <h5 class="form-section-title"><i class="fas fa-rupee-sign me-2"></i>Amount Details</h5>
+                                <div class="row mb-3">
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Advance Amount (₹)</label>
+                                        <input type="number" step="0.01" class="form-control" name="advance_amount" value="0" min="0">
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Running Account Amount (₹)</label>
+                                        <input type="number" step="0.01" class="form-control" name="running_account_amount" value="0" min="0">
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Final Amount (₹)</label>
+                                        <input type="number" step="0.01" class="form-control" name="final_amount" value="0" min="0">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Work Details -->
+                            <div class="form-section">
+                                <h5 class="form-section-title"><i class="fas fa-hard-hat me-2"></i>Work Details</h5>
+                                <div class="row mb-3">
+                                    
+                                    <!-- ✅ ACCOUNTANT & PROJECT DROPDOWNS (ADMIN ONLY) -->
+                                    {% if session.role == 'admin' %}
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Select Accountant <span class="text-danger">*</span></label>
+                                        <select class="form-select" name="accountant_id" id="accountant_id" required>
+                                            <option value="">-- Select Accountant --</option>
+                                            {% for acc in accountants %}
+                                            <option value="{{ acc.id }}">{{ acc.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Select Project <span class="text-danger">*</span></label>
+                                        <select class="form-select" name="project_id" id="project_id" required>
+                                            <option value="">-- Select Project --</option>
+                                            {% for proj in projects %}
+                                            <option value="{{ proj.id }}">{{ proj.project_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <div class="col-12 mb-3">
+                                        <label class="form-label">Work Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="work_name" placeholder="Enter work / project name" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Work Order Number <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="work_order_number" placeholder="e.g. WO/2024/100" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Work Order Date <span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" name="work_order_date" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Tender Name</label>
+                                        <input type="text" class="form-control" name="tender_name" placeholder="Tender name (optional)">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Tender Number</label>
+                                        <input type="text" class="form-control" name="tender_number" placeholder="Tender number (optional)">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Financial Details -->
+                            <div class="form-section">
+                                <h5 class="form-section-title"><i class="fas fa-calculator me-2"></i>Financial Details</h5>
+                                <div class="row mb-3">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Gross Amount (₹) <span class="text-danger">*</span></label>
+                                        <input type="number" step="0.01" class="form-control" name="gross_amount" id="gross_amount" placeholder="0.00" required oninput="calculateAmounts()">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">GST Percentage <span class="text-danger">*</span></label>
+                                        <select class="form-select" name="gst_percentage" id="gst_percentage" required onchange="calculateAmounts()">
+                                            <option value="">-- Select GST Slab --</option>
+                                            <option value="0">0% (Exempted)</option>
+                                            <option value="3">3%</option>
+                                            <option value="5">5%</option>
+                                            <option value="9">9%</option>
+                                            <option value="12">12%</option>
+                                            <option value="18">18%</option>
+                                            <option value="28">28%</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Security Deposit (₹)</label>
+                                        <input type="number" step="0.01" class="form-control" name="security_deposit" id="security_deposit" value="0" min="0" oninput="calculateAmounts()">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Payment Status <span class="text-danger">*</span></label>
+                                        <select class="form-select" name="payment_status" required>
+                                            <option value="">-- Select Status --</option>
+                                            <option value="Unpaid">Unpaid</option>
+                                            <option value="Paid">Paid</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Live Calculated Values -->
+                                <div class="calc-box">
+                                    <div class="mb-3" style="font-weight:600; color:#2c3e50; font-size:0.95rem;">
+                                        <i class="fas fa-magic me-2"></i>Auto-Calculated Values
+                                    </div>
+                                    <div class="calc-grid">
+                                        <div class="calc-item">
+                                            <div class="calc-label">GST Amount</div>
+                                            <div class="calc-value" id="gst_display">₹0.00</div>
+                                        </div>
+                                        <div class="calc-item">
+                                            <div class="calc-label">Labour Charges (1.1%)</div>
+                                            <div class="calc-value" id="labour_display">₹0.00</div>
+                                        </div>
+                                        <div class="calc-item">
+                                            <div class="calc-label">NET PAYABLE AMOUNT</div>
+                                            <div class="calc-value net" id="net_display">₹0.00</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Submit -->
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg px-5">
+                                    <i class="fas fa-save me-2"></i>Add Bill
+                                </button>
+                                <a href="{{ url_for('admin_dashboard') if session.role == 'admin' else url_for('accountant_dashboard') }}"
+                                    class="btn btn-secondary btn-lg px-5 ms-3">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- ===================== BILL HISTORY TAB ===================== -->
+                    <div id="tab-history" class="tab-content {{ 'active' if active_tab == 'history' else '' }}">
+
+                        {% if bills %}
+                        <!-- Summary Cards -->
+                        <div class="summary-cards">
+                            <div class="summary-card total">
+                                <div class="s-label"><i class="fas fa-file-invoice me-1"></i> Total Bills</div>
+                                <div class="s-value">{{ bills|length }}</div>
+                            </div>
+                            <div class="summary-card paid">
+                                <div class="s-label"><i class="fas fa-check-circle me-1"></i> Paid</div>
+                                <div class="s-value">{{ bills|selectattr('payment_status','equalto','Paid')|list|length }}</div>
+                            </div>
+                            <div class="summary-card unpaid">
+                                <div class="s-label"><i class="fas fa-clock me-1"></i> Unpaid</div>
+                                <div class="s-value">{{ bills|selectattr('payment_status','equalto','Unpaid')|list|length }}</div>
+                            </div>
+                            <div class="summary-card gross">
+                                <div class="s-label"><i class="fas fa-rupee-sign me-1"></i> Total Gross</div>
+                                <div class="s-value">₹{{ "%.0f"|format(bills|sum(attribute='gross_amount')) }}</div>
+                            </div>
+                        </div>
+
+                        <!-- Filters -->
+                        <div class="history-controls">
+                            <input type="text" class="search-input form-control" id="searchInput" placeholder="🔍 Search bill no, work name..." oninput="filterTable()" style="max-width:300px;">
+                            <select class="filter-select form-select" id="statusFilter" onchange="filterTable()" style="max-width:160px;">
+                                <option value="">All Status</option>
+                                <option value="Paid">Paid</option>
+                                <option value="Unpaid">Unpaid</option>
+                            </select>
+                            <select class="filter-select form-select" id="typeFilter" onchange="filterTable()" style="max-width:200px;">
+                                <option value="">All Types</option>
+                                <option value="Advance Bill">Advance Bill</option>
+                                <option value="Running Account Bill">Running Account Bill</option>
+                                <option value="Final Bill">Final Bill</option>
+                            </select>
+                        </div>
+
+                        <div class="table-wrapper">
+                            <table id="billsTable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Bill No</th>
+                                        <th>Date</th>
+                                        <th>Bill Type</th>
+                                        <th>Work Name</th>
+                                        <th>Work Order No</th>
+                                        <th>Gross (₹)</th>
+                                        <th>GST %</th>
+                                        <th>GST Amt (₹)</th>
+                                        <th>Security Dep (₹)</th>
+                                        <th>Labour (₹)</th>
+                                        <th>Net Amt (₹)</th>
+                                        <th>Status</th>
+                                        <th>File</th>
+                                        <th>Created By</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for bill in bills %}
+                                    <tr data-status="{{ bill.payment_status }}" data-type="{{ bill.bill_type }}" data-search="{{ bill.bill_no|lower }} {{ bill.work_name|lower }} {{ bill.work_order_number|lower }}">
+                                        <td>{{ loop.index }}</td>
+                                        <td><strong>{{ bill.bill_no }}</strong></td>
+                                        <td>{{ bill.bill_date.strftime('%d-%m-%Y') }}</td>
+                                        <td>
+                                            {% if bill.bill_type == 'Advance Bill' %}
+                                                <span class="badge badge-advance">{{ bill.bill_type }}</span>
+                                            {% elif bill.bill_type == 'Running Account Bill' %}
+                                                <span class="badge badge-running">{{ bill.bill_type }}</span>
+                                            {% else %}
+                                                <span class="badge badge-final">{{ bill.bill_type }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ bill.work_name }}</td>
+                                        <td>{{ bill.work_order_number }}</td>
+                                        <td>{{ "%.2f"|format(bill.gross_amount) }}</td>
+                                        <td>{{ bill.gst_percentage }}%</td>
+                                        <td>{{ "%.2f"|format(bill.gst_amount) }}</td>
+                                        <td>{{ "%.2f"|format(bill.security_deposit) }}</td>
+                                        <td>{{ "%.2f"|format(bill.labour_charges) }}</td>
+                                        <td><strong style="color:#28a745;">{{ "%.2f"|format(bill.net_amount) }}</strong></td>
+                                        <td>
+                                            <span class="badge {{ 'badge-paid' if bill.payment_status == 'Paid' else 'badge-unpaid' }}">
+                                                {{ bill.payment_status }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if bill.bill_file_path %}
+                                                <button class="action-btn btn-view-file view-file-btn"
+                                                    data-url="{{ url_for('static', filename=bill.bill_file_path) }}"
+                                                    data-type="{{ bill.bill_file_type }}"
+                                                    data-title="Bill {{ bill.bill_no }}">
+                                                    <i class="fas fa-eye"></i> View
+                                                </button>
+                                            {% else %}
+                                                <span style="color:#9ca3af; font-size:0.8rem;">No file</span>
+                                            {% endif %}
+                                        </td>
+                                        <td style="font-size:0.85rem;">{{ bill.created_by_name }}<br><span style="color:#6b7280;">{{ bill.created_by_role }}</span></td>
+                                        <td>
+                                            <a href="{{ url_for('download_bill_pdf', bill_id=bill.id) }}" class="action-btn btn-download" title="Download Bill as PDF">
+                                                <i class="fas fa-file-pdf"></i> PDF
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="no-data">
+                            <i class="fas fa-file-invoice" style="font-size:3rem; color:#d1d5db; display:block; margin-bottom:15px;"></i>
+                            No bills found. Add your first bill using the "Add New Bill" tab.
+                        </div>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Tab switching
+        function switchTab(tab, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            if (btn) btn.classList.add('active');
+        }
+
+        // Calculate amounts live
+        function calculateAmounts() {
+            const gross = parseFloat(document.getElementById('gross_amount').value) || 0;
+            const gstSelect = document.getElementById('gst_percentage');
+            const gstPct = gstSelect.value ? parseFloat(gstSelect.value) : 0;
+            const security = parseFloat(document.getElementById('security_deposit').value) || 0;
+
+            const gstAmt = (gross * gstPct) / 100;
+            const labour = (gross * 1.1) / 100;
+            const net = gross + gstAmt - security - labour;
+
+            const fmt = v => '₹' + v.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('gst_display').textContent = fmt(gstAmt);
+            document.getElementById('labour_display').textContent = fmt(labour);
+            document.getElementById('net_display').textContent = fmt(net > 0 ? net : 0);
+        }
+
+        // File view modal
+        function viewFile(url, type, title) {
+            document.getElementById('modalTitle').textContent = title;
+            const content = document.getElementById('modalContent');
+            if (type === 'pdf') {
+                content.innerHTML = '<iframe src="' + url + '"></iframe>';
+            } else {
+                content.innerHTML = '<img src="' + url + '" alt="Bill File" style="max-width:100%; border-radius:8px;">';
+            }
+            document.getElementById('fileModal').classList.add('active');
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Attach file view handlers
+            document.querySelectorAll('.view-file-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    viewFile(this.dataset.url, this.dataset.type, this.dataset.title);
+                });
+            });
+        });
+
+        function closeModal() {
+            document.getElementById('fileModal').classList.remove('active');
+            document.getElementById('modalContent').innerHTML = '';
+        }
+
+        document.getElementById('fileModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        // Search & filter
+        function filterTable() {
+            const search = document.getElementById('searchInput')?.value.toLowerCase() || '';
+            const status = document.getElementById('statusFilter')?.value || '';
+            const type = document.getElementById('typeFilter')?.value || '';
+            const rows = document.querySelectorAll('#billsTable tbody tr');
+            rows.forEach(row => {
+                const rowSearch = row.dataset.search || '';
+                const rowStatus = row.dataset.status || '';
+                const rowType = row.dataset.type || '';
+                const matchSearch = !search || rowSearch.includes(search);
+                const matchStatus = !status || rowStatus === status;
+                const matchType = !type || rowType === type;
+                row.style.display = (matchSearch && matchStatus && matchType) ? '' : 'none';
+            });
+        }
+
+        // Auto-dismiss flash messages
+        setTimeout(() => {
+            document.querySelectorAll('.flash-message').forEach(m => {
+                m.style.transition = 'opacity 0.5s';
+                m.style.opacity = '0';
+                setTimeout(() => m.remove(), 500);
+            });
+        }, 4000);
+
+        // Mobile menu toggle
+        document.getElementById('mobileMenuToggle').addEventListener('click', function () {
+            const navbarNav = document.getElementById('navbarNav');
+            const icon = this.querySelector('i');
+            navbarNav.classList.toggle('active');
+            if (navbarNav.classList.contains('active')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+
+        document.querySelectorAll('.navbar-link').forEach(link => {
+            link.addEventListener('click', function () {
+                const navbarNav = document.getElementById('navbarNav');
+                const mobileToggle = document.getElementById('mobileMenuToggle');
+                const icon = mobileToggle.querySelector('i');
+                navbarNav.classList.remove('active');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            });
+        });
+
+        // ✅ FILTER PROJECTS BY SELECTED ACCOUNTANT (ADMIN ONLY)
+        </script>
+
+    <!-- ✅ FILTER PROJECTS BY SELECTED ACCOUNTANT (ADMIN ONLY) -->
+    {% if session.role == 'admin' %}
+    <script>
+        (function() {
+            const accountantSelect = document.getElementById('accountant_id');
+            const projectSelect = document.getElementById('project_id');
+            
+            if (accountantSelect && projectSelect) {
+                // Store all original projects
+                const allProjects = Array.from(projectSelect.options).map(opt => ({
+                    value: opt.value,
+                    text: opt.text
+                }));
+                
+                accountantSelect.addEventListener('change', function() {
+                    const accountantId = this.value;
+                    
+                    if (!accountantId) {
+                        // If no accountant selected, show all projects
+                        projectSelect.innerHTML = '<option value="">-- Select Project --</option>';
+                        allProjects.forEach(proj => {
+                            if (proj.value) {
+                                const option = document.createElement('option');
+                                option.value = proj.value;
+                                option.textContent = proj.text;
+                                projectSelect.appendChild(option);
+                            }
+                        });
+                        return;
+                    }
+                    
+                    // Fetch projects for selected accountant
+                    fetch('/api/get_accountant_projects/' + accountantId)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                projectSelect.innerHTML = '<option value="">-- Select Project --</option>';
+                                
+                                if (data.projects && data.projects.length > 0) {
+                                    data.projects.forEach(project => {
+                                        const option = document.createElement('option');
+                                        option.value = project.id;
+                                        option.textContent = project.project_name;
+                                        projectSelect.appendChild(option);
+                                    });
+                                } else {
+                                    const option = document.createElement('option');
+                                    option.value = '';
+                                    option.textContent = 'No projects assigned to this accountant';
+                                    option.disabled = true;
+                                    projectSelect.appendChild(option);
+                                }
+                            } else {
+                                console.error('Error:', data.error);
+                                alert('Error loading projects. Please try again.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Error loading projects. Please try again.');
+                        });
+                });
+            }
+        })();
+    </script>
+    {% endif %}
+</body>
+</html>
+</html>

@@ -4,31 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Salary Entries</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>All Salary Entries - Admin</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        html, body {
-            height: 100%;
-        }
-
         body {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
             padding-top: 80px;
-            color: #333;
+            background-color: #f4f6f8;
         }
 
-        /* Navbar Styles */
+        /* ── Navbar (identical to Bills & Payments) ── */
         .navbar {
             position: fixed;
             top: 0;
@@ -37,24 +22,22 @@
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 15px 0;
             z-index: 1000;
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-            animation: slideDown 0.7s cubic-bezier(.77,0,.18,1) 0s 1;
-        }
-
-        @keyframes slideDown {
-            from { transform: translateY(-100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            height: 70px;
+            display: flex;
+            align-items: center;
         }
 
         .navbar-container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            width: 100%;
             padding: 0 20px;
+            height: 70px;
         }
 
         .navbar-brand {
@@ -65,732 +48,912 @@
             color: #2c3e50;
             font-weight: 700;
             font-size: 1.4rem;
-            transition: color 0.2s;
-        }
-
-        .navbar-brand:hover {
-            color: #3498db;
         }
 
         .navbar-brand i {
             color: #3498db;
             font-size: 1.8rem;
-            transition: transform 0.2s;
         }
 
-        .navbar-brand:hover i {
-            transform: rotate(-15deg) scale(1.1);
-        }
-
-        .navbar-nav {
+        .navbar-menu {
             display: flex;
             list-style: none;
             gap: 30px;
             align-items: center;
+            margin: 0;
         }
 
-        .nav-link {
+        .navbar-link {
             text-decoration: none;
             color: #2c3e50;
             font-weight: 500;
             padding: 10px 15px;
             border-radius: 8px;
-            transition: all 0.3s cubic-bezier(.77,0,.18,1);
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             gap: 8px;
-            position: relative;
-            overflow: hidden;
         }
 
-        .nav-link::after {
-            content: "";
-            position: absolute;
-            left: 0; bottom: 0;
-            width: 0;
-            height: 3px;
-            background: #3498db;
-            transition: width 0.3s cubic-bezier(.77,0,.18,1);
-        }
-
-        .nav-link:hover::after, .nav-link.active::after {
-            width: 100%;
-        }
-
-        .nav-link:hover {
-            background: rgba(52, 152, 219, 0.12);
+        .navbar-link:hover {
+            background: rgba(52, 152, 219, 0.1);
             color: #3498db;
-            transform: translateY(-2px) scale(1.04);
+            transform: translateY(-2px);
         }
 
-        .nav-link.active {
+        .navbar-link.active {
             background: #3498db;
             color: white;
-            box-shadow: 0 4px 16px rgba(52,152,219,0.08);
         }
 
-        .nav-link.logout {
+        .navbar-link.logout {
             background: #e74c3c;
             color: white;
         }
 
-        .nav-link.logout:hover {
+        .navbar-link.logout:hover {
             background: #c0392b;
-            transform: translateY(-2px) scale(1.04);
+            transform: translateY(-2px);
         }
 
-        .mobile-menu-toggle {
+        .navbar-toggle {
             display: none;
             background: none;
             border: none;
             font-size: 1.5rem;
             color: #2c3e50;
             cursor: pointer;
-            transition: color 0.2s;
         }
 
-        .mobile-menu-toggle:hover {
-            color: #3498db;
+        /* ── Card wrapper (same as invoice-form) ── */
+        .invoice-form {
+            background: #fff;
+            padding: 4rem;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
         }
 
-        /* Main Content Styles */
-        .container {
-            max-width: 1400px;
-            margin: 60px auto 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            animation: fadeIn 0.7s cubic-bezier(.77,0,.18,1);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(30px);}
-            to { opacity: 1; transform: translateY(0);}
-        }
-
-        .header {
-            background: linear-gradient(135deg, #3498db, #2980b9);
+        /* ── Page header ── */
+        .section-header {
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
             color: white;
-            padding: 30px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
         }
 
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-            animation: shimmer 3s ease-in-out infinite;
-        }
-
-        @keyframes shimmer {
-            0%, 100% { transform: rotate(0deg); }
-            50% { transform: rotate(180deg); }
-        }
-
-        .header h2 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            position: relative;
-            z-index: 1;
-        }
-
-        .content {
-            padding: 30px;
-        }
-
-        .action-buttons {
-            display: flex;
-            flex-wrap: wrap;
+        /* ── Summary Cards (same structure as Bills) ── */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
             gap: 15px;
-            margin-bottom: 25px;
-            justify-content: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px 20px;
+            border-left: 4px solid;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .summary-card.total {
+            border-color: #3498db;
+        }
+
+        .summary-card.advance {
+            border-color: #f59e0b;
+        }
+
+        .summary-card.salary {
+            border-color: #28a745;
+        }
+
+        .summary-card.gross {
+            border-color: #8b5cf6;
+        }
+
+        .summary-card .s-label {
+            font-size: 0.8rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .summary-card .s-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-top: 4px;
+        }
+
+        /* ── Controls ── */
+        .history-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
             align-items: center;
         }
 
-        .btn {
+        .search-input {
+            padding: 10px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            min-width: 250px;
+        }
+
+        .filter-select {
+            padding: 10px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+
+        /* ── Action button (Generate Report) ── */
+        .btn-report {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
             gap: 8px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #3498db, #2980b9);
+            padding: 10px 22px;
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
             color: white;
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
         }
 
-        .btn-primary:hover {
+        .btn-report:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, #6c757d, #5a6268);
+            box-shadow: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
             color: white;
-            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
         }
 
-        .btn-secondary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
-        }
-
-        .table-container {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            margin-bottom: 25px;
-        }
-
-        .table-responsive {
+        /* ── Table (identical styles to Bills) ── */
+        .table-wrapper {
             overflow-x: auto;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
             font-size: 0.9rem;
         }
 
         th {
             background: linear-gradient(135deg, #3498db, #2980b9);
             color: white;
-            padding: 15px 12px;
-            text-align: left;
             font-weight: 600;
-            font-size: 0.9rem;
             white-space: nowrap;
-        }
-
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #e9ecef;
-            vertical-align: middle;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
+            padding: 15px 12px;
+            font-size: 0.9rem;
         }
 
         tr:hover {
-            background: #f8f9fa;
+            background: #f9fafb;
         }
 
-        .payment-badge {
-            padding: 6px 12px;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .cash {
-            background: linear-gradient(135deg, #d4edda, #c3e6cb);
-            color: #155724;
-            border: 1px solid #4caf50;
-        }
-
-        .cheque {
-            background: linear-gradient(135deg, #cce7ff, #b3d9ff);
-            color: #004085;
-            border: 1px solid #007bff;
-        }
-
-        /* Entry Type Badges */
-        .entry-type-badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .advance-payment {
-            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
-            color: #856404;
-            border: 1px solid #ffc107;
-        }
-
-        .salary-payment {
-            background: linear-gradient(135deg, #d4edda, #c3e6cb);
-            color: #155724;
-            border: 1px solid #28a745;
-        }
-
-        .salary-with-advance-deduction {
-            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
-            color: #721c24;
-            border: 1px solid #dc3545;
-        }
-
-        .other {
-            background: linear-gradient(135deg, #e2e3e5, #d6d8db);
-            color: #383d41;
-            border: 1px solid #6c757d;
-        }
-
-        .no-data {
-            text-align: center;
-            padding: 40px;
-            color: #6c757d;
-            font-size: 1.1rem;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .no-data i {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            opacity: 0.5;
-        }
-
-        /* Highlight advance entries */
+        /* Advance row highlight */
         .advance-row {
-            background: rgba(255, 193, 7, 0.1);
+            background: rgba(245, 158, 11, 0.06);
         }
 
         .advance-row:hover {
-            background: rgba(255, 193, 7, 0.2);
+            background: rgba(245, 158, 11, 0.12);
         }
 
-        /* Amount styling */
-        .amount {
-            font-weight: bold;
-            font-size: 0.95rem;
+        /* ── Badges ── */
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
 
-        .positive-amount {
+        .badge-advance-payment {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-salary-payment {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-salary-with-advance {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-other {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .badge-cash {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-cheque {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        /* Amount colours */
+        .amt-positive {
             color: #28a745;
+            font-weight: 600;
         }
 
-        .advance-amount {
-            color: #ffc107;
+        .amt-advance {
+            color: #d97706;
+            font-weight: 600;
+        }
+
+        .amt-danger {
+            color: #dc3545;
+            font-weight: 600;
         }
 
         .text-muted {
-            color: #6c757d;
+            color: #9ca3af;
         }
 
-        .text-danger {
-            color: #dc3545;
+        /* ── Action buttons in table ── */
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
         }
 
-        /* Mobile Responsive */
-        @media (max-width: 1100px) {
-            .container {
-                max-width: 95vw;
-                margin: 60px auto 0 auto;
+        .btn-download {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-download:hover {
+            background: #218838;
+            color: white;
+        }
+
+        /* ── No data ── */
+        .no-data {
+            text-align: center;
+            padding: 50px;
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+
+        /* ── Flash Messages ── */
+        .flash-messages {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 400px;
+        }
+
+        .flash-message {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .flash-message.success {
+            border-left: 4px solid #28a745;
+        }
+
+        .flash-message.danger {
+            border-left: 4px solid #dc3545;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
             }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* ── Modal ── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-box {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow: auto;
+            position: relative;
+            min-width: 420px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .modal-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-right: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .modal-footer-btns {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-cancel {
+            padding: 10px 20px;
+            background: #6b7280;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: background 0.2s;
+        }
+
+        .btn-cancel:hover {
+            background: #4b5563;
+        }
+
+        .btn-generate {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: all 0.3s;
+        }
+
+        .btn-generate:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(52, 152, 219, 0.3);
+        }
+
+        #reportError {
+            color: #dc3545;
+            font-size: 0.88rem;
+            margin-top: 8px;
+            display: none;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 900px) {
             .navbar-container {
-                max-width: 98vw;
                 padding: 0 10px;
             }
         }
 
-        @media (max-width: 900px) {
-            .container {
-                max-width: 98vw;
-                margin: 60px auto 0 auto;
-            }
-            .navbar-container {
-                max-width: 100vw;
-                padding: 0 8px;
-            }
-        }
-
         @media (max-width: 768px) {
-            .container {
-                margin: 60px 2vw 0 2vw;
+            body {
+                padding-top: 70px !important;
             }
 
-            .header h2 {
-                font-size: 2rem;
+            .navbar {
+                height: 60px;
             }
 
-            .content {
-                padding: 20px;
+            .navbar-container {
+                height: 60px;
+                padding: 0 15px;
             }
 
-            .action-buttons {
-                justify-content: center;
-                margin-bottom: 20px;
-            }
-
-            .btn {
-                padding: 10px 16px;
-                font-size: 0.8rem;
-            }
-
-            th,
-            td {
-                padding: 10px 8px;
-                font-size: 0.8rem;
-            }
-        }
-
-        @media (max-width: 700px) {
-            .container {
-                margin: 60px 2vw 0 2vw;
-            }
-
-            .header {
-                padding: 20px;
-            }
-
-            .header h2 {
-                font-size: 1.8rem;
-            }
-
-            .content {
-                padding: 15px;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .btn {
-                width: 100%;
-                justify-content: center;
-            }
-
-            th,
-            td {
-                padding: 8px 6px;
-                font-size: 0.75rem;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .navbar-nav {
-                flex-direction: column;
+            .navbar-menu {
                 position: fixed;
-                top: 80px;
+                top: 60px;
                 left: -100%;
-                width: 100vw;
-                height: calc(100vh - 80px);
+                width: 100%;
+                height: calc(100vh - 60px);
                 background: rgba(255, 255, 255, 0.98);
                 backdrop-filter: blur(20px);
+                flex-direction: column;
                 justify-content: flex-start;
                 align-items: center;
-                padding: 40px 20px;
-                transition: left 0.3s cubic-bezier(.77,0,.18,1);
+                padding: 30px 20px;
+                transition: left 0.3s ease;
                 gap: 20px;
             }
 
-            .navbar-nav.active {
+            .navbar-menu.active {
                 left: 0;
             }
 
-            .mobile-menu-toggle {
+            .navbar-toggle {
                 display: block;
             }
 
-            .nav-link {
+            .navbar-link {
                 width: 100%;
                 max-width: 300px;
                 justify-content: center;
                 padding: 15px 20px;
-                font-size: 1.1rem;
+                font-size: 1.05rem;
             }
 
-            .container {
-                margin: 60px 2vw 0 2vw;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .navbar-container {
-                padding: 0 2vw;
+            .invoice-form {
+                padding: 20px;
             }
 
-            .navbar-brand {
-                font-size: 1rem;
+            .summary-cards {
+                grid-template-columns: repeat(2, 1fr);
             }
 
-            .container {
-                margin: 60px 1vw 0 1vw;
-            }
-
-            .header h2 {
-                font-size: 1.5rem;
-            }
-
-            .content {
-                padding: 12px;
-            }
-
-            th,
-            td {
-                padding: 6px 4px;
-                font-size: 0.7rem;
-            }
-        }
-
-        @media (max-width: 400px) {
-            .container {
-                margin: 60px 1vw 0 1vw;
-            }
-
-            .header h2 {
-                font-size: 1.3rem;
-            }
-
-            .content {
-                padding: 10px;
-            }
-        }
-
-        /* Dark mode support */
-        @media (prefers-color-scheme: dark) {
-            .container {
-                background: rgba(30, 30, 30, 0.95);
-                color: #e0e0e0;
-            }
-
-            .table-container,
-            .no-data {
-                background: #2d2d2d;
-                color: #e0e0e0;
-            }
-
-            td {
-                border-color: #555;
-            }
-
-            tr:hover {
-                background: #3a3a3a;
-            }
-
-            .advance-row {
-                background: rgba(255, 193, 7, 0.15);
-            }
-
-            .advance-row:hover {
-                background: rgba(255, 193, 7, 0.25);
+            .modal-box {
+                min-width: 90vw;
             }
         }
     </style>
 </head>
 
 <body>
+
     <!-- Navbar -->
     <nav class="navbar">
         <div class="navbar-container">
-            <a href="#" class="navbar-brand">
-                <i class="fas fa-money-check-alt"></i>
+            <a href="{{ url_for('admin_dashboard') }}" class="navbar-brand">
+                <i class="fas fa-hard-hat"></i>
                 Salary Management
             </a>
-            <ul class="navbar-nav" id="navbarNav">
+            <ul class="navbar-menu" id="navbarNav">
                 <li>
-                    <a href="{{ url_for('admin_dashboard') }}" class="nav-link">
+                    <a href="{{ url_for('admin_dashboard') }}" class="navbar-link">
                         <i class="fas fa-tachometer-alt"></i>
                         Dashboard
                     </a>
                 </li>
                 <li>
-                    <a href="{{ url_for('admin_view_salaries') }}" class="nav-link active">
+                    <a href="{{ url_for('admin_view_salaries') }}" class="navbar-link active">
                         <i class="fas fa-eye"></i>
                         View All Salaries
                     </a>
                 </li>
                 <li>
-                    <a href="{{ url_for('logout') }}" class="nav-link logout">
+                    <a href="{{ url_for('logout') }}" class="navbar-link logout">
                         <i class="fas fa-sign-out-alt"></i>
                         Logout
                     </a>
                 </li>
             </ul>
-            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+            <button class="navbar-toggle" id="mobileMenuToggle">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
     </nav>
 
-    <div class="container">
-        <div class="header">
-            <h2>All Salary Entries & Advances</h2>
-            <p>Comprehensive view of all salary entries and advance payments in the system</p>
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-messages">
+        {% for category, message in messages %}
+        <div class="flash-message {{ category }}">
+            <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' }}"></i>
+            <span>{{ message }}</span>
         </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
 
-        <div class="content">
-            <!-- Action Buttons -->
-            <div class="action-buttons">
-                <!-- Add any additional action buttons here if needed -->
+    <!-- Report Modal -->
+    <div class="modal-overlay" id="reportModal">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeReportModal()"><i class="fas fa-times"></i></button>
+            <div class="modal-title"><i class="fas fa-file-pdf me-2"></i>Generate Salary Disbursement Report</div>
+            <div class="form-group">
+                <label for="reportMonthYear">Select Month-Year <span style="color:#e74c3c;">*</span></label>
+                <input type="month" id="reportMonthYear">
             </div>
-
-            {% if salaries %}
-            <!-- Salary Table -->
-            <div class="table-container">
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Entry Type</th>
-                                <th>Project</th>
-                                <th>User</th>
-                                <th>Role</th>
-                                <th>Month-Year</th>
-                                <th>Base Salary</th>
-                                <th>Allowance</th>
-                                <th>PF</th>
-                                <th>Advance</th>
-                                <th>Net Amount</th>
-                                <th>Payment Mode</th>
-                                <th>Cheque No.</th>
-                                <th>Description</th>
-                                <th>Created By</th>
-                                <th>Created On</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for s in salaries %}
-                            <tr class="{{ 'advance-row' if s.entry_type == 'Advance Payment' else '' }}">
-                                <td>
-                                    <span class="entry-type-badge {{ s.entry_type.lower().replace(' ', '-') if s.entry_type else 'other' }}">
-                                        {% if s.entry_type == 'Advance Payment' %}
-                                            <i class="fas fa-hand-holding-usd"></i>
-                                            Advance Payment
-                                        {% elif s.entry_type == 'Salary Payment' %}
-                                            <i class="fas fa-money-check"></i>
-                                            Salary Payment
-                                        {% elif s.entry_type == 'Salary with Advance Deduction' %}
-                                            <i class="fas fa-minus-circle"></i>
-                                            Salary with Advance Deduction
-                                        {% else %}
-                                            <i class="fas fa-money-check"></i>
-                                            Regular Salary
-                                        {% endif %}
-                                    </span>
-                                </td>
-                                <td><strong>{{ s.project_name }}</strong></td>
-                                <td>{{ s.user_name }}</td>
-                                <td>{{ s.role }}</td>
-                                <td>{{ s.month_year }}</td>
-                                <td>
-                                    {% if s.base_salary and s.base_salary > 0 %}
-                                        <span class="amount positive-amount">₹{{ "%.2f"|format(s.base_salary) }}</span>
-                                    {% else %}
-                                        <span class="text-muted">-</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if s.allowance and s.allowance > 0 %}
-                                        <span class="amount positive-amount">₹{{ "%.2f"|format(s.allowance) }}</span>
-                                    {% else %}
-                                        <span class="text-muted">-</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if s.pf and s.pf > 0 %}
-                                        <span class="amount text-danger">₹{{ "%.2f"|format(s.pf) }}</span>
-                                    {% else %}
-                                        <span class="text-muted">-</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if s.advance and s.advance > 0 %}
-                                        <span class="amount advance-amount">₹{{ "%.2f"|format(s.advance) }}</span>
-                                    {% else %}
-                                        <span class="text-muted">-</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <strong class="amount {{ 'advance-amount' if s.entry_type == 'Advance Payment' else 'positive-amount' }}">
-                                        ₹{{ "%.2f"|format(s.net_amount if s.net_amount else ((s.base_salary or 0) + (s.allowance or 0) - (s.pf or 0) - (s.advance or 0))) }}
-                                    </strong>
-                                </td>
-                                <td>
-                                    {% if s.payment_mode %}
-                                        <span class="payment-badge {{ s.payment_mode }}">
-                                            {{ s.payment_mode.upper() }}
-                                        </span>
-                                    {% else %}
-                                        <span class="text-muted">-</span>
-                                    {% endif %}
-                                </td>
-                                <td>{{ s.cheque_number if s.cheque_number else '-' }}</td>
-                                <td>{{ s.description if s.description else '-' }}</td>
-                                <td>{{ s.created_by_name }}</td>
-                                <td>{{ s.created_on.strftime('%Y-%m-%d %H:%M') if s.created_on else '' }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+            <div id="reportError"></div>
+            <div class="modal-footer-btns">
+                <button class="btn-cancel" onclick="closeReportModal()">
+                    <i class="fas fa-times me-1"></i>Cancel
+                </button>
+                <button class="btn-generate" onclick="generateReport()">
+                    <i class="fas fa-download"></i>Download Report
+                </button>
             </div>
-            {% else %}
-            <div class="no-data">
-                <i class="fas fa-money-check-alt"></i>
-                <p>No salary entries or advance payments found.</p>
-            </div>
-            {% endif %}
         </div>
     </div>
 
+    <div class="container-fluid mt-4 px-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="invoice-form">
+
+                    <!-- Page Header -->
+                    <div class="section-header text-center">
+                        <div class="header-icon mb-2">
+                            <i class="fas fa-money-check-alt" style="font-size:2.5rem;"></i>
+                        </div>
+                        <h2 class="mb-1" style="font-size:2rem;">All Salary Entries & Advances</h2>
+                        <p class="mb-0" style="opacity:.85; font-size:.95rem;">Comprehensive view of all salary entries
+                            and advance payments in the organization</p>
+                    </div>
+
+                    {% if salaries %}
+
+                    <!-- Summary Cards -->
+                    <div class="summary-cards">
+                        <div class="summary-card total">
+                            <div class="s-label"><i class="fas fa-list me-1"></i>Total Entries</div>
+                            <div class="s-value">{{ salaries|length }}</div>
+                        </div>
+                        <div class="summary-card salary">
+                            <div class="s-label"><i class="fas fa-money-check me-1"></i>Salary Payments</div>
+                            <div class="s-value">{{ salaries|selectattr('base_salary','gt',0)|list|length }}</div>
+                        </div>
+                        <div class="summary-card advance">
+                            <div class="s-label"><i class="fas fa-hand-holding-usd me-1"></i>Advance Payments</div>
+                            <div class="s-value">{{ salaries|selectattr('base_salary','equalto',0)|list|length }}</div>
+                        </div>
+                        <div class="summary-card gross">
+                            <div class="s-label"><i class="fas fa-rupee-sign me-1"></i>Total Base Salary</div>
+                            <div class="s-value">&#8377;{{ "%.0f"|format(salaries|sum(attribute='base_salary')) }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="history-controls">
+                        <button class="btn-report" onclick="openReportModal()">
+                            <i class="fas fa-file-pdf"></i>Generate Disbursement Report
+                        </button>
+                        <input type="text" class="search-input form-control" id="searchInput"
+                            placeholder="🔍 Search project, user, month..." oninput="filterTable()"
+                            style="max-width:300px;">
+                        <select class="filter-select form-select" id="typeFilter" onchange="filterTable()"
+                            style="max-width:220px;">
+                            <option value="">All Entry Types</option>
+                            <option value="advance">Advance Payment</option>
+                            <option value="salary">Salary Payment</option>
+                            <option value="salary-with-advance">Salary with Advance</option>
+                        </select>
+                        <!-- <select class="filter-select form-select" id="modeFilter" onchange="filterTable()" style="max-width:160px;">
+                            <option value="">All Payment Modes</option>
+                            <option value="cash">Cash</option>
+                            <option value="cheque">Cheque</option>
+                        </select> -->
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table id="salaryTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Entry Type</th>
+                                    <th>Project</th>
+                                    <th>User</th>
+                                    <th>Role</th>
+                                    <th>Month-Year</th>
+                                    <th>Base Salary (&#8377;)</th>
+                                    <th>Allowance (&#8377;)</th>
+                                    <th>PF (&#8377;)</th>
+                                    <th>Advance (&#8377;)</th>
+                                    <th>Net Amount (&#8377;)</th>
+                                    <th>Payment Mode</th>
+                                    <th>Cheque No.</th>
+                                    <th>Description</th>
+                                    <th>Created By</th>
+                                    <th>Created On</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for s in salaries %}
+                                {% set is_advance_only = (s.base_salary == 0 and s.advance > 0) %}
+                                {% set is_salary_with_adv = (s.base_salary > 0 and s.advance > 0) %}
+                                {% set entry_type = 'advance' if is_advance_only else ('salary-with-advance' if
+                                is_salary_with_adv else 'salary') %}
+                                {% set net_amt = (s.base_salary or 0) + (s.allowance or 0) - (s.pf or 0) - (s.advance or
+                                0) - (s.other_deductions or 0) %}
+                                <tr class="{{ 'advance-row' if is_advance_only else '' }}" data-type="{{ entry_type }}"
+                                    data-mode="{{ s.payment_mode|lower if s.payment_mode else '' }}"
+                                    data-search="{{ s.project_name|lower }} {{ s.user_name|lower }} {{ s.month_year|lower }} {{ s.role|lower }}">
+                                    <td>{{ loop.index }}</td>
+                                    <td>
+                                        {% if is_advance_only %}
+                                        <span class="badge badge-advance-payment">
+                                            <i class="fas fa-hand-holding-usd"></i>Advance Payment
+                                        </span>
+                                        {% elif is_salary_with_adv %}
+                                        <span class="badge badge-salary-with-advance">
+                                            <i class="fas fa-minus-circle"></i>Salary + Advance
+                                        </span>
+                                        {% elif s.base_salary > 0 %}
+                                        <span class="badge badge-salary-payment">
+                                            <i class="fas fa-money-check"></i>Salary Payment
+                                        </span>
+                                        {% else %}
+                                        <span class="badge badge-other">
+                                            <i class="fas fa-money-check"></i>Regular Salary
+                                        </span>
+                                        {% endif %}
+                                    </td>
+                                    <td><strong>{{ s.project_name }}</strong></td>
+                                    <td>{{ s.user_name }}</td>
+                                    <td>{{ s.role }}</td>
+                                    <td>{{ s.month_year }}</td>
+                                    <td>
+                                        {% if s.base_salary and s.base_salary > 0 %}
+                                        <span class="amt-positive">{{ "%.2f"|format(s.base_salary) }}</span>
+                                        {% else %}
+                                        <span class="text-muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if s.allowance and s.allowance > 0 %}
+                                        <span class="amt-positive">{{ "%.2f"|format(s.allowance) }}</span>
+                                        {% else %}
+                                        <span class="text-muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if s.pf and s.pf > 0 %}
+                                        <span class="amt-danger">{{ "%.2f"|format(s.pf) }}</span>
+                                        {% else %}
+                                        <span class="text-muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if s.advance and s.advance > 0 %}
+                                        <span class="amt-advance">{{ "%.2f"|format(s.advance) }}</span>
+                                        {% else %}
+                                        <span class="text-muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <strong class="{{ 'amt-advance' if is_advance_only else 'amt-positive' }}">
+                                            &#8377;{{ "%.2f"|format(net_amt if s.base_salary > 0 else s.advance) }}
+                                        </strong>
+                                    </td>
+                                    <td>
+                                        {% if s.payment_mode %}
+                                        <span
+                                            class="badge {{ 'badge-cash' if s.payment_mode == 'cash' else 'badge-cheque' }}">
+                                            {{ s.payment_mode.upper() }}
+                                        </span>
+                                        {% else %}
+                                        <span class="text-muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ s.cheque_number if s.cheque_number else '—' }}</td>
+                                    <td>{{ s.description if s.description else '—' }}</td>
+                                    <td style="font-size:0.85rem;">{{ s.created_by_name }}</td>
+                                    <td style="font-size:0.85rem; white-space:nowrap;">
+                                        {{ s.created_on.strftime('%d-%m-%Y %H:%M') if s.created_on else '' }}
+                                    </td>
+                                    <td>
+                                        {% if s.base_salary > 0 %}
+                                        <a href="{{ url_for('download_salary_slip', salary_id=s.id) }}"
+                                            class="action-btn btn-download" target="_blank"
+                                            title="Download Salary Slip">
+                                            <i class="fas fa-file-pdf"></i> Slip
+                                        </a>
+                                        {% else %}
+                                        <span class="text-muted" style="font-size:0.8rem;">No slip</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {% else %}
+                    <div class="no-data">
+                        <i class="fas fa-money-check-alt"
+                            style="font-size:3rem; color:#d1d5db; display:block; margin-bottom:15px;"></i>
+                        No salary entries or advance payments found.
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-            const navbarNav = document.getElementById('navbarNav');
-            
-            if (mobileMenuToggle && navbarNav) {
-                mobileMenuToggle.addEventListener('click', function() {
-                    const icon = this.querySelector('i');
-                    navbarNav.classList.toggle('active');
-                    if (navbarNav.classList.contains('active')) {
-                        icon.classList.remove('fa-bars');
-                        icon.classList.add('fa-times');
-                    } else {
-                        icon.classList.remove('fa-times');
-                        icon.classList.add('fa-bars');
-                    }
-                });
-                
-                document.querySelectorAll('.nav-link').forEach(link => {
-                    link.addEventListener('click', function() {
-                        navbarNav.classList.remove('active');
-                        const icon = mobileMenuToggle.querySelector('i');
-                        icon.classList.remove('fa-times');
-                        icon.classList.add('fa-bars');
-                    });
-                });
+        // ── Mobile menu ──
+        document.getElementById('mobileMenuToggle').addEventListener('click', function () {
+            const nav = document.getElementById('navbarNav');
+            const icon = this.querySelector('i');
+            nav.classList.toggle('active');
+            if (nav.classList.contains('active')) {
+                icon.classList.replace('fa-bars', 'fa-times');
+            } else {
+                icon.classList.replace('fa-times', 'fa-bars');
             }
         });
+
+        document.querySelectorAll('.navbar-link').forEach(link => {
+            link.addEventListener('click', function () {
+                const nav = document.getElementById('navbarNav');
+                const icon = document.getElementById('mobileMenuToggle').querySelector('i');
+                nav.classList.remove('active');
+                icon.classList.replace('fa-times', 'fa-bars');
+            });
+        });
+
+        // ── Table filter ──
+        function filterTable() {
+            const search = document.getElementById('searchInput')?.value.toLowerCase() || '';
+            const type = document.getElementById('typeFilter')?.value || '';
+            const mode = document.getElementById('modeFilter')?.value || '';
+            document.querySelectorAll('#salaryTable tbody tr').forEach(row => {
+                const rowSearch = row.dataset.search || '';
+                const rowType = row.dataset.type || '';
+                const rowMode = row.dataset.mode || '';
+                const ok = (!search || rowSearch.includes(search))
+                    && (!type || rowType === type)
+                    && (!mode || rowMode === mode);
+                row.style.display = ok ? '' : 'none';
+            });
+        }
+
+        // ── Report Modal ──
+        function openReportModal() {
+            const today = new Date();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            document.getElementById('reportMonthYear').value = `${today.getFullYear()}-${mm}`;
+            document.getElementById('reportError').style.display = 'none';
+            document.getElementById('reportModal').classList.add('active');
+        }
+
+        function closeReportModal() {
+            document.getElementById('reportModal').classList.remove('active');
+            document.getElementById('reportMonthYear').value = '';
+            document.getElementById('reportError').style.display = 'none';
+        }
+
+        document.getElementById('reportModal').addEventListener('click', function (e) {
+            if (e.target === this) closeReportModal();
+        });
+
+        async function generateReport() {
+            const monthYear = document.getElementById('reportMonthYear').value;
+            const errorDiv = document.getElementById('reportError');
+
+            if (!monthYear) {
+                errorDiv.textContent = 'Please select a month-year.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                const response = await fetch('/download_salary_report', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ month_year: monthYear })
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `Salary_Disbursement_Report_${monthYear}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    closeReportModal();
+                } else {
+                    const data = await response.json();
+                    errorDiv.textContent = data.error || 'Error generating report.';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (err) {
+                errorDiv.textContent = 'Network error. Please try again.';
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        // ── Auto-dismiss flash messages ──
+        setTimeout(() => {
+            document.querySelectorAll('.flash-message').forEach(m => {
+                m.style.transition = 'opacity 0.5s';
+                m.style.opacity = '0';
+                setTimeout(() => m.remove(), 500);
+            });
+        }, 4000);
     </script>
 </body>
 

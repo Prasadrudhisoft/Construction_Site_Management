@@ -48,13 +48,14 @@
 
         /* Sidebar Styles */
         .sidebar {
-            width: 250px;
+            width: 280px;
             background: #2c3e50;
             color: white;
             padding: 20px;
             position: fixed;
             height: 100vh;
             overflow-y: auto;
+            overflow-x: hidden;
             transition: transform 0.3s ease;
             z-index: 1000;
         }
@@ -87,7 +88,7 @@
             text-decoration: none;
             border-radius: 8px;
             transition: all 0.3s ease;
-            white-space: nowrap;
+            white-space: normal;
         }
 
         .nav-link:hover {
@@ -105,7 +106,7 @@
         /* Main Content Styles */
         .main-content {
             flex: 1;
-            margin-left: 250px;
+            margin-left: 280px;
             padding: 30px;
             width: calc(100% - 250px);
             transition: margin-left 0.3s ease, width 0.3s ease;
@@ -386,6 +387,112 @@
                 min-width: 44px;
             }
         }
+
+        /* Notification Badge Styles */
+        .notification-badge {
+            display: none;
+            position: absolute;
+            top: 6px;
+            /* ✅ Adjusted for icon top */
+            left: 32px;
+            /* ✅ Positioned at icon's left corner */
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border-radius: 10px;
+            padding: 2px 6px;
+            font-size: 11px;
+            font-weight: 600;
+            min-width: 18px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            animation: pulse 2s infinite;
+            z-index: 10;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                box-shadow: 0 2px 8px rgba(231, 76, 60, 0.4);
+            }
+
+            50% {
+                transform: scale(1.1);
+                box-shadow: 0 4px 12px rgba(231, 76, 60, 0.6);
+            }
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        /* Badge variations */
+        .notification-badge.high {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            margin-left: -30px;
+        }
+
+        .notification-badge.medium {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            margin-left: -30px;
+        }
+
+        .notification-badge.low {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            margin-left: -30px;
+        }
+
+        /* Mobile adjustments */
+        @media screen and (max-width: 768px) {
+            .notification-badge {
+                display: none;
+                position: absolute;
+                top: 6px;
+                /* ✅ Adjusted for icon top */
+                left: 32px;
+                /* ✅ Positioned at icon's left corner */
+                background: linear-gradient(135deg, #e74c3c, #c0392b);
+                color: white;
+                border-radius: 10px;
+                padding: 2px 6px;
+                font-size: 11px;
+                font-weight: 600;
+                min-width: 18px;
+                text-align: center;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                animation: pulse 2s infinite;
+                z-index: 10;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .notification-badge {
+                display: none;
+                position: absolute;
+                top: 6px;
+                /* ✅ Adjusted for icon top */
+                left: 32px;
+                /* ✅ Positioned at icon's left corner */
+                background: linear-gradient(135deg, #3498db, #2980b9);
+                color: white;
+                border-radius: 10px;
+                padding: 2px 6px;
+                font-size: 11px;
+                font-weight: 600;
+                min-width: 18px;
+                text-align: center;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                animation: pulse 2s infinite;
+                z-index: 10;
+                align-items: center;
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 
@@ -402,30 +509,48 @@
         <!-- Sidebar -->
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <h2>Admin</h2>
+                <h2>Admin Panel</h2>
             </div>
             <ul class="nav-menu">
-                <li class="nav-item">
-                    <a href="{{ url_for('admin_vendor_inventory') }}" class="nav-link">
-                        <i class="fas fa-truck"></i>
-                        <span>Vendor Inventory Approval</span>
-                    </a>
+
+                <!-- ============== PROJECTS SECTION ============== -->
+                <li class="nav-item" style="margin-top: 10px;">
+                    <div
+                        style="padding: 8px 15px; color: #95a5a6; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
+                        Projects
+                    </div>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ url_for('register') }}" class="nav-link">
-                        <i class="fas fa-user-plus"></i> Add New User
+                    <a href="{{ url_for('view_project_details') }}" class="nav-link">
+                        <i class="fas fa-eye"></i>
+                        <span>View Architect Projects</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="{{ url_for('view_progress') }}" class="nav-link">
                         <i class="fas fa-chart-line"></i>
-                        <span>View Progress Reports</span>
+                        <span>Progress Reports</span>
+                        <span class="notification-badge" id="badge-progress-reports"></span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ url_for('view_enquiries') }}" class="nav-link">
-                        <i class="fas fa-question-circle"></i>
-                        <span>View Visitor Enquiries</span>
+                    <a href="{{ url_for('submit_legal_compliances') }}" class="nav-link">
+                        <i class="fas fa-gavel"></i>
+                        <span>Legal Compliance</span>
+                    </a>
+                </li>
+
+                <!-- ============== PEOPLE SECTION ============== -->
+                <li class="nav-item" style="margin-top: 20px;">
+                    <div
+                        style="padding: 8px 15px; color: #95a5a6; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
+                        People
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('register') }}" class="nav-link">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Add New User</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -441,41 +566,96 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ url_for('view_project_details') }}" class="nav-link">
-                        <i class="fas fa-eye"></i>
-                        <span>View Architect Projects</span>
+                    <a href="{{ url_for('view_worker_reports') }}" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        <span>Worker Reports</span>
+                        <span class="notification-badge" id="badge-worker-reports"></span>
+                    </a>
+                </li>
+
+                <!-- ============== INVENTORY SECTION ============== -->
+                <li class="nav-item" style="margin-top: 20px;">
+                    <div
+                        style="padding: 8px 15px; color: #95a5a6; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
+                        Inventory
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('view_inventory') }}" class="nav-link">
+                        <i class="fas fa-boxes"></i>
+                        <span>View Inventory</span>
+                        <span class="notification-badge" id="badge-inventory"></span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ url_for('submit_legal_compliances') }}" class="nav-link">
-                        <i class="fas fa-eye"></i>
-                        <span>Legal compliance</span>
+                    <a href="{{ url_for('admin_vendor_inventory') }}" class="nav-link">
+                        <i class="fas fa-truck"></i>
+                        <span>Vendor Inventory Approval</span>
+                        <span class="notification-badge" id="badge-vendor-inventory"></span>
                     </a>
                 </li>
-                <!-- <li class="nav-item">
-                    <a href="{{ url_for('view_worker_reports') }}" class="nav-link">
-                        <i class="fas fa-users"></i>
-                        <span>View Worker Reports</span>
+
+                <!-- ============== FINANCE SECTION ============== -->
+                <li class="nav-item" style="margin-top: 20px;">
+                    <div
+                        style="padding: 8px 15px; color: #95a5a6; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
+                        Finance
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('admin_view_expenses') }}" class="nav-link">
+                        <i class="fas fa-money-check-alt"></i>
+                        <span>Review Expenses</span>
+                        <span class="notification-badge" id="badge-expenses"></span>
                     </a>
-                </li> -->
-                <!-- Add the Generate Invoice (Admin) link here -->
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('admin_view_invoices') }}" class="nav-link">
+                        <i class="fas fa-file-invoice"></i>
+                        <span>View Invoices</span>
+                        <span class="notification-badge" id="badge-invoices"></span>
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a href="{{ url_for('admin_generate_invoice') }}" class="nav-link">
                         <i class="fas fa-file-invoice-dollar"></i>
-                        <span>Generate Invoice (Admin)</span>
+                        <span>Generate Invoice</span>
                     </a>
                 </li>
-                <!-- Salary Management Link -->
+                <li class="nav-item">
+                    <a href="{{ url_for('bills_and_payments') }}" class="nav-link">
+                        <i class="fas fa-receipt"></i>
+                        <span>Bills & Payments</span>
+                        <span class="notification-badge" id="badge-bills"></span>
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a href="{{ url_for('admin_view_salaries') }}" class="nav-link">
                         <i class="fas fa-money-bill-wave"></i>
                         <span>View All Salaries</span>
+                        <span class="notification-badge" id="badge-salaries"></span>
+                    </a>
+                </li>
+
+                <!-- ============== OTHER SECTION ============== -->
+                <li class="nav-item" style="margin-top: 20px;">
+                    <div
+                        style="padding: 8px 15px; color: #95a5a6; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
+                        Other
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('view_enquiries') }}" class="nav-link">
+                        <i class="fas fa-question-circle"></i>
+                        <span>Visitor Enquiries</span>
+                        <span class="notification-badge" id="badge-enquiries"></span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="{{ url_for('communication') }}" class="nav-link">
                         <i class="fas fa-comments"></i>
                         <span>Communication</span>
+                        <span class="notification-badge" id="badge-communication"></span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -588,7 +768,142 @@
                 closeMobileMenu();
             }
         });
+
+        // ----------------- Admin Dashboard Notification System -----------------
+
+        // ----------------- Admin Dashboard Notification System -----------------
+        function updateNotificationBadges() {
+            fetch('/api/notifications/count')
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Admin Notifications:', data);
+
+                    updateBadge('badge-invoices', data.invoices || 0);
+                    updateBadge('badge-expenses', data.expenses || 0);
+                    updateBadge('badge-worker-reports', data.worker_reports || 0);
+                    updateBadge('badge-vendor-inventory', data.vendor_inventory || 0);
+                    updateBadge('badge-enquiries', data.enquiries || 0);
+                    updateBadge('badge-progress-reports', data.progress || 0);
+                    updateBadge('badge-progress-reports', data.progress || 0);
+                    updateBadge('badge-salaries', data.salaries || 0);
+                    updateBadge('badge-inventory', data.inventory || 0);
+                    updateBadge('badge-communication', data.communication || 0);
+                    updateBadge('badge-bills', data.bills || 0);
+                })
+                .catch(error => console.error('Error fetching notifications:', error));
+        }
+
+        function updateBadge(badgeId, count) {
+            const badge = document.getElementById(badgeId);
+            if (!badge) {
+                console.warn(`Badge element ${badgeId} not found`);
+                return;
+            }
+
+            if (count > 0) {
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.style.display = 'flex';
+
+                badge.classList.remove('high', 'medium', 'low');
+                if (count >= 10) {
+                    badge.classList.add('high');
+                } else if (count >= 5) {
+                    badge.classList.add('medium');
+                } else {
+                    badge.classList.add('low');
+                }
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function markAsReadOnClick(notificationType) {
+            if (!notificationType) return;
+
+            fetch('/api/notifications/mark-read', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ notification_type: notificationType })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    console.log('Marked as read:', data);
+                    updateNotificationBadges();
+                })
+                .catch(err => console.error('Error marking as read:', err));
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('🚀 Admin Notification system initialized');
+
+            // Initial load
+            updateNotificationBadges();
+
+            // Refresh every 30 seconds (backup)
+            setInterval(updateNotificationBadges, 30000);
+
+            // ✅ ENHANCEMENT 1: BroadcastChannel listener (instant cross-tab updates)
+            try {
+                const commChannel = new BroadcastChannel('comm_badge_update');
+                commChannel.onmessage = function (event) {
+                    console.log('📢 BroadcastChannel: Updating badges instantly');
+                    updateNotificationBadges();
+                };
+            } catch (e) {
+                console.log('BroadcastChannel not supported:', e);
+            }
+
+            // ✅ ENHANCEMENT 2: localStorage listener (works across tabs instantly)
+            window.addEventListener('storage', function (e) {
+                if (e.key === 'comm_badge_last_update') {
+                    console.log('📢 localStorage: Updating badges instantly');
+                    updateNotificationBadges();
+                }
+            });
+
+            // ✅ ENHANCEMENT 3: Page visibility change (updates when switching tabs)
+            document.addEventListener('visibilitychange', function () {
+                if (!document.hidden) {
+                    console.log('📢 Tab visible: Updating badges');
+                    updateNotificationBadges();
+                }
+            });
+
+            // ✅ YOUR EXISTING NAVIGATION MARK-AS-READ CODE
+            const navLinks = {
+                'invoices': 'invoice_pending',
+                'admin_view_expenses': 'expense_submitted',
+                'view_worker_reports': 'worker_report_new',
+                'admin_vendor_inventory': 'vendor_pending',
+                'view_enquiries': 'enquiry_new',
+                'view_progress': 'progress_report',
+                'admin_view_salaries': 'salary_added',
+                'view_inventory': 'inventory_added',
+                'bills_and_payments': 'bill_added',
+
+            };
+
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function () {
+                    const href = this.getAttribute('href');
+                    if (!href) return;
+
+                    const routeName = href.split('/').pop().split('?')[0];
+                    const notifType = navLinks[routeName];
+
+                    if (notifType) {
+                        console.log(`Marking ${notifType} as read`);
+                        markAsReadOnClick(notifType);
+                    }
+                });
+            });
+        });
+
     </script>
+
 </body>
 
 </html>

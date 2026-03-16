@@ -27,7 +27,7 @@
 
         body {
             min-height: 100vh;
-            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            background: #f4f6f8;
             padding-top: 80px;
         }
 
@@ -429,9 +429,17 @@
         /* Mobile menu */
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Flash message auto-dismiss
+            const flashMsg = document.querySelector('.success-message');
+            if (flashMsg) {
+                setTimeout(function () {
+                    flashMsg.style.transition = 'opacity 0.5s';
+                    flashMsg.style.opacity = '0';
+                    setTimeout(() => flashMsg.remove(), 500);
+                }, 2000);
+            }
 
             const toggle = document.getElementById('mobileMenuToggle');
-
             const nav = document.getElementById('navbarNav');
 
             toggle.addEventListener('click', () => {

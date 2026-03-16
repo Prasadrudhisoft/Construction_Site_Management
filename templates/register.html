@@ -1,5 +1,6 @@
 <!doctype html>
 <html>
+
 <head>
     <title>Register - Construction Management</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -54,12 +55,13 @@
             justify-content: center;
             align-items: center;
             background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
-                        url(/static/images/construction.jpg);
+                url(/static/images/construction.jpg);
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             background-attachment: fixed;
-            padding-top: 80px; /* Add padding for navbar */
+            padding-top: 80px;
+            /* Add padding for navbar */
         }
 
         .register-container {
@@ -181,8 +183,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* Tablet Styles */
@@ -431,6 +440,76 @@
             }
         }
 
+        /* ─── Password Toggle Icon ─── */
+        .password-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .password-wrapper .form-control {
+            padding-right: 45px;
+            margin-bottom: 0;
+        }
+
+        .password-wrapper .toggle-password {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #888;
+            font-size: 16px;
+            transition: color 0.3s ease;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .password-wrapper .toggle-password:hover {
+            color: #1a73e8;
+        }
+
+        /* keep the original bottom margin on the wrapper */
+        .form-group .password-wrapper {
+            margin-bottom: 20px;
+        }
+
+        /* ─── Responsive adjustments ─── */
+        @media screen and (max-width: 768px) {
+            .password-wrapper .toggle-password {
+                right: 12px;
+                font-size: 15px;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .form-group .password-wrapper {
+                margin-bottom: 15px;
+            }
+
+            .password-wrapper .toggle-password {
+                right: 10px;
+                font-size: 14px;
+            }
+        }
+
+        @media screen and (max-width: 360px) {
+            .password-wrapper .toggle-password {
+                right: 8px;
+                font-size: 13px;
+            }
+        }
+
+        @media screen and (max-height: 500px) and (orientation: landscape) {
+            .form-group .password-wrapper {
+                margin-bottom: 10px;
+            }
+
+            .password-wrapper .toggle-password {
+                right: 8px;
+                font-size: 13px;
+            }
+        }
+
         /* Touch device optimizations */
         @media (hover: none) {
             .register-container:hover {
@@ -445,8 +524,95 @@
                 color: #1a73e8;
             }
         }
+
+        /* ─── Flash Messages ─── */
+        .flash-message {
+            padding: 14px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+            font-size: 14px;
+            animation: slideIn 0.4s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .flash-message i {
+            font-size: 16px;
+        }
+
+        .flash-message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .flash-message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive flash messages */
+        @media screen and (max-width: 768px) {
+            .flash-message {
+                padding: 12px 14px;
+                font-size: 13px;
+            }
+
+            .flash-message i {
+                font-size: 15px;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .flash-message {
+                padding: 10px 12px;
+                font-size: 13px;
+                gap: 6px;
+            }
+
+            .flash-message i {
+                font-size: 14px;
+            }
+        }
+
+        @media screen and (max-width: 360px) {
+            .flash-message {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+
+            .flash-message i {
+                font-size: 13px;
+            }
+        }
+
+        @media screen and (max-height: 500px) and (orientation: landscape) {
+            .flash-message {
+                padding: 8px 10px;
+                font-size: 12px;
+                margin-bottom: 10px;
+            }
+        }
     </style>
 </head>
+
 <body>
     <nav class="navbar">
         <ul class="navbar-nav">
@@ -465,61 +631,109 @@
         </ul>
     </nav>
 
-<div class="register-container">
-    <div class="logo">
-        <img src="/static/images/engineers.png" alt="Construction Logo">
-    </div>
-
-    <h2>Register New User</h2>
-
-<form method="POST" action="{{ url_for('register') }}">
-    <div class="form-group">
-        <label>Name:</label>
-        <input type="text" name="name" required class="form-control">
-    </div>
-
-    <div class="form-group">
-        <label>Email:</label>
-        <input type="email" name="email" required class="form-control">
-    </div>
-
-    <div class="form-group">
-        <label>Password:</label>
-        <input type="password" name="password" required class="form-control">
-    </div>
-
-    <div class="form-group">
-        <label>Role:</label>
-        <select name="role" id="roleSelect" required class="form-control">
-            <option value="">Select Role</option>
-            <option value="architect">Architect</option>
-            <option value="site_engineer">Project Manager</option>
-            <option value="accountant">Accountant</option>
-        </select>
-    </div>
-
-    <div id="architectFields" style="display: none;">
-        <div class="form-group">
-            <label>License Number:</label>
-            <input type="text" name="license_number" class="form-control">
+    <div class="register-container">
+        <div class="logo">
+            <img src="/static/images/engineers.png" alt="Construction Logo">
         </div>
 
-        <div class="form-group">
-            <label>Contact Number:</label>
-            <input type="text" name="contact_no" class="form-control">
+        <h2>Register New User</h2>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="flash-message {{ category }}">
+            {% if category == 'success' %}
+            <i class="fas fa-check-circle"></i>
+            {% elif category == 'error' %}
+            <i class="fas fa-exclamation-circle"></i>
+            {% endif %}
+            {{ message }}
         </div>
-    </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
 
-    <button type="submit" class="btn btn-primary">Register User</button>
-</form>
+        <form method="POST" action="{{ url_for('register') }}">
+            <div class="form-group">
+                <label>Name:</label>
+                <input type="text" name="name" required class="form-control">
+            </div>
 
-<script>
-document.getElementById('roleSelect').addEventListener('change', function () {
-    const role = this.value;
-    const fields = document.getElementById('architectFields');
-    fields.style.display = (role === 'architect') ? 'block' : 'none';
-});
-</script>
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" name="email" required class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>Password:</label>
+                <div class="password-wrapper">
+                    <input type="password" name="password" id="password" required class="form-control">
+                    <i class="fas fa-eye toggle-password" data-target="password"></i>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Role:</label>
+                <select name="role" id="roleSelect" required class="form-control">
+                    <option value="">Select Role</option>
+                    <option value="architect">Architect</option>
+                    <option value="site_engineer">Project Manager</option>
+                    <option value="accountant">Accountant</option>
+                </select>
+            </div>
+
+            <!-- License Number: Only for Architects -->
+            <div id="architectFields" style="display: none;">
+                <div class="form-group">
+                    <label>License Number:</label>
+                    <input type="text" name="license_number" class="form-control">
+                </div>
+            </div>
+
+            <!-- Contact Number: For ALL roles -->
+            <div class="form-group">
+                <label>Contact Number:</label>
+                <input type="text" name="contact_no" class="form-control" placeholder="Enter 10-digit number"
+                    maxlength="10" pattern="[0-9]{10}" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+            </div>
+
+            <button type="submit" class="btn btn-primary">Register User</button>
+        </form>
+
+        <script>
+            document.querySelector('form').addEventListener('submit', function (e) {
+                const contact = document.querySelector('input[name="contact_no"]').value;
+                if (contact && !/^[0-9]{10}$/.test(contact)) {
+                    e.preventDefault();
+                    alert('Please enter a valid 10-digit contact number.');
+                    document.querySelector('input[name="contact_no"]').focus();
+                    return;
+                }
+            });
+            document.getElementById('roleSelect').addEventListener('change', function () {
+                const role = this.value;
+                const fields = document.getElementById('architectFields');
+                fields.style.display = (role === 'architect') ? 'block' : 'none';
+            });
+            document.querySelectorAll('.toggle-password').forEach(function (icon) {
+                icon.addEventListener('click', function () {
+                    const targetId = this.getAttribute('data-target');
+                    const input = document.getElementById(targetId);
+
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        this.classList.remove('fa-eye');
+                        this.classList.add('fa-eye-slash');
+                    } else {
+                        input.type = 'password';
+                        this.classList.remove('fa-eye-slash');
+                        this.classList.add('fa-eye');
+                    }
+                });
+            });
+        </script>
 
 </body>
+
 </html>

@@ -8,12 +8,12 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
     <style>
-
         * {
 
             margin: 0;
@@ -28,7 +28,8 @@
 
 
 
-        html, body {
+        html,
+        body {
 
             height: 100%;
 
@@ -40,7 +41,7 @@
 
             min-height: 100vh;
 
-            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            background: #f4f6f8;
 
             font-family: 'Poppins', sans-serif;
 
@@ -76,7 +77,7 @@
 
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
 
-            animation: slideDown 0.7s cubic-bezier(.77,0,.18,1) 0s 1;
+            animation: slideDown 0.7s cubic-bezier(.77, 0, .18, 1) 0s 1;
 
         }
 
@@ -84,9 +85,15 @@
 
         @keyframes slideDown {
 
-            from { transform: translateY(-100%); opacity: 0; }
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
 
-            to { transform: translateY(0); opacity: 1; }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
 
         }
 
@@ -186,7 +193,7 @@
 
             border-radius: 8px;
 
-            transition: all 0.3s cubic-bezier(.77,0,.18,1);
+            transition: all 0.3s cubic-bezier(.77, 0, .18, 1);
 
             display: flex;
 
@@ -208,7 +215,8 @@
 
             position: absolute;
 
-            left: 0; bottom: 0;
+            left: 0;
+            bottom: 0;
 
             width: 0;
 
@@ -216,13 +224,14 @@
 
             background: #3498db;
 
-            transition: width 0.3s cubic-bezier(.77,0,.18,1);
+            transition: width 0.3s cubic-bezier(.77, 0, .18, 1);
 
         }
 
 
 
-        .nav-link:hover::after, .nav-link.active::after {
+        .nav-link:hover::after,
+        .nav-link.active::after {
 
             width: 100%;
 
@@ -248,7 +257,7 @@
 
             color: white;
 
-            box-shadow: 0 4px 16px rgba(52,152,219,0.08);
+            box-shadow: 0 4px 16px rgba(52, 152, 219, 0.08);
 
         }
 
@@ -316,9 +325,9 @@
 
             border-radius: 22px;
 
-            box-shadow: 0 8px 32px rgba(52,152,219,0.13);
+            box-shadow: 0 8px 32px rgba(52, 152, 219, 0.13);
 
-            animation: fadeIn 0.7s cubic-bezier(.77,0,.18,1);
+            animation: fadeIn 0.7s cubic-bezier(.77, 0, .18, 1);
 
             position: relative;
 
@@ -330,9 +339,15 @@
 
         @keyframes fadeIn {
 
-            from { opacity: 0; transform: translateY(30px);}
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
 
-            to { opacity: 1; transform: translateY(0);}
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
 
         }
 
@@ -488,7 +503,7 @@
 
             background: white;
 
-            box-shadow: 0 0 0 2px rgba(52,152,219,0.13);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.13);
 
         }
 
@@ -558,13 +573,25 @@
 
 
 
-        .status-available { background: #d4edda; color: #155724; }
+        .status-available {
+            background: #d4edda;
+            color: #155724;
+        }
 
-        .status-low { background: #fff3cd; color: #856404; }
+        .status-low {
+            background: #fff3cd;
+            color: #856404;
+        }
 
-        .status-out { background: #f8d7da; color: #721c24; }
+        .status-out {
+            background: #f8d7da;
+            color: #721c24;
+        }
 
-        .status-ordered { background: #d1ecf1; color: #0c5460; }
+        .status-ordered {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
 
 
 
@@ -600,7 +627,7 @@
 
         }
 
-        
+
 
         /* Multiple Items Styles */
 
@@ -618,7 +645,7 @@
 
         }
 
-        
+
 
         .materials-header {
 
@@ -632,7 +659,7 @@
 
         }
 
-        
+
 
         .materials-title {
 
@@ -650,7 +677,7 @@
 
         }
 
-        
+
 
         .add-item-btn {
 
@@ -680,7 +707,7 @@
 
         }
 
-        
+
 
         .add-item-btn:hover {
 
@@ -690,7 +717,7 @@
 
         }
 
-        
+
 
         .material-item {
 
@@ -714,17 +741,23 @@
 
         }
 
-        
+
 
         @keyframes slideIn {
 
-            from { opacity: 0; transform: translateY(-10px); }
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
 
-            to { opacity: 1; transform: translateY(0); }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
 
         }
 
-        
+
 
         .material-item-content {
 
@@ -736,7 +769,7 @@
 
         }
 
-        
+
 
         .material-desc-group {
 
@@ -744,7 +777,7 @@
 
         }
 
-        
+
 
         .material-qty-group {
 
@@ -752,7 +785,7 @@
 
         }
 
-        
+
 
         .material-item .form-control {
 
@@ -764,7 +797,7 @@
 
         }
 
-        
+
 
         .material-item .input-with-icon {
 
@@ -772,7 +805,7 @@
 
         }
 
-        
+
 
         .material-item .input-icon {
 
@@ -782,7 +815,7 @@
 
         }
 
-        
+
 
         .remove-item-btn {
 
@@ -814,7 +847,7 @@
 
         }
 
-        
+
 
         .remove-item-btn:hover {
 
@@ -824,7 +857,7 @@
 
         }
 
-        
+
 
         .material-item-label {
 
@@ -838,7 +871,7 @@
 
         }
 
-        
+
 
         .materials-summary {
 
@@ -896,7 +929,7 @@
 
             gap: 10px;
 
-            box-shadow: 0 2px 8px rgba(52,152,219,0.10);
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.10);
 
         }
 
@@ -972,7 +1005,7 @@
 
             font-size: 1.08rem;
 
-            box-shadow: 0 2px 8px rgba(46,204,113,0.10);
+            box-shadow: 0 2px 8px rgba(46, 204, 113, 0.10);
 
         }
 
@@ -1050,7 +1083,7 @@
 
 
 
-        .form-tips {
+        /* .form-tips {
 
             background: #e8f4fd;
 
@@ -1098,15 +1131,20 @@
 
             margin-bottom: 4px;
 
-        }
+        } */
 
 
 
         @keyframes pulse {
 
-            0%, 100% { transform: scale(1); }
+            0%,
+            100% {
+                transform: scale(1);
+            }
 
-            50% { transform: scale(1.05); }
+            50% {
+                transform: scale(1.05);
+            }
 
         }
 
@@ -1186,7 +1224,7 @@
 
                 gap: 20px;
 
-                transition: left 0.3s cubic-bezier(.77,0,.18,1);
+                transition: left 0.3s cubic-bezier(.77, 0, .18, 1);
 
             }
 
@@ -1216,7 +1254,7 @@
 
             }
 
-            
+
 
             .form-container {
 
@@ -1224,7 +1262,7 @@
 
             }
 
-            
+
 
             .form-header h2 {
 
@@ -1232,7 +1270,7 @@
 
             }
 
-            
+
 
             .form-header i {
 
@@ -1240,7 +1278,7 @@
 
             }
 
-            
+
 
             .material-item-content {
 
@@ -1250,7 +1288,7 @@
 
             }
 
-            
+
 
             .material-desc-group,
 
@@ -1324,7 +1362,7 @@
 
             }
 
-            
+
 
             .materials-header {
 
@@ -1336,7 +1374,7 @@
 
             }
 
-            
+
 
             .add-item-btn {
 
@@ -1422,7 +1460,7 @@
 
             }
 
-            
+
 
             .material-item {
 
@@ -1430,7 +1468,7 @@
 
             }
 
-            
+
 
             .remove-item-btn {
 
@@ -1581,7 +1619,6 @@
             }
 
         }
-
     </style>
 
 </head>
@@ -1598,11 +1635,11 @@
 
                 <i class="fas fa-hard-hat"></i>
 
-                <span>Site Engineer Portal</span>
+                <span>Project Manager Portal</span>
 
             </a>
 
-            
+
 
             <ul class="navbar-nav" id="navbarNav">
 
@@ -1686,23 +1723,23 @@
 
         {% with messages = get_flashed_messages() %}
 
-          {% if messages %}
+        {% if messages %}
 
-            <div class="success-message">
+        <div class="success-message">
 
-                <i class="fas fa-check-circle"></i>
+            <i class="fas fa-check-circle"></i>
 
-                {{ messages[0] }}
+            {{ messages[0] }}
 
-            </div>
+        </div>
 
-          {% endif %}
+        {% endif %}
 
         {% endwith %}
 
 
 
-        <div class="form-tips">
+        <!-- <div class="form-tips">
 
             <h4>
 
@@ -1722,7 +1759,7 @@
 
             </ul>
 
-        </div>
+        </div> -->
 
 
 
@@ -1752,7 +1789,7 @@
 
                 </div>
 
-                
+
 
                 <div id="materialsContainer">
 
@@ -1770,11 +1807,9 @@
 
                                     <i class="fas fa-clipboard-list input-icon"></i>
 
-                                    <input type="text" name="material_description[]" 
-
-                                           class="form-control input-with-icon" required
-
-                                           placeholder="e.g., Portland Cement - Grade 43">
+                                    <input type="text" name="material_description[]"
+                                        class="form-control input-with-icon" required
+                                        placeholder="e.g., Portland Cement - Grade 43">
 
                                 </div>
 
@@ -1788,11 +1823,9 @@
 
                                     <i class="fas fa-sort-numeric-up input-icon"></i>
 
-                                    <input type="number" name="quantity[]" 
-
-                                           class="form-control input-with-icon quantity-input" required min="0"
-
-                                           placeholder="Qty">
+                                    <input type="number" name="quantity[]"
+                                        class="form-control input-with-icon quantity-input" required min="0"
+                                        placeholder="Qty">
 
                                 </div>
 
@@ -1810,7 +1843,7 @@
 
                 </div>
 
-                
+
 
                 <div class="materials-summary" id="materialsSummary">
 
@@ -1882,9 +1915,7 @@
 
                     <i class="fas fa-calendar-alt input-icon"></i>
 
-                    <input type="date" name="date" id="date"
-
-                           class="form-control input-with-icon" required>
+                    <input type="date" name="date" id="date" class="form-control input-with-icon" required>
 
                 </div>
 
@@ -1911,18 +1942,27 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             let materialCount = 1;
-            
+            // Flash message auto-dismiss
+            const flashMsg = document.querySelector('.success-message');
+            if (flashMsg) {
+                setTimeout(function () {
+                    flashMsg.style.transition = 'opacity 0.5s';
+                    flashMsg.style.opacity = '0';
+                    setTimeout(() => flashMsg.remove(), 500);
+                }, 2000);
+            }
+
             // Mobile navbar toggle - Same as assign site
             const mobileMenuToggle = document.getElementById('mobileMenuToggle');
             const navbarNav = document.getElementById('navbarNav');
-            
+
             if (mobileMenuToggle && navbarNav) {
-                mobileMenuToggle.addEventListener('click', function() {
+                mobileMenuToggle.addEventListener('click', function () {
                     const icon = this.querySelector('i');
                     navbarNav.classList.toggle('active');
-                    
+
                     if (navbarNav.classList.contains('active')) {
                         icon.classList.remove('fa-bars');
                         icon.classList.add('fa-times');
@@ -1931,19 +1971,19 @@
                         icon.classList.add('fa-bars');
                     }
                 });
-                
+
                 // Close mobile menu when clicking on nav links
                 document.querySelectorAll('.nav-link').forEach(link => {
-                    link.addEventListener('click', function() {
+                    link.addEventListener('click', function () {
                         navbarNav.classList.remove('active');
                         const icon = mobileMenuToggle.querySelector('i');
                         icon.classList.remove('fa-times');
                         icon.classList.add('fa-bars');
                     });
                 });
-                
+
                 // Close mobile menu when clicking outside
-                document.addEventListener('click', function(e) {
+                document.addEventListener('click', function (e) {
                     if (!mobileMenuToggle.contains(e.target) && !navbarNav.contains(e.target)) {
                         navbarNav.classList.remove('active');
                         const icon = mobileMenuToggle.querySelector('i');
@@ -1957,10 +1997,10 @@
             document.getElementById('date').valueAsDate = new Date();
 
             // Add Item functionality
-            document.getElementById('addItemBtn').addEventListener('click', function() {
+            document.getElementById('addItemBtn').addEventListener('click', function () {
                 materialCount++;
                 const materialsContainer = document.getElementById('materialsContainer');
-                
+
                 const newItem = document.createElement('div');
                 newItem.className = 'material-item';
                 newItem.innerHTML = `
@@ -1988,20 +2028,20 @@
                         <i class="fas fa-times"></i>
                     </button>
                 `;
-                
+
                 materialsContainer.appendChild(newItem);
                 updateMaterialsSummary();
                 updateRemoveButtons();
-                
+
                 // Add event listeners to new inputs
                 addInputEventListeners(newItem);
-                
+
                 // Focus on the new material description input
                 newItem.querySelector('input[name="material_description[]"]').focus();
             });
 
             // Remove Item functionality
-            document.addEventListener('click', function(e) {
+            document.addEventListener('click', function (e) {
                 if (e.target.closest('.remove-item-btn') && !e.target.closest('.remove-item-btn').disabled) {
                     const materialItem = e.target.closest('.material-item');
                     materialItem.remove();
@@ -2029,7 +2069,7 @@
             function addInputEventListeners(container) {
                 const inputs = container.querySelectorAll('.form-control');
                 inputs.forEach(input => {
-                    input.addEventListener('blur', function() {
+                    input.addEventListener('blur', function () {
                         if (this.checkValidity()) {
                             this.style.borderColor = '#27ae60';
                         } else {
@@ -2037,7 +2077,7 @@
                         }
                     });
 
-                    input.addEventListener('input', function() {
+                    input.addEventListener('input', function () {
                         if (this.style.borderColor === '#e74c3c') {
                             this.style.borderColor = '#ddd';
                         }
@@ -2045,7 +2085,7 @@
 
                     // Quantity validation
                     if (input.classList.contains('quantity-input')) {
-                        input.addEventListener('input', function() {
+                        input.addEventListener('input', function () {
                             if (parseInt(this.value) < 0) {
                                 this.value = 0;
                             }
@@ -2058,7 +2098,7 @@
             addInputEventListeners(document);
 
             // Form submission handling
-            document.getElementById('inventoryForm').addEventListener('submit', function(e) {
+            document.getElementById('inventoryForm').addEventListener('submit', function (e) {
                 const submitBtn = document.getElementById('submitBtn');
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
                 submitBtn.classList.add('loading');
@@ -2066,10 +2106,10 @@
             });
 
             // Status select enhancement
-            document.getElementById('status').addEventListener('change', function() {
+            document.getElementById('status').addEventListener('change', function () {
                 const badges = document.querySelectorAll('.status-badge');
                 badges.forEach(badge => badge.style.opacity = '0.3');
-                
+
                 const selectedStatus = this.value;
                 if (selectedStatus) {
                     const targetBadge = document.querySelector(`.status-${selectedStatus.replace('_', '')}`);
@@ -2083,7 +2123,7 @@
             });
 
             // Auto-focus first input after page load
-            window.addEventListener('load', function() {
+            window.addEventListener('load', function () {
                 document.querySelector('input[name="material_description[]"]').focus();
             });
 
@@ -2092,4 +2132,5 @@
         });
     </script>
 </body>
+
 </html>

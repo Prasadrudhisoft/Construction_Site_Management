@@ -694,6 +694,33 @@
                 min-height: 44px;
             }
         }
+
+        .notification-badge {
+            position: absolute;
+            top: 6px;
+            left: 32px;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border-radius: 12px;
+            padding: 3px 8px;
+            font-size: 11px;
+            font-weight: 700;
+            min-width: 20px;
+            text-align: center;
+            display: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+
+        .notification-badge.show {
+            display: inline-block !important;
+             margin-left: -30px;
+        }
+
+        .nav-item {
+            position: relative;
+        }
     </style>
 </head>
 
@@ -761,12 +788,14 @@
                     <a href="{{ url_for('legal_compliances_dashboard') }}" class="nav-link">
                         <i class="fas fa-file-contract"></i>
                         <span>Legal Compliance</span>
+                        <span class="notification-badge" id="badge-legal"></span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="{{ url_for('communication') }}" class="nav-link">
                         <i class="fas fa-comments"></i>
                         <span>Communication</span>
+                        <span class="notification-badge" id="badge-communication"></span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -1282,7 +1311,7 @@
                     message.remove();
                 }, 300);
             });
-        }, 5000);
+        }, 2000);
 
         // Initialize on page load
         document.addEventListener("DOMContentLoaded", function () {
@@ -1379,6 +1408,106 @@
                     }
                 }
             }
+        });
+        // ===== Architect Notification System =====
+        // ===== Enhanced Architect Notification System =====
+        function updateNotificationBadges() {
+            fetch('/api/notifications/count')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('✅ Architect notifications:', data);
+                    updateBadge('badge-legal', data.legal || 0);
+                    updateBadge('badge-communication', data.communication || 0);
+                })
+                .catch(error => console.error('❌ Error:', error));
+        }
+
+        function updateBadge(badgeId, count) {
+            const badge = document.getElementById(badgeId);
+            if (!badge) {
+                console.warn(`⚠️ Badge not found: ${badgeId}`);
+                return;
+            }
+
+            if (count > 0) {
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.classList.add('show');
+            } else {
+                badge.classList.remove('show');
+            }
+        }
+
+        function markAsReadOnClick(notificationType) {
+            console.log(`📖 Marking as read: ${notificationType}`);
+
+            fetch('/api/notifications/mark-read', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ notification_type: notificationType })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    console.log('✅ Marked as read:', data);
+                    updateNotificationBadges();
+                })
+                .catch(err => console.error('❌ Error marking as read:', err));
+        }
+
+        // ✅ ENHANCED NOTIFICATION INITIALIZATION
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('🚀 Architect Notification system initialized');
+
+            // Initial load
+            updateNotificationBadges();
+
+            // Refresh every 30 seconds (backup)
+            setInterval(updateNotificationBadges, 30000);
+
+            // ✅ ENHANCEMENT 1: BroadcastChannel listener (instant cross-tab updates)
+            try {
+                const commChannel = new BroadcastChannel('comm_badge_update');
+                commChannel.onmessage = function (event) {
+                    console.log('📢 BroadcastChannel: Updating badges instantly');
+                    updateNotificationBadges();
+                };
+            } catch (e) {
+                console.log('BroadcastChannel not supported:', e);
+            }
+
+            // ✅ ENHANCEMENT 2: localStorage listener (works across tabs instantly)
+            window.addEventListener('storage', function (e) {
+                if (e.key === 'comm_badge_last_update') {
+                    console.log('📢 localStorage: Updating badges instantly');
+                    updateNotificationBadges();
+                }
+            });
+
+            // ✅ ENHANCEMENT 3: Page visibility change (updates when switching tabs)
+            document.addEventListener('visibilitychange', function () {
+                if (!document.hidden) {
+                    console.log('📢 Tab visible: Updating badges');
+                    updateNotificationBadges();
+                }
+            });
+
+            // ✅ NAVIGATION MARK-AS-READ CODE
+            const navLinks = {
+                'legal_compliances_dashboard': 'legal_updated'
+            };
+
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function () {
+                    const href = this.getAttribute('href');
+                    if (!href || href === '#') return;
+
+                    const routeName = href.split('/').pop().split('?')[0];
+                    const notifType = navLinks[routeName];
+
+                    if (notifType) {
+                        markAsReadOnClick(notifType);
+                    }
+                });
+            });
         });
     </script>
 </body>

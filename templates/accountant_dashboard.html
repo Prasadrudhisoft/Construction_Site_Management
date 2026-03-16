@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Accountant Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -40,7 +42,7 @@
             cursor: pointer;
             font-size: 18px;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
 
         .mobile-menu-toggle:hover {
@@ -257,7 +259,7 @@
         }
 
         .invoice-table th {
-            background: linear-gradient(135deg, #2c3e50, #34495e);
+            background: linear-gradient(135deg, #3498db, #2c3e50);
             color: white;
             padding: 15px;
             text-align: left;
@@ -781,6 +783,7 @@
 
         /* Reduced motion support */
         @media (prefers-reduced-motion: reduce) {
+
             .sidebar,
             .main-content,
             .section,
@@ -801,6 +804,7 @@
 
         /* Print styles */
         @media print {
+
             .sidebar,
             .mobile-menu-toggle,
             .sidebar-overlay {
@@ -823,8 +827,37 @@
                 font-size: 12px;
             }
         }
+
+        .notification-badge {
+            position: absolute;
+            top: 6px;
+            left: 32px;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border-radius: 12px;
+            padding: 3px 8px;
+            font-size: 11px;
+            font-weight: 700;
+            min-width: 20px;
+            text-align: center;
+            display: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+
+        .notification-badge.show {
+            display: inline-block !important;
+            margin-left: -30px;
+
+        }
+
+        .nav-item {
+            position: relative;
+        }
     </style>
 </head>
+
 <body>
     <div class="dashboard-container">
         <!-- Mobile Menu Toggle -->
@@ -841,16 +874,35 @@
                 <h2>Accountant</h2>
             </div>
             <ul class="nav-menu">
-                <li class="nav-item">
+                <!-- <li class="nav-item">
                     <a href="#" class="nav-link">
                         <i class="fas fa-chart-bar"></i>
                         <span>Dashboard</span>
+                    </a>
+                </li> -->
+                <li class="nav-item" style="margin-top: 20px;">
+                    <div
+                        style="padding: 8px 15px; color: #95a5a6; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
+                        Finance
+                    </div>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{{ url_for('base_salary_management') }}" class="nav-link">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>Base Salary</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="{{ url_for('add_salary') }}" class="nav-link">
                         <i class="fas fa-plus-circle"></i>
                         <span>Enter Salary</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('advance_management') }}" class="nav-link">
+                        <i class="fas fa-hand-holding-usd"></i>
+                        <span>Advance Management</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -863,20 +915,44 @@
                     <a href="{{ url_for('legal_compliances_dashboard') }}" class="nav-link">
                         <i class="fas fa-file-contract"></i>
                         <span>Legal Compliances</span>
+                        <span class="notification-badge" id="badge-legal"></span>
                     </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('bills_and_payments') }}" class="nav-link">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <span>Bills & Payments</span>
+                        <span class="notification-badge" id="badge-bills"></span>
+                    </a>
+                </li>
 
+                <li class="nav-item">
+                    <a href="{{ url_for('accountant_view_invoices') }}" class="nav-link">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <span>Approved Invoices</span>
+                        <span class="notification-badge" id="badge-invoices"></span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('accountant_view_expenses') }}" class="nav-link">
+                        <i class="fas fa-money-check-alt"></i>
+                        <span>View Expenses</span>
+                        <span class="notification-badge" id="badge-expenses"></span>
+                    </a>
+                </li>
+                <li class="nav-item" style="margin-top: 20px;">
+                    <div
+                        style="padding: 8px 15px; color: #95a5a6; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
+                        Others
+                    </div>
                 </li>
                 <li class="nav-item">
                     <a href="{{ url_for('communication') }}" class="nav-link">
                         <i class="fas fa-comments"></i>
                         <span>Communication</span>
+                        <span class="notification-badge" id="badge-communication"></span>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="{{ url_for('accountant_view_expenses') }}" class="nav-link">
-                        <i class="fas fa-money-bill-wave"></i>
-                        <span>Expenses</span>
-                    </a>
                 <li class="nav-item">
                     <a href="{{ url_for('logout') }}" class="nav-link">
                         <i class="fas fa-sign-out-alt"></i>
@@ -894,68 +970,68 @@
             </div>
 
             {% if projects_with_invoices %}
-                {% for project_id, data in projects_with_invoices.items() %}
-                    <div class="section">
-                        <h3><i class="fas fa-folder-open"></i> Project: {{ data.project_name }}</h3>
-                        <div class="table-wrapper">
-                            <table class="invoice-table">
-                                <thead>
-                                    <tr>
-                                        <th><i class="fas fa-hashtag"></i> Invoice </th>
-                                        <th><i class="fas fa-truck"></i> Vendor</th>
-                                        <th><i class="fas fa-dollar-sign"></i> Total Amount</th>
-                                        <th><i class="fas fa-percent"></i> GST</th>
-                                        <th><i class="fas fa-calendar"></i> Date</th>
-                                        <th><i class="fas fa-file-pdf"></i> PDF</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% if data.invoices %}
-                                        {% for invoice in data.invoices %}
-                                        <tr>
-                                            <td>{{ invoice.invoice_number }}</td>
-                                            <td>{{ invoice.vendor_name }}</td>
-                                            <td>₹{{ invoice.total_amount }}</td>
-                                            <td>₹{{ invoice.gst_amount }}</td>
-                                            <td>{{ invoice.generated_on.strftime('%Y-%m-%d') if invoice.generated_on else '' }}</td>
-                                            <td>
-                                                {% if invoice.pdf_filename %}
-                                                    <a href="{{ url_for('static', filename='invoice_pdfs/' ~ invoice.pdf_filename) }}" target="_blank" class="file-link">
-                                                        <i class="fas fa-file-pdf"></i> View PDF
-                                                    </a>
-                                                {% else %}
-                                                    No PDF
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
+            {% for project_id, data in projects_with_invoices.items() %}
+            <div class="section">
+                <h3><i class="fas fa-folder-open"></i> Project: {{ data.project_name }}</h3>
+                <div class="table-wrapper">
+                    <table class="invoice-table">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-hashtag"></i> Invoice </th>
+                                <th><i class="fas fa-truck"></i> Vendor</th>
+                                <th><i class="fas fa-dollar-sign"></i> Total Amount</th>
+                                <th><i class="fas fa-percent"></i> GST</th>
+                                <th><i class="fas fa-calendar"></i> Date</th>
+                                <th><i class="fas fa-file-pdf"></i> PDF</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if data.invoices %}
+                            {% for invoice in data.invoices %}
+                            <tr>
+                                <td>{{ invoice.invoice_number }}</td>
+                                <td>{{ invoice.vendor_name }}</td>
+                                <td>₹{{ invoice.total_amount }}</td>
+                                <td>₹{{ invoice.gst_amount }}</td>
+                                <td>{{ invoice.generated_on.strftime('%Y-%m-%d') if invoice.generated_on else '' }}</td>
+                                <td>
+                                    {% if invoice.pdf_filename %}
+                                    <a href="{{ url_for('static', filename='invoice_pdfs/' ~ invoice.pdf_filename) }}"
+                                        target="_blank" class="file-link">
+                                        <i class="fas fa-file-pdf"></i> View PDF
+                                    </a>
                                     {% else %}
-                                        <tr>
-                                            <td colspan="6" class="no-data">No invoices found for this project.</td>
-                                        </tr>
+                                    No PDF
                                     {% endif %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                {% endfor %}
-            {% else %}
-                <div class="section">
-                    <div class="no-data">No projects have been assigned to you yet.</div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="no-data">No invoices found for this project.</td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
                 </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="section">
+                <div class="no-data">No projects have been assigned to you yet.</div>
+            </div>
             {% endif %}
         </div>
     </div>
 
-    <script>
 
+    <script>
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.querySelector('.sidebar-overlay');
             sidebar.classList.toggle('active');
             overlay.classList.toggle('active');
-            
-            // Prevent body scrolling when sidebar is open on mobile
+
             if (sidebar.classList.contains('active')) {
                 document.body.style.overflow = 'hidden';
             } else {
@@ -971,35 +1047,143 @@
             document.body.style.overflow = '';
         }
 
-        // Close sidebar when clicking on nav links on mobile
-        document.querySelectorAll('.nav-link').forEach(function(link) {
-            link.addEventListener('click', function() {
+        document.querySelectorAll('.nav-link').forEach(function (link) {
+            link.addEventListener('click', function () {
                 if (window.innerWidth <= 768) {
                     closeSidebar();
                 }
             });
         });
 
-        // Handle window resize
-        window.addEventListener('resize', function() {
+        window.addEventListener('resize', function () {
             if (window.innerWidth > 768) {
                 closeSidebar();
                 document.body.style.overflow = '';
             }
         });
 
-        // Handle escape key to close sidebar
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
                 closeSidebar();
             }
         });
 
-        // Prevent zoom on iOS Safari when focusing inputs
         if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
             const viewport = document.querySelector('meta[name="viewport"]');
             viewport.setAttribute('content', viewport.content + ', user-scalable=0');
         }
+
+        function updateNotificationBadges() {
+            fetch('/api/notifications/count')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('✅ Accountant Notification data received:', data);
+
+                    updateBadge('badge-invoices', data.invoices || 0);
+                    updateBadge('badge-expenses', data.expenses || 0);
+                    updateBadge('badge-salary', data.salary || 0);
+                    updateBadge('badge-projects', data.projects || 0);
+                    updateBadge('badge-legal', data.legal || 0);
+                    updateBadge('badge-communication', data.communication || 0);
+                    updateBadge('badge-bills', data.bills || 0);
+                })
+                .catch(error => console.error('❌ Error:', error));
+        }
+
+        function updateBadge(badgeId, count) {
+            const badge = document.getElementById(badgeId);
+            if (!badge) {
+                console.warn(`⚠️ Badge not found: ${badgeId}`);
+                return;
+            }
+
+            console.log(`🔔 Updating ${badgeId}: ${count}`);
+
+            if (count > 0) {
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.classList.add('show');
+            } else {
+                badge.classList.remove('show');
+            }
+        }
+
+        function markAsReadOnClick(notificationType) {
+            // console.log(`📖 Marking as read: ${notificationType}`);
+
+            fetch('/api/notifications/mark-read', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ notification_type: notificationType })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    // console.log('✅ Marked as read:', data);
+                    // updateNotificationBadges();
+                })
+                .catch(err => console.error('❌ Error marking as read:', err));
+        }
+
+        // ✅ ENHANCED NOTIFICATION INITIALIZATION
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('🚀 Accountant Notification system initialized');
+
+            // Initial load
+            updateNotificationBadges();
+
+            // Refresh every 30 seconds (backup)
+            setInterval(updateNotificationBadges, 30000);
+
+            // ✅ ENHANCEMENT 1: BroadcastChannel listener (instant cross-tab updates)
+            try {
+                const commChannel = new BroadcastChannel('comm_badge_update');
+                commChannel.onmessage = function (event) {
+                    console.log('📢 BroadcastChannel: Updating badges instantly');
+                    updateNotificationBadges();
+                };
+            } catch (e) {
+                console.log('BroadcastChannel not supported:', e);
+            }
+
+            // ✅ ENHANCEMENT 2: localStorage listener (works across tabs instantly)
+            window.addEventListener('storage', function (e) {
+                if (e.key === 'comm_badge_last_update') {
+                    console.log('📢 localStorage: Updating badges instantly');
+                    updateNotificationBadges();
+                }
+            });
+
+            // ✅ ENHANCEMENT 3: Page visibility change (updates when switching tabs)
+            document.addEventListener('visibilitychange', function () {
+                if (!document.hidden) {
+                    console.log('📢 Tab visible: Updating badges');
+                    updateNotificationBadges();
+                }
+            });
+
+            // ✅ YOUR EXISTING NAVIGATION MARK-AS-READ CODE
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function () {
+                    const href = this.getAttribute('href');
+                    if (!href || href === '#') return;
+
+                    const segment = href.split('/').pop().split('?')[0];
+
+                    const navLinks = {
+                        'accountant_view_invoices': 'invoice_approved',
+                        'expenses': 'expense_approved',
+                        'view_salaries': 'salary_new',
+                        'legal_compliances_dashboard': 'legal_updated',
+                        'bills_and_payments': 'bill_added',
+                    };
+
+                    const notifType = navLinks[segment];
+                    if (notifType) {
+                        markAsReadOnClick(notifType);
+                    }
+                });
+            });
+        });
     </script>
 </body>
+
 </html>

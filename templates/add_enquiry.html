@@ -230,6 +230,7 @@
             width: 100%;
             margin-bottom: 20px;
         }
+
         .flash-message {
             padding: 15px 20px;
             border-radius: 8px;
@@ -243,27 +244,33 @@
             animation: slideDown 0.5s ease-out;
             font-size: 1.08rem;
         }
+
         .flash-message.success {
             background: #27ae60;
             color: white;
         }
+
         .flash-message.error {
             background: #e74c3c;
             color: white;
         }
+
         .flash-message.info {
             background: #3498db;
             color: white;
         }
+
         .flash-message.warning {
             background: #f39c12;
             color: white;
         }
+
         @keyframes slideDown {
             from {
                 opacity: 0;
                 transform: translateY(-20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -671,24 +678,24 @@
 
         <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="flash-messages">
-                    {% for category, message in messages %}
-                        <div class="flash-message {{ category }}">
-                            {% if category == 'success' %}
-                                <i class="fas fa-check-circle"></i>
-                            {% elif category == 'error' %}
-                                <i class="fas fa-exclamation-circle"></i>
-                            {% elif category == 'warning' %}
-                                <i class="fas fa-exclamation-triangle"></i>
-                            {% elif category == 'info' %}
-                                <i class="fas fa-info-circle"></i>
-                            {% endif %}
-                            <span>{{ message }}</span>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="flash-message {{ category }}">
+                {% if category == 'success' %}
+                <i class="fas fa-check-circle"></i>
+                {% elif category == 'error' %}
+                <i class="fas fa-exclamation-circle"></i>
+                {% elif category == 'warning' %}
+                <i class="fas fa-exclamation-triangle"></i>
+                {% elif category == 'info' %}
+                <i class="fas fa-info-circle"></i>
+                {% endif %}
+                <span>{{ message }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
         {% endwith %}
 
         <div class="form-card">
@@ -838,14 +845,16 @@
         });
 
         // Auto-hide flash messages after 5 seconds
+        // Auto-hide flash messages after 2 seconds
         const flashMessages = document.querySelectorAll('.flash-message');
-        flashMessages.forEach(function(message) {
-            setTimeout(function() {
-                message.style.animation = 'fadeOut 0.5s ease-out';
-                setTimeout(function() {
+        flashMessages.forEach(function (message) {
+            setTimeout(function () {
+                message.style.transition = 'opacity 0.5s';
+                message.style.opacity = '0';
+                setTimeout(function () {
                     message.remove();
                 }, 500);
-            }, 5000);
+            }, 2000);
         });
 
         // Fade out animation for flash messages

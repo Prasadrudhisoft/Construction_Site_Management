@@ -432,263 +432,298 @@
     </div>
 
     <script>
-        let currentUserId = parseInt("{{ session['user_id'] }}", 10);
-        let currentUserRole = "";
-        let activeChatUserId = null;
-        let activeChatUserName = null;
-        let messagePollingInterval = null;
+    let currentUserId = parseInt("{{ session['user_id'] }}", 10);
+    let currentUserRole = "";
+    let activeChatUserId = null;
+    let activeChatUserName = null;
+    let messagePollingInterval = null;
 
-        // Role-based dashboard URLs mapping
-        const dashboardUrls = {
-            'admin': '{{ url_for("admin_dashboard") }}',
-            'site_engineer': '{{ url_for("site_engineer_dashboard") }}',
-            'accountant': '{{ url_for("accountant_dashboard") }}',
-            'architect': '{{ url_for("architect_dashboard") }}'
+    // Role-based dashboard URLs mapping
+    const dashboardUrls = {
+        'admin': '{{ url_for("admin_dashboard") }}',
+        'site_engineer': '{{ url_for("site_engineer_dashboard") }}',
+        'accountant': '{{ url_for("accountant_dashboard") }}',
+        'architect': '{{ url_for("architect_dashboard") }}'
+    };
+
+    // Helper function to escape HTML and prevent XSS
+    function escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
         };
+        return text.replace(/[&<>"']/g, m => map[m]);
+    }
 
-        // Helper function to escape HTML and prevent XSS
-        function escapeHtml(text) {
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
-            return text.replace(/[&<>"']/g, m => map[m]);
+    function setDashboardLink() {
+        const dashboardLink = document.getElementById('dashboard-link');
+        const userRole = currentUserRole.toLowerCase().replace(' ', '_');
+
+        if (dashboardUrls[userRole]) {
+            dashboardLink.href = dashboardUrls[userRole];
+        } else {
+            dashboardLink.href = dashboardUrls['admin'];
+        }
+    }
+
+    // ✅ INSTANT BADGE UPDATE FUNCTION
+    function updateAllBadgesInstantly() {
+        console.log('🔔 Triggering INSTANT badge update across all tabs');
+
+        // Method 1: BroadcastChannel (works across tabs)
+        try {
+            const commChannel = new BroadcastChannel('comm_badge_update');
+            commChannel.postMessage('update');
+            commChannel.close();
+        } catch (e) {
+            console.log('BroadcastChannel not supported:', e);
         }
 
-        function setDashboardLink() {
-            const dashboardLink = document.getElementById('dashboard-link');
-            const userRole = currentUserRole.toLowerCase().replace(' ', '_');
-
-            if (dashboardUrls[userRole]) {
-                dashboardLink.href = dashboardUrls[userRole];
-            } else {
-                // Fallback to admin dashboard or home page
-                dashboardLink.href = dashboardUrls['admin'];
-            }
+        // Method 2: localStorage (triggers storage event in other tabs)
+        try {
+            localStorage.setItem('comm_badge_last_update', Date.now().toString());
+        } catch (e) {
+            console.log('localStorage not available:', e);
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            fetchCurrentUserRole().then(() => {
-                setDashboardLink();
-                fetchUsers();
-                setInterval(fetchUsers, 10000);
-            });
-
-            document.getElementById('send-button').addEventListener('click', sendMessage);
-            document.getElementById('message-input').addEventListener('keypress', function (e) {
-                if (e.key === 'Enter') sendMessage();
-            });
-
-            // Mobile menu functionality
-            document.getElementById('mobile-menu-btn').addEventListener('click', function () {
-                document.getElementById('sidebar').classList.add('open');
-            });
-
-            document.getElementById('mobile-close-btn').addEventListener('click', function () {
-                document.getElementById('sidebar').classList.remove('open');
-            });
-
-            // Close sidebar when clicking outside on mobile
-            document.addEventListener('click', function (e) {
-                const sidebar = document.getElementById('sidebar');
-                const menuBtn = document.getElementById('mobile-menu-btn');
-
-                if (window.innerWidth <= 480 &&
-                    !sidebar.contains(e.target) &&
-                    !menuBtn.contains(e.target) &&
-                    sidebar.classList.contains('open')) {
-                    sidebar.classList.remove('open');
+        // Method 3: Parent window (if communication opened from dashboard)
+        if (window.opener && !window.opener.closed) {
+            try {
+                if (typeof window.opener.updateNotificationBadges === 'function') {
+                    window.opener.updateNotificationBadges();
                 }
-            });
-        });
-
-        function fetchCurrentUserRole() {
-            return fetch('/get_current_user_role')
-                .then(response => response.json())
-                .then(data => {
-                    currentUserRole = data.role;
-                    setDashboardLink(); // Update dashboard link when role is fetched
-                })
-                .catch(error => console.error('Error fetching user role:', error));
+            } catch (e) {
+                console.log('Cannot access parent window:', e);
+            }
         }
 
-        function fetchUsers() {
-            fetch('/get_users')
-                .then(response => response.json())
-                .then(users => {
-                    const usersList = document.getElementById('users-list');
-                    usersList.innerHTML = '';
-                    users.forEach(user => {
-                        const userElement = document.createElement('div');
-                        userElement.className = `user ${user.unread_count > 0 ? 'unread' : ''}`;
-                        userElement.dataset.userId = user.id;
-                        userElement.innerHTML = `
-                       <img src="https://api.dicebear.com/9.x/notionists/svg?seed=${user.id}" alt="${user.name}">
-
-                            <div class="user-info">
-                                <div class="user-name">${user.name}</div>
-                                <div class="user-role">${user.role}</div>
-                            </div>
-                            ${user.unread_count > 0 ? `<div class="unread-count">${user.unread_count}</div>` : ''}
-                        `;
-                        userElement.addEventListener('click', () => selectUser(user.id, user.name));
-                        usersList.appendChild(userElement);
-                    });
-                })
-                .catch(error => console.error('Error fetching users:', error));
+        // Method 4: ✅ Direct API call (update current window if dashboard is open)
+        try {
+            if (typeof updateNotificationBadges === 'function') {
+                updateNotificationBadges();
+            }
+        } catch (e) {
+            console.log('updateNotificationBadges not available:', e);
         }
+    }
 
-        function selectUser(userId, userName) {
-            // Clear previous interval
-            if (messagePollingInterval) {
-                clearInterval(messagePollingInterval);
-                messagePollingInterval = null;
-            }
-
-            // Mark as read
-            if (userId) {
-                fetch('/mark_as_read', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ sender_id: userId })
-                }).then(() => fetchUsers());
-            }
-
-            activeChatUserId = userId;
-            activeChatUserName = userName;
-
-            // Update UI with dashboard link
-            document.getElementById('messages').innerHTML = '';
-            document.getElementById('chat-header').innerHTML = `
-                <button class="mobile-menu-btn" id="mobile-menu-btn">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <span>Chat with ${userName}</span>
-                <a href="#" id="dashboard-link" class="dashboard-btn">
-                    <i class="fas fa-tachometer-alt"></i>
-                    Dashboard
-                </a>
-            `;
-
-            // Reset dashboard link after updating header
+    document.addEventListener('DOMContentLoaded', function () {
+        fetchCurrentUserRole().then(() => {
             setDashboardLink();
-
-            document.querySelectorAll('.user').forEach(u => u.classList.remove('active'));
-            document.querySelector(`[data-user-id="${userId}"]`).classList.add('active');
-
-            document.getElementById('message-input').disabled = false;
-            document.getElementById('send-button').disabled = false;
-            document.getElementById('message-input').focus();
-
-            // Close sidebar on mobile after selection
-            if (window.innerWidth <= 480) {
-                document.getElementById('sidebar').classList.remove('open');
-            }
-
-            // Re-add mobile menu event listener
-            document.getElementById('mobile-menu-btn').addEventListener('click', function () {
-                document.getElementById('sidebar').classList.add('open');
-            });
-
-            fetchMessages(userId);
-            messagePollingInterval = setInterval(() => {
-                if (activeChatUserId === userId) fetchMessages(userId);
-            }, 3000);
-        }
-
-        function fetchMessages(receiverId) {
-            if (!receiverId || receiverId !== activeChatUserId) return;
-
-            fetch(`/get_messages/${receiverId}`)
-                .then(response => response.json())
-                .then(messages => {
-                    if (receiverId !== activeChatUserId) return;
-
-                    const messagesContainer = document.getElementById('messages');
-                    messagesContainer.innerHTML = '';
-
-                    if (messages.length === 0) {
-                        messagesContainer.innerHTML = '<div class="no-chat-selected"><i class="fas fa-comment-slash"></i><h3>No messages yet</h3></div>';
-                    } else {
-                        messages.forEach(msg => {
-                            const messageElement = document.createElement('div');
-                            messageElement.className = `message ${msg.sender_id === currentUserId ? 'sent' : 'received'}`;
-
-                            // Parse the timestamp properly
-                            const messageDate = new Date(msg.timestamp);
-                            const now = new Date();
-
-                            // Format timestamp based on date
-                            let timeDisplay;
-                            const isToday = messageDate.toDateString() === now.toDateString();
-                            const isThisYear = messageDate.getFullYear() === now.getFullYear();
-
-                            if (isToday) {
-                                // Today - show only time
-                                timeDisplay = messageDate.toLocaleTimeString([], {
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    hour12: true
-                                });
-                            } else if (isThisYear) {
-                                // This year - show date and time
-                                timeDisplay = messageDate.toLocaleDateString([], {
-                                    month: 'short',
-                                    day: 'numeric'
-                                }) + ' ' + messageDate.toLocaleTimeString([], {
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    hour12: true
-                                });
-                            } else {
-                                // Different year - show full date and time
-                                timeDisplay = messageDate.toLocaleDateString([], {
-                                    year: 'numeric',
-                                    month: 'short',
-                                    day: 'numeric'
-                                }) + ' ' + messageDate.toLocaleTimeString([], {
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    hour12: true
-                                });
-                            }
-
-                            messageElement.innerHTML = `
-                        <div class="bubble">${escapeHtml(msg.message)}</div>
-                        <div class="timestamp">${timeDisplay}</div>
-                    `;
-                            messagesContainer.appendChild(messageElement);
-                        });
-                    }
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                })
-                .catch(error => console.error('Error fetching messages:', error));
-        }
-
-        function sendMessage() {
-            const messageInput = document.getElementById('message-input');
-            const message = messageInput.value.trim();
-
-            if (message && activeChatUserId) {
-                messageInput.value = '';
-
-                fetch('/send_message', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ receiver_id: activeChatUserId, message: message })
-                })
-                    .then(() => fetchMessages(activeChatUserId))
-                    .catch(error => console.error('Error sending message:', error));
-            }
-        }
-
-        window.addEventListener('beforeunload', () => {
-            if (messagePollingInterval) clearInterval(messagePollingInterval);
+            fetchUsers();
+            setInterval(fetchUsers, 10000);
         });
-    </script>
+
+        document.getElementById('send-button').addEventListener('click', sendMessage);
+        document.getElementById('message-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // Mobile menu functionality
+        document.getElementById('mobile-menu-btn').addEventListener('click', function () {
+            document.getElementById('sidebar').classList.add('open');
+        });
+
+        document.getElementById('mobile-close-btn').addEventListener('click', function () {
+            document.getElementById('sidebar').classList.remove('open');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function (e) {
+            const sidebar = document.getElementById('sidebar');
+            const menuBtn = document.getElementById('mobile-menu-btn');
+
+            if (window.innerWidth <= 480 &&
+                !sidebar.contains(e.target) &&
+                !menuBtn.contains(e.target) &&
+                sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+            }
+        });
+    });
+
+    function fetchCurrentUserRole() {
+        return fetch('/get_current_user_role')
+            .then(response => response.json())
+            .then(data => {
+                currentUserRole = data.role;
+                setDashboardLink();
+            })
+            .catch(error => console.error('Error fetching user role:', error));
+    }
+
+    function fetchUsers() {
+        fetch('/get_users')
+            .then(response => response.json())
+            .then(users => {
+                const usersList = document.getElementById('users-list');
+                usersList.innerHTML = '';
+                users.forEach(user => {
+                    const userElement = document.createElement('div');
+                    userElement.className = `user ${user.unread_count > 0 ? 'unread' : ''}`;
+                    userElement.dataset.userId = user.id;
+                    userElement.innerHTML = `
+                        <img src="https://api.dicebear.com/9.x/notionists/svg?seed=${user.id}" alt="${user.name}">
+                        <div class="user-info">
+                            <div class="user-name">${user.name}</div>
+                            <div class="user-role">${user.role}</div>
+                        </div>
+                        ${user.unread_count > 0 ? `<div class="unread-count">${user.unread_count}</div>` : ''}
+                    `;
+                    userElement.addEventListener('click', () => selectUser(user.id, user.name));
+                    usersList.appendChild(userElement);
+                });
+            })
+            .catch(error => console.error('Error fetching users:', error));
+    }
+
+    function selectUser(userId, userName) {
+        // Clear previous interval
+        if (messagePollingInterval) {
+            clearInterval(messagePollingInterval);
+            messagePollingInterval = null;
+        }
+
+        activeChatUserId = userId;
+        activeChatUserName = userName;
+
+        // Update UI with dashboard link
+        document.getElementById('messages').innerHTML = '';
+        document.getElementById('chat-header').innerHTML = `
+            <button class="mobile-menu-btn" id="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <span>Chat with ${userName}</span>
+            <a href="#" id="dashboard-link" class="dashboard-btn">
+                <i class="fas fa-tachometer-alt"></i>
+                Dashboard
+            </a>
+        `;
+
+        setDashboardLink();
+
+        document.querySelectorAll('.user').forEach(u => u.classList.remove('active'));
+        const selectedUser = document.querySelector(`[data-user-id="${userId}"]`);
+        if (selectedUser) {
+            selectedUser.classList.add('active');
+        }
+
+        document.getElementById('message-input').disabled = false;
+        document.getElementById('send-button').disabled = false;
+        document.getElementById('message-input').focus();
+
+        if (window.innerWidth <= 480) {
+            document.getElementById('sidebar').classList.remove('open');
+        }
+
+        document.getElementById('mobile-menu-btn').addEventListener('click', function () {
+            document.getElementById('sidebar').classList.add('open');
+        });
+
+        fetchMessages(userId);
+        messagePollingInterval = setInterval(() => {
+            if (activeChatUserId === userId) fetchMessages(userId);
+        }, 3000);
+    }
+
+    function fetchMessages(receiverId) {
+        if (!receiverId || receiverId !== activeChatUserId) return;
+
+        fetch(`/get_messages/${receiverId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (receiverId !== activeChatUserId) return;
+
+                const messages = data.messages || data;
+                const markedAsRead = data.marked_as_read || false;
+
+                const messagesContainer = document.getElementById('messages');
+                messagesContainer.innerHTML = '';
+
+                if (messages.length === 0) {
+                    messagesContainer.innerHTML = '<div class="no-chat-selected"><i class="fas fa-comment-slash"></i><h3>No messages yet</h3></div>';
+                } else {
+                    messages.forEach(msg => {
+                        const messageElement = document.createElement('div');
+                        messageElement.className = `message ${msg.sender_id === currentUserId ? 'sent' : 'received'}`;
+
+                        const messageDate = new Date(msg.timestamp);
+                        const now = new Date();
+
+                        let timeDisplay;
+                        const isToday = messageDate.toDateString() === now.toDateString();
+                        const isThisYear = messageDate.getFullYear() === now.getFullYear();
+
+                        if (isToday) {
+                            timeDisplay = messageDate.toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: true
+                            });
+                        } else if (isThisYear) {
+                            timeDisplay = messageDate.toLocaleDateString([], {
+                                month: 'short',
+                                day: 'numeric'
+                            }) + ' ' + messageDate.toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: true
+                            });
+                        } else {
+                            timeDisplay = messageDate.toLocaleDateString([], {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                            }) + ' ' + messageDate.toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: true
+                            });
+                        }
+
+                        messageElement.innerHTML = `
+                            <div class="bubble">${escapeHtml(msg.message)}</div>
+                            <div class="timestamp">${timeDisplay}</div>
+                        `;
+                        messagesContainer.appendChild(messageElement);
+                    });
+                }
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                // ✅ INSTANT UPDATE - when messages are marked as read
+                if (markedAsRead) {
+                    console.log('✅ Messages marked as read - triggering INSTANT badge update');
+                    fetchUsers(); // Update user list immediately
+                    updateAllBadgesInstantly(); // Update all dashboard badges instantly
+                }
+            })
+            .catch(error => console.error('Error fetching messages:', error));
+    }
+
+    function sendMessage() {
+        const messageInput = document.getElementById('message-input');
+        const message = messageInput.value.trim();
+
+        if (message && activeChatUserId) {
+            messageInput.value = '';
+
+            fetch('/send_message', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ receiver_id: activeChatUserId, message: message })
+            })
+                .then(() => fetchMessages(activeChatUserId))
+                .catch(error => console.error('Error sending message:', error));
+        }
+    }
+
+    window.addEventListener('beforeunload', () => {
+        if (messagePollingInterval) clearInterval(messagePollingInterval);
+    });
+</script>
 </body>
 
 </html>

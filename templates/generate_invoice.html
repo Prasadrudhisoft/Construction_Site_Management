@@ -14,7 +14,7 @@
 
         .invoice-form {
             background: #fff;
-            padding: 2rem;
+            padding: 4rem;
             border-radius: 8px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
         }
@@ -163,16 +163,19 @@
         }
 
         @media (max-width: 768px) {
+
             body {
-                padding-top: 80px !important;
+                padding-top: 70px !important;
             }
 
+            /* Navbar */
             .navbar {
                 height: 60px;
             }
 
             .navbar-container {
                 height: 60px;
+                padding: 0 15px;
             }
 
             .navbar-menu {
@@ -186,7 +189,7 @@
                 flex-direction: column;
                 justify-content: flex-start;
                 align-items: center;
-                padding: 40px 20px;
+                padding: 30px 20px;
                 transition: left 0.3s ease;
                 gap: 20px;
             }
@@ -204,8 +207,28 @@
                 max-width: 300px;
                 justify-content: center;
                 padding: 15px 20px;
-                font-size: 1.1rem;
+                font-size: 1.05rem;
             }
+
+            /* Fix form spacing */
+            .invoice-form {
+                padding: 20px;
+            }
+
+            /* Fix line item layout */
+            .line-item-row .row {
+                row-gap: 10px;
+            }
+
+            .text-center .btn {
+                width: 100%;
+                font-size: 14px;
+                padding: 10px 12px;
+                margin-bottom: 10px;
+                white-space: nowrap;
+                /* keeps text in one line */
+            }
+
         }
     </style>
 </head>
@@ -248,9 +271,9 @@
         </div>
     </nav>
 
-    <div class="container mt-4">
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
+    <div class="container-fluid mt-4 px-4">
+        <div class="row">
+            <div class="col-12">
                 <div class="invoice-form">
                     <div class="section-header text-center">
                         <div class="header-icon mb-2">
@@ -309,9 +332,23 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="bill_to_phone" class="form-label">Phone</label>
-                                    <input type="tel" class="form-control" id="bill_to_phone" name="bill_to_phone">
+                                    <input type="tel" class="form-control" id="bill_to_phone" name="bill_to_phone"
+                                        pattern="[0-9]{10}" maxlength="10" placeholder="Enter 10-digit number"
+                                        oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Add this inside your <form> for admin invoice generation -->
+                        {% if user_role == 'admin' %}
+                        <div class="mb-4">
+                            <label for="site_engineer_id" class="form-label">Select Project Manager:</label>
+                            <select name="site_engineer_id" id="site_engineer_id" class="form-select" required>
+                                <option value="">-- Select Project Manager --</option>
+                                {% for eng in engineers %}
+                                <option value="{{ eng.id }}">{{ eng.name }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
 
                         <div class="mb-3">
@@ -324,14 +361,14 @@
                             </select>
                         </div>
 
-                        <!-- Add this inside your <form> for admin invoice generation -->
-                        {% if user_role == 'admin' %}
-                        <div class="mb-4">
-                            <label for="site_engineer_id" class="form-label">Select Site Engineer:</label>
-                            <select name="site_engineer_id" id="site_engineer_id" class="form-select" required>
-                                <option value="">-- Select Site Engineer --</option>
-                                {% for eng in engineers %}
-                                <option value="{{ eng.id }}">{{ eng.name }}</option>
+                        {% endif %}
+                        {% if user_role == 'site_engineer' %}
+                        <div class="mb-3">
+                            <label for="project_id" class="form-label">Project *</label>
+                            <select class="form-select" id="project_id" name="project_id" required>
+                                <option value="">-- Select Project --</option>
+                                {% for project in projects %}
+                                <option value="{{ project.id }}">{{ project.project_name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -349,26 +386,26 @@
                             <div id="lineItems">
                                 <div class="line-item-row" data-item="0">
                                     <div class="row align-items-center">
-                                        <div class="col-md-4">
+                                        <div class="col-12 col-md-4">
                                             <label class="form-label">Description *</label>
                                             <input type="text" class="form-control" name="description[]" required>
                                         </div>
-                                        <div class="col-md-2">
+                                        <div class="col-6 col-md-2">
                                             <label class="form-label">Quantity *</label>
                                             <input type="number" class="form-control quantity" name="quantity[]" min="1"
                                                 step="0.01" onchange="calculateLineTotal(this)" required>
                                         </div>
-                                        <div class="col-md-2">
+                                        <div class="col-6 col-md-2">
                                             <label class="form-label">Rate *</label>
                                             <input type="number" class="form-control rate" name="rate[]" min="0"
                                                 step="0.01" onchange="calculateLineTotal(this)" required>
                                         </div>
-                                        <div class="col-md-2">
+                                        <div class="col-6 col-md-2">
                                             <label class="form-label">Total</label>
                                             <input type="number" class="form-control line-total" name="total[]"
                                                 readonly>
                                         </div>
-                                        <div class="col-md-1">
+                                        <div class="col-6 col-md-1">
                                             <label class="form-label">&nbsp;</label>
                                             <button type="button" class="btn btn-remove-item text-white d-block"
                                                 onclick="removeLineItem(this)" style="display: none;">
@@ -568,10 +605,28 @@
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('invoice_date').value = today;
             updateRemoveButtons();
+
+            // Flash message auto-dismiss
+            document.querySelectorAll('.alert').forEach(function (alert) {
+                setTimeout(function () {
+                    alert.style.transition = 'opacity 0.5s';
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.remove(), 500);
+                }, 2000);
+            });
         });
 
         // Form validation
         document.getElementById('invoiceForm').addEventListener('submit', function (e) {
+            // Phone validation
+            const phone = document.getElementById('bill_to_phone').value;
+            if (phone && !/^[0-9]{10}$/.test(phone)) {
+                e.preventDefault();
+                alert('Please enter a valid 10-digit phone number.');
+                document.getElementById('bill_to_phone').focus();
+                return;
+            }
+
             const lineItems = document.querySelectorAll('.line-item-row');
             let hasValidItem = false;
 
@@ -605,6 +660,7 @@
             }
         });
         // Close mobile menu when clicking on a link
+        // Close mobile menu when clicking on a link
         document.querySelectorAll('.navbar-link').forEach(link => {
             link.addEventListener('click', function () {
                 const navbarNav = document.getElementById('navbarNav');
@@ -616,8 +672,78 @@
             });
         });
 
-
     </script>
+
+    <!-- ✅ FILTER PROJECTS BY SELECTED SITE ENGINEER (ADMIN ONLY) -->
+    {% if user_role == 'admin' %}
+    <script>
+        (function () {
+            const engineerSelect = document.getElementById('site_engineer_id');
+            const projectSelect = document.getElementById('project_id');
+
+            if (engineerSelect && projectSelect) {
+                const allProjects = Array.from(projectSelect.options).map(opt => ({
+                    value: opt.value,
+                    text: opt.text
+                }));
+
+                engineerSelect.addEventListener('change', function () {
+                    const engineerId = this.value;
+
+                    if (!engineerId) {
+                        projectSelect.innerHTML = '<option value="">-- Select Project --</option>';
+                        allProjects.forEach(proj => {
+                            if (proj.value) {
+                                const option = document.createElement('option');
+                                option.value = proj.value;
+                                option.textContent = proj.text;
+                                projectSelect.appendChild(option);
+                            }
+                        });
+                        return;
+                    }
+
+                    fetch('/api/get_engineer_projects/' + engineerId)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                projectSelect.innerHTML = '<option value="">-- Select Project --</option>';
+
+                                if (data.projects && data.projects.length > 0) {
+                                    data.projects.forEach(project => {
+                                        const option = document.createElement('option');
+                                        option.value = project.id;
+                                        option.textContent = project.project_name;
+                                        projectSelect.appendChild(option);
+                                    });
+                                } else {
+                                    const option = document.createElement('option');
+                                    option.value = '';
+                                    option.textContent = 'No projects assigned to this engineer';
+                                    option.disabled = true;
+                                    projectSelect.appendChild(option);
+                                }
+                            } else {
+                                console.error('Error:', data.error);
+                                alert('Error loading projects. Please try again.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Error loading projects. Please try again.');
+                        });
+                });
+            }
+        })();
+    </script>
+    {% endif %}
+</body>
+
+</html>
+
+
+
+</script>
 </body>
 
 </html>

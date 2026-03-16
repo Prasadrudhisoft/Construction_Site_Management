@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Entered Salaries & Advances</title>
+    <title>Base Salary Management</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
@@ -183,67 +183,6 @@
             font-size: 1rem;
         }
 
-        /* ===== ACTION BUTTONS ===== */
-        .action-bar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 25px;
-            justify-content: flex-start;
-            align-items: center;
-        }
-
-        .btn-action {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px 22px;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            gap: 8px;
-        }
-
-        .btn-action-primary {
-            background: linear-gradient(135deg, #3498db, #2c3e50);
-            color: white;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn-action-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-            color: white;
-        }
-
-        .btn-action-secondary {
-            background: linear-gradient(135deg, #3498db, #2c3e50);
-            color: white;
-            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
-        }
-
-        .btn-action-secondary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
-            color: white;
-        }
-
-        .btn-action-success {
-            background: linear-gradient(135deg, #3498db, #2c3e50);
-            color: white;
-            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-        }
-
-        .btn-action-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
-            color: white;
-        }
-
         /* ===== CARD ===== */
         .card {
             border: none;
@@ -283,7 +222,7 @@
         }
 
         .table tbody td {
-            padding: 12px 15px;
+            padding: 15px;
             vertical-align: middle;
         }
 
@@ -291,16 +230,35 @@
             background-color: #f8f9fa;
         }
 
-        /* Advance row highlight */
-        .advance-row {
-            background: rgba(255, 193, 7, 0.07);
+        .btn-update {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            border: none;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            white-space: nowrap;
         }
 
-        .advance-row:hover {
-            background: rgba(255, 193, 7, 0.14) !important;
+        .btn-update:hover {
+            background: linear-gradient(135deg, #20c997, #28a745);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+            color: white;
         }
 
-        /* ===== BADGES ===== */
+        .salary-amount {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #28a745;
+        }
+
+        .no-salary {
+            color: #dc3545;
+            font-style: italic;
+        }
+
         .badge {
             padding: 6px 12px;
             border-radius: 20px;
@@ -311,128 +269,9 @@
             background: linear-gradient(135deg, #3498db, #2c3e50) !important;
         }
 
-        .payment-badge {
-            padding: 6px 12px;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .cash {
-            background: linear-gradient(135deg, #3498db, #2c3e50);
-            color: #000000;
-            border: 1px solid #131313;
-        }
-
-        .cheque {
-            background: linear-gradient(135deg, #3498db, #2c3e50);
-            color: #000000;
-            border: 1px solid #131313;
-        }
-
-        /* Entry Type Badges */
-        .entry-type-badge {
-            padding: 5px 10px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            white-space: nowrap;
-        }
-
-        .advance-payment {
-            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
-            color: #856404;
-            border: 1px solid #ffc107;
-        }
-
-        .salary-payment {
-            background: linear-gradient(135deg, #d4edda, #c3e6cb);
-            color: #155724;
-            border: 1px solid #28a745;
-        }
-
-        .salary-advance-deduction {
-            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
-            color: #721c24;
-            border: 1px solid #dc3545;
-        }
-
-        .other {
-            background: linear-gradient(135deg, #e2e3e5, #d6d8db);
-            color: #383d41;
-            border: 1px solid #6c757d;
-        }
-
-        /* ===== AMOUNTS ===== */
-        .amount {
-            font-weight: bold;
-            font-size: 0.95rem;
-        }
-
-        .positive-amount {
-            color: #28a745;
-        }
-
-        .advance-amount {
-            color: #e6a817;
-        }
-
         .sr-no {
             font-weight: 600;
             color: #667eea;
-        }
-
-        /* ===== SALARY SLIP BUTTON ===== */
-        .btn-slip {
-            background: linear-gradient(135deg, #3498db, #2c3e50);
-            border: none;
-            color: white;
-            padding: 7px 16px;
-            border-radius: 20px;
-            font-weight: 500;
-            font-size: 0.82rem;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            text-decoration: none;
-        }
-
-        .btn-slip:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
-            color: white;
-        }
-
-        /* ===== EMPTY STATE ===== */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-        }
-
-        .empty-state i {
-            font-size: 4rem;
-            color: #dee2e6;
-            margin-bottom: 20px;
-        }
-
-        .empty-state h5 {
-            color: #6c757d;
-            font-size: 1.2rem;
-            margin-bottom: 8px;
-        }
-
-        .empty-state p {
-            color: #adb5bd;
-            font-size: 0.95rem;
         }
 
         /* ===== MODAL ===== */
@@ -456,10 +295,6 @@
             padding: 25px;
         }
 
-        .modal-footer {
-            padding: 15px 25px 20px;
-        }
-
         .form-label {
             font-weight: 600;
             color: #495057;
@@ -472,22 +307,29 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #28a745, #20c997);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: none;
-            padding: 10px 25px;
+            padding: 10px 30px;
             border-radius: 25px;
             font-weight: 600;
         }
 
         .btn-primary:hover {
+            background: linear-gradient(135deg, #764ba2 100%, #667eea 0%);
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
         }
 
         .btn-secondary {
-            padding: 10px 25px;
+            padding: 10px 30px;
             border-radius: 25px;
             font-weight: 600;
+        }
+
+        .info-text {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 5px;
         }
 
         /* ===== RESPONSIVE STYLES ===== */
@@ -571,6 +413,7 @@
                 font-size: 1.1rem;
             }
 
+            /* Content */
             .container {
                 padding: 0 10px;
             }
@@ -594,6 +437,7 @@
                 font-size: 1rem;
             }
 
+            /* Table */
             .table {
                 font-size: 0.85rem;
             }
@@ -603,15 +447,16 @@
                 padding: 10px 8px;
             }
 
-            .action-bar {
-                justify-content: center;
+            .salary-amount {
+                font-size: 0.95rem;
             }
 
-            .btn-action {
-                padding: 9px 16px;
-                font-size: 0.82rem;
+            .btn-update {
+                padding: 6px 12px;
+                font-size: 0.85rem;
             }
 
+            /* Modal */
             .modal-body {
                 padding: 20px 15px;
             }
@@ -661,6 +506,7 @@
                 font-size: 0.95rem;
             }
 
+            /* Make table scrollable horizontally */
             .table-responsive {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
@@ -668,7 +514,7 @@
 
             .table {
                 font-size: 0.75rem;
-                min-width: 900px;
+                min-width: 600px;
             }
 
             .table thead th,
@@ -676,21 +522,46 @@
                 padding: 8px 6px;
             }
 
-            .badge,
-            .payment-badge,
-            .entry-type-badge {
+            .salary-amount {
+                font-size: 0.85rem;
+            }
+
+            .badge {
                 padding: 4px 8px;
-                font-size: 0.7rem;
+                font-size: 0.75rem;
             }
 
-            .action-bar {
-                flex-direction: column;
-                align-items: stretch;
+            .btn-update {
+                padding: 5px 10px;
+                font-size: 0.75rem;
             }
 
-            .btn-action {
-                width: 100%;
-                justify-content: center;
+            /* Modal */
+            .modal-header {
+                padding: 15px;
+            }
+
+            .modal-body {
+                padding: 15px;
+            }
+
+            .form-label {
+                font-size: 0.9rem;
+            }
+
+            .form-control {
+                font-size: 0.9rem;
+                padding: 8px 12px;
+            }
+
+            .btn-primary,
+            .btn-secondary {
+                padding: 8px 16px;
+                font-size: 0.85rem;
+            }
+
+            .info-text {
+                font-size: 0.75rem;
             }
         }
 
@@ -701,6 +572,10 @@
 
             .container {
                 padding: 0 5px;
+            }
+
+            .page-header {
+                padding: 12px 8px;
             }
 
             .page-header h2 {
@@ -721,6 +596,7 @@
             }
         }
 
+        /* Landscape mobile optimization */
         @media (max-height: 500px) and (orientation: landscape) {
             body {
                 padding-top: 60px;
@@ -739,6 +615,14 @@
                 height: calc(100vh - 50px);
                 padding: 20px;
             }
+
+            .page-header {
+                padding: 15px;
+            }
+
+            .page-header h2 {
+                font-size: 1.2rem;
+            }
         }
     </style>
 </head>
@@ -747,16 +631,21 @@
     <!-- Navigation -->
     <nav class="navbar">
         <div class="navbar-container">
-            <!-- <a href="{{ url_for('base_salary_management') }}" class="navbar-brand"> -->
-                <h1 class="navbar-brand">
-                <i class="fas fa-money-check-alt"></i>
+            <a href="{{ url_for('base_salary_management') }}" class="navbar-brand">
+                <i class="fas fa-calculator"></i>
                 Salary Management
-            </h1>
+            </a>
             <ul class="navbar-menu" id="navbarNav">
                 <li>
                     <a href="{{ url_for('accountant_dashboard') }}" class="navbar-link">
                         <i class="fas fa-tachometer-alt"></i>
                         Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('base_salary_management') }}" class="navbar-link active">
+                        <i class="fas fa-money-bill-wave"></i>
+                        Base Salary
                     </a>
                 </li>
                 <li>
@@ -766,7 +655,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ url_for('view_salaries') }}" class="navbar-link active">
+                    <a href="{{ url_for('view_salaries') }}" class="navbar-link">
                         <i class="fas fa-eye"></i>
                         View Salaries
                     </a>
@@ -788,176 +677,153 @@
         <!-- Page Header -->
         <div class="page-header">
             <h2>
-                <i class="fas fa-money-check-alt"></i>
-                My Entered Salaries & Advances
+                <i class="fas fa-money-bill-wave"></i>
+                Base Salary Management
             </h2>
-            <p>Manage and review all salary entries and advance payments</p>
+            <p>Manage employee base salaries for your organization</p>
         </div>
 
-        <!-- Action Buttons -->
-        <div class="action-bar">
-            <a href="{{ url_for('view_salaries') }}" class="btn-action btn-action-secondary">
-                <i class="fas fa-eye"></i> View My Entries
-            </a>
-            <a href="{{ url_for('add_salary') }}" class="btn-action btn-action-primary">
-                <i class="fas fa-plus"></i> Add New Entry
-            </a>
-            <button onclick="openReportModal()" class="btn-action btn-action-success">
-                <i class="fas fa-file-pdf"></i> Salary Disbursement Report
-            </button>
-        </div>
-
-        {% if salaries %}
-        <!-- Salary Table Card -->
+        <!-- Employees Table Card -->
         <div class="card">
             <div class="card-header">
-                <i class="fas fa-table me-2"></i>
-                Salary & Advance Entries
+                <i class="fas fa-users me-2"></i>
+                Employee Base Salaries
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
                         <thead>
                             <tr>
-                                <th>Entry Type</th>
-                                <th>Project</th>
-                                <th>User</th>
+                                <th style="width: 80px;">Sr. No.</th>
+                                <th>Employee Name</th>
                                 <th>Role</th>
-                                <th>Month-Year</th>
                                 <th>Base Salary</th>
-                                <th>Allowance</th>
-                                <th>PF</th>
-                                <th>Advance</th>
-                                <th>Net Amount</th>
-                                <th>Payment Mode</th>
-                                <th>Cheque No.</th>
-                                <th>Description</th>
-                                <th>Created On</th>
-                                <th>Slips</th>
+                                <th>Last Updated</th>
+                                <th>Updated By</th>
+                                <th style="width: 150px;">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for s in salaries %}
-                            <tr class="{{ 'advance-row' if s.entry_type == 'Advance Payment' else '' }}">
+                            {% if employees %}
+                            {% for employee in employees %}
+                            <tr>
+                                <td class="sr-no">{{ loop.index }}</td>
                                 <td>
-                                    <span class="entry-type-badge {{ s.entry_type.lower().replace(' ', '-') }}">
-                                        {% if s.entry_type == 'Advance Payment' %}
-                                        <i class="fas fa-hand-holding-usd"></i>
-                                        {% elif s.entry_type == 'Salary Payment' %}
-                                        <i class="fas fa-money-check"></i>
-                                        {% elif s.entry_type == 'Salary with Advance Deduction' %}
-                                        <i class="fas fa-minus-circle"></i>
-                                        {% else %}
-                                        <i class="fas fa-question"></i>
-                                        {% endif %}
-                                        {{ s.entry_type }}
-                                    </span>
+                                    <strong>{{ employee.name }}</strong>
                                 </td>
-                                <td><strong>{{ s.project_name }}</strong></td>
-                                <td>{{ s.user_name }}</td>
-                                <td><span class="badge bg-info">{{ s.role }}</span></td>
-                                <td><small>{{ s.month_year }}</small></td>
                                 <td>
-                                    {% if s.base_salary > 0 %}
-                                    <span class="amount positive-amount">₹{{ "%.2f"|format(s.base_salary) }}</span>
+                                    <span class="badge bg-info">{{ employee.role }}</span>
+                                </td>
+                                <td>
+                                    {% if employee.base_salary > 0 %}
+                                    <span class="salary-amount">₹{{ "%.2f"|format(employee.base_salary) }}</span>
                                     {% else %}
-                                    <span class="text-muted">-</span>
+                                    <span class="no-salary">Not Set</span>
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if s.allowance > 0 %}
-                                    <span class="amount positive-amount">₹{{ "%.2f"|format(s.allowance) }}</span>
+                                    {% if employee.updated_on %}
+                                    <small>{{ employee.updated_on }}</small>
+                                    {% elif employee.created_on %}
+                                    <small>{{ employee.created_on }}</small>
                                     {% else %}
-                                    <span class="text-muted">-</span>
+                                    <small class="text-muted">-</small>
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if s.pf > 0 %}
-                                    <span class="amount text-danger">₹{{ "%.2f"|format(s.pf) }}</span>
+                                    {% if employee.updated_by_name %}
+                                    <small>{{ employee.updated_by_name }}</small>
+                                    {% elif employee.created_by_name %}
+                                    <small>{{ employee.created_by_name }}</small>
                                     {% else %}
-                                    <span class="text-muted">-</span>
+                                    <small class="text-muted">-</small>
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if s.advance > 0 %}
-                                    <span class="amount advance-amount">₹{{ "%.2f"|format(s.advance) }}</span>
-                                    {% else %}
-                                    <span class="text-muted">-</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <strong
-                                        class="amount {{ 'advance-amount' if s.entry_type == 'Advance Payment' else 'positive-amount' }}">
-                                        ₹{{ "%.2f"|format(s.net_amount) }}
-                                    </strong>
-                                </td>
-                                <td>
-                                    {% if s.payment_mode %}
-                                    <span class="payment-badge {{ s.payment_mode }}">
-                                        {{ s.payment_mode.upper() }}
-                                    </span>
-                                    {% else %}
-                                    <span class="text-muted">-</span>
-                                    {% endif %}
-                                </td>
-                                <td><small>{{ s.cheque_number if s.cheque_number else '-' }}</small></td>
-                                <td><small>{{ s.description if s.description else '-' }}</small></td>
-                                <td><small>{{ s.created_on.strftime('%Y-%m-%d %H:%M') if s.created_on else '' }}</small>
-                                </td>
-                                <td>
-                                    <a href="{{ url_for('download_salary_slip', salary_id=s.id) }}" class="btn-slip"
-                                        target="_blank">
-                                        <i class="fas fa-download"></i> Salary Slip
-                                    </a>
+                                    <button class="btn btn-update btn-sm" data-employee-id="{{ employee.id }}"
+                                        data-employee-name="{{ employee.name }}"
+                                        data-employee-role="{{ employee.role }}"
+                                        data-employee-salary="{{ employee.base_salary }}">
+                                        <i class="fas fa-edit me-1"></i>Update
+                                    </button>
                                 </td>
                             </tr>
                             {% endfor %}
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">
+                                    <i class="fas fa-inbox fa-2x mb-2"></i>
+                                    <p>No employees found in your organization</p>
+                                </td>
+                            </tr>
+                            {% endif %}
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-        {% else %}
-        <!-- Empty State -->
-        <div class="card">
-            <div class="card-body">
-                <div class="empty-state">
-                    <i class="fas fa-money-check-alt"></i>
-                    <h5>No Entries Found</h5>
-                    <p>No salary entries or advance payments found.</p>
-                </div>
-            </div>
-        </div>
-        {% endif %}
     </div>
 
-    <!-- Report Modal -->
-    <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+    <!-- Update Salary Modal -->
+    <div class="modal fade" id="updateSalaryModal" tabindex="-1" aria-labelledby="updateSalaryModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="reportModalLabel">
-                        <i class="fas fa-file-pdf me-2"></i>Generate Salary Report
+                    <h5 class="modal-title" id="updateSalaryModalLabel">
+                        <i class="fas fa-edit me-2"></i>Update Base Salary
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="reportMonthYear" class="form-label">
-                            <i class="fas fa-calendar me-1"></i>Select Month-Year *
-                        </label>
-                        <input type="month" class="form-control" id="reportMonthYear" required>
-                    </div>
-                    <div id="reportError" style="display: none; color: #e74c3c; font-size: 0.9rem; margin-top: 8px;">
-                    </div>
-                </div>
-                <div class="modal-footer d-flex justify-content-end gap-2">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-1"></i>Cancel
-                    </button>
-                    <button type="button" class="btn btn-primary" onclick="generateReport()">
-                        <i class="fas fa-download me-1"></i>Download Report
-                    </button>
+                    <form id="updateSalaryForm">
+                        <input type="hidden" id="employee_id" name="employee_id">
+
+                        <div class="mb-3">
+                            <label for="employee_name_display" class="form-label">
+                                <i class="fas fa-user me-1"></i>Employee Name
+                            </label>
+                            <input type="text" class="form-control" id="employee_name_display" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="employee_role_display" class="form-label">
+                                <i class="fas fa-briefcase me-1"></i>Role
+                            </label>
+                            <input type="text" class="form-control" id="employee_role_display" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="current_salary_display" class="form-label">
+                                <i class="fas fa-money-bill-wave me-1"></i>Current Base Salary
+                            </label>
+                            <input type="text" class="form-control" id="current_salary_display" readonly>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="new_salary" class="form-label">
+                                <i class="fas fa-rupee-sign me-1"></i>New Base Salary *
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" step="0.01" class="form-control" id="new_salary" name="new_salary"
+                                    required min="0" placeholder="Enter new base salary">
+                            </div>
+                            <small class="info-text">
+                                <i class="fas fa-info-circle me-1"></i>This will be the default salary for this
+                                employee
+                            </small>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                <i class="fas fa-times me-1"></i>Cancel
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Update Salary
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -965,10 +831,10 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
-        let reportModal;
+        let updateModal;
 
         document.addEventListener('DOMContentLoaded', function () {
-            reportModal = new bootstrap.Modal(document.getElementById('reportModal'));
+            updateModal = new bootstrap.Modal(document.getElementById('updateSalaryModal'));
 
             // Mobile menu toggle
             const mobileMenuToggle = document.getElementById('mobileMenuToggle');
@@ -978,6 +844,7 @@
                 mobileMenuToggle.addEventListener('click', function () {
                     const icon = this.querySelector('i');
                     navbarNav.classList.toggle('active');
+
                     if (navbarNav.classList.contains('active')) {
                         icon.classList.remove('fa-bars');
                         icon.classList.add('fa-times');
@@ -987,6 +854,7 @@
                     }
                 });
 
+                // Close menu when clicking on a link
                 document.querySelectorAll('.navbar-link').forEach(link => {
                     link.addEventListener('click', function () {
                         navbarNav.classList.remove('active');
@@ -996,66 +864,80 @@
                     });
                 });
             }
+
+            // Add event listeners to all update buttons
+            document.querySelectorAll('.btn-update').forEach(button => {
+                button.addEventListener('click', function () {
+                    const employeeId = this.getAttribute('data-employee-id');
+                    const employeeName = this.getAttribute('data-employee-name');
+                    const employeeRole = this.getAttribute('data-employee-role');
+                    const currentSalary = parseFloat(this.getAttribute('data-employee-salary')) || 0;
+
+                    openUpdateModal(employeeId, employeeName, employeeRole, currentSalary);
+                });
+            });
         });
 
-        function openReportModal() {
-            document.getElementById('reportError').style.display = 'none';
-            // Set default to current month
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            document.getElementById('reportMonthYear').value = `${year}-${month}`;
-            reportModal.show();
+        function openUpdateModal(employeeId, employeeName, employeeRole, currentSalary) {
+            document.getElementById('employee_id').value = employeeId;
+            document.getElementById('employee_name_display').value = employeeName;
+            document.getElementById('employee_role_display').value = employeeRole;
+            document.getElementById('current_salary_display').value = currentSalary > 0 ? '₹' + parseFloat(currentSalary).toFixed(2) : 'Not Set';
+            document.getElementById('new_salary').value = currentSalary > 0 ? parseFloat(currentSalary).toFixed(2) : '';
+
+            updateModal.show();
         }
 
-        async function generateReport() {
-            const monthYear = document.getElementById('reportMonthYear').value;
-            const errorDiv = document.getElementById('reportError');
+        document.getElementById('updateSalaryForm').addEventListener('submit', function (e) {
+            e.preventDefault();
 
-            if (!monthYear) {
-                errorDiv.textContent = 'Please select a month-year';
-                errorDiv.style.display = 'block';
+            const employeeId = document.getElementById('employee_id').value;
+            const newSalary = document.getElementById('new_salary').value;
+
+            if (!newSalary || parseFloat(newSalary) < 0) {
+                alert('Please enter a valid salary amount');
                 return;
             }
 
-            try {
-                const response = await fetch('/download_salary_report', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        month_year: monthYear
-                    })
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Updating...';
+
+            fetch('/update_base_salary', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    user_id: employeeId,
+                    salary: parseFloat(newSalary)
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        updateModal.hide();
+                        location.reload();
+                    } else {
+                        alert('Error: ' + (data.error || 'Unknown error'));
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnText;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error updating salary. Please try again.');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
                 });
+        });
 
-                if (response.ok) {
-                    const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `Salary_Disbursement_Report_${monthYear}.pdf`;
-                    document.body.appendChild(a);
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(a);
-                    reportModal.hide();
-                } else {
-                    const data = await response.json();
-                    errorDiv.textContent = data.error || 'Error generating report';
-                    errorDiv.style.display = 'block';
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                errorDiv.textContent = 'Network error. Please try again.';
-                errorDiv.style.display = 'block';
-            }
-        }
-
-        // Reset modal on close
-        document.getElementById('reportModal').addEventListener('hidden.bs.modal', function () {
-            document.getElementById('reportMonthYear').value = '';
-            document.getElementById('reportError').style.display = 'none';
+        // Reset form when modal is closed
+        document.getElementById('updateSalaryModal').addEventListener('hidden.bs.modal', function () {
+            document.getElementById('updateSalaryForm').reset();
         });
     </script>
 </body>

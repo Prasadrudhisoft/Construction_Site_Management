@@ -21,10 +21,9 @@
 
         body {
             min-height: 100vh;
-            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            background: #f4f6f8;
             font-family: 'Poppins', sans-serif;
             margin: 0;
-            padding-top: 80px;
         }
 
         /* Navbar Styles */
@@ -162,13 +161,13 @@
         }
 
         .container {
-            max-width: 700px;
-            width: 98vw;
-            margin: 60px auto 0 auto;
+            max-width: 1100px;
+            width: 95%;
+            margin: 120px auto 40px auto;
             background: #fff;
             border-radius: 22px;
             box-shadow: 0 8px 32px rgba(52, 152, 219, 0.13);
-            padding: 40px 30px 30px 30px;
+            padding: 50px 60px;
             animation: fadeIn 0.7s cubic-bezier(.77, 0, .18, 1);
             display: flex;
             flex-direction: column;
@@ -178,12 +177,10 @@
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(30px);
             }
 
             to {
                 opacity: 1;
-                transform: translateY(0);
             }
         }
 
@@ -214,8 +211,7 @@
         }
 
         .form-group input[type="text"],
-        .form-group input[type="number"],
-        .form-group select {
+        .form-group input[type="number"] {
             width: 100%;
             padding: 14px 15px;
             border: 1.5px solid #ddd;
@@ -226,6 +222,137 @@
             transition: all 0.3s;
         }
 
+        /* Hide the real select but keep it in DOM for form submission */
+        .form-group select.hidden-select {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+            width: 0;
+            height: 0;
+        }
+
+        /* ===== CUSTOM DROPDOWN ===== */
+        .custom-select-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .custom-select-trigger {
+            width: 100%;
+            padding: 14px 40px 14px 15px;
+            border: 1.5px solid #ddd;
+            border-radius: 10px;
+            font-size: 1.08rem;
+            color: #2c3e50;
+            background-color: #f8fafd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s;
+            user-select: none;
+        }
+
+        .custom-select-trigger:hover,
+        .custom-select-trigger.open {
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.13);
+            background: #fff;
+        }
+
+        .custom-select-trigger .arrow {
+            transition: transform 0.3s;
+            color: #3498db;
+            font-size: 0.9rem;
+        }
+
+        .custom-select-trigger.open .arrow {
+            transform: rotate(180deg);
+        }
+
+        .custom-select-trigger .placeholder {
+            color: #999;
+        }
+
+        /* Dropdown list - ALWAYS opens downward */
+        .custom-select-options {
+            position: absolute;
+            top: calc(100% + 4px);
+            /* Always below the trigger */
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1.5px solid #3498db;
+            border-radius: 10px;
+            box-shadow: 0 8px 32px rgba(52, 152, 219, 0.18);
+            z-index: 99999;
+            max-height: 220px;
+            overflow-y: auto;
+            display: none;
+            animation: dropDown 0.2s ease;
+        }
+
+        @keyframes dropDown {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .custom-select-options.open {
+            display: block;
+        }
+
+        .custom-select-option {
+            padding: 12px 16px;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #2c3e50;
+            transition: background 0.15s;
+            border-bottom: 1px solid #f0f4f8;
+        }
+
+        .custom-select-option:last-child {
+            border-bottom: none;
+        }
+
+        .custom-select-option:hover {
+            background: #ebf5fb;
+            color: #3498db;
+        }
+
+        .custom-select-option.selected {
+            background: #3498db;
+            color: #fff;
+        }
+
+        .custom-select-option.placeholder-option {
+            color: #aaa;
+            font-style: italic;
+        }
+
+        /* Scrollbar styling for dropdown */
+        .custom-select-options::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-select-options::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .custom-select-options::-webkit-scrollbar-thumb {
+            background: #3498db;
+            border-radius: 10px;
+        }
+
+        /* ===== END CUSTOM DROPDOWN ===== */
+
         .form-group input[type="file"] {
             width: 100%;
             padding: 10px 0;
@@ -233,8 +360,7 @@
             background: none;
         }
 
-        .form-group input:focus,
-        .form-group select:focus {
+        .form-group input:focus {
             outline: none;
             border-color: #3498db;
             box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.13);
@@ -271,6 +397,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            width: 100%;
         }
 
         .alert i {
@@ -293,6 +420,7 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
+            width: 100%;
         }
 
         .progress-input-group {
@@ -345,15 +473,10 @@
             opacity: 0;
             cursor: pointer;
             z-index: 2;
-            /* Added z-index to ensure it's on top */
         }
 
         .file-input-text {
             pointer-events: none;
-            /* Added this so clicks pass through to the file input */
-        }
-
-        .file-input-text {
             display: flex;
             align-items: center;
             justify-content: center;
@@ -495,8 +618,10 @@
             </button>
         </div>
     </nav>
+
     <div class="container">
         <h2 class="form-title"><i class="fas fa-upload" style="color:#3498db"></i> Upload Progress Report</h2>
+
         <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -508,19 +633,37 @@
         {% endfor %}
         {% endif %}
         {% endwith %}
-        <form method="POST" enctype="multipart/form-data">
+
+        <form method="POST" enctype="multipart/form-data" style="width:100%">
             <div class="form-group">
                 <label for="site_id">
                     <i class="fas fa-map-marker-alt" style="margin-right: 8px; color: #3498db;"></i>
                     Select Site *
                 </label>
-                <select name="site_id" id="site_id" required>
+
+                <!-- Hidden real select for form submission -->
+                <select name="site_id" id="site_id" class="hidden-select" required>
                     <option value="">Choose a site...</option>
                     {% for site in sites %}
                     <option value="{{ site.site_id }}">{{ site.site_name }}</option>
                     {% endfor %}
                 </select>
+
+                <!-- Custom visual dropdown - always opens DOWNWARD -->
+                <div class="custom-select-wrapper" id="customSelectWrapper">
+                    <div class="custom-select-trigger" id="customSelectTrigger">
+                        <span class="placeholder" id="customSelectText">Choose a site...</span>
+                        <i class="fas fa-chevron-down arrow"></i>
+                    </div>
+                    <div class="custom-select-options" id="customSelectOptions">
+                        <div class="custom-select-option placeholder-option" data-value="">Choose a site...</div>
+                        {% for site in sites %}
+                        <div class="custom-select-option" data-value="{{ site.site_id }}">{{ site.site_name }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="progress">
@@ -540,6 +683,7 @@
                     <input type="text" name="remark" id="remark" placeholder="e.g. Work 50% completed">
                 </div>
             </div>
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="image">
@@ -571,20 +715,88 @@
                                 <span>Click to upload PDF or drag and drop</span>
                             </div>
                         </div>
-
                         <small style="color:#7f8c8d;font-size:0.85rem;margin-top:6px;display:block;">Maximum file size:
                             10MB</small>
                     </div>
                 </div>
             </div>
+
             <button type="submit" class="submit-btn">
                 <i class="fas fa-paper-plane" style="margin-right: 10px;"></i>
                 Submit Progress Report
             </button>
         </form>
     </div>
+
     <script>
-        // Mobile menu toggle
+        // ===== CUSTOM DROPDOWN LOGIC =====
+        const trigger = document.getElementById('customSelectTrigger');
+        const options = document.getElementById('customSelectOptions');
+        const hiddenSelect = document.getElementById('site_id');
+        const displayText = document.getElementById('customSelectText');
+
+        // Open/close dropdown
+        trigger.addEventListener('click', function (e) {
+            e.stopPropagation();
+            const isOpen = options.classList.contains('open');
+            // Close all dropdowns first
+            closeAllDropdowns();
+            if (!isOpen) {
+                options.classList.add('open');
+                trigger.classList.add('open');
+            }
+        });
+
+        // Option selection
+        options.querySelectorAll('.custom-select-option').forEach(function (option) {
+            option.addEventListener('click', function () {
+                const value = this.getAttribute('data-value');
+                const text = this.textContent;
+
+                // Update hidden select
+                hiddenSelect.value = value;
+
+                // Update display
+                if (value === '') {
+                    displayText.textContent = 'Choose a site...';
+                    displayText.className = 'placeholder';
+                } else {
+                    displayText.textContent = text;
+                    displayText.className = '';
+                    trigger.style.borderColor = '#27ae60';
+                }
+
+                // Mark selected
+                options.querySelectorAll('.custom-select-option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+
+                // Close dropdown
+                closeAllDropdowns();
+            });
+        });
+
+        // Close when clicking outside
+        document.addEventListener('click', function () {
+            closeAllDropdowns();
+        });
+
+        function closeAllDropdowns() {
+            options.classList.remove('open');
+            trigger.classList.remove('open');
+        }
+
+        // ===== FLASH MESSAGE AUTO-DISMISS =====
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.alert').forEach(function (alert) {
+                setTimeout(function () {
+                    alert.style.transition = 'opacity 0.5s';
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.remove(), 500);
+                }, 2000);
+            });
+        });
+
+        // ===== MOBILE MENU =====
         document.getElementById('mobileMenuToggle').addEventListener('click', function () {
             const navbarNav = document.getElementById('navbarNav');
             const icon = this.querySelector('i');
@@ -597,7 +809,7 @@
                 icon.classList.add('fa-bars');
             }
         });
-        // Close mobile menu when clicking on a link
+
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', function () {
                 const navbarNav = document.getElementById('navbarNav');
@@ -609,60 +821,46 @@
             });
         });
 
-        // File input enhancement
-        // File input enhancement with 10MB size validation
+        // ===== FILE INPUT =====
         document.querySelectorAll('input[type="file"]').forEach(input => {
             input.addEventListener('change', function () {
                 const wrapper = this.closest('.file-input');
                 const textElement = wrapper.querySelector('.file-input-text span');
-                const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+                const maxSize = 10 * 1024 * 1024;
 
                 if (this.files.length > 0) {
                     const file = this.files[0];
-
-                    // Check file size
                     if (file.size > maxSize) {
                         const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
-                        alert('❌ File size exceeds 10MB!\n\n' +
-                            'File: ' + file.name + '\n' +
-                            'Size: ' + fileSizeMB + 'MB\n' +
-                            'Maximum allowed: 10MB\n\n' +
-                            'Please upload a smaller file.');
-                        this.value = ''; // Clear the file input
-                        textElement.textContent = this.accept.includes('image') ?
-                            'Click to upload image or drag and drop' :
-                            'Click to upload PDF or drag and drop';
+                        alert('❌ File size exceeds 10MB!\n\nFile: ' + file.name + '\nSize: ' + fileSizeMB + 'MB\nMaximum allowed: 10MB\n\nPlease upload a smaller file.');
+                        this.value = '';
+                        textElement.textContent = this.accept.includes('image') ? 'Click to upload image or drag and drop' : 'Click to upload PDF or drag and drop';
                         wrapper.style.borderColor = '#e74c3c';
                         wrapper.style.backgroundColor = '#fadbd8';
                         return;
                     }
-
-                    // File is valid
                     textElement.textContent = file.name;
                     wrapper.style.borderColor = '#27ae60';
                     wrapper.style.backgroundColor = '#d4edda';
                 } else {
-                    textElement.textContent = this.accept.includes('image') ?
-                        'Click to upload image or drag and drop' :
-                        'Click to upload PDF or drag and drop';
+                    textElement.textContent = this.accept.includes('image') ? 'Click to upload image or drag and drop' : 'Click to upload PDF or drag and drop';
                     wrapper.style.borderColor = '#bdc3c7';
                     wrapper.style.backgroundColor = '#f8f9fa';
                 }
             });
         });
 
-        // Form validation enhancement
-        // Form validation enhancement with file size check
+        // ===== FORM VALIDATION =====
         document.querySelector('form').addEventListener('submit', function (e) {
             const siteSelect = document.getElementById('site_id');
             const progressInput = document.getElementById('progress');
-            const maxSize = 10 * 1024 * 1024; // 10MB
+            const maxSize = 10 * 1024 * 1024;
 
-            // Validate required fields
             if (!siteSelect.value) {
                 e.preventDefault();
-                siteSelect.focus();
-                siteSelect.style.borderColor = '#e74c3c';
+                trigger.style.borderColor = '#e74c3c';
+                trigger.style.boxShadow = '0 0 0 2px rgba(231,76,60,0.2)';
+                trigger.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
             }
             if (!progressInput.value) {
@@ -672,7 +870,6 @@
                 return;
             }
 
-            // Validate file sizes before submission
             const fileInputs = document.querySelectorAll('input[type="file"]');
             for (let input of fileInputs) {
                 if (input.files.length > 0) {
@@ -681,26 +878,20 @@
                         e.preventDefault();
                         const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
                         const fileType = input.accept.includes('image') ? 'Image' : 'PDF';
-                        alert('❌ ' + fileType + ' file size exceeds 10MB!\n\n' +
-                            'File: ' + file.name + '\n' +
-                            'Size: ' + fileSizeMB + 'MB\n' +
-                            'Maximum allowed: 10MB\n\n' +
-                            'Please upload a smaller file before submitting.');
+                        alert('❌ ' + fileType + ' file size exceeds 10MB!\n\nFile: ' + file.name + '\nSize: ' + fileSizeMB + 'MB\nMaximum allowed: 10MB');
                         input.focus();
                         return;
                     }
                 }
             }
         });
-        // Real-time progress validation
+
+        // ===== PROGRESS VALIDATION =====
         document.getElementById('progress').addEventListener('input', function () {
             const value = parseInt(this.value);
             if (value < 0) this.value = 0;
             if (value > 100) this.value = 100;
-            // Reset border color on valid input
-            if (this.value) {
-                this.style.borderColor = '#27ae60';
-            }
+            if (this.value) { this.style.borderColor = '#27ae60'; }
         });
     </script>
 </body>

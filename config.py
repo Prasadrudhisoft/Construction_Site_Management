@@ -10,23 +10,34 @@ DBNAME = os.environ.get("DB_NAME")
 PASSWORD = os.environ.get("DB_PASSWORD")
 USER = os.environ.get("DB_USER")
 
-def get_connection():
+def get_connection(dict_cursor=True):
+    if dict_cursor:
 
-    return pymysql.connect(
+        return pymysql.connect(
 
-        host=HOST,
+            host=HOST,
 
-        user=USER,
+            user=USER,
 
-        password=PASSWORD,
+            password=PASSWORD,
 
-        database=DBNAME,
+            database=DBNAME,
 
-        cursorclass=pymysql.cursors.DictCursor,
+            cursorclass=pymysql.cursors.DictCursor,
 
-        connect_timeout=5
+            connect_timeout=5
 
-    )
+        )
+    else:
+        return pymysql.connect(
+            host=HOST,
+
+            user=USER,
+
+            password=PASSWORD,
+
+            database=DBNAME
+        )
 
 
 

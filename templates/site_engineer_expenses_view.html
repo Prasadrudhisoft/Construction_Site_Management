@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Approved Vendor Inventory - Site Engineer Dashboard</title>
+    <title>View Expenses - Site Engineer Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -132,25 +132,93 @@
             opacity: 0.9;
             font-size: 1.1rem;
         }
-        .back-btn {
-            display: inline-flex;
+        
+        /* Statistics Cards */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+            display: flex;
             align-items: center;
-            padding: 12px 20px;
-            background: #2c3e50;
+            gap: 20px;
+        }
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+        .stat-icon.total {
+            background: linear-gradient(135deg, #3498db, #2980b9);
             color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            transition: all 0.3s ease;
+        }
+        .stat-icon.pending {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+        }
+        .stat-icon.approved {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            color: white;
+        }
+        .stat-icon.rejected {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+        .stat-content h3 {
+            color: #7f8c8d;
+            font-size: 0.9rem;
             font-weight: 500;
+            margin-bottom: 5px;
         }
-        .back-btn:hover {
-            background: #34495e;
-            transform: translateY(-2px);
+        .stat-content p {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            font-weight: 700;
         }
-        .back-btn i {
-            margin-right: 8px;
+        
+        /* Filter Section */
+        .filter-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .filter-group label {
+            display: block;
+            color: #2c3e50;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        .filter-group select, .filter-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: border-color 0.3s;
+        }
+        .filter-group select:focus, .filter-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
         .table-container {
             background: white;
             border-radius: 15px;
@@ -184,7 +252,7 @@
             width: 100%;
             border-collapse: collapse;
             background: white;
-            min-width: 800px;
+            min-width: 900px;
         }
         .styled-table th {
             background: #f8f9fa;
@@ -220,6 +288,9 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
         .status-approved {
             background: #d4edda;
@@ -232,26 +303,6 @@
         .status-rejected {
             background: #f8d7da;
             color: #721c24;
-        }
-        .pdf-link {
-            display: inline-flex;
-            align-items: center;
-            padding: 8px 15px;
-            background: #e74c3c;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-        .pdf-link:hover {
-            background: #c0392b;
-            transform: translateY(-1px);
-        }
-        .pdf-link i {
-            margin-right: 8px;
         }
         .no-data {
             text-align: center;
@@ -278,18 +329,26 @@
             font-size: 0.9rem;
             white-space: nowrap;
         }
-        .vendor-name {
+        .project-name {
             font-weight: 500;
             color: #2c3e50;
         }
-        .remark-text {
+        .description-text {
+            max-width: 250px;
+            word-wrap: break-word;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        .amount-text {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1rem;
+        }
+        .comment-text {
             max-width: 200px;
             word-wrap: break-word;
             font-size: 0.9rem;
-        }
-        .no-file {
-            color: #95a5a6;
-            font-style: italic;
+            color: #666;
         }
 
         /* Responsive Design */
@@ -318,7 +377,10 @@
                 padding: 15px 20px;
             }
             .styled-table {
-                min-width: 700px;
+                min-width: 800px;
+            }
+            .stats-container {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             }
         }
 
@@ -387,6 +449,24 @@
             .page-header p {
                 font-size: 1rem;
             }
+            .stats-container {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            .stat-card {
+                padding: 20px;
+            }
+            .stat-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+            .stat-content p {
+                font-size: 1.5rem;
+            }
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
             .table-header {
                 padding: 15px;
                 flex-direction: column;
@@ -400,13 +480,16 @@
                 font-size: 0.8rem;
             }
             .styled-table {
-                min-width: 600px;
+                min-width: 700px;
             }
             .styled-table th, .styled-table td {
                 padding: 12px 10px;
                 font-size: 0.85rem;
             }
-            .remark-text {
+            .description-text {
+                max-width: 150px;
+            }
+            .comment-text {
                 max-width: 120px;
             }
             .no-data {
@@ -440,6 +523,9 @@
             .page-header p {
                 font-size: 0.9rem;
             }
+            .stat-card {
+                padding: 15px;
+            }
             .table-header {
                 padding: 12px;
             }
@@ -447,7 +533,7 @@
                 font-size: 1rem;
             }
             .styled-table {
-                min-width: 500px;
+                min-width: 600px;
             }
             .styled-table th, .styled-table td {
                 padding: 10px 8px;
@@ -457,15 +543,18 @@
                 font-size: 0.75rem;
                 padding: 4px 8px;
             }
-            .pdf-link {
-                font-size: 0.8rem;
-                padding: 6px 10px;
-            }
             .id-badge {
                 font-size: 0.75rem;
                 padding: 3px 6px;
             }
-            .remark-text {
+            .description-text {
+                max-width: 120px;
+                font-size: 0.8rem;
+            }
+            .amount-text {
+                font-size: 0.9rem;
+            }
+            .comment-text {
                 max-width: 100px;
                 font-size: 0.8rem;
             }
@@ -498,13 +587,16 @@
                 padding: 10px;
             }
             .styled-table {
-                min-width: 450px;
+                min-width: 550px;
             }
             .styled-table th, .styled-table td {
                 padding: 8px 6px;
                 font-size: 0.75rem;
             }
-            .remark-text {
+            .description-text {
+                max-width: 100px;
+            }
+            .comment-text {
                 max-width: 80px;
             }
         }
@@ -526,7 +618,7 @@
                 font-size: 0.8rem;
             }
             .styled-table {
-                min-width: 400px;
+                min-width: 500px;
             }
             .styled-table th, .styled-table td {
                 padding: 6px 4px;
@@ -536,21 +628,23 @@
                 font-size: 0.65rem;
                 padding: 3px 6px;
             }
-            .pdf-link {
-                font-size: 0.7rem;
-                padding: 4px 8px;
-            }
             .id-badge {
                 font-size: 0.65rem;
                 padding: 2px 4px;
             }
-            .remark-text {
+            .description-text {
+                max-width: 80px;
+                font-size: 0.7rem;
+            }
+            .amount-text {
+                font-size: 0.8rem;
+            }
+            .comment-text {
                 max-width: 60px;
                 font-size: 0.7rem;
             }
         }
 
-        /* Landscape orientation for small devices */
         @media (max-width: 768px) and (orientation: landscape) {
             body {
                 padding-top: 50px;
@@ -581,7 +675,6 @@
             }
         }
 
-        /* Ultra-wide screens */
         @media (min-width: 1600px) {
             .main-content {
                 max-width: 1600px;
@@ -595,11 +688,10 @@
             }
         }
 
-        /* Print styles */
         @media print {
             .navbar,
-            .back-btn,
-            .pdf-link {
+            .filter-section,
+            .stats-container {
                 display: none;
             }
             body {
@@ -625,26 +717,26 @@
     <nav class="navbar">
         <div class="navbar-container">
             <a href="#" class="navbar-brand">
-                <i class="fas fa-check-circle"></i>
-                Vendor Inventory
+                <i class="fas fa-file-invoice-dollar"></i>
+                View Expenses
             </a>
             <ul class="navbar-menu" id="navbarNav">
                 <li>
-                    <a href="{{ url_for('dashboard') }}" class="navbar-link">
+                    <a href="{{ url_for('site_engineer_dashboard') }}" class="navbar-link">
                         <i class="fas fa-tachometer-alt"></i>
                         Dashboard
                     </a>
                 </li>
-                <!-- <li>
-                    <a href="{{ url_for('view_progress') }}" class="navbar-link">
-                        <i class="fas fa-chart-line"></i>
-                        View Progress
+                <li>
+                    <a href="{{ url_for('site_engineer_expenses') }}" class="navbar-link">
+                        <i class="fas fa-plus-circle"></i>
+                        Submit Expense
                     </a>
-                </li> -->
+                </li>
                 <li>
                     <a href="#" class="navbar-link active">
-                        <i class="fas fa-check-circle"></i>
-                        Approved Inventory
+                        <i class="fas fa-list"></i>
+                        View Expenses
                     </a>
                 </li>
                 <li>
@@ -662,63 +754,132 @@
 
     <div class="main-content">
         <div class="page-header">
-            <h1><i class="fas fa-check-circle"></i> Approved Vendor Inventory</h1>
-            <p>View all approved vendor inventory items and their details</p>
+            <h1><i class="fas fa-chart-line"></i> Expense Status Tracker</h1>
+            <p>View and track all your submitted expenses and their approval status</p>
         </div>
 
-        <!-- <a href="/siteengineer/dashboard" class="back-btn">
-            <i class="fas fa-arrow-left"></i>
-            Back to Dashboard
-        </a> -->
+        <!-- Statistics Cards -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-icon total">
+                    <i class="fas fa-receipt"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Total Expenses</h3>
+                    <p>{{ expenses|length if expenses else 0 }}</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon pending">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Pending</h3>
+                    <p>{{ pending_expenses|length if pending_expenses else 0 }}</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon approved">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Approved</h3>
+                    <p>{{ approved_expenses|length if approved_expenses else 0 }}</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon rejected">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Rejected</h3>
+                    <p>{{ rejected_expenses|length if rejected_expenses else 0 }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <label><i class="fas fa-filter"></i> Filter by Status</label>
+                    <select id="statusFilter" onchange="applyFilters()">
+                        <option value="all">All Statuses</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Approved">Approved</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label><i class="fas fa-project-diagram"></i> Filter by Project</label>
+                    <select id="projectFilter" onchange="applyFilters()">
+                        <option value="all">All Projects</option>
+                        {% for project in projects %}
+                            <option value="{{ project.project_name }}">{{ project.project_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label><i class="fas fa-calendar"></i> From Date</label>
+                    <input type="date" id="fromDate" onchange="applyFilters()">
+                </div>
+                
+                <div class="filter-group">
+                    <label><i class="fas fa-calendar"></i> To Date</label>
+                    <input type="date" id="toDate" onchange="applyFilters()">
+                </div>
+            </div>
+        </div>
 
         <div class="table-container">
             <div class="table-header">
-                <h3><i class="fas fa-boxes"></i> Inventory Items</h3>
+                <h3><i class="fas fa-list-ul"></i> All Expenses</h3>
                 <div class="count">
                     <i class="fas fa-list"></i>
-                    {{ inventory|length if inventory else 0 }} Items
+                    <span id="visibleCount">{{ expenses|length if expenses else 0 }}</span> Items
                 </div>
             </div>
 
             <div class="table-wrapper">
-                {% if inventory %}
+                {% if expenses %}
                 <table class="styled-table">
                     <thead>
                         <tr>
                             <th><i class="fas fa-hashtag"></i> ID</th>
-                            <th><i class="fas fa-cube"></i> Material</th>
-                            <th><i class="fas fa-sort-numeric-up"></i> Quantity</th>
                             <th><i class="fas fa-calendar"></i> Date</th>
+                            <th><i class="fas fa-project-diagram"></i> Project</th>
+                            <th><i class="fas fa-file-alt"></i> Description</th>
+                            <th><i class="fas fa-rupee-sign"></i> Amount</th>
                             <th><i class="fas fa-info-circle"></i> Status</th>
-                            <th><i class="fas fa-user-tie"></i> Vendor Name</th>
-                            <th><i class="fas fa-file-pdf"></i> PDF</th>
-                            <th><i class="fas fa-comment"></i> Remark</th>
+                            <th><i class="fas fa-comment"></i> Admin Comment</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        {% for item in inventory %}
-                        <tr>
-                            <td><span class="id-badge">{{ item.id }}</span></td>
-                            <td>{{ item.material_description }}</td>
-                            <td><strong>{{ item.quantity }}</strong></td>
-                            <td><span class="date-text">{{ item.date }}</span></td>
+                    <tbody id="expensesBody">
+                        {% for exp in expenses %}
+                        <tr data-status="{{ exp.status }}" data-project="{{ exp.project_name }}" data-date="{{ exp.date }}">
+                            <td><span class="id-badge">{{ exp.id }}</span></td>
+                            <td><span class="date-text">{{ exp.date }}</span></td>
+                            <td><span class="project-name">{{ exp.project_name }}</span></td>
+                            <td><span class="description-text">{{ exp.description }}</span></td>
+                            <td><span class="amount-text">₹{{ "%.2f"|format(exp.amount) }}</span></td>
                             <td>
-                                <span class="status-badge {% if item.status.lower() == 'approved' %}status-approved{% elif item.status.lower() == 'pending' %}status-pending{% else %}status-rejected{% endif %}">
-                                    {{ item.status }}
+                                <span class="status-badge {% if exp.status == 'Approved' %}status-approved{% elif exp.status == 'Pending' %}status-pending{% else %}status-rejected{% endif %}">
+                                    {% if exp.status == 'Pending' %}
+                                        <i class="fas fa-clock"></i>
+                                    {% elif exp.status == 'Approved' %}
+                                        <i class="fas fa-check"></i>
+                                    {% else %}
+                                        <i class="fas fa-times"></i>
+                                    {% endif %}
+                                    {{ exp.status }}
                                 </span>
                             </td>
-                            <td><span class="vendor-name">{{ item.vendor_name }}</span></td>
-                            <td>
-                                {% if item.vendor_quotation_pdf %}
-                                <a href="{{ url_for('static', filename='vendor_quotes/' ~ item.vendor_quotation_pdf) }}" target="_blank" class="pdf-link">
-                                    <i class="fas fa-file-pdf"></i>
-                                    View PDF
-                                </a>
-                                {% else %}
-                                <span class="no-file">No PDF</span>
-                                {% endif %}
-                            </td>
-                            <td><span class="remark-text">{{ item.admin_remark if item.admin_remark else '-' }}</span></td>
+                            <td><span class="comment-text">{{ exp.admin_comment if exp.admin_comment else '-' }}</span></td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -726,8 +887,8 @@
                 {% else %}
                 <div class="no-data">
                     <i class="fas fa-inbox"></i>
-                    <h3>No Approved Inventory Found</h3>
-                    <p>There are currently no approved vendor inventory items to display.</p>
+                    <h3>No Expenses Found</h3>
+                    <p>You haven't submitted any expenses yet. Start by submitting your first expense!</p>
                 </div>
                 {% endif %}
             </div>
@@ -739,10 +900,14 @@
         document.addEventListener('DOMContentLoaded', function() {
             const mobileMenuToggle = document.getElementById('mobileMenuToggle');
             const navbarNav = document.getElementById('navbarNav');
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('toDate').value = today;
+            
             if (mobileMenuToggle && navbarNav) {
                 mobileMenuToggle.addEventListener('click', function() {
                     const icon = this.querySelector('i');
                     navbarNav.classList.toggle('active');
+                    
                     if (navbarNav.classList.contains('active')) {
                         icon.classList.remove('fa-bars');
                         icon.classList.add('fa-times');
@@ -751,6 +916,7 @@
                         icon.classList.add('fa-bars');
                     }
                 });
+                
                 document.querySelectorAll('.navbar-link').forEach(link => {
                     link.addEventListener('click', function() {
                         navbarNav.classList.remove('active');
@@ -761,6 +927,44 @@
                 });
             }
         });
+
+        function applyFilters() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const projectFilter = document.getElementById('projectFilter').value;
+            const fromDate = document.getElementById('fromDate').value;
+            const toDate = document.getElementById('toDate').value;
+            
+            const rows = document.querySelectorAll('#expensesBody tr');
+            let visibleCount = 0;
+            
+            rows.forEach(row => {
+                let showRow = true;
+                
+                // Status filter
+                if (statusFilter !== 'all' && row.dataset.status !== statusFilter) {
+                    showRow = false;
+                }
+                
+                // Project filter
+                if (projectFilter !== 'all' && row.dataset.project !== projectFilter) {
+                    showRow = false;
+                }
+                
+                // Date filter
+                const rowDate = row.dataset.date;
+                if (fromDate && rowDate < fromDate) {
+                    showRow = false;
+                }
+                if (toDate && rowDate > toDate) {
+                    showRow = false;
+                }
+                
+                row.style.display = showRow ? '' : 'none';
+                if (showRow) visibleCount++;
+            });
+            
+            document.getElementById('visibleCount').textContent = visibleCount;
+        }
     </script>
 </body>
 </html>
