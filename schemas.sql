@@ -1,6 +1,6 @@
--- ############################## register table ##############################
+--1 ############################## register table ##############################
 
-CREATE TABLE register (
+CREATE TABLE IF NOT EXISTS register (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
@@ -11,9 +11,9 @@ CREATE TABLE register (
     status ENUM('active', 'disabled') DEFAULT 'active'
 );
 
---############################################## architects table ##########################################
+--2############################################## architects table ##########################################
 
-CREATE TABLE architects (
+CREATE TABLE IF NOT EXISTS architects (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100),
     license_number VARCHAR(50),
@@ -26,9 +26,9 @@ CREATE TABLE architects (
     FOREIGN KEY (register_id) REFERENCES register(id) ON DELETE SET NULL
 );
 
--- ######################################## architect_projects table ##########################################
+-- 3######################################## architect_projects table ##########################################
 
-CREATE TABLE architect_projects (
+CREATE TABLE IF NOT EXISTS  architect_projects (
     id INT AUTO_INCREMENT PRIMARY KEY,
     architect_id INT,
     project_name VARCHAR(255),
@@ -42,9 +42,9 @@ CREATE TABLE architect_projects (
     FOREIGN KEY (architect_id) REFERENCES architects(id) ON DELETE SET NULL
 );
 
--- ########################## projects table ###################################
+--4 ########################## projects table ###################################
 
-CREATE TABLE projects (
+CREATE TABLE IF NOT EXISTS   projects (
     id INT AUTO_INCREMENT PRIMARY KEY,
     project_name VARCHAR(255) NOT NULL,
     architect_id INT,
@@ -54,9 +54,9 @@ CREATE TABLE projects (
 );
 
 
--- ############################## daily_worker_report table ######################################
+-- 5############################## daily_worker_report table ######################################
 
-CREATE TABLE daily_worker_report (
+CREATE TABLE  IF NOT EXISTS daily_worker_report (
     id INT AUTO_INCREMENT PRIMARY KEY,
     site_engineer_id INT NOT NULL,
     project_id INT NOT NULL,
@@ -67,9 +67,9 @@ CREATE TABLE daily_worker_report (
 );
 
 
---#################################### design_details table ####################################
+-- 6#################################### design_details table ####################################
 
-CREATE TABLE design_details (
+CREATE TABLE  IF NOT EXISTS design_details (
     id INT AUTO_INCREMENT PRIMARY KEY,
     project_id INT,
     architect_id INT,
@@ -82,9 +82,9 @@ CREATE TABLE design_details (
 );
 
 
---############################################### drawing_documents table ###################################
+-- 7############################################### drawing_documents table ###################################
 
-CREATE TABLE drawing_documents (
+CREATE TABLE IF NOT EXISTS drawing_documents (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     project_id INT NOT NULL,
     architect_id INT,
@@ -105,9 +105,9 @@ CREATE TABLE drawing_documents (
 
 
 
--- ################################## enquiries table ########################################
+-- 8################################## enquiries table ########################################
 
-CREATE TABLE enquiries (
+CREATE TABLE IF NOT EXISTS enquiries (
     id INT AUTO_INCREMENT PRIMARY KEY,
     site_engineer_id INT,
     name VARCHAR(100) NOT NULL,
@@ -118,8 +118,8 @@ CREATE TABLE enquiries (
     org_id INT NOT NULL
 );
 
---########################################### inventory table #############################################
-CREATE TABLE inventory (
+-- 9########################################### inventory table #############################################
+CREATE TABLE  IF NOT EXISTS inventory (
     material_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     material_description VARCHAR(255) NOT NULL,
     quantity INT NOT NULL,
@@ -131,9 +131,9 @@ CREATE TABLE inventory (
 
 
 
--- ############################# invoice_items table ##################################
+-- 10############################# invoice_items table ##################################
 
-CREATE TABLE invoice_items (
+CREATE TABLE IF NOT EXISTS invoice_items (
     id INT AUTO_INCREMENT PRIMARY KEY,
     invoice_id INT NOT NULL,
     description VARCHAR(255) NOT NULL,
@@ -145,9 +145,9 @@ CREATE TABLE invoice_items (
 );
 
 
--- i###################################### invoices table ###########################
+-- 11###################################### invoices table ###########################
 
-CREATE TABLE invoices (
+CREATE TABLE IF NOT EXISTS invoices (
     id INT AUTO_INCREMENT PRIMARY KEY,
     site_engineer_id INT NOT NULL,
     vendor_name VARCHAR(255),
@@ -171,9 +171,9 @@ CREATE TABLE invoices (
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL
 );
 
--- ############################### legal_and_compliances table #########################################
+-- 12############################### legal_and_compliances table #########################################
 
-CREATE TABLE legal_and_compliances (
+CREATE TABLE IF NOT EXISTS legal_and_compliances (
     id INT AUTO_INCREMENT PRIMARY KEY,
     project_id INT NOT NULL,
     municipal_approval_status ENUM('Approved', 'Not Approved') NOT NULL,
@@ -189,9 +189,9 @@ CREATE TABLE legal_and_compliances (
 );
 
 
--- ############################ material_specifications table ######################################### 
+-- 13############################ material_specifications table ######################################### 
 
-CREATE TABLE material_specifications (
+CREATE TABLE  IF NOT EXISTS material_specifications (
     id INT AUTO_INCREMENT PRIMARY KEY,
     project_id INT,
     architect_id INT,
@@ -203,9 +203,9 @@ CREATE TABLE material_specifications (
     org_id INT NOT NULL
 );
 
---################################ progress_reports table ############################
+-- 14################################ progress_reports table ############################
 
-CREATE TABLE progress_reports (
+CREATE TABLE IF NOT EXISTS progress_reports (
     report_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     site_id INT NOT NULL,
     progress_percent INT NOT NULL,
@@ -218,8 +218,8 @@ CREATE TABLE progress_reports (
     INDEX (org_id)
 );
 
--- ########################################## messages table ##########################################
-CREATE TABLE messages (
+-- 15########################################## messages table ##########################################
+CREATE TABLE IF NOT EXISTS messages (
     id INT AUTO_INCREMENT PRIMARY KEY,
     sender_id INT NOT NULL,
     receiver_id INT NOT NULL,
@@ -231,9 +231,9 @@ CREATE TABLE messages (
     FOREIGN KEY (receiver_id) REFERENCES register(id) ON DELETE CASCADE
 );
 
--- ############### salaries table ##############################
+-- 16############### salaries table ##############################
 
-CREATE TABLE salaries (
+CREATE TABLE IF NOT EXISTS salaries (
     id INT AUTO_INCREMENT PRIMARY KEY,
     project_id INT,
     user_id INT,
@@ -243,6 +243,8 @@ CREATE TABLE salaries (
     allowance DECIMAL(10,2),
     pf DECIMAL(10,2),
     advance DECIMAL(10,2) DEFAULT 0.00,
+    other_deductions DECIMAL(10,2) DEFAULT 0.00,
+    net_salary DECIMAL(10,2) DEFAULT 0.00,
     description VARCHAR(255),
     created_by INT,
     created_on DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -255,9 +257,9 @@ CREATE TABLE salaries (
 );
 
 
--- #################################### site_conditions table #######################################
+-- 17#################################### site_conditions table #######################################
 
-CREATE TABLE site_conditions (
+CREATE TABLE IF NOT EXISTS site_conditions (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     project_id INT NOT NULL UNIQUE,
     architect_id INT,
@@ -268,9 +270,9 @@ CREATE TABLE site_conditions (
     org_id INT NOT NULL
 );
 
--- ######################################## sites table ###############################################
+-- 18######################################## sites table ###############################################
 
-CREATE TABLE sites (
+CREATE TABLE IF NOT EXISTS sites (
     site_id INT AUTO_INCREMENT PRIMARY KEY,
     site_name VARCHAR(100) NOT NULL,
     location VARCHAR(255) NOT NULL,
@@ -282,9 +284,9 @@ CREATE TABLE sites (
 
 
 
--- #############################structural_details table###############################################
+-- 19#############################structural_details table###############################################
 
-CREATE TABLE structural_details (
+CREATE TABLE IF NOT EXISTS structural_details (
     id INT AUTO_INCREMENT PRIMARY KEY,
     project_id INT,
     architect_id INT,
@@ -298,9 +300,9 @@ CREATE TABLE structural_details (
 
 
 
--- #######################utilities_services table#############################################
+-- 20#######################utilities_services table#############################################
 
-CREATE TABLE utilities_services (
+CREATE TABLE IF NOT EXISTS utilities_services (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     project_id INT NOT NULL UNIQUE,
     architect_id INT,
@@ -314,9 +316,9 @@ CREATE TABLE utilities_services (
 
 
 
--- ####################vendor_inventory table##################################
+-- 21####################vendor_inventory table##################################
 
-CREATE TABLE vendor_inventory (
+CREATE TABLE IF NOT EXISTS vendor_inventory (
     id INT AUTO_INCREMENT PRIMARY KEY,
     material_description VARCHAR(255) NOT NULL,
     quantity INT NOT NULL,
@@ -325,15 +327,17 @@ CREATE TABLE vendor_inventory (
     vendor_name VARCHAR(100) NOT NULL,
     vendor_quotation_pdf VARCHAR(255),
     admin_remark VARCHAR(255),
+    site_engineer_id INT NULL,
     admin_approval ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
     vendor_type ENUM('electrical', 'plumber', 'carpenter', 'painter', 'other') NOT NULL DEFAULT 'other',
     org_id INT NOT NULL
+
 );
 
 
--- ##################################### accountant_projects table ######################################
+-- 22##################################### accountant_projects table ######################################
 
-CREATE TABLE accountant_projects (
+CREATE TABLE IF NOT EXISTS accountant_projects (
     id INT AUTO_INCREMENT PRIMARY KEY,
     accountant_id INT NOT NULL,
     project_id INT NOT NULL,
@@ -343,9 +347,9 @@ CREATE TABLE accountant_projects (
 
 
 
------------############ cost_estimation table #######################################################
+-- 23############ cost_estimation table #######################################################
 
-CREATE TABLE cost_estimation (
+CREATE TABLE IF NOT EXISTS cost_estimation (
     id INT AUTO_INCREMENT PRIMARY KEY,
     architectural_design_cost FLOAT,
     structural_design_cost FLOAT,
@@ -360,8 +364,8 @@ CREATE TABLE cost_estimation (
     org_id INT NOT NULL
 );
 
------------################################### ORGANIZATION TABLE ##########################################
-CREATE TABLE organization_master (
+-- 24################################### ORGANIZATION TABLE ##########################################
+CREATE TABLE IF NOT EXISTS organization_master (
     org_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     admin_id INT DEFAULT NULL,
     role ENUM('super_admin', 'admin', 'project_manager', 'architect', 'accountant', 'site_engineer') NOT NULL,
@@ -375,8 +379,8 @@ CREATE TABLE organization_master (
     gst_number VARCHAR(20),
     terms_conditions VARCHAR(200)
 );
------------######################################## daily_expenses table ##########################################
-CREATE TABLE daily_expenses (
+-- 25######################################## daily_expenses table ##########################################
+CREATE TABLE IF NOT EXISTS daily_expenses (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     site_engineer_id INT,
     org_id INT,
@@ -387,3 +391,109 @@ CREATE TABLE daily_expenses (
     status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
     admin_comment TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+
+
+
+   --- 26####################### base salary #############
+
+   CREATE TABLE IF NOT EXISTS base_salaries (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    salary DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    created_on DATETIME DEFAULT CURRENT_TIMESTAMP,
+    created_by INT NOT NULL,
+    updated_on DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by INT DEFAULT NULL,
+    org_id INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES register(id) ON DELETE CASCADE,
+    FOREIGN KEY (created_by) REFERENCES register(id),
+    FOREIGN KEY (updated_by) REFERENCES register(id),
+    UNIQUE KEY unique_user_org (user_id, org_id),
+    INDEX idx_org_id (org_id),
+    INDEX idx_user_id (user_id)
+) ;
+
+
+
+-- 27####################### advance table ##############################
+
+CREATE TABLE IF NOT EXISTS advances (
+    id                  INT AUTO_INCREMENT PRIMARY KEY,
+    user_id             INT NOT NULL,
+    advance_amount      DECIMAL(10,2) NOT NULL,    -- ✅ Total advance given
+    remaining_amount    DECIMAL(10,2) NOT NULL,    -- ✅ What's left to deduct
+    created_by          INT NOT NULL,
+    created_on          DATETIME,
+    org_id              INT NOT NULL
+);
+
+-- 28############################### notifications table ##########################################
+CREATE TABLE IF NOT EXISTS notifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    org_id INT NOT NULL,
+    notification_type VARCHAR(50) NOT NULL,  -- 'project_assigned', 'invoice_generated', etc.
+    reference_id INT,  -- ID of the related record (project_id, invoice_id, etc.)
+    message TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES register(id),
+    INDEX idx_user_unread (user_id, is_read),
+    INDEX idx_org (org_id)
+);
+
+
+
+-- 29############################# bills_and_payments table ##########################################
+
+CREATE TABLE IF NOT EXISTS bills_and_payments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    bill_no VARCHAR(100) NOT NULL,
+    bill_date DATE NOT NULL,
+
+    bill_type ENUM('Advance Bill','Running Account Bill','Final Bill') NOT NULL,
+
+    bill_file_path VARCHAR(500) NULL,
+    bill_file_type ENUM('pdf','image') NULL,
+
+    advance_amount DECIMAL(15,2) DEFAULT 0.00,
+    running_account_amount DECIMAL(15,2) DEFAULT 0.00,
+    final_amount DECIMAL(15,2) DEFAULT 0.00,
+
+    work_name VARCHAR(255) NOT NULL,
+    work_order_number VARCHAR(100) NOT NULL,
+    work_order_date DATE NOT NULL,
+
+    tender_name VARCHAR(255) NULL,
+    tender_number VARCHAR(100) NULL,
+
+    gross_amount DECIMAL(15,2) NOT NULL,
+    gst_percentage DECIMAL(5,2) NOT NULL,
+    gst_amount DECIMAL(15,2) NOT NULL,
+
+    security_deposit DECIMAL(15,2) DEFAULT 0.00,
+    labour_charges DECIMAL(15,2) NOT NULL,
+
+    net_amount DECIMAL(15,2) NOT NULL,
+
+    payment_status ENUM('Paid','Unpaid') DEFAULT 'Unpaid',
+
+    created_by INT NOT NULL,
+    created_by_role ENUM('admin','accountant') NOT NULL,
+
+    org_id INT NOT NULL,
+    project_id INT NULL,
+    accountant_id INT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    INDEX idx_bill_type (bill_type),
+    INDEX idx_payment_status (payment_status),
+    INDEX idx_created_by (created_by),
+    INDEX idx_org_id (org_id),
+    INDEX idx_project_id (project_id),
+    INDEX idx_accountant_id (accountant_id)
+);
+
