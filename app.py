@@ -851,14 +851,7 @@ def accountant_dashboard():
             se.name AS site_engineer_name
         FROM accountant_projects ap
         JOIN projects p ON ap.project_id = p.id
-        LEFT JOIN sites s ON p.site_id = s.site_id
-        LEFT JOIN invoices i ON (
-            (
-                i.project_id = p.id
-                OR (i.project_id IS NULL AND i.site_engineer_id = s.site_engineer_id)
-            )
-            AND i.status = 'Approved'
-        )
+        LEFT JOIN invoices i ON i.project_id = p.id AND i.status = 'Approved'
         LEFT JOIN register se ON i.site_engineer_id = se.id
         WHERE ap.accountant_id = %s AND ap.org_id = %s
         ORDER BY p.project_name, i.generated_on DESC
@@ -890,7 +883,6 @@ def accountant_dashboard():
         'accountant_dashboard.html',
         projects_with_invoices=projects_with_invoices
     )
-
 @app.route('/accountant/invoices')
 def accountant_view_invoices():
     if 'role' not in session or session['role'] != 'accountant':
@@ -899,13 +891,12 @@ def accountant_view_invoices():
     accountant_id = session['user_id']
     org_id = session['org_id']
     
-    # Mark invoice_approved notifications as read when accountant visits this page
     mark_notifications_as_read(accountant_id, org_id, 'invoice_approved')
     
     conn = get_connection()
     cur = conn.cursor(pymysql.cursors.DictCursor)
 
-    # Fetch projects and their APPROVED invoices assigned to the accountant
+    # ✅ FIXED: Only fetch invoices strictly linked to assigned projects
     cur.execute("""
         SELECT DISTINCT
             p.id AS project_id,
@@ -924,21 +915,13 @@ def accountant_view_invoices():
             se.name AS site_engineer_name
         FROM accountant_projects ap
         JOIN projects p ON ap.project_id = p.id
-        LEFT JOIN sites s ON p.site_id = s.site_id
-        LEFT JOIN invoices i ON (
-            (
-                i.project_id = p.id
-                OR (i.project_id IS NULL AND i.site_engineer_id = s.site_engineer_id)
-            )
-            AND i.status = 'Approved'
-        )
+        LEFT JOIN invoices i ON i.project_id = p.id AND i.status = 'Approved'
         LEFT JOIN register se ON i.site_engineer_id = se.id
         WHERE ap.accountant_id = %s AND ap.org_id = %s
         ORDER BY p.project_name, i.generated_on DESC
     """, (accountant_id, org_id))
     results = cur.fetchall()
 
-    # Organize the data by project
     projects_with_invoices = {}
     for row in results:
         project_id = row['project_id']
@@ -946,13 +929,12 @@ def accountant_view_invoices():
             projects_with_invoices[project_id] = {
                 'project_name': row['project_name'],
                 'invoices': [],
-                'seen_invoice_ids': set()  # track seen invoices
+                'seen_invoice_ids': set()
             }
         if row['invoice_id'] and row['invoice_id'] not in projects_with_invoices[project_id]['seen_invoice_ids']:
             projects_with_invoices[project_id]['invoices'].append(row)
             projects_with_invoices[project_id]['seen_invoice_ids'].add(row['invoice_id'])
 
-    # Clean up the helper set before passing to template
     for project in projects_with_invoices.values():
         project.pop('seen_invoice_ids', None)
 
@@ -4829,7 +4811,7 @@ def assign_accountant():
     if 'role' not in session or session['role'] != 'admin':
         return redirect(url_for('login'))
 
-    org_id = session.get('org_id')  # Get the current admin's org_id
+    org_id = session.get('org_id')
 
     conn = get_connection()
     cur = conn.cursor(pymysql.cursors.DictCursor)
@@ -4838,27 +4820,30 @@ def assign_accountant():
         accountant_id = request.form['accountant_id']
         project_ids = request.form.getlist('project_ids')
 
-        # Clear existing assignments for this accountant
-        # cur.execute("DELETE FROM accountant_projects WHERE accountant_id = %s", (accountant_id,))
+        try:
+            # ✅ INSERT IGNORE prevents duplicate rows without deleting existing assignments
+            for project_id in project_ids:
+                cur.execute(
+                    """INSERT IGNORE INTO accountant_projects (accountant_id, project_id, org_id) 
+                       VALUES (%s, %s, %s)""",
+                    (accountant_id, project_id, org_id)
+                )
 
-        # Insert new assignments
-        for project_id in project_ids:
-            cur.execute(
-                "INSERT INTO accountant_projects (accountant_id, project_id, org_id) VALUES (%s, %s, %s)",
-                (accountant_id, project_id, org_id)
+            project_count = len(project_ids)
+            create_notification(
+                user_id=accountant_id,
+                org_id=org_id,
+                notification_type='project_assigned',
+                reference_id=int(accountant_id),
+                message=f'{project_count} project(s) assigned to you'
             )
 
-         # CREATE NOTIFICATION for accountant
-        project_count = len(project_ids)
-        create_notification(
-            user_id=accountant_id,
-            org_id=session['org_id'],
-            notification_type='project_assigned',
-            reference_id=accountant_id,
-            message=f'{project_count} project(s) assigned to you'
-        )
-        conn.commit()
-        flash('Projects assigned successfully.')
+            conn.commit()
+            flash('Projects assigned successfully.', 'success')
+
+        except Exception as e:
+            conn.rollback()
+            flash(f'Error assigning projects: {str(e)}', 'danger')
 
     # Fetch all accountants belonging to this org
     cur.execute("SELECT id, name FROM register WHERE role = 'accountant' AND org_id = %s", (org_id,))
@@ -4878,6 +4863,7 @@ def assign_accountant():
                 assignments[a['accountant_id']] = []
             assignments[a['accountant_id']].append(a['project_id'])
 
+    cur.close()
     conn.close()
 
     selected_accountant_id = request.args.get('accountant_id', '')
