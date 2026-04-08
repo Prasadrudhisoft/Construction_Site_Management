@@ -1,4 +1,4 @@
---1 ############################## register table ##############################
+############################## register table ##############################
 
 CREATE TABLE IF NOT EXISTS register (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS register (
     status ENUM('active', 'disabled') DEFAULT 'active'
 );
 
---2############################################## architects table ##########################################
+############################################## architects table ##########################################
 
 CREATE TABLE IF NOT EXISTS architects (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -42,9 +42,9 @@ CREATE TABLE IF NOT EXISTS  architect_projects (
     FOREIGN KEY (architect_id) REFERENCES architects(id) ON DELETE SET NULL
 );
 
---4 ########################## projects table ###################################
+########################## projects table ###################################
 
-CREATE TABLE IF NOT EXISTS   projects (
+CREATE TABLE IF NOT EXISTS projects (
     id INT AUTO_INCREMENT PRIMARY KEY,
     project_name VARCHAR(255) NOT NULL,
     architect_id INT,
@@ -126,22 +126,7 @@ CREATE TABLE  IF NOT EXISTS inventory (
     date DATE NOT NULL,
     org_id INT NOT NULL,
     status ENUM('available', 'low', 'out_of_stock', 'ordered') NOT NULL,
-    site_engineer_id INT NOT NULL,
-);
-
-
-
--- 10############################# invoice_items table ##################################
-
-CREATE TABLE IF NOT EXISTS invoice_items (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    invoice_id INT NOT NULL,
-    description VARCHAR(255) NOT NULL,
-    quantity INT NOT NULL,
-    rate DECIMAL(10,2) NOT NULL,
-    subtotal DECIMAL(10,2) NOT NULL,
-    org_id INT NOT NULL,
-    FOREIGN KEY (invoice_id) REFERENCES invoices(id) ON DELETE CASCADE
+    site_engineer_id INT NOT NULL
 );
 
 
@@ -170,6 +155,23 @@ CREATE TABLE IF NOT EXISTS invoices (
     FOREIGN KEY (approved_by) REFERENCES register(id) ON DELETE SET NULL,
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL
 );
+
+
+
+-- 10############################# invoice_items table ##################################
+
+CREATE TABLE IF NOT EXISTS invoice_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    invoice_id INT NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    quantity INT NOT NULL,
+    rate DECIMAL(10,2) NOT NULL,
+    subtotal DECIMAL(10,2) NOT NULL,
+    org_id INT NOT NULL,
+    FOREIGN KEY (invoice_id) REFERENCES invoices(id) ON DELETE CASCADE
+);
+
+
 
 -- 12############################### legal_and_compliances table #########################################
 
@@ -439,9 +441,11 @@ CREATE TABLE IF NOT EXISTS notifications (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES register(id),
     INDEX idx_user_unread (user_id, is_read),
-    INDEX idx_org (org_id)
+    INDEX idx_org (org_id),
+    
 );
 
+CREATE INDEX idx_notif_user_org_read_type ON notifications(user_id, org_id, is_read, notification_type);
 
 
 -- 29############################# bills_and_payments table ##########################################
