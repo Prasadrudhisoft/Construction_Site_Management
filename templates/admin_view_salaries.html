@@ -821,11 +821,11 @@
                                     </td>
                                     <td>
                                         {% if s.base_salary > 0 %}
-                                        <a href="{{ url_for('download_salary_slip', salary_id=s.id) }}"
-                                            class="action-btn btn-download" target="_blank"
-                                            title="Download Salary Slip">
+                                        <button class="action-btn btn-download" title="Download Salary Slip"
+                                            data-url="{{ url_for('download_salary_slip', salary_id=s.id) }}"
+                                            onclick="downloadSlip(this.dataset.url, this)">
                                             <i class="fas fa-file-pdf"></i> Slip
-                                        </a>
+                                        </button>
                                         {% else %}
                                         <span class="text-muted" style="font-size:0.8rem;">No slip</span>
                                         {% endif %}
@@ -954,6 +954,41 @@
                 setTimeout(() => m.remove(), 500);
             });
         }, 4000);
+    </script>
+    <script>
+        function downloadSlip(url, btn) {
+            const original = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>...';
+            btn.disabled = true;
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error('Download failed');
+                    const disposition = response.headers.get('Content-Disposition');
+                    let filename = 'salary_slip.pdf';
+                    if (disposition && disposition.includes('filename=')) {
+                        filename = disposition.split('filename=')[1].replace(/"/g, '').trim();
+                    }
+                    return response.blob().then(blob => ({ blob, filename }));
+                })
+                .then(({ blob, filename }) => {
+                    const blobUrl = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = blobUrl;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(blobUrl);
+                    btn.innerHTML = original;
+                    btn.disabled = false;
+                })
+                .catch(err => {
+                    alert('Error: ' + err.message);
+                    btn.innerHTML = original;
+                    btn.disabled = false;
+                });
+        }
     </script>
 </body>
 

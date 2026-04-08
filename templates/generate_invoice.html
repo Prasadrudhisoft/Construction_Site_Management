@@ -482,7 +482,8 @@
 
                         <!-- Submit Button -->
                         <div class="text-center mt-4">
-                            <button type="submit" class="btn btn-primary btn-lg px-5">
+                            <button type="button" class="btn btn-primary btn-lg px-5" id="generateBtn"
+                                onclick="submitInvoiceForm()">
                                 <i class="fas fa-save me-2"></i>Generate Invoice
                             </button>
                             <a href="{{ url_for('admin_dashboard') if user_role == 'admin' else url_for('site_engineer_dashboard') }}"
@@ -616,35 +617,35 @@
             });
         });
 
-        // Form validation
-        document.getElementById('invoiceForm').addEventListener('submit', function (e) {
-            // Phone validation
-            const phone = document.getElementById('bill_to_phone').value;
-            if (phone && !/^[0-9]{10}$/.test(phone)) {
-                e.preventDefault();
-                alert('Please enter a valid 10-digit phone number.');
-                document.getElementById('bill_to_phone').focus();
-                return;
-            }
+        // // Form validation
+        // document.getElementById('invoiceForm').addEventListener('submit', function (e) {
+        //     // Phone validation
+        //     const phone = document.getElementById('bill_to_phone').value;
+        //     if (phone && !/^[0-9]{10}$/.test(phone)) {
+        //         e.preventDefault();
+        //         alert('Please enter a valid 10-digit phone number.');
+        //         document.getElementById('bill_to_phone').focus();
+        //         return;
+        //     }
 
-            const lineItems = document.querySelectorAll('.line-item-row');
-            let hasValidItem = false;
+        //     const lineItems = document.querySelectorAll('.line-item-row');
+        //     let hasValidItem = false;
 
-            lineItems.forEach(item => {
-                const desc = item.querySelector('input[name="description[]"]').value.trim();
-                const qty = item.querySelector('input[name="quantity[]"]').value;
-                const rate = item.querySelector('input[name="rate[]"]').value;
+        //     lineItems.forEach(item => {
+        //         const desc = item.querySelector('input[name="description[]"]').value.trim();
+        //         const qty = item.querySelector('input[name="quantity[]"]').value;
+        //         const rate = item.querySelector('input[name="rate[]"]').value;
 
-                if (desc && qty && rate) {
-                    hasValidItem = true;
-                }
-            });
+        //         if (desc && qty && rate) {
+        //             hasValidItem = true;
+        //         }
+        //     });
 
-            if (!hasValidItem) {
-                e.preventDefault();
-                alert('Please add at least one valid line item with description, quantity, and rate.');
-            }
-        });
+        //     if (!hasValidItem) {
+        //         e.preventDefault();
+        //         alert('Please add at least one valid line item with description, quantity, and rate.');
+        //     }
+        // });
 
         // Mobile menu toggle
         document.getElementById('mobileMenuToggle').addEventListener('click', function () {
@@ -737,13 +738,66 @@
         })();
     </script>
     {% endif %}
-</body>
 
-</html>
+    <script>
+        function submitInvoiceForm() {
+            const phone = document.getElementById('bill_to_phone').value;
+            if (phone && !/^[0-9]{10}$/.test(phone)) {
+                alert('Please enter a valid 10-digit phone number.');
+                document.getElementById('bill_to_phone').focus();
+                return;
+            }
+            const lineItems = document.querySelectorAll('.line-item-row');
+            let hasValidItem = false;
+            lineItems.forEach(item => {
+                const desc = item.querySelector('input[name="description[]"]').value.trim();
+                const qty = item.querySelector('input[name="quantity[]"]').value;
+                const rate = item.querySelector('input[name="rate[]"]').value;
+                if (desc && qty && rate) hasValidItem = true;
+            });
+            if (!hasValidItem) {
+                alert('Please add at least one valid line item with description, quantity, and rate.');
+                return;
+            }
+            const form = document.getElementById('invoiceForm');
+            const formData = new FormData(form);
+            const btn = document.getElementById('generateBtn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Generating...';
+            btn.disabled = true;
+            fetch(window.location.href, {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Generation failed');
+                    const disposition = response.headers.get('Content-Disposition');
+                    let filename = 'invoice.pdf';
+                    if (disposition && disposition.includes('filename=')) {
+                        filename = disposition.split('filename=')[1].replace(/"/g, '').trim();
+                    }
+                    return response.blob().then(blob => ({ blob, filename }));
+                })
+                .then(({ blob, filename }) => {
+                    const blobUrl = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = blobUrl;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(blobUrl);
+                    btn.innerHTML = '<i class="fas fa-save me-2"></i>Generate Invoice';
+                    btn.disabled = false;
+                })
+                .catch(err => {
+                    alert('Error: ' + err.message);
+                    btn.innerHTML = '<i class="fas fa-save me-2"></i>Generate Invoice';
+                    btn.disabled = false;
+                });
+        }
+    </script>
+    <script src="{{ url_for('static', filename='js/background_download.js') }}"></script>
 
-
-
-</script>
 </body>
 
 </html>

@@ -748,7 +748,7 @@
     <nav class="navbar">
         <div class="navbar-container">
             <!-- <a href="{{ url_for('base_salary_management') }}" class="navbar-brand"> -->
-                <h1 class="navbar-brand">
+            <h1 class="navbar-brand">
                 <i class="fas fa-money-check-alt"></i>
                 Salary Management
             </h1>
@@ -905,10 +905,11 @@
                                 <td><small>{{ s.created_on.strftime('%Y-%m-%d %H:%M') if s.created_on else '' }}</small>
                                 </td>
                                 <td>
-                                    <a href="{{ url_for('download_salary_slip', salary_id=s.id) }}" class="btn-slip"
-                                        target="_blank">
+                                    <button class="btn-slip"
+                                        data-url="{{ url_for('download_salary_slip', salary_id=s.id) }}"
+                                        onclick="downloadSlip(this.dataset.url, this)">
                                         <i class="fas fa-download"></i> Salary Slip
-                                    </a>
+                                    </button>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -1058,6 +1059,45 @@
             document.getElementById('reportError').style.display = 'none';
         });
     </script>
+    <script>
+        function downloadSlip(url, btn) {
+            const original = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Downloading...';
+            btn.disabled = true;
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error('Download failed');
+                    const disposition = response.headers.get('Content-Disposition');
+                    let filename = 'salary_slip.pdf';
+                    if (disposition && disposition.includes('filename=')) {
+                        filename = disposition.split('filename=')[1].replace(/"/g, '').trim();
+                    }
+                    return response.blob().then(blob => ({ blob, filename }));
+                })
+                .then(({ blob, filename }) => {
+                    const blobUrl = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = blobUrl;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(blobUrl);
+                    btn.innerHTML = original;
+                    btn.disabled = false;
+                })
+                .catch(err => {
+                    alert('Error: ' + err.message);
+                    btn.innerHTML = original;
+                    btn.disabled = false;
+                });
+        }
+    </script>
+
+</body>
+
+</html>
 </body>
 
 </html>
