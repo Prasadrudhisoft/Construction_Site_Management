@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, send_file, make_response
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, send_file, make_response, abort
 import pymysql
 from datetime import datetime, date, timedelta
 import os
@@ -37,6 +37,1301 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from io import BytesIO
 from flask import send_file
+import threading
+
+def generate_invoice_pdf_async(invoice_id, org_id, invoice_number, project_name, grand_total, engineer_name):
+    """
+    Background task: generate PDF and update invoice record.
+    Runs in a separate thread.
+    """
+    from config import get_connection
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib import colors
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.pagesizes import A4
+    from io import BytesIO
+    import os
+
+    conn = get_connection()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
+    try:
+        # Fetch invoice data (including organization details)
+        cur.execute("""
+            SELECT i.*, om.company_name, om.company_address, om.company_phone, om.company_email,
+                   om.gst_number, om.bank_name, om.bank_account, om.ifsc_code, om.terms_conditions
+            FROM invoices i
+            LEFT JOIN organization_master om ON i.org_id = om.org_id
+            WHERE i.id = %s AND i.org_id = %s
+        """, (invoice_id, org_id))
+        invoice = cur.fetchone()
+        if not invoice:
+            raise Exception("Invoice not found")
+
+        cur.execute("SELECT * FROM invoice_items WHERE invoice_id = %s AND org_id = %s", (invoice_id, org_id))
+        items = cur.fetchall()
+
+        # Prepare data for PDF
+        subtotal = float(invoice['subtotal'])
+        gst_amount = float(invoice['gst_amount'])
+        grand_total = float(invoice['total_amount'])
+        gst_percentage = (gst_amount / subtotal * 100) if subtotal > 0 else 0
+        invoice_date = invoice['generated_on'].strftime('%Y-%m-%d') if invoice['generated_on'] else ''
+
+        # ========== PDF GENERATION (exact copy from original route) ==========
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=A4, leftMargin=30, rightMargin=30, topMargin=30, bottomMargin=30)
+        styles = getSampleStyleSheet()
+
+        # Professional Color Scheme
+        primary_color = colors.HexColor('#1e3a8a')      # Deep Blue
+        secondary_color = colors.HexColor('#3b82f6')    # Bright Blue
+        accent_color = colors.HexColor('#f59e0b')       # Golden Yellow
+        text_dark = colors.HexColor('#1f2937')          # Dark Gray
+        text_light = colors.HexColor('#6b7280')         # Light Gray
+        bg_light = colors.HexColor('#f8fafc')           # Very Light Gray
+        success_color = colors.HexColor('#059669')      # Green
+
+        # Enhanced Custom Styles
+        company_name_style = ParagraphStyle(
+            'company_name',
+            parent=styles['Heading1'],
+            fontSize=24,
+            textColor=primary_color,
+            fontName='Helvetica-Bold',
+            alignment=0,
+            spaceAfter=5
+        )
+        
+        company_info_style = ParagraphStyle(
+            'company_info',
+            parent=styles['Normal'],
+            fontSize=11,
+            textColor=text_light,
+            fontName='Helvetica',
+            alignment=0,
+            spaceAfter=3
+        )
+        
+        invoice_title_style = ParagraphStyle(
+            'invoice_title',
+            parent=styles['Heading1'],
+            fontSize=28,
+            textColor=accent_color,
+            fontName='Helvetica-Bold',
+            alignment=2,
+            spaceAfter=10
+        )
+        
+        section_header_style = ParagraphStyle(
+            'section_header',
+            parent=styles['Heading3'],
+            fontSize=14,
+            textColor=primary_color,
+            fontName='Helvetica-Bold',
+            spaceBefore=15,
+            spaceAfter=8,
+            borderWidth=0,
+            borderColor=primary_color,
+            backColor=bg_light,
+            leftIndent=10,
+            rightIndent=10,
+            topPadding=8,
+            bottomPadding=8
+        )
+        
+        client_info_style = ParagraphStyle(
+            'client_info',
+            parent=styles['Normal'],
+            fontSize=11,
+            textColor=text_dark,
+            fontName='Helvetica',
+            spaceAfter=4
+        )
+        
+        footer_style = ParagraphStyle(
+            'footer',
+            parent=styles['Normal'],
+            fontSize=10,
+            textColor=text_light,
+            fontName='Helvetica-Oblique',
+            alignment=1,
+            spaceBefore=20
+        )
+
+        elements = []
+
+        # Professional Header with Company Branding
+        header_table_data = [
+            [
+                [
+                    Paragraph(invoice['company_name'] or 'Company Name', company_name_style),
+                    Paragraph(invoice['company_address'] or '', company_info_style),
+                    Paragraph(f"Phone: {invoice['company_phone'] or 'N/A'}", company_info_style),
+                    Paragraph(f"Email: {invoice['company_email'] or 'N/A'}", company_info_style),
+                    Paragraph(f"GST: {invoice['gst_number'] or 'N/A'}", company_info_style)
+                ],
+                Paragraph("INVOICE", invoice_title_style)
+            ]
+        ]
+        
+        header_table = Table(header_table_data, colWidths=[300, 250])
+        header_table.setStyle(TableStyle([
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('ALIGN', (1, 0), (1, 0), 'RIGHT'),
+        ]))
+        elements.append(header_table)
+        elements.append(Spacer(1, 20))
+
+        # Invoice Details with Professional Styling
+        invoice_details_data = [
+            ['Invoice Number:', invoice['invoice_number'], 'Invoice Date:', invoice_date]
+        ]
+        
+        invoice_details_table = Table(invoice_details_data, colWidths=[100, 150, 100, 150])
+        invoice_details_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), bg_light),
+            ('TEXTCOLOR', (0, 0), (-1, -1), text_dark),
+            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),  # Labels bold
+            ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),       # Values normal
+            ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),  # Labels bold
+            ('FONTNAME', (3, 0), (3, -1), 'Helvetica'),       # Values normal
+            ('FONTSIZE', (0, 0), (-1, -1), 11),
+            ('GRID', (0, 0), (-1, -1), 1, primary_color),
+            ('ALIGN', (0, 0), (0, -1), 'LEFT'),
+            ('ALIGN', (1, 0), (1, -1), 'LEFT'),
+            ('ALIGN', (2, 0), (2, -1), 'LEFT'),
+            ('ALIGN', (3, 0), (3, -1), 'LEFT'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('TOPPADDING', (0, 0), (-1, -1), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+            ('LEFTPADDING', (0, 0), (-1, -1), 12),
+        ]))
+        elements.append(invoice_details_table)
+        elements.append(Spacer(1, 20))
+
+        # Bill To Section with Enhanced Design
+        elements.append(Paragraph("BILL TO", section_header_style))
+        bill_to_data = [
+            [
+                [
+                    Paragraph(f"<b>{invoice['bill_to_name']}</b>", client_info_style),
+                    Paragraph(invoice['bill_to_address'] or '', client_info_style),
+                    Paragraph(f"Phone: {invoice['bill_to_phone']}" if invoice['bill_to_phone'] else "", client_info_style)
+                ]
+            ]
+        ]
+        
+        bill_to_table = Table(bill_to_data, colWidths=[470])
+        bill_to_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), bg_light),
+            ('LEFTPADDING', (0, 0), (-1, -1), 15),
+            ('TOPPADDING', (0, 0), (-1, -1), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+            ('BOX', (0, 0), (-1, -1), 1, primary_color),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ]))
+        elements.append(bill_to_table)
+        elements.append(Spacer(1, 25))
+
+        # Professional Line Items Table
+        item_data = [['#', 'Description', 'Rate', 'Qty', 'Amount']]
+        for i, it in enumerate(items, start=1):
+            item_data.append([
+                str(i), 
+                it['description'], 
+                f"₹{float(it['rate']):,.2f}", 
+                str(it['quantity']), 
+                f"₹{float(it['subtotal']):,.2f}"
+            ])
+
+        item_table = Table(item_data, colWidths=[30, 220, 80, 50, 90])
+        item_table.setStyle(TableStyle([
+            # Header row styling
+            ('BACKGROUND', (0, 0), (-1, 0), primary_color),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+            ('TOPPADDING', (0, 0), (-1, 0), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            
+            # Data rows styling
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -1), 10),
+            ('ALIGN', (0, 1), (0, -1), 'CENTER'),  # Serial number center
+            ('ALIGN', (2, 1), (-1, -1), 'RIGHT'),  # Numbers right-aligned
+            ('ALIGN', (1, 1), (1, -1), 'LEFT'),    # Description left-aligned
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            
+            # Alternating row colors
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_light]),
+            
+            # Grid and borders
+            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e5e7eb')),
+            ('BOX', (0, 0), (-1, -1), 2, primary_color),
+            
+            # Padding
+            ('TOPPADDING', (0, 1), (-1, -1), 8),
+            ('BOTTOMPADDING', (0, 1), (-1, -1), 8),
+            ('LEFTPADDING', (0, 0), (-1, -1), 8),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+        ]))
+        elements.append(item_table)
+        elements.append(Spacer(1, 20))
+
+        # Professional Totals Section
+        totals_data = [['Subtotal', f'₹{subtotal:,.2f}']]
+
+        if gst_amount > 0:
+            sgst = gst_amount / 2
+            cgst = gst_amount / 2
+            totals_data.extend([
+                [f'GST ({gst_percentage:.2f}%)', f'₹{gst_amount:,.2f}'],
+                [f'SGST ({gst_percentage/2:.2f}%)', f'₹{sgst:,.2f}'],
+                [f'CGST ({gst_percentage/2:.2f}%)', f'₹{cgst:,.2f}']
+            ])
+
+        totals_data.append(['TOTAL AMOUNT', f'₹{grand_total:,.2f}'])
+        
+        totals_table = Table(totals_data, colWidths=[350, 120])
+        totals_table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+            ('FONTNAME', (0, 0), (-1, -2), 'Helvetica'),
+            ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -2), 11),
+            ('FONTSIZE', (0, -1), (-1, -1), 14),
+            ('TEXTCOLOR', (0, 0), (-1, -2), text_dark),
+            ('TEXTCOLOR', (0, -1), (-1, -1), colors.white),
+            ('BACKGROUND', (0, -1), (-1, -1), success_color),
+            ('TOPPADDING', (0, 0), (-1, -1), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 15),
+            ('LEFTPADDING', (0, 0), (-1, -1), 15),
+            ('BOX', (0, 0), (-1, -1), 1, primary_color),
+            ('INNERGRID', (0, 0), (-1, -2), 0.5, colors.HexColor('#e5e7eb')),
+        ]))
+        elements.append(totals_table)
+        elements.append(Spacer(1, 30))
+
+        # Bank Details Section
+        elements.append(Paragraph("BANK ACCOUNT DETAILS", section_header_style))
+        bank_details = [
+            f"Account Holder: {invoice['company_name'] or ''}",
+            f"Bank Name: {invoice['bank_name'] or 'N/A'}",
+            f"Account Number: {invoice['bank_account'] or 'N/A'}",
+            f"IFSC Code: {invoice['ifsc_code'] or 'N/A'}"
+        ]
+        
+        bank_info_data = [['\n'.join(bank_details)]]
+        bank_info_table = Table(bank_info_data, colWidths=[470])
+        bank_info_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), bg_light),
+            ('LEFTPADDING', (0, 0), (-1, -1), 15),
+            ('TOPPADDING', (0, 0), (-1, -1), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+            ('BOX', (0, 0), (-1, -1), 1, primary_color),
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('TEXTCOLOR', (0, 0), (-1, -1), text_dark),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ]))
+        elements.append(bank_info_table)
+        elements.append(Spacer(1, 25))
+
+        # Terms and Conditions Section
+        elements.append(Paragraph("TERMS & CONDITIONS", section_header_style))
+        if invoice['terms_conditions']:
+            terms_text = invoice['terms_conditions'].replace('\n', '<br/>')
+        else:
+            terms_text = "• Payment due within 14 days from invoice date<br/>• Late payments subject to 4% monthly interest<br/>• All disputes subject to local jurisdiction"
+        
+        terms_data = [[Paragraph(terms_text, client_info_style)]]
+        terms_table = Table(terms_data, colWidths=[470])
+        terms_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), bg_light),
+            ('LEFTPADDING', (0, 0), (-1, -1), 15),
+            ('TOPPADDING', (0, 0), (-1, -1), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+            ('BOX', (0, 0), (-1, -1), 1, primary_color),
+        ]))
+        elements.append(terms_table)
+        elements.append(Spacer(1, 30))
+
+        # Professional Footer
+        elements.append(Paragraph(
+            "Thank you for your business! We appreciate your trust in our services.",
+            footer_style
+        ))
+        
+        # Add a subtle line above footer
+        footer_line = Table([['']], colWidths=[470])
+        footer_line.setStyle(TableStyle([
+            ('LINEABOVE', (0, 0), (-1, -1), 2, accent_color),
+            ('TOPPADDING', (0, 0), (-1, -1), 10),
+        ]))
+        elements.append(footer_line)
+
+        # Build PDF
+        doc.build(elements)
+        buffer.seek(0)
+
+        # Save PDF to static folder
+        pdf_filename = f"{invoice['invoice_number']}.pdf"
+        pdf_dir = os.path.join(app.static_folder, 'invoice_pdfs')
+        os.makedirs(pdf_dir, exist_ok=True)
+        pdf_path = os.path.join(pdf_dir, pdf_filename)
+        with open(pdf_path, 'wb') as f:
+            f.write(buffer.getvalue())
+
+        # Update invoice record with pdf_filename
+        cur.execute("UPDATE invoices SET pdf_filename = %s WHERE id = %s", (pdf_filename, invoice_id))
+        conn.commit()
+
+        # Notify user that PDF is ready
+        create_notification(
+            user_id=invoice['site_engineer_id'],
+            org_id=org_id,
+            notification_type='invoice_ready',
+            reference_id=invoice_id,
+            message=f'Your invoice #{invoice["invoice_number"]} PDF is ready for download.'
+        )
+
+    except Exception as e:
+        print(f"Background PDF generation failed for invoice {invoice_id}: {e}")
+        if conn:
+            conn.rollback()
+    finally:
+        cur.close()
+        conn.close()
+
+def generate_cost_estimation_pdf_async(project_id, org_id):
+    """
+    Background task: generate cost estimation PDF and update cost_estimation table.
+    Runs in a separate thread.
+    """
+    from config import get_connection
+    from fpdf import FPDF
+    from datetime import datetime
+    import os
+    import uuid
+
+    conn = get_connection()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
+    try:
+        # Fetch cost estimation data
+        cur.execute("""
+            SELECT ce.*, p.project_name
+            FROM cost_estimation ce
+            JOIN projects p ON ce.project_id = p.id
+            WHERE ce.project_id = %s AND ce.org_id = %s
+        """, (project_id, org_id))
+        cost_data = cur.fetchone()
+        if not cost_data:
+            raise Exception("Cost estimation not found")
+
+        # Generate PDF using FPDF (same as original route)
+        upload_folder = os.path.join('static', 'uploads')
+        os.makedirs(upload_folder, exist_ok=True)
+
+        filename = f"estimation_{uuid.uuid4().hex[:8]}.pdf"
+        filepath = os.path.join(upload_folder, filename)
+        relative_path = f"uploads/{filename}"
+
+        pdf = FPDF()
+        pdf.add_page()
+
+        # Header
+        pdf.set_fill_color(41, 128, 185)
+        pdf.rect(0, 0, 210, 40, 'F')
+        pdf.set_text_color(255, 255, 255)
+        pdf.set_font("Arial", 'B', 24)
+        pdf.ln(10)
+        pdf.cell(0, 10, txt="COST ESTIMATION REPORT", ln=True, align="C")
+        pdf.set_font("Arial", size=10)
+        pdf.cell(0, 8, txt="A to Z Construction Cost Analysis", ln=True, align="C")
+        pdf.set_text_color(0, 0, 0)
+        pdf.ln(15)
+
+        # Project Information
+        pdf.set_font("Arial", 'B', 14)
+        pdf.set_fill_color(236, 240, 241)
+        pdf.cell(0, 10, txt="Project Information", ln=True, fill=True)
+        pdf.ln(5)
+        pdf.set_font("Arial", size=11)
+        pdf.set_font("Arial", 'B', 11)
+        pdf.cell(50, 8, txt="Project ID:", border=0)
+        pdf.set_font("Arial", size=11)
+        pdf.cell(90, 8, txt=str(project_id), border=0, ln=True)
+        pdf.set_font("Arial", 'B', 11)
+        pdf.cell(50, 8, txt="Project Name:", border=0)
+        pdf.set_font("Arial", size=11)
+        pdf.cell(90, 8, txt=cost_data['project_name'], border=0, ln=True)
+        pdf.set_font("Arial", 'B', 11)
+        pdf.cell(50, 8, txt="Generated On:", border=0)
+        pdf.set_font("Arial", size=11)
+        pdf.cell(90, 8, txt=datetime.now().strftime("%B %d, %Y"), border=0, ln=True)
+        pdf.set_font("Arial", 'B', 11)
+        pdf.cell(50, 8, txt="BOQ Reference:", border=0)
+        pdf.set_font("Arial", size=11)
+        pdf.cell(90, 8, txt=str(cost_data['boq_reference']), border=0, ln=True)
+        pdf.ln(10)
+
+        # Cost Breakdown
+        pdf.set_font("Arial", 'B', 14)
+        pdf.set_fill_color(236, 240, 241)
+        pdf.cell(0, 10, txt="Cost Breakdown", ln=True, fill=True)
+        pdf.ln(5)
+        pdf.set_fill_color(52, 152, 219)
+        pdf.set_text_color(255, 255, 255)
+        pdf.set_font("Arial", 'B', 11)
+        pdf.cell(120, 10, txt="Description", border=1, fill=True)
+        pdf.cell(70, 10, txt="Amount (Rs.)", border=1, fill=True, align='R', ln=True)
+        pdf.set_text_color(0, 0, 0)
+        pdf.set_font("Arial", size=11)
+        pdf.set_fill_color(245, 245, 245)
+        pdf.cell(120, 10, txt="Architectural Design Cost", border=1, fill=True)
+        pdf.cell(70, 10, txt=f"{float(cost_data['architectural_design_cost'] or 0):,.2f}", border=1, fill=True, align='R', ln=True)
+        pdf.cell(120, 10, txt="Structural Design Cost", border=1)
+        pdf.cell(70, 10, txt=f"{float(cost_data['structural_design_cost'] or 0):,.2f}", border=1, align='R', ln=True)
+        pdf.set_fill_color(245, 245, 245)
+        pdf.cell(120, 10, txt="Cost per Sq.ft", border=1, fill=True)
+        pdf.cell(70, 10, txt=f"{float(cost_data['cost_per_sqft'] or 0):,.2f}", border=1, fill=True, align='R', ln=True)
+        total_cost = float(cost_data['architectural_design_cost'] or 0) + float(cost_data['structural_design_cost'] or 0)
+        pdf.set_fill_color(52, 152, 219)
+        pdf.set_text_color(255, 255, 255)
+        pdf.set_font("Arial", 'B', 12)
+        pdf.cell(120, 12, txt="TOTAL ESTIMATED COST", border=1, fill=True)
+        pdf.cell(70, 12, txt=f"{total_cost:,.2f}", border=1, fill=True, align='R', ln=True)
+        pdf.set_text_color(0, 0, 0)
+        pdf.ln(10)
+
+        # Estimation Summary
+        pdf.set_font("Arial", 'B', 14)
+        pdf.set_fill_color(236, 240, 241)
+        pdf.cell(0, 10, txt="Estimation Summary", ln=True, fill=True)
+        pdf.ln(5)
+        pdf.set_font("Arial", size=10)
+        pdf.multi_cell(0, 7, txt=cost_data['estimation_summary'] or '', border=1, fill=False)
+        pdf.ln(10)
+
+        # Footer
+        pdf.set_y(-30)
+        pdf.set_font("Arial", 'I', 9)
+        pdf.set_text_color(128, 128, 128)
+        pdf.cell(0, 5, txt="This is a computer-generated document and does not require a signature.", ln=True, align="C")
+        pdf.output(filepath)
+
+        # Update cost_estimation table with PDF path
+        cur.execute("""
+            UPDATE cost_estimation 
+            SET report_pdf_path = %s, generated_on = NOW()
+            WHERE project_id = %s AND org_id = %s
+        """, (relative_path, project_id, org_id))
+        conn.commit()
+
+        # Notify the architect (or user) that PDF is ready
+        # Get architect ID from project
+        cur.execute("SELECT architect_id FROM projects WHERE id = %s AND org_id = %s", (project_id, org_id))
+        proj = cur.fetchone()
+        if proj and proj['architect_id']:
+            create_notification(
+                user_id=proj['architect_id'],
+                org_id=org_id,
+                notification_type='cost_estimation_ready',
+                reference_id=project_id,
+                message=f'Cost estimation PDF for project #{project_id} is ready for download.'
+            )
+
+    except Exception as e:
+        print(f"Background cost estimation PDF failed for project {project_id}: {e}")
+        if conn:
+            conn.rollback()
+    finally:
+        cur.close()
+        conn.close()
+
+
+def generate_salary_slip_async(salary_id, org_id):
+    """
+    Background task: generate salary slip PDF and update salaries table.
+    Runs in a separate thread.
+    """
+    from config import get_connection
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib import colors
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.pagesizes import A4
+    from io import BytesIO
+    import os
+    from datetime import datetime
+
+    conn = get_connection()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
+    try:
+        # Fetch salary details (same as original download_salary_slip)
+        cur.execute("""
+            SELECT s.*, 
+                   p.project_name, 
+                   r.name AS employee_name,
+                   r.email AS employee_email,
+                   r.contact_no AS employee_contact,
+                   r.role AS employee_role,
+                   om.company_name, om.company_address, om.company_phone, om.company_email, om.gst_number
+            FROM salaries s
+            JOIN projects p ON s.project_id = p.id
+            JOIN register r ON s.user_id = r.id
+            LEFT JOIN organization_master om ON s.org_id = om.org_id
+            WHERE s.id = %s AND s.org_id = %s
+        """, (salary_id, org_id))
+        salary = cur.fetchone()
+        if not salary:
+            raise Exception("Salary record not found")
+
+        # Generate PDF with optimized margins for single page
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=A4, leftMargin=20, rightMargin=20, topMargin=20, bottomMargin=20)
+        styles = getSampleStyleSheet()
+
+        # Professional Color Scheme
+        primary_color = colors.HexColor('#1e3a8a')
+        accent_color = colors.HexColor('#f59e0b')
+        text_dark = colors.HexColor('#1f2937')
+        text_light = colors.HexColor('#6b7280')
+        bg_light = colors.HexColor('#f8fafc')
+
+        # Compact styles (same as your original)
+        company_name_style = ParagraphStyle(
+            'company_name',
+            parent=styles['Heading1'],
+            fontSize=18,
+            textColor=primary_color,
+            fontName='Helvetica-Bold',
+            alignment=1,
+            spaceAfter=3
+        )
+        
+        title_style = ParagraphStyle(
+            'title',
+            parent=styles['Heading2'],
+            fontSize=16,
+            textColor=accent_color,
+            fontName='Helvetica-Bold',
+            alignment=1,
+            spaceAfter=10
+        )
+        
+        section_header_style = ParagraphStyle(
+            'section_header',
+            parent=styles['Heading3'],
+            fontSize=12,
+            textColor=primary_color,
+            fontName='Helvetica-Bold',
+            spaceBefore=8,
+            spaceAfter=5,
+            backColor=bg_light,
+            leftIndent=8,
+            rightIndent=8,
+            topPadding=5,
+            bottomPadding=5
+        )
+        
+        normal_style = ParagraphStyle(
+            'normal',
+            parent=styles['Normal'],
+            fontSize=9,
+            textColor=text_dark,
+            fontName='Helvetica',
+            spaceAfter=2
+        )
+
+        elements = []
+
+        # Header
+        elements.append(Paragraph(salary['company_name'] or 'Company Name', company_name_style))
+        elements.append(Paragraph(salary['company_address'] or '', normal_style))
+        elements.append(Paragraph(f"Phone: {salary['company_phone'] or ''}", normal_style))
+        elements.append(Paragraph(f"Email: {salary['company_email'] or ''}", normal_style))
+        if salary.get('gst_number'):
+            elements.append(Paragraph(f"GST: {salary['gst_number']}", normal_style))
+        elements.append(Spacer(1, 10))
+
+        # Title
+        elements.append(Paragraph("SALARY SLIP", title_style))
+        elements.append(Spacer(1, 5))
+
+        # Salary Period
+        month_year = salary['month_year']
+        month_name = datetime.strptime(month_year, '%Y-%m').strftime('%B %Y')
+        period_data = [[f'For the month of: {month_name}']]
+        period_table = Table(period_data, colWidths=[515])
+        period_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), bg_light),
+            ('TEXTCOLOR', (0, 0), (-1, -1), primary_color),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ('BOX', (0, 0), (-1, -1), 1, primary_color),
+        ]))
+        elements.append(period_table)
+        elements.append(Spacer(1, 10))
+
+        # Employee Details
+        elements.append(Paragraph("EMPLOYEE DETAILS", section_header_style))
+        emp_data = [
+            ['Employee Name:', salary['employee_name'], 'Employee ID:', str(salary['user_id'])],
+            ['Role:', salary['employee_role'], 'Project:', salary['project_name']],
+            ['Email:', salary['employee_email'] or 'N/A', 'Contact:', salary['employee_contact'] or 'N/A'],
+            ['Payment Mode:', salary['payment_mode'].upper(), '', '']
+        ]
+        if salary['payment_mode'] == 'cheque' and salary['cheque_number']:
+            emp_data.append(['Cheque Number:', salary['cheque_number'], '', ''])
+        
+        emp_table = Table(emp_data, colWidths=[120, 150, 100, 145])
+        emp_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), bg_light),
+            ('TEXTCOLOR', (0, 0), (-1, -1), text_dark),
+            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+            ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e5e7eb')),
+            ('BOX', (0, 0), (-1, -1), 2, primary_color),
+            ('TOPPADDING', (0, 0), (-1, -1), 5),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+            ('LEFTPADDING', (0, 0), (-1, -1), 8),
+        ]))
+        elements.append(emp_table)
+        elements.append(Spacer(1, 10))
+
+        # Salary Breakdown
+        elements.append(Paragraph("SALARY BREAKDOWN", section_header_style))
+        earnings_data = [
+            ['EARNINGS', 'AMOUNT (₹)'],
+            ['Basic Salary', f"{float(salary['base_salary'] or 0):,.2f}"],
+            ['Allowances', f"{float(salary['allowance'] or 0):,.2f}"],
+        ]
+        earnings_table = Table(earnings_data, colWidths=[385, 130])
+        earnings_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), primary_color),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('ALIGN', (0, 0), (0, -1), 'LEFT'),
+            ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -1), 9),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_light]),
+            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e5e7eb')),
+            ('BOX', (0, 0), (-1, -1), 2, primary_color),
+            ('TOPPADDING', (0, 0), (-1, -1), 5),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+            ('LEFTPADDING', (0, 0), (-1, -1), 8),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+        ]))
+        elements.append(earnings_table)
+        elements.append(Spacer(1, 8))
+
+        deductions_data = [
+            ['DEDUCTIONS', 'AMOUNT (₹)'],
+            ['PF Deduction', f"{float(salary['pf'] or 0):,.2f}"],
+            ['Advance Deduction', f"{float(salary['advance'] or 0):,.2f}"],
+            ['Other Deductions', f"{float(salary['other_deductions'] or 0):,.2f}"],
+        ]
+        deductions_table = Table(deductions_data, colWidths=[385, 130])
+        deductions_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#dc3545')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('ALIGN', (0, 0), (0, -1), 'LEFT'),
+            ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -1), 9),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_light]),
+            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e5e7eb')),
+            ('BOX', (0, 0), (-1, -1), 2, colors.HexColor('#dc3545')),
+            ('TOPPADDING', (0, 0), (-1, -1), 5),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+            ('LEFTPADDING', (0, 0), (-1, -1), 8),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+        ]))
+        elements.append(deductions_table)
+        elements.append(Spacer(1, 10))
+
+        # Net Salary Summary
+        gross_salary = float(salary['base_salary'] or 0) + float(salary['allowance'] or 0)
+        total_deductions = float(salary['pf'] or 0) + float(salary['advance'] or 0) + float(salary['other_deductions'] or 0)
+        net_salary = float(salary['net_salary'] or 0)
+        summary_data = [
+            ['Gross Salary', f'₹{gross_salary:,.2f}'],
+            ['Total Deductions', f'₹{total_deductions:,.2f}'],
+            ['NET SALARY', f'₹{net_salary:,.2f}']
+        ]
+        summary_table = Table(summary_data, colWidths=[385, 130])
+        summary_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -2), bg_light),
+            ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#059669')),
+            ('TEXTCOLOR', (0, 0), (-1, -2), text_dark),
+            ('TEXTCOLOR', (0, -1), (-1, -1), colors.white),
+            ('FONTNAME', (0, 0), (-1, -2), 'Helvetica'),
+            ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -2), 10),
+            ('FONTSIZE', (0, -1), (-1, -1), 12),
+            ('ALIGN', (0, 0), (0, -1), 'LEFT'),
+            ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e5e7eb')),
+            ('BOX', (0, 0), (-1, -1), 2, primary_color),
+            ('TOPPADDING', (0, 0), (-1, -1), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+            ('LEFTPADDING', (0, 0), (-1, -1), 8),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+        ]))
+        elements.append(summary_table)
+
+        # Build PDF
+        doc.build(elements)
+        buffer.seek(0)
+
+        # Save PDF to static/salary_slips/
+        pdf_dir = os.path.join(app.static_folder, 'salary_slips')
+        os.makedirs(pdf_dir, exist_ok=True)
+        pdf_filename = f"salary_slip_{salary_id}.pdf"
+        pdf_path = os.path.join(pdf_dir, pdf_filename)
+        with open(pdf_path, 'wb') as f:
+            f.write(buffer.getvalue())
+
+        # Update salaries table with pdf_filename
+        cur.execute("UPDATE salaries SET pdf_filename = %s WHERE id = %s", (pdf_filename, salary_id))
+        conn.commit()
+
+    except Exception as e:
+        print(f"Background salary slip generation failed for salary {salary_id}: {e}")
+        if conn:
+            conn.rollback()
+    finally:
+        cur.close()
+        conn.close()
+
+
+def generate_salary_report_async(task_id, month_year, org_id, user_id):
+    """
+    Background task: generate salary disbursement report PDF.
+    """
+    from config import get_connection
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib import colors
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.pagesizes import landscape, A4
+    from io import BytesIO
+    import os
+    from datetime import datetime
+
+    conn = get_connection()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
+    try:
+        # Update task status to processing
+        cur.execute("UPDATE salary_report_tasks SET status = 'processing' WHERE id = %s", (task_id,))
+        conn.commit()
+
+        # Get organization details
+        cur.execute("""
+            SELECT company_name, company_address, company_phone, company_email, gst_number
+            FROM organization_master 
+            WHERE org_id = %s
+        """, (org_id,))
+        org = cur.fetchone()
+        if not org:
+            raise Exception("Organization not found")
+
+        # Get all salaries for the month
+        cur.execute("""
+            SELECT s.*, 
+                   p.project_name, 
+                   r.name AS employee_name,
+                   r.role AS employee_role
+            FROM salaries s
+            JOIN projects p ON s.project_id = p.id
+            JOIN register r ON s.user_id = r.id
+            WHERE s.month_year = %s AND s.org_id = %s AND s.base_salary > 0
+            ORDER BY p.project_name, r.name
+        """, (month_year, org_id))
+        salaries = cur.fetchall()
+
+        if not salaries:
+            raise Exception("No salary records found for the selected month")
+
+        # Generate PDF (same code as original download_salary_report)
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=landscape(A4), 
+                               leftMargin=20, rightMargin=20, topMargin=20, bottomMargin=20)
+        styles = getSampleStyleSheet()
+
+        primary_color = colors.HexColor('#1e3a8a')
+        accent_color = colors.HexColor('#f59e0b')
+        text_dark = colors.HexColor('#1f2937')
+        text_light = colors.HexColor('#6b7280')
+        bg_light = colors.HexColor('#f8fafc')
+
+        company_name_style = ParagraphStyle(
+            'company_name', parent=styles['Heading1'], fontSize=22,
+            textColor=primary_color, fontName='Helvetica-Bold', alignment=1, spaceAfter=5
+        )
+        title_style = ParagraphStyle(
+            'title', parent=styles['Heading2'], fontSize=18,
+            textColor=accent_color, fontName='Helvetica-Bold', alignment=1, spaceAfter=15
+        )
+        normal_style = ParagraphStyle(
+            'normal', parent=styles['Normal'], fontSize=9,
+            textColor=text_dark, fontName='Helvetica', spaceAfter=3
+        )
+
+        elements = []
+
+        # Header
+        elements.append(Paragraph(org['company_name'], company_name_style))
+        elements.append(Paragraph(org['company_address'], normal_style))
+        elements.append(Paragraph(f"Phone: {org['company_phone']} | Email: {org['company_email']}", normal_style))
+        if org.get('gst_number'):
+            elements.append(Paragraph(f"GST: {org['gst_number']}", normal_style))
+        elements.append(Spacer(1, 15))
+
+        # Title
+        month_name = datetime.strptime(month_year, '%Y-%m').strftime('%B %Y')
+        elements.append(Paragraph(f"SALARY DISBURSEMENT REPORT - {month_name.upper()}", title_style))
+        elements.append(Spacer(1, 10))
+
+        # Salary Table
+        table_data = [
+            ['S.No', 'Employee Name', 'Role', 'Project', 'Base Salary', 
+             'Allowance', 'PF', 'Advance', 'Other Ded.', 'Net Salary', 'Payment Mode']
+        ]
+
+        total_base = 0
+        total_allowance = 0
+        total_pf = 0
+        total_advance = 0
+        total_other_ded = 0
+        total_net = 0
+
+        for idx, s in enumerate(salaries, 1):
+            base_salary = float(s['base_salary'] or 0)
+            allowance = float(s['allowance'] or 0)
+            pf = float(s['pf'] or 0)
+            advance = float(s['advance'] or 0)
+            other_ded = float(s['other_deductions'] or 0)
+            net_salary = float(s['net_salary'] or 0)
+
+            total_base += base_salary
+            total_allowance += allowance
+            total_pf += pf
+            total_advance += advance
+            total_other_ded += other_ded
+            total_net += net_salary
+
+            table_data.append([
+                str(idx),
+                s['employee_name'][:20],
+                s['employee_role'][:15],
+                s['project_name'][:20],
+                f"₹{base_salary:,.2f}",
+                f"₹{allowance:,.2f}",
+                f"₹{pf:,.2f}",
+                f"₹{advance:,.2f}",
+                f"₹{other_ded:,.2f}",
+                f"₹{net_salary:,.2f}",
+                s['payment_mode'].upper()[:6]
+            ])
+
+        # Totals row
+        table_data.append([
+            '', '', '', 'TOTAL:',
+            f"₹{total_base:,.2f}", f"₹{total_allowance:,.2f}", f"₹{total_pf:,.2f}",
+            f"₹{total_advance:,.2f}", f"₹{total_other_ded:,.2f}", f"₹{total_net:,.2f}", ''
+        ])
+
+        col_widths = [30, 80, 60, 80, 70, 60, 50, 55, 55, 75, 55]
+        salary_table = Table(table_data, colWidths=col_widths)
+
+        table_style = TableStyle([
+            ('BACKGROUND', (0,0), (-1,0), primary_color),
+            ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+            ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0,0), (-1,0), 9),
+            ('ALIGN', (0,0), (-1,0), 'CENTER'),
+            ('FONTNAME', (0,1), (-1,-2), 'Helvetica'),
+            ('FONTSIZE', (0,1), (-1,-2), 8),
+            ('ALIGN', (0,1), (0,-1), 'CENTER'),
+            ('ALIGN', (4,1), (-2,-1), 'RIGHT'),
+            ('ALIGN', (-1,1), (-1,-1), 'CENTER'),
+            ('BACKGROUND', (0,-1), (-1,-1), bg_light),
+            ('FONTNAME', (0,-1), (-1,-1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0,-1), (-1,-1), 9),
+            ('TEXTCOLOR', (0,-1), (-1,-1), primary_color),
+            ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#e5e7eb')),
+            ('BOX', (0,0), (-1,-1), 2, primary_color),
+            ('TOPPADDING', (0,0), (-1,-1), 6),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+            ('LEFTPADDING', (0,0), (-1,-1), 5),
+            ('RIGHTPADDING', (0,0), (-1,-1), 5),
+            ('ROWBACKGROUNDS', (0,1), (-1,-2), [colors.white, bg_light]),
+        ])
+        salary_table.setStyle(table_style)
+        elements.append(salary_table)
+        elements.append(Spacer(1, 20))
+
+        # Summary
+        summary_text = f"<b>Total Employees:</b> {len(salaries)} | <b>Total Disbursement:</b> ₹{total_net:,.2f}"
+        summary_para = Paragraph(summary_text, ParagraphStyle(
+            'summary', parent=styles['Normal'], fontSize=11,
+            textColor=primary_color, fontName='Helvetica-Bold', alignment=1
+        ))
+        elements.append(summary_para)
+        elements.append(Spacer(1, 15))
+
+        # Footer
+        footer_text = f"Generated on: {datetime.now().strftime('%d-%m-%Y %I:%M %p')}"
+        footer_para = Paragraph(footer_text, ParagraphStyle(
+            'footer', parent=styles['Normal'], fontSize=8,
+            textColor=text_light, fontName='Helvetica-Oblique', alignment=1
+        ))
+        elements.append(footer_para)
+
+        doc.build(elements)
+        buffer.seek(0)
+
+        # Save PDF to static/salary_reports/
+        pdf_dir = os.path.join(app.static_folder, 'salary_reports')
+        os.makedirs(pdf_dir, exist_ok=True)
+        pdf_filename = f"salary_report_{month_year}_{task_id}.pdf"
+        pdf_path = os.path.join(pdf_dir, pdf_filename)
+        with open(pdf_path, 'wb') as f:
+            f.write(buffer.getvalue())
+
+        # Update task status
+        cur.execute("""
+            UPDATE salary_report_tasks 
+            SET status = 'completed', pdf_filename = %s, completed_at = NOW() 
+            WHERE id = %s
+        """, (pdf_filename, task_id))
+        conn.commit()
+
+    except Exception as e:
+        conn.rollback()
+        cur.execute("""
+            UPDATE salary_report_tasks 
+            SET status = 'failed', error_message = %s 
+            WHERE id = %s
+        """, (str(e), task_id))
+        conn.commit()
+        print(f"Salary report generation failed for task {task_id}: {e}")
+    finally:
+        cur.close()
+        conn.close()
+
+
+def generate_bill_pdf_async(bill_id, org_id):
+    """
+    Background task: generate bill PDF and update bills_and_payments table.
+    """
+    from config import get_connection
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib import colors
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.units import mm
+    from io import BytesIO
+    import os
+    from datetime import datetime
+
+    conn = get_connection()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
+    try:
+        # Fetch bill details with company info
+        cur.execute("""
+            SELECT bp.*, r.name AS created_by_name,
+                   om.company_name, om.company_address
+            FROM bills_and_payments bp
+            JOIN register r ON bp.created_by = r.id
+            LEFT JOIN organization_master om ON bp.org_id = om.org_id
+            WHERE bp.id = %s AND bp.org_id = %s
+        """, (bill_id, org_id))
+        bill = cur.fetchone()
+        if not bill:
+            raise Exception("Bill not found")
+
+        # Generate PDF (use the same code as your original download_bill_pdf)
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(
+            buffer, pagesize=A4,
+            leftMargin=20*mm, rightMargin=20*mm,
+            topMargin=15*mm, bottomMargin=15*mm
+        )
+        styles = getSampleStyleSheet()
+        W = 170 * mm
+
+        # Color palette (same as original)
+        C_PRIMARY    = colors.HexColor('#1e3a8a')
+        C_ROW_ALT    = colors.HexColor('#eef2ff')
+        C_ROW_WHITE  = colors.white
+        C_BORDER     = colors.HexColor('#c7d2fe')
+        C_LABEL_BG   = colors.HexColor('#dbe4ff')
+        C_TEXT       = colors.HexColor('#1e293b')
+        C_GREY       = colors.HexColor('#64748b')
+        C_GREEN      = colors.HexColor('#059669')
+        C_RED        = colors.HexColor('#dc2626')
+        C_SUBTOTAL   = colors.HexColor('#1e4d8c')
+
+        BT_COLOR = {
+            'Advance Bill':        colors.HexColor('#1e3a8a'),
+            'Running Account Bill':colors.HexColor('#1d4ed8'),
+            'Final Bill':          colors.HexColor('#1e40af'),
+        }.get(bill['bill_type'], C_PRIMARY)
+
+        PAD = [
+            ('TOPPADDING',    (0,0),(-1,-1), 7),
+            ('BOTTOMPADDING', (0,0),(-1,-1), 7),
+            ('LEFTPADDING',   (0,0),(-1,-1), 9),
+            ('RIGHTPADDING',  (0,0),(-1,-1), 9),
+        ]
+
+        def sec_hdr(title):
+            t = Table([[title]], colWidths=[W])
+            t.setStyle(TableStyle([
+                ('BACKGROUND',    (0,0),(-1,-1), C_PRIMARY),
+                ('TEXTCOLOR',     (0,0),(-1,-1), colors.white),
+                ('FONTNAME',      (0,0),(-1,-1), 'Helvetica-Bold'),
+                ('FONTSIZE',      (0,0),(-1,-1), 10),
+                ('ALIGN',         (0,0),(-1,-1), 'LEFT'),
+                ('TOPPADDING',    (0,0),(-1,-1), 7),
+                ('BOTTOMPADDING', (0,0),(-1,-1), 7),
+                ('LEFTPADDING',   (0,0),(-1,-1), 10),
+            ]))
+            return t
+
+        def kv_table(data, col_w):
+            t = Table(data, colWidths=col_w)
+            style = [
+                ('FONTNAME',      (0,0),(0,-1),  'Helvetica-Bold'),
+                ('FONTNAME',      (1,0),(1,-1),  'Helvetica'),
+                ('FONTSIZE',      (0,0),(-1,-1), 9),
+                ('TEXTCOLOR',     (0,0),(-1,-1), C_TEXT),
+                ('BACKGROUND',    (0,0),(0,-1),  C_LABEL_BG),
+                ('GRID',          (0,0),(-1,-1), 0.5, C_BORDER),
+                ('VALIGN',        (0,0),(-1,-1), 'MIDDLE'),
+            ] + PAD
+            for i in range(len(data)):
+                bg = C_ROW_WHITE if i % 2 == 0 else C_ROW_ALT
+                style.append(('BACKGROUND', (1,i),(1,i), bg))
+            t.setStyle(TableStyle(style))
+            return t
+
+        def fin_table(data, col_w, subtotal_row=None):
+            t = Table(data, colWidths=col_w)
+            style = [
+                ('BACKGROUND',    (0,0),(-1,0),  C_PRIMARY),
+                ('TEXTCOLOR',     (0,0),(-1,0),  colors.white),
+                ('FONTNAME',      (0,0),(-1,0),  'Helvetica-Bold'),
+                ('FONTSIZE',      (0,0),(-1,0),  9),
+                ('FONTNAME',      (0,1),(-1,-1), 'Helvetica'),
+                ('FONTSIZE',      (0,1),(-1,-1), 9),
+                ('TEXTCOLOR',     (0,1),(-1,-1), C_TEXT),
+                ('ALIGN',         (1,0),(1,-1),  'RIGHT'),
+                ('GRID',          (0,0),(-1,-1), 0.5, C_BORDER),
+                ('VALIGN',        (0,0),(-1,-1), 'MIDDLE'),
+            ] + PAD
+            for i in range(1, len(data)):
+                bg = C_ROW_WHITE if i % 2 == 1 else C_ROW_ALT
+                style.append(('BACKGROUND', (0,i),(-1,i), bg))
+            if subtotal_row is not None:
+                style += [
+                    ('BACKGROUND', (0,subtotal_row),(-1,subtotal_row), C_SUBTOTAL),
+                    ('TEXTCOLOR',  (0,subtotal_row),(-1,subtotal_row), colors.white),
+                    ('FONTNAME',   (0,subtotal_row),(-1,subtotal_row), 'Helvetica-Bold'),
+                ]
+            t.setStyle(TableStyle(style))
+            return t
+
+        elems = []
+
+        # Header
+        company_name    = bill.get('company_name') or 'Company Name'
+        company_address = bill.get('company_address') or ''
+        s_name = ParagraphStyle('cn', parent=styles['Normal'],
+                                 fontSize=22, textColor=C_PRIMARY,
+                                 fontName='Helvetica-Bold', alignment=1,
+                                 spaceBefore=0, spaceAfter=3)
+        s_addr = ParagraphStyle('ca', parent=styles['Normal'],
+                                 fontSize=9,  textColor=C_GREY,
+                                 fontName='Helvetica', alignment=1,
+                                 spaceBefore=0, spaceAfter=0)
+        hdr_data = [[Paragraph(company_name, s_name)],
+                    [Paragraph(company_address, s_addr)]]
+        hdr_tbl  = Table(hdr_data, colWidths=[W])
+        hdr_tbl.setStyle(TableStyle([
+            ('ALIGN',         (0,0),(-1,-1), 'CENTER'),
+            ('VALIGN',        (0,0),(-1,-1), 'MIDDLE'),
+            ('TOPPADDING',    (0,0),(-1,-1), 5),
+            ('BOTTOMPADDING', (0,0),(-1,-1), 5),
+            ('LINEBELOW',     (0,1),(-1,1),  1.5, C_PRIMARY),
+        ]))
+        elems.append(hdr_tbl)
+        elems.append(Spacer(1, 5*mm))
+
+        # Title
+        title_tbl = Table([['BILL & PAYMENT DETAILS']], colWidths=[W])
+        title_tbl.setStyle(TableStyle([
+            ('BACKGROUND',    (0,0),(-1,-1), C_PRIMARY),
+            ('TEXTCOLOR',     (0,0),(-1,-1), colors.white),
+            ('FONTNAME',      (0,0),(-1,-1), 'Helvetica-Bold'),
+            ('FONTSIZE',      (0,0),(-1,-1), 14),
+            ('ALIGN',         (0,0),(-1,-1), 'CENTER'),
+            ('TOPPADDING',    (0,0),(-1,-1), 11),
+            ('BOTTOMPADDING', (0,0),(-1,-1), 11),
+        ]))
+        elems.append(title_tbl)
+        elems.append(Spacer(1, 2*mm))
+
+        # Bill Type Banner
+        bt_tbl = Table([[bill['bill_type']]], colWidths=[W])
+        bt_tbl.setStyle(TableStyle([
+            ('BACKGROUND',    (0,0),(-1,-1), BT_COLOR),
+            ('TEXTCOLOR',     (0,0),(-1,-1), colors.white),
+            ('FONTNAME',      (0,0),(-1,-1), 'Helvetica-Bold'),
+            ('FONTSIZE',      (0,0),(-1,-1), 11),
+            ('ALIGN',         (0,0),(-1,-1), 'CENTER'),
+            ('TOPPADDING',    (0,0),(-1,-1), 7),
+            ('BOTTOMPADDING', (0,0),(-1,-1), 7),
+        ]))
+        elems.append(bt_tbl)
+        elems.append(Spacer(1, 4*mm))
+
+        # Bill & Work Order Info
+        c1, c2, c3, c4 = W*0.22, W*0.28, W*0.22, W*0.28
+        info_data = [
+            ['Bill No',       bill['bill_no'],
+             'Bill Date',     bill['bill_date'].strftime('%d-%m-%Y')],
+            ['Work Order No', bill['work_order_number'],
+             'Work Order Date', bill['work_order_date'].strftime('%d-%m-%Y')],
+        ]
+        info_tbl = Table(info_data, colWidths=[c1, c2, c3, c4])
+        info_tbl.setStyle(TableStyle([
+            ('BACKGROUND',    (0,0),(0,-1),  C_LABEL_BG),
+            ('BACKGROUND',    (2,0),(2,-1),  C_LABEL_BG),
+            ('BACKGROUND',    (1,0),(1,-1),  C_ROW_WHITE),
+            ('BACKGROUND',    (3,0),(3,-1),  C_ROW_ALT),
+            ('FONTNAME',      (0,0),(0,-1),  'Helvetica-Bold'),
+            ('FONTNAME',      (2,0),(2,-1),  'Helvetica-Bold'),
+            ('FONTNAME',      (1,0),(1,-1),  'Helvetica'),
+            ('FONTNAME',      (3,0),(3,-1),  'Helvetica'),
+            ('FONTSIZE',      (0,0),(-1,-1), 9),
+            ('TEXTCOLOR',     (0,0),(-1,-1), C_TEXT),
+            ('GRID',          (0,0),(-1,-1), 0.5, C_BORDER),
+            ('VALIGN',        (0,0),(-1,-1), 'MIDDLE'),
+        ] + PAD))
+        elems.append(info_tbl)
+        elems.append(Spacer(1, 2*mm))
+
+        # Work Details
+        work_data = [
+            ['Work Name',     bill['work_name']],
+            ['Tender Name',   bill.get('tender_name') or 'N/A'],
+            ['Tender Number', bill.get('tender_number') or 'N/A'],
+        ]
+        elems.append(kv_table(work_data, [W*0.30, W*0.70]))
+        elems.append(Spacer(1, 4*mm))
+
+        # Amount Details
+        elems.append(sec_hdr('AMOUNT DETAILS'))
+        elems.append(Spacer(1, 1*mm))
+        amt_data = [
+            ['Description',           'Amount (₹)'],
+            ['Advance Amount',         f"₹{float(bill['advance_amount']):,.2f}"],
+            ['Running Account Amount', f"₹{float(bill['running_account_amount']):,.2f}"],
+            ['Final Amount',           f"₹{float(bill['final_amount']):,.2f}"],
+        ]
+        elems.append(fin_table(amt_data, [W*0.70, W*0.30]))
+        elems.append(Spacer(1, 4*mm))
+
+        # Financial Breakdown
+        elems.append(sec_hdr('FINANCIAL BREAKDOWN'))
+        elems.append(Spacer(1, 1*mm))
+        subtotal = float(bill['gross_amount']) + float(bill['gst_amount'])
+        fin_data = [
+            ['Description',                    'Amount (₹)'],
+            ['Gross Amount',                    f"₹{float(bill['gross_amount']):,.2f}"],
+            [f"(+) GST @ {float(bill['gst_percentage'])}%", f"₹{float(bill['gst_amount']):,.2f}"],
+            ['Sub Total',                       f"₹{subtotal:,.2f}"],
+            ['(−) Security Deposit',            f"₹{float(bill['security_deposit']):,.2f}"],
+            ['(−) Labour Charges (1.1%)',        f"₹{float(bill['labour_charges']):,.2f}"],
+        ]
+        elems.append(fin_table(fin_data, [W*0.70, W*0.30], subtotal_row=3))
+        elems.append(Spacer(1, 2*mm))
+
+        # Net Payable
+        net_tbl = Table([['NET PAYABLE AMOUNT', f"₹{float(bill['net_amount']):,.2f}"]],
+                         colWidths=[W*0.70, W*0.30])
+        net_tbl.setStyle(TableStyle([
+            ('BACKGROUND',    (0,0),(-1,-1), C_GREEN),
+            ('TEXTCOLOR',     (0,0),(-1,-1), colors.white),
+            ('FONTNAME',      (0,0),(-1,-1), 'Helvetica-Bold'),
+            ('FONTSIZE',      (0,0),(-1,-1), 13),
+            ('ALIGN',         (1,0),(1,-1),  'RIGHT'),
+            ('TOPPADDING',    (0,0),(-1,-1), 11),
+            ('BOTTOMPADDING', (0,0),(-1,-1), 11),
+            ('LEFTPADDING',   (0,0),(-1,-1), 10),
+            ('RIGHTPADDING',  (0,0),(-1,-1), 10),
+        ]))
+        elems.append(net_tbl)
+        elems.append(Spacer(1, 3*mm))
+
+        # Payment Status Banner
+        status_color = C_GREEN if bill['payment_status'] == 'Paid' else C_RED
+        status_text  = 'PAID' if bill['payment_status'] == 'Paid' else 'UNPAID'
+        st_tbl = Table([[f"Payment Status :  {status_text}"]], colWidths=[W])
+        st_tbl.setStyle(TableStyle([
+            ('BACKGROUND',    (0,0),(-1,-1), status_color),
+            ('TEXTCOLOR',     (0,0),(-1,-1), colors.white),
+            ('FONTNAME',      (0,0),(-1,-1), 'Helvetica-Bold'),
+            ('FONTSIZE',      (0,0),(-1,-1), 11),
+            ('ALIGN',         (0,0),(-1,-1), 'CENTER'),
+            ('TOPPADDING',    (0,0),(-1,-1), 9),
+            ('BOTTOMPADDING', (0,0),(-1,-1), 9),
+        ]))
+        elems.append(st_tbl)
+        elems.append(Spacer(1, 5*mm))
+
+        # Footer
+        footer_txt = (f"Created by: {bill['created_by_name']} ({bill['created_by_role'].title()})   |   "
+                      f"Generated: {datetime.now().strftime('%d-%m-%Y %I:%M %p')}")
+        elems.append(Paragraph(footer_txt,
+            ParagraphStyle('ft', parent=styles['Normal'],
+                           fontSize=8, textColor=C_GREY, alignment=1)))
+
+        doc.build(elems)
+        buffer.seek(0)
+
+        # Save PDF to static/bill_pdfs/
+        pdf_dir = os.path.join(app.static_folder, 'bill_pdfs')
+        os.makedirs(pdf_dir, exist_ok=True)
+        pdf_filename = f"bill_{bill_id}.pdf"
+        pdf_path = os.path.join(pdf_dir, pdf_filename)
+        with open(pdf_path, 'wb') as f:
+            f.write(buffer.getvalue())
+
+        # Update bill record
+        cur.execute("UPDATE bills_and_payments SET pdf_filename = %s WHERE id = %s", (pdf_filename, bill_id))
+        conn.commit()
+
+    except Exception as e:
+        print(f"Background bill PDF generation failed for bill {bill_id}: {e}")
+        if conn:
+            conn.rollback()
+    finally:
+        cur.close()
+        conn.close()
 
 load_dotenv()
 
@@ -156,33 +1451,38 @@ FIXED NOTIFICATION HELPER FUNCTIONS
 Replace lines 206-285 in your app.py with these functions
 """
 
-def create_notification(user_id, org_id, notification_type, reference_id, message):
+def create_notification(user_id, org_id, notification_type, 
+                        reference_id, message, cur=None):
     """
-    Create a new notification for a user
-    
-    Args:
-        user_id: ID of the user to notify
-        org_id: Organization ID
-        notification_type: Type of notification (e.g., 'project_assigned', 'invoice_generated')
-        reference_id: ID of the related record
-        message: Notification message text
+    If `cur` is passed, reuses the caller's transaction (no commit here).
+    If `cur` is None, opens its own connection and commits itself.
     """
-    conn = get_connection()
-    cur = conn.cursor()
+    _own_conn = cur is None
+    _conn = None
+    _cur = cur
+
     try:
-        cur.execute("""
-            INSERT INTO notifications (user_id, org_id, notification_type, reference_id, message, created_at)
+        if _own_conn:
+            _conn = get_connection()
+            _cur = _conn.cursor()
+
+        _cur.execute("""
+            INSERT INTO notifications 
+                (user_id, org_id, notification_type, reference_id, message, created_at)
             VALUES (%s, %s, %s, %s, %s, NOW())
         """, (user_id, org_id, notification_type, reference_id, message))
-        conn.commit()
+
+        if _own_conn:
+            _conn.commit()
+
     except Exception as e:
         print(f"Error creating notification: {e}")
-        conn.rollback()
+        if _own_conn and _conn:
+            _conn.rollback()
     finally:
-        if cur:
-            cur.close()
-        if conn:
-            conn.close()
+        if _own_conn:
+            if _cur: _cur.close()
+            if _conn: _conn.close()
 
 
 def get_unread_notifications_count(user_id, org_id, notification_type=None):
@@ -796,8 +2096,54 @@ def architect_dashboard():
             ))
             selected_project = cur.fetchone()
 
-            # Fetch drawing documents separately (can be multiple)
             if selected_project:
+                # --- Populate nested details from the flat row ---
+                project_details['design_details'] = {
+                    'building_usage': selected_project.get('building_usage'),
+                    'num_floors': selected_project.get('num_floors'),
+                    'area_sqft': selected_project.get('area_sqft'),
+                    'plot_area': selected_project.get('plot_area'),
+                    'fsi': selected_project.get('fsi'),
+                } if any([selected_project.get('building_usage'), selected_project.get('num_floors')]) else None
+
+                project_details['structural_details'] = {
+                    'foundation_type': selected_project.get('foundation_type'),
+                    'framing_system': selected_project.get('framing_system'),
+                    'slab_type': selected_project.get('slab_type'),
+                    'beam_details': selected_project.get('beam_details'),
+                    'load_calculation': selected_project.get('load_calculation'),
+                } if any([selected_project.get('foundation_type'), selected_project.get('framing_system')]) else None
+
+                project_details['material_specifications'] = {
+                    'primary_material': selected_project.get('primary_material'),
+                    'wall_material': selected_project.get('wall_material'),
+                    'roofing_material': selected_project.get('roofing_material'),
+                    'flooring_material': selected_project.get('flooring_material'),
+                    'fire_safety_materials': selected_project.get('fire_safety_materials'),
+                } if any([selected_project.get('primary_material'), selected_project.get('wall_material')]) else None
+
+                project_details['site_conditions'] = {
+                    'soil_report_path': selected_project.get('soil_report_path'),
+                    'water_table_level': selected_project.get('water_table_level'),
+                    'topo_counter_map_path': selected_project.get('topo_counter_map_path'),
+                } if selected_project.get('soil_report_path') or selected_project.get('water_table_level') else None
+
+                project_details['utilities_services'] = {
+                    'water_supply_source': selected_project.get('water_supply_source'),
+                    'drainage_system_type': selected_project.get('drainage_system_type'),
+                    'power_supply_source': selected_project.get('power_supply_source'),
+                } if any([selected_project.get('water_supply_source'), selected_project.get('drainage_system_type')]) else None
+
+                project_details['cost_estimation'] = {
+                    'architectural_design_cost': selected_project.get('architectural_design_cost'),
+                    'structural_design_cost': selected_project.get('structural_design_cost'),
+                    'estimation_summary': selected_project.get('estimation_summary'),
+                    'boq_reference': selected_project.get('boq_reference'),
+                    'cost_per_sqft': selected_project.get('cost_per_sqft'),
+                    'report_pdf_path': selected_project.get('report_pdf_path'),
+                } if selected_project.get('architectural_design_cost') is not None else None
+
+                # Fetch drawing documents separately (can be multiple)
                 cur.execute("SELECT * FROM drawing_documents WHERE project_id = %s AND org_id = %s", (selected_project_id, session['org_id']))
                 project_details['drawing_documents'] = cur.fetchall()
 
@@ -1361,8 +2707,10 @@ def submit_worker_report():
                     org_id=org_id,
                     notification_type='worker_report_new',
                     reference_id=report_id,
-                    message=f'Worker report submitted: {worker_count} workers at {project_name} on {report_date} by {session.get("name")}'
+                    message=f'Worker report submitted: {worker_count} workers at {project_name} on {report_date} by {session.get("name")}',
+                    cur=cur
                 )
+            conn.commit()
             # ========================================
             
             flash('Worker report submitted successfully.')
@@ -1560,8 +2908,10 @@ def add_inventory():
                         org_id=org_id,
                         notification_type='inventory_added',
                         reference_id=None,
-                        message=notification_message
+                        message=notification_message,
+                        cur=cursor
                     )
+                conn.commit()
             except Exception as notif_err:
                 # Notification failure should NOT rollback the inventory that was already saved
                 print(f"Warning: Notification failed after inventory commit: {notif_err}")
@@ -1676,7 +3026,7 @@ def assign_site():
                 (site_name, location, engineer_id, session['org_id'])
             )
             site_id = cursor.lastrowid
-            conn.commit()
+            
 
             # Notification (after commit)
             create_notification(
@@ -1684,8 +3034,10 @@ def assign_site():
                 org_id=session['org_id'],
                 notification_type='project_assigned',
                 reference_id=site_id,
-                message=f'New site assigned: {site_name} at {location}'
+                message=f'New site assigned: {site_name} at {location}',
+                cur=cursor    # <-- add this
             )
+            conn.commit()
 
             flash('Site assigned successfully.', 'success')
             return redirect(url_for('assign_site'))
@@ -1794,6 +3146,7 @@ def upload_progress():
                 (site_id, progress_percent, image_path, pdf_path, report_date, remark, org_id) 
                 VALUES (%s, %s, %s, %s, %s, %s, %s)
             """, (site_id, progress, img_filename, pdf_filename, today, remark, session['org_id']))
+            
             conn.commit()
 
             cursor.execute("SELECT site_name FROM sites WHERE site_id = %s", (site_id,))
@@ -1812,8 +3165,10 @@ def upload_progress():
                     org_id=session['org_id'],
                     notification_type='progress_report',
                     reference_id=site_id,
-                    message=f'Progress report uploaded for {site_name}: {progress}% complete by {session.get("name")}'
+                    message=f'Progress report uploaded for {site_name}: {progress}% complete by {session.get("name")}',
+                    cur=cursor    # <-- add this
                 )
+            conn.commit()
 
             flash('Progress report uploaded successfully!', 'success')
 
@@ -1977,8 +3332,10 @@ def add_vendor_inventory():
                         org_id=org_id,
                         notification_type='vendor_pending',
                         reference_id=None,
-                        message=summary
+                        message=summary,
+                        cur=cursor
                     )
+                db.commit()
 
             flash(f'{added} item(s) added successfully!', 'success')
 
@@ -2035,7 +3392,7 @@ def admin_vendor_inventory():
                 SET admin_remark=%s, admin_approval=%s 
                 WHERE id=%s AND org_id=%s
             """, (remark, approval, rec_id, org_id))
-            db.commit()
+            
             
             # ========== NOTIFICATION - ONLY SUBMITTER ==========
             if vendor_data and vendor_data.get('site_engineer_id'):
@@ -2063,8 +3420,11 @@ def admin_vendor_inventory():
                     org_id=org_id,
                     notification_type=notification_type,
                     reference_id=rec_id,
-                    message=notification_message
+                    message=notification_message,
+                    cur=cursor
                 )
+
+            db.commit()
             # ===================================================
             
             flash(f'Vendor inventory {approval.lower()} successfully.', 'success')
@@ -2227,8 +3587,10 @@ def add_enquiry():
                     org_id=org_id,
                     notification_type='enquiry_new',
                     reference_id=enquiry_id,
-                    message=f'New visitor enquiry from {name} submitted by {session.get("name")}'
+                    message=f'New visitor enquiry from {name} submitted by {session.get("name")}',
+                    cur=cur    # <-- add this
                 )
+            conn.commit()
 
             flash('Enquiry submitted successfully.', 'success')
 
@@ -2533,192 +3895,101 @@ def generate_estimation_pdf(data, save_path):
 ########################################### Generate Cost Estimation PDF ######################################
 @app.route('/generate_cost_estimation_pdf', methods=['POST'])
 def generate_cost_estimation_pdf():
-    if 'role' in session and session['role'] == 'architect':
-        try:
-            project_id = request.form['project_id']
-            # Fetch project name
-            conn_temp = get_connection()
-            cur_temp = conn_temp.cursor(pymysql.cursors.DictCursor)
-            cur_temp.execute("SELECT project_name FROM projects WHERE id = %s", (project_id,))
-            project_data = cur_temp.fetchone()
-            project_name = project_data['project_name'] if project_data else 'N/A'
-            cur_temp.close()
-            conn_temp.close()
-            architectural_cost = request.form['architectural_design_cost']
-            structural_cost = request.form['structural_design_cost']
-            estimation_summary = request.form['estimation_summary']
-            boq_reference = request.form['boq_reference']
-            cost_per_sqft = request.form['cost_per_sqft']
-            org_id = session['org_id']
+    if 'role' not in session or session['role'] != 'architect':
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 403
 
-            # Create uploads folder if not exists
-            upload_folder = os.path.join('static', 'uploads')
-            os.makedirs(upload_folder, exist_ok=True)
+    try:
+        project_id = request.form['project_id']
+        architectural_cost = request.form['architectural_design_cost']
+        structural_cost = request.form['structural_design_cost']
+        estimation_summary = request.form['estimation_summary']
+        boq_reference = request.form['boq_reference']
+        cost_per_sqft = request.form['cost_per_sqft']
+        org_id = session['org_id']
 
-            # Generate PDF
-            filename = f"estimation_{uuid.uuid4().hex[:8]}.pdf"
-            filepath = os.path.join(upload_folder, filename)
-            relative_path = f"uploads/{filename}"
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT id FROM cost_estimation WHERE project_id = %s AND org_id = %s", (project_id, org_id))
+        existing = cur.fetchone()
 
-            # Create Professional PDF
-            pdf = FPDF()
-            pdf.add_page()
-            
-            # Header with colored background
-            pdf.set_fill_color(41, 128, 185)  # Professional blue
-            pdf.rect(0, 0, 210, 40, 'F')
-            
-            # Company/Report Title
-            pdf.set_text_color(255, 255, 255)
-            pdf.set_font("Arial", 'B', 24)
-            pdf.ln(10)
-            pdf.cell(0, 10, txt="COST ESTIMATION REPORT", ln=True, align="C")
-            
-            pdf.set_font("Arial", size=10)
-            pdf.cell(0, 8, txt="A to Z Construction Cost Analysis", ln=True, align="C")
-            
-            # Reset text color
-            pdf.set_text_color(0, 0, 0)
-            pdf.ln(15)
-            
-            # Project Information Section
-            pdf.set_font("Arial", 'B', 14)
-            pdf.set_fill_color(236, 240, 241)
-            pdf.cell(0, 10, txt="Project Information", ln=True, fill=True)
-            pdf.ln(5)
-            
-            pdf.set_font("Arial", size=11)
-            
-            # Two-column layout for project info
-            col_width = 90
-            pdf.set_font("Arial", 'B', 11)
-            pdf.cell(50, 8, txt="Project ID:", border=0)
-            pdf.set_font("Arial", size=11)
-            pdf.cell(col_width, 8, txt=str(project_id), border=0, ln=True)
+        if existing:
+            cur.execute("""
+                UPDATE cost_estimation 
+                SET architectural_design_cost = %s,
+                    structural_design_cost = %s,
+                    estimation_summary = %s,
+                    boq_reference = %s,
+                    cost_per_sqft = %s,
+                    generated_on = NOW()
+                WHERE project_id = %s AND org_id = %s
+            """, (architectural_cost, structural_cost, estimation_summary, boq_reference, cost_per_sqft, project_id, org_id))
+        else:
+            cur.execute("""
+                INSERT INTO cost_estimation 
+                (project_id, architectural_design_cost, structural_design_cost, 
+                 estimation_summary, boq_reference, cost_per_sqft, generated_on, org_id)
+                VALUES (%s, %s, %s, %s, %s, %s, NOW(), %s)
+            """, (project_id, architectural_cost, structural_cost, estimation_summary,
+                  boq_reference, cost_per_sqft, org_id))
+        conn.commit()
+        cur.close()
+        conn.close()
 
-            pdf.set_font("Arial", 'B', 11)
-            pdf.cell(50, 8, txt="Project Name:", border=0)
-            pdf.set_font("Arial", size=11)
-            pdf.cell(col_width, 8, txt=str(project_name), border=0, ln=True)
-            
-            pdf.set_font("Arial", 'B', 11)
-            pdf.cell(50, 8, txt="Generated On:", border=0)
-            pdf.set_font("Arial", size=11)
-            from datetime import datetime
-            pdf.cell(col_width, 8, txt=datetime.now().strftime("%B %d, %Y"), border=0, ln=True)
-            
-            pdf.set_font("Arial", 'B', 11)
-            pdf.cell(50, 8, txt="BOQ Reference:", border=0)
-            pdf.set_font("Arial", size=11)
-            pdf.cell(col_width, 8, txt=str(boq_reference), border=0, ln=True)
-            
-            pdf.ln(10)
-            
-            # Cost Breakdown Section
-            pdf.set_font("Arial", 'B', 14)
-            pdf.set_fill_color(236, 240, 241)
-            pdf.cell(0, 10, txt="Cost Breakdown", ln=True, fill=True)
-            pdf.ln(5)
-            
-            # Table header
-            pdf.set_fill_color(52, 152, 219)
-            pdf.set_text_color(255, 255, 255)
-            pdf.set_font("Arial", 'B', 11)
-            pdf.cell(120, 10, txt="Description", border=1, fill=True)
-            pdf.cell(70, 10, txt="Amount (Rs.)", border=1, fill=True, align='R', ln=True)
-            
-            # Table content
-            pdf.set_text_color(0, 0, 0)
-            pdf.set_font("Arial", size=11)
-            
-            # Row 1
-            pdf.set_fill_color(245, 245, 245)
-            pdf.cell(120, 10, txt="Architectural Design Cost", border=1, fill=True)
-            pdf.cell(70, 10, txt=f"{float(architectural_cost):,.2f}", border=1, fill=True, align='R', ln=True)
-            
-            # Row 2
-            pdf.cell(120, 10, txt="Structural Design Cost", border=1)
-            pdf.cell(70, 10, txt=f"{float(structural_cost):,.2f}", border=1, align='R', ln=True)
-            
-            # Row 3
-            pdf.set_fill_color(245, 245, 245)
-            pdf.cell(120, 10, txt="Cost per Sq.ft", border=1, fill=True)
-            pdf.cell(70, 10, txt=f"{float(cost_per_sqft):,.2f}", border=1, fill=True, align='R', ln=True)
-            
-            # Total row
-            total_cost = float(architectural_cost) + float(structural_cost)
-            pdf.set_fill_color(52, 152, 219)
-            pdf.set_text_color(255, 255, 255)
-            pdf.set_font("Arial", 'B', 12)
-            pdf.cell(120, 12, txt="TOTAL ESTIMATED COST", border=1, fill=True)
-            pdf.cell(70, 12, txt=f"{total_cost:,.2f}", border=1, fill=True, align='R', ln=True)
-            
-            pdf.set_text_color(0, 0, 0)
-            pdf.ln(10)
-            
-            # Estimation Summary Section
-            pdf.set_font("Arial", 'B', 14)
-            pdf.set_fill_color(236, 240, 241)
-            pdf.cell(0, 10, txt="Estimation Summary", ln=True, fill=True)
-            pdf.ln(5)
-            
-            pdf.set_font("Arial", size=10)
-            pdf.multi_cell(0, 7, txt=estimation_summary, border=1, fill=False)
-            
-            pdf.ln(10)
-            
-            # Footer Section
-            pdf.set_y(-30)
-            pdf.set_font("Arial", 'I', 9)
-            pdf.set_text_color(128, 128, 128)
-            pdf.cell(0, 5, txt="This is a computer-generated document and does not require a signature.", ln=True, align="C")
-            # pdf.cell(0, 5, txt=f"Document ID: {filename.replace('.pdf', '')}", ln=True, align="C")
-            
-            # Page number
-            pdf.set_y(-15)
-            pdf.set_font("Arial", 'I', 8)
-            # pdf.cell(0, 10, txt=f"Page {pdf.page_no()}", align="C")
-            
-            pdf.output(filepath)
+        # Start background PDF generation
+        thread = threading.Thread(
+            target=generate_cost_estimation_pdf_async,
+            args=(project_id, org_id)
+        )
+        thread.daemon = True
+        thread.start()
 
-            # Save PDF path to database
-            conn = get_connection()
-            cur = conn.cursor()
-            cur.execute("SELECT id FROM cost_estimation WHERE project_id = %s and org_id = %s", (project_id, org_id))
-            if cur.fetchone():
-                cur.execute("""
-                    UPDATE cost_estimation 
-                    SET architectural_design_cost = %s,
-                        structural_design_cost = %s,
-                        estimation_summary = %s,
-                        boq_reference = %s,
-                        cost_per_sqft = %s,
-                        report_pdf_path = %s,
-                        generated_on = NOW()
-                    WHERE project_id = %s and org_id = %s
-                """, (architectural_cost, structural_cost, estimation_summary, boq_reference, cost_per_sqft, relative_path, project_id, org_id))
-            else:
-                cur.execute("""
-                    INSERT INTO cost_estimation 
-                    (project_id, architectural_design_cost, structural_design_cost, 
-                     estimation_summary, boq_reference, cost_per_sqft, report_pdf_path, generated_on, org_id)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, NOW(), %s)
-                """, (project_id, architectural_cost, structural_cost, estimation_summary,
-                      boq_reference, cost_per_sqft, relative_path, org_id))
-            conn.commit()
-            conn.close()
+        return jsonify({'success': True, 'project_id': project_id})
 
-            flash('Cost Estimation PDF generated successfully.', 'success')
-            return redirect(url_for('architect_dashboard'))
-
-        except Exception as e:
-            print("Error generating PDF:", e)
-            flash('Failed to generate PDF.', 'danger')
-            return redirect(url_for('architect_dashboard'))
-    else:
-        flash("Unauthorized access.")
-        return redirect(url_for('login'))
+    except Exception as e:
+        print("Error in generate_cost_estimation_pdf:", e)
+        return jsonify({'success': False, 'error': str(e)}), 500
     
+@app.route('/api/cost_estimation_status/<int:project_id>')
+def api_cost_estimation_status(project_id):
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    conn = get_connection()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
+    try:
+        cur.execute("SELECT report_pdf_path FROM cost_estimation WHERE project_id = %s AND org_id = %s", (project_id, session['org_id']))
+        result = cur.fetchone()
+        if result and result['report_pdf_path']:
+            return jsonify({'status': 'ready', 'pdf_path': result['report_pdf_path']})
+        else:
+            return jsonify({'status': 'processing'})
+    finally:
+        cur.close()
+        conn.close()
+
+@app.route('/download_cost_estimation_pdf/<int:project_id>')
+def download_cost_estimation_pdf(project_id):
+    if 'user_id' not in session:
+        abort(401)
+    conn = get_connection()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
+    try:
+        cur.execute("SELECT report_pdf_path FROM cost_estimation WHERE project_id = %s AND org_id = %s", (project_id, session['org_id']))
+        result = cur.fetchone()
+        if result and result['report_pdf_path']:
+            # Ensure the file exists
+            file_path = os.path.join(app.root_path, 'static', result['report_pdf_path'])
+            if os.path.exists(file_path):
+                return send_file(file_path, as_attachment=True, download_name=f"cost_estimation_{project_id}.pdf")
+            else:
+                flash('PDF file not found. It may still be generating.', 'warning')
+        else:
+            flash('PDF not ready yet. Please try again later.', 'warning')
+    finally:
+        cur.close()
+        conn.close()
+    return redirect(url_for('architect_dashboard'))
+
+
 
 ############################################ Assign Architect to Project ######################################@app.route('/select_project_by_org')@app.route('/select_project_by_org', methods=['GET'])
 @app.route('/select_project_by_org', methods=['GET'])
@@ -2810,7 +4081,8 @@ def assign_architect():
                     org_id=session['org_id'],
                     notification_type='project_assigned',
                     reference_id=project_id,
-                    message=f'New project assigned: {project_name}'
+                    message=f'New project assigned: {project_name}',
+                    cur=cursor
                 )
 
                 conn.commit()
@@ -3112,7 +4384,8 @@ def submit_legal_compliances():
                         org_id=org_id,
                         notification_type='legal_updated',
                         reference_id=project_id,
-                        message=notification_message
+                        message=notification_message,
+                        cur=cur
                     )
 
                 # Notify accountants
@@ -3124,7 +4397,8 @@ def submit_legal_compliances():
                         org_id=org_id,
                         notification_type='legal_updated',
                         reference_id=project_id,
-                        message=notification_message
+                        message=notification_message,
+                        cur=cur
                     )
 
                 # Notify site engineers
@@ -3138,8 +4412,10 @@ def submit_legal_compliances():
                                 org_id=org_id,
                                 notification_type='legal_updated',
                                 reference_id=project_id,
-                                message=notification_message
+                                message=notification_message,
+                                cur=cur
                             )
+                    conn.commit()
             # ------------------------------------------------
 
             flash('Legal compliances submitted successfully.', 'success')
@@ -3441,7 +4717,7 @@ def generate_invoice():
     conn = get_connection()
     cur = conn.cursor(pymysql.cursors.DictCursor)
 
-    # Fetch complete organization details including bank information
+    # Fetch organization details (same as before)
     org_id = session.get('org_id')
     cur.execute("""
         SELECT company_name, company_address, company_phone, company_email,
@@ -3455,7 +4731,7 @@ def generate_invoice():
         flash('Organization details not found', 'danger')
         return redirect(url_for('site_engineer_dashboard'))
 
-    # Fetch projects assigned to the site engineer
+    # Fetch projects assigned to this engineer
     site_engineer_id = session['user_id']
     cur.execute("""
         SELECT p.id, p.project_name
@@ -3467,13 +4743,10 @@ def generate_invoice():
 
     if request.method == 'POST':
         try:
-            # ── ONLY CHANGE: guard project_id before anything else ──
             project_id = request.form.get('project_id')
             if not project_id:
                 flash("Please select a project before generating an invoice.", "danger")
-                
                 return redirect(request.url)
-            # ────────────────────────────────────────────────────────
 
             vendor_name = request.form.get('vendor_name')
             client_name = request.form.get('bill_to_name')
@@ -3481,25 +4754,22 @@ def generate_invoice():
             client_phone = request.form.get('bill_to_phone') or ""
             subtotal = float(request.form.get('subtotal', 0))
             total_amount = float(request.form.get('total_amount', 0))
-            site_engineer_id = session.get('user_id')
             invoice_date = datetime.now().strftime("%Y-%m-%d")
 
-            # GST calculation - exactly like the first API
             gst_percentage = float(request.form.get('gst_percentage', 0))
             gst_amount = subtotal * gst_percentage / 100
             grand_total = total_amount
 
-            # Generate invoice number
             invoice_number = "INV" + datetime.now().strftime("%Y%m%d%H%M%S")
-            pdf_filename = f"{invoice_number}.pdf"
-            
-            # Get line items
+            # No pdf_filename yet – will be set by background task
+            pdf_filename = None
+
             descriptions = request.form.getlist('description[]')
             quantities = request.form.getlist('quantity[]')
             rates = request.form.getlist('rate[]')
             totals = request.form.getlist('total[]')
 
-            # Handle image upload
+            # Handle image upload (optional)
             invoice_image_filename = None
             if 'invoice_image' in request.files:
                 file = request.files['invoice_image']
@@ -3514,10 +4784,7 @@ def generate_invoice():
                             os.makedirs(invoice_images_dir, exist_ok=True)
                             file_path = os.path.join(invoice_images_dir, unique_name)
                             file.save(file_path)
-                            if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
-                                invoice_image_filename = unique_name
-                            else:
-                                flash("Failed to save image file", "error")
+                            invoice_image_filename = unique_name
                         except Exception as e:
                             flash(f"Error saving image: {str(e)}", "error")
                             return redirect(request.url)
@@ -3525,22 +4792,21 @@ def generate_invoice():
                         flash("Please upload a valid image file (PNG, JPEG, JPG)", "error")
                         return redirect(request.url)
 
-            # Database insertion
+            # Insert invoice (without PDF)
             cur.execute("""
                 INSERT INTO invoices (
                     project_id, site_engineer_id, vendor_name, total_amount,
                     gst_amount, invoice_number, pdf_filename, generated_on,
                     bill_to_name, bill_to_address, bill_to_phone, subtotal,
-                    invoice_image_filename, org_id
+                    invoice_image_filename, org_id, status
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'Pending')
             """, (
                 project_id, site_engineer_id, vendor_name, grand_total,
                 gst_amount, invoice_number, pdf_filename, invoice_date,
                 client_name, client_address, client_phone, subtotal,
                 invoice_image_filename, org_id
             ))
-            
             invoice_id = cur.lastrowid
 
             # Insert invoice items
@@ -3551,363 +4817,93 @@ def generate_invoice():
                         VALUES (%s, %s, %s, %s, %s, %s)
                     """, (invoice_id, desc.strip(), float(qty), float(rate), float(line_total), org_id))
 
-            # Commit transaction
             conn.commit()
 
-            # ========== INVOICE SUBMISSION NOTIFICATION ==========
-            cur.execute("""
-                SELECT id FROM register 
-                WHERE role = 'admin' AND org_id = %s
-            """, (org_id,))
+            # Notify admins about pending invoice (same as before)
+            cur.execute("SELECT id FROM register WHERE role = 'admin' AND org_id = %s", (org_id,))
             admin_list = cur.fetchall()
-
             cur.execute("SELECT project_name FROM projects WHERE id = %s", (project_id,))
             proj = cur.fetchone()
             proj_name = proj['project_name'] if proj else 'Unknown Project'
-
             for admin in admin_list:
                 create_notification(
                     user_id=admin['id'],
                     org_id=org_id,
                     notification_type='invoice_pending',
                     reference_id=invoice_id,
-                    message=f'New invoice {invoice_number} submitted for {proj_name} by {session.get("name")} — ₹{grand_total:,.2f}'
+                    message=f'New invoice {invoice_number} submitted for {proj_name} by {session.get("name")} — ₹{grand_total:,.2f}',
+                    cur=cur    # <-- add this
                 )
+            conn.commit()  
 
-            # ---------------- PROFESSIONAL PDF GENERATION ---------------- #
-            buffer = BytesIO()
-            doc = SimpleDocTemplate(buffer, pagesize=A4, leftMargin=30, rightMargin=30, topMargin=30, bottomMargin=30)
-            styles = getSampleStyleSheet()
-
-            # Professional Color Scheme
-            primary_color = colors.HexColor('#1e3a8a')      # Deep Blue
-            secondary_color = colors.HexColor('#3b82f6')    # Bright Blue
-            accent_color = colors.HexColor('#f59e0b')       # Golden Yellow
-            text_dark = colors.HexColor('#1f2937')          # Dark Gray
-            text_light = colors.HexColor('#6b7280')         # Light Gray
-            bg_light = colors.HexColor('#f8fafc')           # Very Light Gray
-            success_color = colors.HexColor('#059669')      # Green
-
-            # Enhanced Custom Styles
-            company_name_style = ParagraphStyle(
-                'company_name',
-                parent=styles['Heading1'],
-                fontSize=24,
-                textColor=primary_color,
-                fontName='Helvetica-Bold',
-                alignment=0,
-                spaceAfter=5
+            # 🔥 START BACKGROUND PDF GENERATION
+            thread = threading.Thread(
+                target=generate_invoice_pdf_async,
+                args=(invoice_id, org_id, invoice_number, proj_name, grand_total, session.get('name'))
             )
-            
-            company_info_style = ParagraphStyle(
-                'company_info',
-                parent=styles['Normal'],
-                fontSize=11,
-                textColor=text_light,
-                fontName='Helvetica',
-                alignment=0,
-                spaceAfter=3
-            )
-            
-            invoice_title_style = ParagraphStyle(
-                'invoice_title',
-                parent=styles['Heading1'],
-                fontSize=28,
-                textColor=accent_color,
-                fontName='Helvetica-Bold',
-                alignment=2,
-                spaceAfter=10
-            )
-            
-            section_header_style = ParagraphStyle(
-                'section_header',
-                parent=styles['Heading3'],
-                fontSize=14,
-                textColor=primary_color,
-                fontName='Helvetica-Bold',
-                spaceBefore=15,
-                spaceAfter=8,
-                borderWidth=0,
-                borderColor=primary_color,
-                backColor=bg_light,
-                leftIndent=10,
-                rightIndent=10,
-                topPadding=8,
-                bottomPadding=8
-            )
-            
-            client_info_style = ParagraphStyle(
-                'client_info',
-                parent=styles['Normal'],
-                fontSize=11,
-                textColor=text_dark,
-                fontName='Helvetica',
-                spaceAfter=4
-            )
-            
-            footer_style = ParagraphStyle(
-                'footer',
-                parent=styles['Normal'],
-                fontSize=10,
-                textColor=text_light,
-                fontName='Helvetica-Oblique',
-                alignment=1,
-                spaceBefore=20
-            )
+            thread.daemon = True
+            thread.start()
 
-            elements = []
-
-            # Professional Header with Company Branding
-            header_table_data = [
-                [
-                    [
-                        Paragraph(org_details['company_name'], company_name_style),
-                        Paragraph(org_details['company_address'], company_info_style),
-                        Paragraph(f"Phone: {org_details['company_phone'] or 'N/A'}", company_info_style),
-                        Paragraph(f"Email: {org_details['company_email'] or 'N/A'}", company_info_style),
-                        Paragraph(f"GST: {org_details['gst_number'] or 'N/A'}", company_info_style)
-                    ],
-                    Paragraph("INVOICE", invoice_title_style)
-                ]
-            ]
-            
-            header_table = Table(header_table_data, colWidths=[300, 250])
-            header_table.setStyle(TableStyle([
-                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-                ('ALIGN', (1, 0), (1, 0), 'RIGHT'),
-            ]))
-            elements.append(header_table)
-            elements.append(Spacer(1, 20))
-
-            # Invoice Details with Professional Styling
-            invoice_details_data = [
-                ['Invoice Number:', invoice_number, 'Invoice Date:', invoice_date]
-            ]
-            
-            invoice_details_table = Table(invoice_details_data, colWidths=[100, 150, 100, 150])
-            invoice_details_table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, -1), bg_light),
-                ('TEXTCOLOR', (0, 0), (-1, -1), text_dark),
-                ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),  # Labels bold
-                ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),       # Values normal
-                ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),  # Labels bold
-                ('FONTNAME', (3, 0), (3, -1), 'Helvetica'),       # Values normal
-                ('FONTSIZE', (0, 0), (-1, -1), 11),
-                ('GRID', (0, 0), (-1, -1), 1, primary_color),
-                ('ALIGN', (0, 0), (0, -1), 'LEFT'),
-                ('ALIGN', (1, 0), (1, -1), 'LEFT'),
-                ('ALIGN', (2, 0), (2, -1), 'LEFT'),
-                ('ALIGN', (3, 0), (3, -1), 'LEFT'),
-                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-                ('TOPPADDING', (0, 0), (-1, -1), 8),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-                ('LEFTPADDING', (0, 0), (-1, -1), 12),
-            ]))
-            elements.append(invoice_details_table)
-            elements.append(Spacer(1, 20))
-
-            # Bill To Section with Enhanced Design
-            elements.append(Paragraph("BILL TO", section_header_style))
-            bill_to_data = [
-                [
-                    [
-                        Paragraph(f"<b>{client_name}</b>", client_info_style),
-                        Paragraph(client_address, client_info_style),
-                        Paragraph(f"Phone: {client_phone}" if client_phone else "", client_info_style)
-                    ]
-                ]
-            ]
-            
-            bill_to_table = Table(bill_to_data, colWidths=[470])
-            bill_to_table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, -1), bg_light),
-                ('LEFTPADDING', (0, 0), (-1, -1), 15),
-                ('TOPPADDING', (0, 0), (-1, -1), 10),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
-                ('BOX', (0, 0), (-1, -1), 1, primary_color),
-                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ]))
-            elements.append(bill_to_table)
-            elements.append(Spacer(1, 25))
-
-            # Professional Line Items Table
-            item_data = [['#', 'Description', 'Rate', 'Qty', 'Amount']]
-            for i, (desc, qty, rate, total) in enumerate(zip(descriptions, quantities, rates, totals), start=1):
-                item_data.append([
-                    str(i), 
-                    desc, 
-                    f"₹{float(rate):,.2f}", 
-                    str(qty), 
-                    f"₹{float(total):,.2f}"
-                ])
-
-            item_table = Table(item_data, colWidths=[30, 220, 80, 50, 90])
-            item_table.setStyle(TableStyle([
-                # Header row styling
-                ('BACKGROUND', (0, 0), (-1, 0), primary_color),
-                ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0, 0), (-1, 0), 12),
-                ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
-                ('TOPPADDING', (0, 0), (-1, 0), 12),
-                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                
-                # Data rows styling
-                ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-                ('FONTSIZE', (0, 1), (-1, -1), 10),
-                ('ALIGN', (0, 1), (0, -1), 'CENTER'),  # Serial number center
-                ('ALIGN', (2, 1), (-1, -1), 'RIGHT'),  # Numbers right-aligned
-                ('ALIGN', (1, 1), (1, -1), 'LEFT'),    # Description left-aligned
-                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-                
-                # Alternating row colors
-                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_light]),
-                
-                # Grid and borders
-                ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e5e7eb')),
-                ('BOX', (0, 0), (-1, -1), 2, primary_color),
-                
-                # Padding
-                ('TOPPADDING', (0, 1), (-1, -1), 8),
-                ('BOTTOMPADDING', (0, 1), (-1, -1), 8),
-                ('LEFTPADDING', (0, 0), (-1, -1), 8),
-                ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-            ]))
-            elements.append(item_table)
-            elements.append(Spacer(1, 20))
-
-            # Professional Totals Section
-            totals_data = [['Subtotal', f'₹{subtotal:,.2f}']]
-
-            if gst_amount > 0:
-                # Calculate SGST and CGST like in the first API
-                sgst = gst_amount / 2
-                cgst = gst_amount / 2
-                print(f"DEBUG: SGST: {sgst}, CGST: {cgst}")
-                
-                totals_data.extend([
-                    [f'GST ({gst_percentage}%)', f'₹{gst_amount:,.2f}'],
-                    [f'SGST ({gst_percentage/2}%)', f'₹{sgst:,.2f}'],
-                    [f'CGST ({gst_percentage/2}%)', f'₹{cgst:,.2f}']
-                ])
-
-            totals_data.append(['TOTAL AMOUNT', f'₹{grand_total:,.2f}'])
-            
-            totals_table = Table(totals_data, colWidths=[350, 120])
-            totals_table.setStyle(TableStyle([
-                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-                ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
-                ('FONTNAME', (0, 0), (-1, -2), 'Helvetica'),
-                ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
-                ('FONTSIZE', (0, 0), (-1, -2), 11),
-                ('FONTSIZE', (0, -1), (-1, -1), 14),
-                ('TEXTCOLOR', (0, 0), (-1, -2), text_dark),
-                ('TEXTCOLOR', (0, -1), (-1, -1), colors.white),
-                ('BACKGROUND', (0, -1), (-1, -1), success_color),
-                ('TOPPADDING', (0, 0), (-1, -1), 8),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-                ('RIGHTPADDING', (0, 0), (-1, -1), 15),
-                ('LEFTPADDING', (0, 0), (-1, -1), 15),
-                ('BOX', (0, 0), (-1, -1), 1, primary_color),
-                ('INNERGRID', (0, 0), (-1, -2), 0.5, colors.HexColor('#e5e7eb')),
-            ]))
-            elements.append(totals_table)
-            elements.append(Spacer(1, 30))
-
-            # Bank Details Section
-            elements.append(Paragraph("BANK ACCOUNT DETAILS", section_header_style))
-            bank_details = [
-                f"Account Holder: {org_details['company_name']}",
-                f"Bank Name: {org_details['bank_name'] or 'N/A'}",
-                f"Account Number: {org_details['bank_account'] or 'N/A'}",
-                f"IFSC Code: {org_details['ifsc_code'] or 'N/A'}"
-            ]
-            
-            bank_info_data = [['\n'.join(bank_details)]]
-            bank_info_table = Table(bank_info_data, colWidths=[470])
-            bank_info_table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, -1), bg_light),
-                ('LEFTPADDING', (0, 0), (-1, -1), 15),
-                ('TOPPADDING', (0, 0), (-1, -1), 12),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-                ('BOX', (0, 0), (-1, -1), 1, primary_color),
-                ('FONTSIZE', (0, 0), (-1, -1), 10),
-                ('TEXTCOLOR', (0, 0), (-1, -1), text_dark),
-                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ]))
-            elements.append(bank_info_table)
-            elements.append(Spacer(1, 25))
-
-            # Terms and Conditions Section
-            elements.append(Paragraph("TERMS & CONDITIONS", section_header_style))
-            if org_details['terms_conditions']:
-                terms_text = org_details['terms_conditions'].replace('\n', '<br/>')
-            else:
-                terms_text = "• Payment due within 14 days from invoice date<br/>• Late payments subject to 4% monthly interest<br/>• All disputes subject to local jurisdiction"
-            
-            terms_data = [[Paragraph(terms_text, client_info_style)]]
-            terms_table = Table(terms_data, colWidths=[470])
-            terms_table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, -1), bg_light),
-                ('LEFTPADDING', (0, 0), (-1, -1), 15),
-                ('TOPPADDING', (0, 0), (-1, -1), 12),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-                ('BOX', (0, 0), (-1, -1), 1, primary_color),
-            ]))
-            elements.append(terms_table)
-            elements.append(Spacer(1, 30))
-
-            # Professional Footer
-            elements.append(Paragraph(
-                "Thank you for your business! We appreciate your trust in our services.",
-                footer_style
-            ))
-            
-            # Add a subtle line above footer
-            footer_line = Table([['']], colWidths=[470])
-            footer_line.setStyle(TableStyle([
-                ('LINEABOVE', (0, 0), (-1, -1), 2, accent_color),
-                ('TOPPADDING', (0, 0), (-1, -1), 10),
-            ]))
-            elements.append(footer_line)
-
-            # Build PDF
-            doc.build(elements)
-            buffer.seek(0)
-
-            # Save PDF to static folder
-            pdf_dir = os.path.join(app.static_folder, 'invoice_pdfs')
-            os.makedirs(pdf_dir, exist_ok=True)
-            pdf_path = os.path.join(pdf_dir, pdf_filename)
-            with open(pdf_path, 'wb') as f:
-                f.write(buffer.getvalue())
-
-            flash("Invoice generated successfully!", "success")
-            return send_file(
-                buffer,
-                mimetype='application/pdf',
-                as_attachment=False,
-                download_name=pdf_filename
-            )
+            flash(f'Invoice #{invoice_number} created. PDF is being generated in the background. You will be notified when ready.', 'success')
+            return redirect(url_for('site_engineer_invoices'))
 
         except Exception as e:
             conn.rollback()
             flash(f"Error generating invoice: {str(e)}", "danger")
             return redirect(request.url)
         finally:
-            if cur:
-                cur.close()
-            if conn:
-                conn.close()
+            cur.close()
+            conn.close()
 
-    # GET request - show the form
+    # GET request – show form
+    cur.close()
     conn.close()
     return render_template('generate_invoice.html', 
                          projects=projects, 
                          current_date=datetime.now().strftime("%Y-%m-%d"), 
                          user_role='site_engineer')
+
+@app.route('/api/invoice_pdf_status/<int:invoice_id>')
+def api_invoice_pdf_status(invoice_id):
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    conn = get_connection()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
+    try:
+        cur.execute("SELECT pdf_filename FROM invoices WHERE id = %s AND org_id = %s", (invoice_id, session['org_id']))
+        inv = cur.fetchone()
+        if inv and inv['pdf_filename']:
+            return jsonify({'status': 'ready'})
+        else:
+            # Optionally check if the invoice exists and is not failed
+            return jsonify({'status': 'processing'})
+    finally:
+        cur.close()
+        conn.close()
+
+@app.route('/download_invoice_pdf/<int:invoice_id>')
+def download_invoice_pdf(invoice_id):
+    if 'user_id' not in session:
+        abort(401)
+    conn = get_connection()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
+    try:
+        cur.execute("SELECT pdf_filename FROM invoices WHERE id = %s AND org_id = %s", (invoice_id, session['org_id']))
+        inv = cur.fetchone()
+        if inv and inv['pdf_filename']:
+            pdf_path = os.path.join(app.static_folder, 'invoice_pdfs', inv['pdf_filename'])
+            if os.path.exists(pdf_path):
+                return send_file(pdf_path, as_attachment=True, download_name=inv['pdf_filename'])
+            else:
+                flash('PDF file not found. It may still be generating.', 'warning')
+        else:
+            flash('PDF not ready yet. Please try again later.', 'warning')
+    finally:
+        cur.close()
+        conn.close()
+    return redirect(url_for('site_engineer_invoices'))
+
+
 ###################################################### Invoice Submission Route ##########################
 @app.route('/submit_invoice_alt', methods=['GET', 'POST'])
 def submit_invoice_alt():
@@ -3997,7 +4993,8 @@ def admin_view_invoices():
                         org_id=org_id,
                         notification_type='invoice_approved',
                         reference_id=invoice_id,
-                        message=f'Your invoice {inv["invoice_number"]} (₹{inv["total_amount"]:,.2f}) has been approved'
+                        message=f'Your invoice {inv["invoice_number"]} (₹{inv["total_amount"]:,.2f}) has been approved',
+                        cur=cursor
                     )
 
                     cursor.execute("""
@@ -4011,8 +5008,10 @@ def admin_view_invoices():
                             org_id=org_id,
                             notification_type='invoice_approved',
                             reference_id=invoice_id,
-                            message=f'Invoice {inv["invoice_number"]} approved for project — ₹{inv["total_amount"]:,.2f}'
+                            message=f'Invoice {inv["invoice_number"]} approved for project — ₹{inv["total_amount"]:,.2f}',
+                            cur=cursor
                         )
+                    conn.commit()
 
             elif action == 'reject':
                 cursor.execute("""
@@ -4035,8 +5034,10 @@ def admin_view_invoices():
                         org_id=org_id,
                         notification_type='invoice_rejected',
                         reference_id=invoice_id,
-                        message=f'Your invoice {inv["invoice_number"]} (₹{inv["total_amount"]:,.2f}) has been rejected.{reason_text}'
+                        message=f'Your invoice {inv["invoice_number"]} (₹{inv["total_amount"]:,.2f}) has been rejected.{reason_text}',
+                        cur=cursor
                     )
+                conn.commit()
 
             elif action == 'edit':
                 return redirect(url_for('admin_edit_invoice', invoice_id=invoice_id))
@@ -4283,9 +5284,11 @@ def admin_generate_invoice():
         conn = get_connection()
         cursor = conn.cursor(pymysql.cursors.DictCursor)
 
-        cursor.execute("SELECT id, name FROM register WHERE role = 'site_engineer' and org_id = %s", (session['org_id'],))
+        # Fetch site engineers
+        cursor.execute("SELECT id, name FROM register WHERE role = 'site_engineer' AND org_id = %s", (session['org_id'],))
         engineers = cursor.fetchall()
 
+        # Fetch distinct projects
         cursor.execute("""
             SELECT MIN(id) as id, project_name 
             FROM projects 
@@ -4295,7 +5298,7 @@ def admin_generate_invoice():
         """, (session['org_id'],))
         projects = cursor.fetchall()
 
-        # Fetch organization details
+        # Fetch organization details (for form display only)
         cursor.execute("""
             SELECT company_name, company_address, company_phone, company_email,
                    gst_number, bank_name, bank_account, ifsc_code, terms_conditions
@@ -4326,17 +5329,16 @@ def admin_generate_invoice():
                 subtotal = float(subtotal_raw) if subtotal_raw else 0.0
                 gst_percentage = float(request.form.get('gst_percentage', 0))
                 gst_amount = subtotal * gst_percentage / 100
-                sgst = gst_amount / 2
-                cgst = gst_amount / 2
 
                 invoice_number = "INV" + datetime.now().strftime("%Y%m%d%H%M%S")
-                pdf_filename = f"{invoice_number}.pdf"
+                pdf_filename = None  # Will be set by background task
 
                 descriptions = request.form.getlist('description[]')
                 quantities = request.form.getlist('quantity[]')
                 rates = request.form.getlist('rate[]')
                 totals = request.form.getlist('total[]')
 
+                # Handle invoice image upload (optional)
                 image_filename = None
                 if 'invoice_image' in request.files:
                     image_file = request.files['invoice_image']
@@ -4357,19 +5359,22 @@ def admin_generate_invoice():
                             raise Exception("File size too large. Maximum size is 5MB.")
                         image_file.save(image_path)
 
-                # Insert invoice
+                # 🔥 FIX: Insert subtotal as well
                 cursor.execute("""
                     INSERT INTO invoices (
-                        project_id, site_engineer_id, vendor_name, total_amount, gst_amount, invoice_number, pdf_filename,
-                        generated_on, bill_to_name, bill_to_address, bill_to_phone, status, approved_by, approved_on, invoice_image_filename,
-                        org_id
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'Approved', %s, NOW(), %s, %s)
+                        project_id, site_engineer_id, vendor_name, total_amount, gst_amount, subtotal,
+                        invoice_number, pdf_filename, generated_on,
+                        bill_to_name, bill_to_address, bill_to_phone, status, approved_by, approved_on,
+                        invoice_image_filename, org_id
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'Approved', %s, NOW(), %s, %s)
                 """, (
-                    project_id, site_engineer_id, vendor_name, grand_total, gst_amount, invoice_number, pdf_filename,
-                    invoice_date, client_name, client_address, client_phone, admin_id, image_filename, org_id
+                    project_id, site_engineer_id, vendor_name, grand_total, gst_amount, subtotal,
+                    invoice_number, pdf_filename, invoice_date,
+                    client_name, client_address, client_phone, admin_id, image_filename, org_id
                 ))
                 invoice_id = cursor.lastrowid
 
+                # Insert invoice items
                 items_inserted = 0
                 for desc, qty, rate, subtotal_item in zip(descriptions, quantities, rates, totals):
                     if desc and qty and rate:
@@ -4382,7 +5387,9 @@ def admin_generate_invoice():
                 if items_inserted == 0:
                     raise Exception("No valid invoice items found")
 
-                # Notifications
+                conn.commit()
+
+                # Notifications (unchanged)
                 cursor.execute("""
                     SELECT p.project_name, r.name as engineer_name
                     FROM projects p
@@ -4398,7 +5405,8 @@ def admin_generate_invoice():
                         org_id=org_id,
                         notification_type='invoice_approved',
                         reference_id=invoice_id,
-                        message=f'Invoice {invoice_number} generated for {project_name} — ₹{grand_total:,.2f}'
+                        message=f'Invoice {invoice_number} generated for {project_name} — ₹{grand_total:,.2f}',
+                        cur=cursor 
                     )
 
                 cursor.execute("""
@@ -4413,117 +5421,33 @@ def admin_generate_invoice():
                         org_id=org_id,
                         notification_type='invoice_approved',
                         reference_id=invoice_id,
-                        message=f'Invoice {invoice_number} approved for {project_name} — ₹{grand_total:,.2f}'
+                        message=f'Invoice {invoice_number} approved for {project_name} — ₹{grand_total:,.2f}',
+                        cur=cursor
                     )
-
                 conn.commit()
 
-                # Generate PDF (same as before, omitted for brevity but kept)
-                from io import BytesIO
-                from reportlab.lib.pagesizes import A4
-                from reportlab.lib import colors
-                from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-                from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-                from reportlab.lib.units import mm
+                # Start background PDF generation (reuse existing function)
+                thread = threading.Thread(
+                    target=generate_invoice_pdf_async,
+                    args=(invoice_id, org_id, invoice_number, project_name, grand_total, session.get('name'))
+                )
+                thread.daemon = True
+                thread.start()
 
-                buffer = BytesIO()
-                doc = SimpleDocTemplate(buffer, pagesize=A4, leftMargin=30, rightMargin=30, topMargin=30, bottomMargin=30)
-                styles = getSampleStyleSheet()
-                primary_color = colors.HexColor('#1e3a8a')
-                accent_color = colors.HexColor('#f59e0b')
-                text_dark = colors.HexColor('#1f2937')
-                text_light = colors.HexColor('#6b7280')
-                bg_light = colors.HexColor('#f8fafc')
-                success_color = colors.HexColor('#059669')
-
-                company_name_style = ParagraphStyle('company_name', parent=styles['Heading1'], fontSize=24, textColor=primary_color, fontName='Helvetica-Bold', alignment=0, spaceAfter=5)
-                company_info_style = ParagraphStyle('company_info', parent=styles['Normal'], fontSize=11, textColor=text_light, fontName='Helvetica', alignment=0, spaceAfter=3)
-                invoice_title_style = ParagraphStyle('invoice_title', parent=styles['Heading1'], fontSize=28, textColor=accent_color, fontName='Helvetica-Bold', alignment=2, spaceAfter=10)
-                section_header_style = ParagraphStyle('section_header', parent=styles['Heading3'], fontSize=14, textColor=primary_color, fontName='Helvetica-Bold', spaceBefore=15, spaceAfter=8, backColor=bg_light, leftIndent=10, rightIndent=10)
-                client_info_style = ParagraphStyle('client_info', parent=styles['Normal'], fontSize=11, textColor=text_dark, fontName='Helvetica', spaceAfter=4)
-                footer_style = ParagraphStyle('footer', parent=styles['Normal'], fontSize=10, textColor=text_light, fontName='Helvetica-Oblique', alignment=1, spaceBefore=20)
-
-                elements = []
-                header_table_data = [[[Paragraph(org_details['company_name'], company_name_style), Paragraph(org_details['company_address'], company_info_style), Paragraph(f"Phone: {org_details['company_phone'] or 'N/A'}", company_info_style), Paragraph(f"Email: {org_details['company_email'] or 'N/A'}", company_info_style), Paragraph(f"GST: {org_details['gst_number'] or 'N/A'}", company_info_style)], Paragraph("INVOICE", invoice_title_style)]]
-                header_table = Table(header_table_data, colWidths=[300, 250])
-                header_table.setStyle(TableStyle([('VALIGN', (0,0),(-1,-1),'TOP'), ('ALIGN',(1,0),(1,0),'RIGHT')]))
-                elements.append(header_table)
-                elements.append(Spacer(1,20))
-
-                invoice_details_data = [['Invoice Number:', invoice_number, 'Invoice Date:', invoice_date]]
-                invoice_details_table = Table(invoice_details_data, colWidths=[100,150,100,150])
-                invoice_details_table.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,-1),bg_light),('TEXTCOLOR',(0,0),(-1,-1),text_dark),('FONTNAME',(0,0),(0,-1),'Helvetica-Bold'),('FONTNAME',(1,0),(1,-1),'Helvetica'),('FONTNAME',(2,0),(2,-1),'Helvetica-Bold'),('FONTNAME',(3,0),(3,-1),'Helvetica'),('FONTSIZE',(0,0),(-1,-1),11),('GRID',(0,0),(-1,-1),1,primary_color),('ALIGN',(0,0),(0,-1),'LEFT'),('ALIGN',(1,0),(1,-1),'LEFT'),('ALIGN',(2,0),(2,-1),'LEFT'),('ALIGN',(3,0),(3,-1),'LEFT'),('VALIGN',(0,0),(-1,-1),'MIDDLE'),('TOPPADDING',(0,0),(-1,-1),8),('BOTTOMPADDING',(0,0),(-1,-1),8),('LEFTPADDING',(0,0),(-1,-1),12)]))
-                elements.append(invoice_details_table)
-                elements.append(Spacer(1,20))
-
-                elements.append(Paragraph("BILL TO", section_header_style))
-                bill_to_data = [[[Paragraph(f"<b>{client_name}</b>", client_info_style), Paragraph(client_address, client_info_style), Paragraph(f"Phone: {client_phone}" if client_phone else "", client_info_style)]]]
-                bill_to_table = Table(bill_to_data, colWidths=[470])
-                bill_to_table.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,-1),bg_light),('LEFTPADDING',(0,0),(-1,-1),15),('TOPPADDING',(0,0),(-1,-1),10),('BOTTOMPADDING',(0,0),(-1,-1),10),('BOX',(0,0),(-1,-1),1,primary_color),('ALIGN',(0,0),(-1,-1),'LEFT'),('VALIGN',(0,0),(-1,-1),'TOP')]))
-                elements.append(bill_to_table)
-                elements.append(Spacer(1,25))
-
-                item_data = [['#', 'Description', 'Rate', 'Qty', 'Amount']]
-                for i, (desc, qty, rate, total) in enumerate(zip(descriptions, quantities, rates, totals), start=1):
-                    item_data.append([str(i), desc, f"₹{float(rate):,.2f}", str(qty), f"₹{float(total):,.2f}"])
-                item_table = Table(item_data, colWidths=[30,220,80,50,90])
-                item_table.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,0),primary_color),('TEXTCOLOR',(0,0),(-1,0),colors.white),('FONTNAME',(0,0),(-1,0),'Helvetica-Bold'),('FONTSIZE',(0,0),(-1,0),12),('ALIGN',(0,0),(-1,0),'CENTER'),('TOPPADDING',(0,0),(-1,0),12),('BOTTOMPADDING',(0,0),(-1,0),12),('FONTNAME',(0,1),(-1,-1),'Helvetica'),('FONTSIZE',(0,1),(-1,-1),10),('ALIGN',(0,1),(0,-1),'CENTER'),('ALIGN',(2,1),(-1,-1),'RIGHT'),('ALIGN',(1,1),(1,-1),'LEFT'),('VALIGN',(0,0),(-1,-1),'MIDDLE'),('ROWBACKGROUNDS',(0,1),(-1,-1),[colors.white,bg_light]),('GRID',(0,0),(-1,-1),1,colors.HexColor('#e5e7eb')),('BOX',(0,0),(-1,-1),2,primary_color),('TOPPADDING',(0,1),(-1,-1),8),('BOTTOMPADDING',(0,1),(-1,-1),8),('LEFTPADDING',(0,0),(-1,-1),8),('RIGHTPADDING',(0,0),(-1,-1),8)]))
-                elements.append(item_table)
-                elements.append(Spacer(1,20))
-
-                totals_data = [['Subtotal', f'₹{subtotal:,.2f}']]
-                if gst_amount > 0:
-                    totals_data.extend([[f'GST ({gst_percentage}%)', f'₹{gst_amount:,.2f}'], [f'SGST ({gst_percentage/2}%)', f'₹{sgst:,.2f}'], [f'CGST ({gst_percentage/2}%)', f'₹{cgst:,.2f}']])
-                totals_data.append(['TOTAL AMOUNT', f'₹{grand_total:,.2f}'])
-                totals_table = Table(totals_data, colWidths=[350,120])
-                totals_table.setStyle(TableStyle([('ALIGN',(0,0),(-1,-1),'LEFT'),('ALIGN',(1,0),(1,-1),'RIGHT'),('FONTNAME',(0,0),(-1,-2),'Helvetica'),('FONTNAME',(0,-1),(-1,-1),'Helvetica-Bold'),('FONTSIZE',(0,0),(-1,-2),11),('FONTSIZE',(0,-1),(-1,-1),14),('TEXTCOLOR',(0,0),(-1,-2),text_dark),('TEXTCOLOR',(0,-1),(-1,-1),colors.white),('BACKGROUND',(0,-1),(-1,-1),success_color),('TOPPADDING',(0,0),(-1,-1),8),('BOTTOMPADDING',(0,0),(-1,-1),8),('RIGHTPADDING',(0,0),(-1,-1),15),('LEFTPADDING',(0,0),(-1,-1),15),('BOX',(0,0),(-1,-1),1,primary_color),('INNERGRID',(0,0),(-1,-2),0.5,colors.HexColor('#e5e7eb'))]))
-                elements.append(totals_table)
-                elements.append(Spacer(1,30))
-
-                elements.append(Paragraph("BANK ACCOUNT DETAILS", section_header_style))
-                bank_details = [f"Account Holder: {org_details['company_name']}", f"Bank Name: {org_details['bank_name'] or 'N/A'}", f"Account Number: {org_details['bank_account'] or 'N/A'}", f"IFSC Code: {org_details['ifsc_code'] or 'N/A'}"]
-                bank_info_data = [['\n'.join(bank_details)]]
-                bank_info_table = Table(bank_info_data, colWidths=[470])
-                bank_info_table.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,-1),bg_light),('LEFTPADDING',(0,0),(-1,-1),15),('TOPPADDING',(0,0),(-1,-1),12),('BOTTOMPADDING',(0,0),(-1,-1),12),('BOX',(0,0),(-1,-1),1,primary_color),('FONTSIZE',(0,0),(-1,-1),10),('TEXTCOLOR',(0,0),(-1,-1),text_dark),('ALIGN',(0,0),(-1,-1),'LEFT'),('VALIGN',(0,0),(-1,-1),'TOP')]))
-                elements.append(bank_info_table)
-                elements.append(Spacer(1,25))
-
-                elements.append(Paragraph("TERMS & CONDITIONS", section_header_style))
-                if org_details['terms_conditions']:
-                    terms_text = org_details['terms_conditions'].replace('\n', '<br/>')
-                else:
-                    terms_text = "• Payment due within 14 days from invoice date<br/>• Late payments subject to 4% monthly interest<br/>• All disputes subject to local jurisdiction"
-                terms_data = [[Paragraph(terms_text, client_info_style)]]
-                terms_table = Table(terms_data, colWidths=[470])
-                terms_table.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,-1),bg_light),('LEFTPADDING',(0,0),(-1,-1),15),('TOPPADDING',(0,0),(-1,-1),12),('BOTTOMPADDING',(0,0),(-1,-1),12),('BOX',(0,0),(-1,-1),1,primary_color)]))
-                elements.append(terms_table)
-                elements.append(Spacer(1,30))
-
-                elements.append(Paragraph("Thank you for your business! We appreciate your trust in our services.", footer_style))
-                footer_line = Table([['']], colWidths=[470])
-                footer_line.setStyle(TableStyle([('LINEABOVE',(0,0),(-1,-1),2,accent_color),('TOPPADDING',(0,0),(-1,-1),10)]))
-                elements.append(footer_line)
-
-                doc.build(elements)
-                buffer.seek(0)
-
-                pdf_directory = os.path.join('static', 'invoice_pdfs')
-                if not os.path.exists(pdf_directory):
-                    os.makedirs(pdf_directory)
-                pdf_path = os.path.join(pdf_directory, pdf_filename)
-                with open(pdf_path, 'wb') as f:
-                    f.write(buffer.read())
-                buffer.seek(0)
-
-                flash("Admin invoice generated and auto-approved.", "success")
+                flash(f'Admin invoice #{invoice_number} generated. PDF is being generated in the background.', 'success')
                 return redirect(url_for('admin_view_invoices'))
 
             except Exception as e:
                 conn.rollback()
-                flash(f"Error: {str(e)}", "danger")
+                flash(f"Error generating invoice: {str(e)}", "danger")
                 return redirect(request.url)
 
-        return render_template('generate_invoice.html', engineers=engineers, projects=projects, user_role='admin', current_date=date.today().isoformat())
+        # GET request
+        return render_template('generate_invoice.html', 
+                               engineers=engineers, 
+                               projects=projects, 
+                               user_role='admin', 
+                               current_date=date.today().isoformat())
 
     except Exception as e:
         flash(f"Error loading form: {str(e)}", "danger")
@@ -4861,7 +5785,8 @@ def assign_accountant():
                 org_id=org_id,
                 notification_type='project_assigned',
                 reference_id=int(accountant_id),
-                message=f'{project_count} project(s) assigned to you'
+                message=f'{project_count} project(s) assigned to you',
+                cur=cur
             )
 
             conn.commit()
@@ -5704,7 +6629,7 @@ def add_salary():
                 flash('Salary already exists for this user, project, and month.', 'warning')
                 return render_template('add_salary.html', projects=projects, users=users)
 
-            # Insert salary record
+            # Insert salary record (without pdf_filename initially)
             cur.execute("""
                 INSERT INTO salaries (
                     project_id, user_id, role, month_year, base_salary, allowance, pf,
@@ -5716,6 +6641,7 @@ def add_salary():
                 advance_deduction, other_deductions, description, net_salary, payment_mode, 
                 cheque_number, accountant_id, org_id
             ))
+            salary_id = cur.lastrowid   # Get the ID of the newly inserted salary
 
             # If advance deduction was made, update advances table
             if advance_deduction > 0:
@@ -5769,13 +6695,23 @@ def add_salary():
                     """, (new_remaining, advance_id))
 
             conn.commit()
-            # 1.Notify the employee about their salary entry
+
+            # 🔥 START BACKGROUND PDF GENERATION FOR SALARY SLIP
+            thread = threading.Thread(
+                target=generate_salary_slip_async,
+                args=(salary_id, org_id)
+            )
+            thread.daemon = True
+            thread.start()
+
+            # 1. Notify the employee about their salary entry
             create_notification(
                 user_id=user_id,
                 org_id=org_id,
                 notification_type='salary_new',
-                reference_id=None,  # We don't have salary ID in your current structure
-                message=f'Salary entry for {month_year} has been processed. Net: ₹{net_salary:,.2f}'
+                reference_id=salary_id,
+                message=f'Salary entry for {month_year} has been processed. Net: ₹{net_salary:,.2f}',
+                cur=cur
             )
             # 2. Notify all admins about the new salary entry
             cur.execute("""
@@ -5799,11 +6735,13 @@ def add_salary():
                     user_id=admin['id'],
                     org_id=org_id,
                     notification_type='salary_added',
-                    reference_id=None,
-                    message=f'Salary added: {emp_name} - {project_name} ({month_year}) - Net: ₹{net_salary:,.2f}'
+                    reference_id=salary_id,
+                    message=f'Salary added: {emp_name} - {project_name} ({month_year}) - Net: ₹{net_salary:,.2f}',
+                    cur=cur
                 )
+            conn.commit()
 
-            flash('Salary entry added successfully.', 'success')
+            flash('Salary entry added successfully. Salary slip PDF will be generated in the background.', 'success')
 
         except Exception as e:
             conn.rollback()
@@ -6184,546 +7122,129 @@ def update_base_salary():
 
 @app.route('/download_salary_slip/<int:salary_id>')
 def download_salary_slip(salary_id):
-    """Generate and download salary slip PDF - SINGLE PAGE VERSION"""
     if 'role' not in session or session['role'] not in ['accountant', 'admin']:
         return redirect(url_for('login'))
     
-    org_id = session['org_id']
-    
     conn = get_connection()
     cur = conn.cursor(pymysql.cursors.DictCursor)
-    
     try:
-        # Get salary details WITH contact_no from register table (JOIN)
-        cur.execute("""
-            SELECT s.*, 
-                   p.project_name, 
-                   r.name AS employee_name,
-                   r.email AS employee_email,
-                   r.contact_no AS employee_contact,
-                   r.role AS employee_role
-            FROM salaries s
-            JOIN projects p ON s.project_id = p.id
-            JOIN register r ON s.user_id = r.id
-            WHERE s.id = %s AND s.org_id = %s
-        """, (salary_id, org_id))
-        
+        cur.execute("SELECT pdf_filename FROM salaries WHERE id = %s AND org_id = %s", (salary_id, session['org_id']))
         salary = cur.fetchone()
-        
-        if not salary:
-            flash('Salary record not found', 'danger')
-            return redirect(url_for('view_salaries'))
-        
-        # Get organization details
-        cur.execute("""
-            SELECT company_name, company_address, company_phone, company_email, gst_number
-            FROM organization_master 
-            WHERE org_id = %s
-        """, (org_id,))
-        
-        org = cur.fetchone()
-        
-        if not org:
-            flash('Organization details not found', 'danger')
-            return redirect(url_for('view_salaries'))
-        
+        if salary and salary['pdf_filename']:
+            pdf_path = os.path.join(app.static_folder, 'salary_slips', salary['pdf_filename'])
+            if os.path.exists(pdf_path):
+                return send_file(pdf_path, as_attachment=True, download_name=f"SalarySlip_{salary_id}.pdf")
+            else:
+                flash('PDF file not found. It may still be generating.', 'warning')
+        else:
+            flash('Salary slip PDF is being generated. Please try again in a few moments.', 'info')
+    except Exception as e:
+        flash(f'Error: {str(e)}', 'danger')
+    finally:
         cur.close()
         conn.close()
-        
-        # Generate PDF with optimized margins for single page
-        buffer = BytesIO()
-        # ✅ REDUCED MARGINS: 20 instead of 30 for more space
-        doc = SimpleDocTemplate(buffer, pagesize=A4, leftMargin=20, rightMargin=20, topMargin=20, bottomMargin=20)
-        styles = getSampleStyleSheet()
-        
-        # Professional Color Scheme
-        primary_color = colors.HexColor('#1e3a8a')
-        secondary_color = colors.HexColor('#3b82f6')
-        accent_color = colors.HexColor('#f59e0b')
-        text_dark = colors.HexColor('#1f2937')
-        text_light = colors.HexColor('#6b7280')
-        bg_light = colors.HexColor('#f8fafc')
-        
-        # ✅ COMPACT STYLES: Reduced font sizes and spacing
-        company_name_style = ParagraphStyle(
-            'company_name',
-            parent=styles['Heading1'],
-            fontSize=18,  # ✅ Reduced from 24
-            textColor=primary_color,
-            fontName='Helvetica-Bold',
-            alignment=1,
-            spaceAfter=3  # ✅ Reduced from 5
-        )
-        
-        title_style = ParagraphStyle(
-            'title',
-            parent=styles['Heading2'],
-            fontSize=16,  # ✅ Reduced from 20
-            textColor=accent_color,
-            fontName='Helvetica-Bold',
-            alignment=1,
-            spaceAfter=10  # ✅ Reduced from 20
-        )
-        
-        section_header_style = ParagraphStyle(
-            'section_header',
-            parent=styles['Heading3'],
-            fontSize=12,  # ✅ Reduced from 14
-            textColor=primary_color,
-            fontName='Helvetica-Bold',
-            spaceBefore=8,  # ✅ Reduced from 15
-            spaceAfter=5,  # ✅ Reduced from 8
-            backColor=bg_light,
-            leftIndent=8,
-            rightIndent=8,
-            topPadding=5,  # ✅ Reduced from 8
-            bottomPadding=5
-        )
-        
-        normal_style = ParagraphStyle(
-            'normal',
-            parent=styles['Normal'],
-            fontSize=9,  # ✅ Reduced from 11
-            textColor=text_dark,
-            fontName='Helvetica',
-            spaceAfter=2  # ✅ Reduced from 4
-        )
-        
-        elements = []
-        
-        # ✅ COMPACT HEADER
-        elements.append(Paragraph(org['company_name'], company_name_style))
-        elements.append(Paragraph(org['company_address'], normal_style))
-        elements.append(Paragraph(f"Phone: {org['company_phone']}", normal_style))
-        elements.append(Paragraph(f"Email: {org['company_email']}", normal_style))
-        if org['gst_number']:
-            elements.append(Paragraph(f"GST: {org['gst_number']}", normal_style))
-        elements.append(Spacer(1, 10))  # ✅ Reduced from 20
-        
-        # Title
-        elements.append(Paragraph("SALARY SLIP", title_style))
-        elements.append(Spacer(1, 5))  # ✅ Reduced from 10
-        
-        # Salary Period
-        from datetime import datetime
-        month_year = salary['month_year']
-        month_name = datetime.strptime(month_year, '%Y-%m').strftime('%B %Y')
-        
-        period_data = [[f'For the month of: {month_name}']]
-        period_table = Table(period_data, colWidths=[515])  # ✅ Adjusted for smaller margins
-        period_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, -1), bg_light),
-            ('TEXTCOLOR', (0, 0), (-1, -1), primary_color),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, -1), 10),  # ✅ Reduced from 12
-            ('TOPPADDING', (0, 0), (-1, -1), 6),  # ✅ Reduced from 10
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-            ('BOX', (0, 0), (-1, -1), 1, primary_color),
-        ]))
-        elements.append(period_table)
-        elements.append(Spacer(1, 10))  # ✅ Reduced from 20
-        
-        # ✅ COMPACT EMPLOYEE DETAILS
-        elements.append(Paragraph("EMPLOYEE DETAILS", section_header_style))
-        emp_data = [
-            ['Employee Name:', salary['employee_name'], 'Employee ID:', str(salary['user_id'])],
-            ['Role:', salary['employee_role'], 'Project:', salary['project_name']],
-            ['Email:', salary['employee_email'] or 'N/A', 'Contact:', salary['employee_contact'] or 'N/A'],
-            ['Payment Mode:', salary['payment_mode'].upper(), '', '']
-        ]
-        
-        if salary['payment_mode'] == 'cheque' and salary['cheque_number']:
-            emp_data.append(['Cheque Number:', salary['cheque_number'], '', ''])
-        
-        emp_table = Table(emp_data, colWidths=[120, 150, 100, 145])  # ✅ Adjusted widths
-        emp_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, -1), bg_light),
-            ('TEXTCOLOR', (0, 0), (-1, -1), text_dark),
-            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-            ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, -1), 9),  # ✅ Reduced from 10
-            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e5e7eb')),
-            ('BOX', (0, 0), (-1, -1), 2, primary_color),
-            ('TOPPADDING', (0, 0), (-1, -1), 5),  # ✅ Reduced from 8
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-            ('LEFTPADDING', (0, 0), (-1, -1), 8),  # ✅ Reduced from 10
-        ]))
-        elements.append(emp_table)
-        elements.append(Spacer(1, 10))  # ✅ Reduced from 20
-        
-        # Salary Breakdown
-        elements.append(Paragraph("SALARY BREAKDOWN", section_header_style))
-        
-        # ✅ COMPACT EARNINGS TABLE
-        earnings_data = [
-            ['EARNINGS', 'AMOUNT (₹)'],
-            ['Basic Salary', f'{float(salary["base_salary"] or 0):,.2f}'],
-            ['Allowances', f'{float(salary["allowance"] or 0):,.2f}'],
-        ]
-        
-        earnings_table = Table(earnings_data, colWidths=[385, 130])  # ✅ Adjusted widths
-        earnings_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), primary_color),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 10),  # ✅ Reduced from 11
-            ('ALIGN', (0, 0), (0, -1), 'LEFT'),
-            ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
-            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-            ('FONTSIZE', (0, 1), (-1, -1), 9),  # ✅ Reduced from 10
-            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_light]),
-            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e5e7eb')),
-            ('BOX', (0, 0), (-1, -1), 2, primary_color),
-            ('TOPPADDING', (0, 0), (-1, -1), 5),  # ✅ Reduced from 8
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-            ('LEFTPADDING', (0, 0), (-1, -1), 8),  # ✅ Reduced from 10
-            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-        ]))
-        elements.append(earnings_table)
-        elements.append(Spacer(1, 8))  # ✅ Reduced from 15
-        
-        # ✅ COMPACT DEDUCTIONS TABLE
-        deductions_data = [
-            ['DEDUCTIONS', 'AMOUNT (₹)'],
-            ['PF Deduction', f'{float(salary["pf"] or 0):,.2f}'],
-            ['Advance Deduction', f'{float(salary["advance"] or 0):,.2f}'],
-            ['Other Deductions', f'{float(salary["other_deductions"] or 0):,.2f}'],
-        ]
-        
-        deductions_table = Table(deductions_data, colWidths=[385, 130])  # ✅ Adjusted widths
-        deductions_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#dc3545')),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 10),  # ✅ Reduced from 11
-            ('ALIGN', (0, 0), (0, -1), 'LEFT'),
-            ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
-            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-            ('FONTSIZE', (0, 1), (-1, -1), 9),  # ✅ Reduced from 10
-            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_light]),
-            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e5e7eb')),
-            ('BOX', (0, 0), (-1, -1), 2, colors.HexColor('#dc3545')),
-            ('TOPPADDING', (0, 0), (-1, -1), 5),  # ✅ Reduced from 8
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-            ('LEFTPADDING', (0, 0), (-1, -1), 8),  # ✅ Reduced from 10
-            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-        ]))
-        elements.append(deductions_table)
-        elements.append(Spacer(1, 10))  # ✅ Reduced from 20
-        
-        # ✅ COMPACT NET SALARY SUMMARY
-        gross_salary = float(salary['base_salary'] or 0) + float(salary['allowance'] or 0)
-        total_deductions = float(salary['pf'] or 0) + float(salary['advance'] or 0) + float(salary['other_deductions'] or 0)
-        net_salary = float(salary['net_salary'] or 0)
-        
-        summary_data = [
-            ['Gross Salary', f'₹{gross_salary:,.2f}'],
-            ['Total Deductions', f'₹{total_deductions:,.2f}'],
-            ['NET SALARY', f'₹{net_salary:,.2f}']
-        ]
-        
-        summary_table = Table(summary_data, colWidths=[385, 130])  # ✅ Adjusted widths
-        summary_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, -2), bg_light),
-            ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#059669')),
-            ('TEXTCOLOR', (0, 0), (-1, -2), text_dark),
-            ('TEXTCOLOR', (0, -1), (-1, -1), colors.white),
-            ('FONTNAME', (0, 0), (-1, -2), 'Helvetica'),
-            ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, -2), 10),  # ✅ Reduced from 11
-            ('FONTSIZE', (0, -1), (-1, -1), 12),  # ✅ Reduced from 14
-            ('ALIGN', (0, 0), (0, -1), 'LEFT'),
-            ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
-            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e5e7eb')),
-            ('BOX', (0, 0), (-1, -1), 2, primary_color),
-            ('TOPPADDING', (0, 0), (-1, -1), 8),  # ✅ Reduced from 10
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-            ('LEFTPADDING', (0, 0), (-1, -1), 8),  # ✅ Reduced from 10
-            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-        ]))
-        elements.append(summary_table)
-        # ✅ REMOVED EXTRA SPACER - elements.append(Spacer(1, 30))
-        
-        # Build PDF
-        doc.build(elements)
-        buffer.seek(0)
-        
-        # Generate filename
-        filename = f"SalarySlip_{salary['employee_name'].replace(' ', '_')}_{month_year}.pdf"
-        
-        return send_file(
-            buffer,
-            mimetype='application/pdf',
-            as_attachment=True,
-            download_name=filename
-        )
-        
-    except Exception as e:
-        if 'conn' in locals():
-            cur.close()
-            conn.close()
-        flash(f'Error generating salary slip: {str(e)}', 'danger')
-        return redirect(url_for('view_salaries'))
+    return redirect(request.referrer or url_for('view_salaries'))
+
+
+@app.route('/api/salary_slip_status/<int:salary_id>')
+def api_salary_slip_status(salary_id):
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    conn = get_connection()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
+    try:
+        cur.execute("SELECT pdf_filename FROM salaries WHERE id = %s AND org_id = %s", (salary_id, session['org_id']))
+        result = cur.fetchone()
+        if result and result['pdf_filename']:
+            return jsonify({'status': 'ready'})
+        else:
+            return jsonify({'status': 'processing'})
+    finally:
+        cur.close()
+        conn.close()
     
 
 @app.route('/download_salary_report', methods=['POST'])
 def download_salary_report():
-    """Generate salary disbursement report for selected month"""
+    """Start background generation of salary disbursement report and return task ID."""
     if 'role' not in session or session['role'] not in ['accountant', 'admin']:
         return jsonify({'success': False, 'error': 'Unauthorized'}), 403
-    
+
+    data = request.get_json()
+    month_year = data.get('month_year')
+    if not month_year:
+        return jsonify({'success': False, 'error': 'Month-year is required'}), 400
+
+    org_id = session['org_id']
+    user_id = session['user_id']
+
+    conn = get_connection()
+    cur = conn.cursor()
     try:
-        data = request.get_json()
-        month_year = data.get('month_year')
-        
-        if not month_year:
-            return jsonify({'success': False, 'error': 'Month-year is required'}), 400
-        
-        org_id = session['org_id']
-        
-        conn = get_connection()
-        cur = conn.cursor(pymysql.cursors.DictCursor)
-        
-        # Get organization details
+        # Insert task record
         cur.execute("""
-            SELECT company_name, company_address, company_phone, company_email, gst_number
-            FROM organization_master 
-            WHERE org_id = %s
-        """, (org_id,))
-        org = cur.fetchone()
-        
-        if not org:
-            cur.close()
-            conn.close()
-            return jsonify({'success': False, 'error': 'Organization not found'}), 404
-        
-        # Get all salaries for the month
-        cur.execute("""
-            SELECT s.*, 
-                   p.project_name, 
-                   r.name AS employee_name,
-                   r.role AS employee_role
-            FROM salaries s
-            JOIN projects p ON s.project_id = p.id
-            JOIN register r ON s.user_id = r.id
-            WHERE s.month_year = %s AND s.org_id = %s AND s.base_salary > 0
-            ORDER BY p.project_name, r.name
-        """, (month_year, org_id))
-        
-        salaries = cur.fetchall()
-        
-        if not salaries:
-            cur.close()
-            conn.close()
-            return jsonify({'success': False, 'error': 'No salary records found for the selected month'}), 404
-        
+            INSERT INTO salary_report_tasks (month_year, status, org_id, created_by)
+            VALUES (%s, 'pending', %s, %s)
+        """, (month_year, org_id, user_id))
+        task_id = cur.lastrowid
+        conn.commit()
+    finally:
         cur.close()
         conn.close()
-        
-        # Generate PDF
-        buffer = BytesIO()
-        doc = SimpleDocTemplate(buffer, pagesize=landscape(A4), 
-                               leftMargin=20, rightMargin=20, topMargin=20, bottomMargin=20)
-        styles = getSampleStyleSheet()
-        
-        # Professional Color Scheme
-        primary_color = colors.HexColor('#1e3a8a')
-        accent_color = colors.HexColor('#f59e0b')
-        text_dark = colors.HexColor('#1f2937')
-        text_light = colors.HexColor('#6b7280')
-        bg_light = colors.HexColor('#f8fafc')
-        
-        # Custom Styles
-        company_name_style = ParagraphStyle(
-            'company_name',
-            parent=styles['Heading1'],
-            fontSize=22,
-            textColor=primary_color,
-            fontName='Helvetica-Bold',
-            alignment=1,
-            spaceAfter=5
-        )
-        
-        title_style = ParagraphStyle(
-            'title',
-            parent=styles['Heading2'],
-            fontSize=18,
-            textColor=accent_color,
-            fontName='Helvetica-Bold',
-            alignment=1,
-            spaceAfter=15
-        )
-        
-        normal_style = ParagraphStyle(
-            'normal',
-            parent=styles['Normal'],
-            fontSize=9,
-            textColor=text_dark,
-            fontName='Helvetica',
-            spaceAfter=3
-        )
-        
-        elements = []
-        
-        # Header
-        elements.append(Paragraph(org['company_name'], company_name_style))
-        elements.append(Paragraph(org['company_address'], normal_style))
-        elements.append(Paragraph(f"Phone: {org['company_phone']} | Email: {org['company_email']}", normal_style))
-        if org['gst_number']:
-            elements.append(Paragraph(f"GST: {org['gst_number']}", normal_style))
-        elements.append(Spacer(1, 15))
-        
-        # Title
-        month_name = datetime.strptime(month_year, '%Y-%m').strftime('%B %Y')
-        elements.append(Paragraph(f"SALARY DISBURSEMENT REPORT - {month_name.upper()}", title_style))
-        elements.append(Spacer(1, 10))
-        
-        # Salary Table
-        table_data = [
-            ['S.No', 'Employee Name', 'Role', 'Project', 'Base Salary', 
-             'Allowance', 'PF', 'Advance', 'Other Ded.', 'Net Salary', 'Payment Mode']
-        ]
-        
-        total_base = 0
-        total_allowance = 0
-        total_pf = 0
-        total_advance = 0
-        total_other_ded = 0
-        total_net = 0
-        
-        for idx, s in enumerate(salaries, 1):
-            base_salary = float(s['base_salary'] or 0)
-            allowance = float(s['allowance'] or 0)
-            pf = float(s['pf'] or 0)
-            advance = float(s['advance'] or 0)
-            other_ded = float(s['other_deductions'] or 0)
-            net_salary = float(s['net_salary'] or 0)
-            
-            total_base += base_salary
-            total_allowance += allowance
-            total_pf += pf
-            total_advance += advance
-            total_other_ded += other_ded
-            total_net += net_salary
-            
-            table_data.append([
-                str(idx),
-                s['employee_name'][:20],  # Truncate long names
-                s['employee_role'][:15],
-                s['project_name'][:20],
-                f"₹{base_salary:,.2f}",
-                f"₹{allowance:,.2f}",
-                f"₹{pf:,.2f}",
-                f"₹{advance:,.2f}",
-                f"₹{other_ded:,.2f}",
-                f"₹{net_salary:,.2f}",
-                s['payment_mode'].upper()[:6]
-            ])
-        
-        # Add totals row
-        table_data.append([
-            '',
-            '',
-            '',
-            'TOTAL:',
-            f"₹{total_base:,.2f}",
-            f"₹{total_allowance:,.2f}",
-            f"₹{total_pf:,.2f}",
-            f"₹{total_advance:,.2f}",
-            f"₹{total_other_ded:,.2f}",
-            f"₹{total_net:,.2f}",
-            ''
-        ])
-        
-        # Create table
-        col_widths = [30, 80, 60, 80, 70, 60, 50, 55, 55, 75, 55]
-        salary_table = Table(table_data, colWidths=col_widths)
-        
-        # Table styling
-        table_style = TableStyle([
-            # Header row
-            ('BACKGROUND', (0, 0), (-1, 0), primary_color),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 9),
-            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
-            
-            # Data rows
-            ('FONTNAME', (0, 1), (-1, -2), 'Helvetica'),
-            ('FONTSIZE', (0, 1), (-1, -2), 8),
-            ('ALIGN', (0, 1), (0, -1), 'CENTER'),  # S.No center
-            ('ALIGN', (4, 1), (-2, -1), 'RIGHT'),  # Amount columns right
-            ('ALIGN', (-1, 1), (-1, -1), 'CENTER'),  # Payment mode center
-            
-            # Totals row
-            ('BACKGROUND', (0, -1), (-1, -1), bg_light),
-            ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, -1), (-1, -1), 9),
-            ('TEXTCOLOR', (0, -1), (-1, -1), primary_color),
-            
-            # Grid
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#e5e7eb')),
-            ('BOX', (0, 0), (-1, -1), 2, primary_color),
-            
-            # Padding
-            ('TOPPADDING', (0, 0), (-1, -1), 6),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-            ('LEFTPADDING', (0, 0), (-1, -1), 5),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 5),
-            
-            # Alternating row colors
-            ('ROWBACKGROUNDS', (0, 1), (-1, -2), [colors.white, bg_light]),
-        ])
-        
-        salary_table.setStyle(table_style)
-        elements.append(salary_table)
-        elements.append(Spacer(1, 20))
-        
-        # Summary
-        summary_text = f"<b>Total Employees:</b> {len(salaries)} | <b>Total Disbursement:</b> ₹{total_net:,.2f}"
-        summary_para = Paragraph(summary_text, ParagraphStyle(
-            'summary',
-            parent=styles['Normal'],
-            fontSize=11,
-            textColor=primary_color,
-            fontName='Helvetica-Bold',
-            alignment=1
-        ))
-        elements.append(summary_para)
-        elements.append(Spacer(1, 15))
-        
-        # Footer
-        footer_text = f"Generated on: {datetime.now().strftime('%d-%m-%Y %I:%M %p')}"
-        footer_para = Paragraph(footer_text, ParagraphStyle(
-            'footer',
-            parent=styles['Normal'],
-            fontSize=8,
-            textColor=text_light,
-            fontName='Helvetica-Oblique',
-            alignment=1
-        ))
-        elements.append(footer_para)
-        
-        # Build PDF
-        doc.build(elements)
-        buffer.seek(0)
-        
-        # Generate filename
-        filename = f"Salary_Disbursement_Report_{month_year}.pdf"
-        
-        return send_file(
-            buffer,
-            mimetype='application/pdf',
-            as_attachment=True,
-            download_name=filename
-        )
-        
-    except Exception as e:
-        if 'conn' in locals():
-            cur.close()
-            conn.close()
-        return jsonify({'success': False, 'error': str(e)}), 500
+
+    # Start background thread
+    thread = threading.Thread(
+        target=generate_salary_report_async,
+        args=(task_id, month_year, org_id, user_id)
+    )
+    thread.daemon = True
+    thread.start()
+
+    return jsonify({'success': True, 'task_id': task_id})
+
+@app.route('/api/salary_report_status/<int:task_id>')
+def api_salary_report_status(task_id):
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    conn = get_connection()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
+    try:
+        cur.execute("SELECT status, pdf_filename, error_message FROM salary_report_tasks WHERE id = %s AND org_id = %s",
+                    (task_id, session['org_id']))
+        task = cur.fetchone()
+        if not task:
+            return jsonify({'status': 'not_found'}), 404
+        return jsonify({
+            'status': task['status'],
+            'pdf_filename': task.get('pdf_filename'),
+            'error': task.get('error_message')
+        })
+    finally:
+        cur.close()
+        conn.close()
+
+@app.route('/download_salary_report_file/<int:task_id>')
+def download_salary_report_file(task_id):
+    if 'user_id' not in session:
+        abort(401)
+    conn = get_connection()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
+    try:
+        cur.execute("SELECT status, pdf_filename FROM salary_report_tasks WHERE id = %s AND org_id = %s",
+                    (task_id, session['org_id']))
+        task = cur.fetchone()
+        if task and task['status'] == 'completed' and task['pdf_filename']:
+            pdf_path = os.path.join(app.static_folder, 'salary_reports', task['pdf_filename'])
+            if os.path.exists(pdf_path):
+                return send_file(pdf_path, as_attachment=True, download_name=task['pdf_filename'])
+            else:
+                flash('Report file not found.', 'danger')
+        else:
+            flash('Report not ready or invalid.', 'warning')
+    finally:
+        cur.close()
+        conn.close()
+    return redirect(request.referrer or url_for('view_salaries'))
 
 
 @app.route('/api/get_compliance_data')
@@ -6831,8 +7352,10 @@ def site_engineer_expenses():
                         org_id=org_id,
                         notification_type='expense_submitted',
                         reference_id=expense_id,
-                        message=f'New expense ₹{amount} submitted for {project_name} by {session.get("name")}'
+                        message=f'New expense ₹{amount} submitted for {project_name} by {session.get("name")}',
+                        cur=cursor
                     )
+                conn.commit()
                 
                 flash('Expense added successfully.', 'success')
             else:
@@ -6982,7 +7505,8 @@ def admin_view_expenses():
                         org_id=org_id,
                         notification_type='expense_status',
                         reference_id=expense_id,
-                        message=notification_message
+                        message=notification_message,
+                        cur=cursor
                     )
 
                     # If approved, also notify accountants assigned to this project
@@ -7001,8 +7525,10 @@ def admin_view_expenses():
                                 org_id=org_id,
                                 notification_type='expense_approved',
                                 reference_id=expense_id,
-                                message=f'Expense ₹{expense_data["amount"]} approved for {expense_data["project_name"]}'
+                                message=f'Expense ₹{expense_data["amount"]} approved for {expense_data["project_name"]}',
+                                cur=cursor
                             )
+                    conn.commit()
 
             flash(f'Expense {action.lower()} successfully.', 'success')
             return redirect(url_for('admin_view_expenses'))
@@ -7528,7 +8054,7 @@ def bills_and_payments():
             conn = get_connection()
             cur  = conn.cursor(pymysql.cursors.DictCursor)
 
-            # ── Insert bill ──
+            # ── Insert bill (without pdf_filename initially) ──
             cur.execute("""
                 INSERT INTO bills_and_payments (
                     bill_no, bill_date, bill_type, bill_file_path, bill_file_type,
@@ -7564,6 +8090,15 @@ def bills_and_payments():
             # ── Commit bill insert ──
             conn.commit()
 
+            # 🔥 START BACKGROUND PDF GENERATION FOR BILL
+            import threading
+            thread = threading.Thread(
+                target=generate_bill_pdf_async,
+                args=(bill_id, org_id)
+            )
+            thread.daemon = True
+            thread.start()
+
             # ── Notifications after successful commit ──
             # Use fresh cursor after commit
             cur.close()
@@ -7587,7 +8122,8 @@ def bills_and_payments():
                             org_id=org_id,
                             notification_type='bill_added',
                             reference_id=bill_id,
-                            message=notification_message
+                            message=notification_message,
+                            cur=cur
                         )
                 elif role == 'accountant':
                     # Accountant added bill → notify all admins
@@ -7602,13 +8138,15 @@ def bills_and_payments():
                             org_id=org_id,
                             notification_type='bill_added',
                             reference_id=bill_id,
-                            message=notification_message
+                            message=notification_message,
+                            cur=cur
                         )
+                conn.commit()
             except Exception as notif_err:
                 # Notification failure should NOT rollback the bill that was already saved
                 print(f"Warning: Notification failed after bill commit: {notif_err}")
 
-            flash('Bill added successfully!', 'success')
+            flash('Bill added successfully! Bill PDF will be generated in the background.', 'success')
             return redirect(url_for('bills_and_payments', tab='history'))
 
         except Exception as e:
@@ -7691,334 +8229,49 @@ def bills_and_payments():
         if conn:
             conn.close()
 
-
 # ── Route: Download Bill as PDF ──────────────────────────────
 @app.route('/download_bill_pdf/<int:bill_id>')
 def download_bill_pdf(bill_id):
-    """Generate and download a professional PDF for a bill."""
+    """Serve pre-generated bill PDF, or show message if not ready."""
     if 'role' not in session or session['role'] not in ['admin', 'accountant']:
         return redirect(url_for('login'))
 
-    org_id = session['org_id']
-    conn   = get_connection()
-    cur    = conn.cursor(pymysql.cursors.DictCursor)
-
+    conn = get_connection()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
     try:
-        cur.execute("""
-            SELECT bp.*, r.name AS created_by_name,
-                   om.company_name, om.company_address
-            FROM bills_and_payments bp
-            JOIN register r ON bp.created_by = r.id
-            LEFT JOIN organization_master om ON bp.org_id = om.org_id
-            WHERE bp.id = %s AND bp.org_id = %s
-        """, (bill_id, org_id))
+        cur.execute("SELECT pdf_filename FROM bills_and_payments WHERE id = %s AND org_id = %s", (bill_id, session['org_id']))
         bill = cur.fetchone()
+        if bill and bill['pdf_filename']:
+            pdf_path = os.path.join(app.static_folder, 'bill_pdfs', bill['pdf_filename'])
+            if os.path.exists(pdf_path):
+                return send_file(pdf_path, as_attachment=True, download_name=bill['pdf_filename'])
+            else:
+                flash('PDF file not found. It may still be generating.', 'warning')
+        else:
+            flash('Bill PDF is being generated. Please try again in a few moments.', 'info')
+    except Exception as e:
+        flash(f'Error: {str(e)}', 'danger')
+    finally:
         cur.close()
         conn.close()
+    return redirect(request.referrer or url_for('bills_and_payments', tab='history'))
 
-        if not bill:
-            flash('Bill not found.', 'danger')
-            return redirect(url_for('bills_and_payments', tab='history'))
-
-        # ─── Build PDF ───────────────────────────────────────
-        buffer = BytesIO()
-        doc    = SimpleDocTemplate(
-            buffer, pagesize=A4,
-            leftMargin=20*mm, rightMargin=20*mm,
-            topMargin=15*mm, bottomMargin=15*mm
-        )
-        styles = getSampleStyleSheet()
-        W = 170 * mm  # usable page width
-
-        # ── Unified Professional Color Palette ──────────────
-        # ONE primary navy used everywhere for headers/labels
-        C_PRIMARY    = colors.HexColor('#1e3a8a')   # navy  – all section headers & label cols
-        C_PRIMARY_LT = colors.HexColor('#2d4fa3')   # slightly lighter navy – sub-headers
-        C_ROW_ALT    = colors.HexColor('#eef2ff')   # very light indigo – alternate rows
-        C_ROW_WHITE  = colors.white                  # white rows
-        C_BORDER     = colors.HexColor('#c7d2fe')   # indigo-tinted border
-        C_LABEL_BG   = colors.HexColor('#dbe4ff')   # label cell background (info grid)
-        C_TEXT       = colors.HexColor('#1e293b')   # near-black body text
-        C_GREY       = colors.HexColor('#64748b')   # muted grey for address / footer
-        C_GREEN      = colors.HexColor('#059669')   # net payable / paid
-        C_RED        = colors.HexColor('#dc2626')   # unpaid
-        C_SUBTOTAL   = colors.HexColor('#1e4d8c')   # subtotal highlight row (same family)
-
-        # Bill-type accent – same navy family, varying shade
-        BT_COLOR = {
-            'Advance Bill':        colors.HexColor('#1e3a8a'),
-            'Running Account Bill':colors.HexColor('#1d4ed8'),
-            'Final Bill':          colors.HexColor('#1e40af'),
-        }.get(bill['bill_type'], C_PRIMARY)
-
-        # ── Reusable padding shorthand ──
-        PAD = [
-            ('TOPPADDING',    (0,0),(-1,-1), 7),
-            ('BOTTOMPADDING', (0,0),(-1,-1), 7),
-            ('LEFTPADDING',   (0,0),(-1,-1), 9),
-            ('RIGHTPADDING',  (0,0),(-1,-1), 9),
-        ]
-
-        # ── Helper: section header bar ──
-        def sec_hdr(title):
-            t = Table([[title]], colWidths=[W])
-            t.setStyle(TableStyle([
-                ('BACKGROUND',    (0,0),(-1,-1), C_PRIMARY),
-                ('TEXTCOLOR',     (0,0),(-1,-1), colors.white),
-                ('FONTNAME',      (0,0),(-1,-1), 'Helvetica-Bold'),
-                ('FONTSIZE',      (0,0),(-1,-1), 10),
-                ('ALIGN',         (0,0),(-1,-1), 'LEFT'),
-                ('TOPPADDING',    (0,0),(-1,-1), 7),
-                ('BOTTOMPADDING', (0,0),(-1,-1), 7),
-                ('LEFTPADDING',   (0,0),(-1,-1), 10),
-            ]))
-            return t
-
-        # ── Helper: two-column key-value table ──
-        def kv_table(data, col_w):
-            """Label col uses C_LABEL_BG, value col alternates white/C_ROW_ALT."""
-            t = Table(data, colWidths=col_w)
-            style = [
-                ('FONTNAME',      (0,0),(0,-1),  'Helvetica-Bold'),
-                ('FONTNAME',      (1,0),(1,-1),  'Helvetica'),
-                ('FONTSIZE',      (0,0),(-1,-1), 9),
-                ('TEXTCOLOR',     (0,0),(-1,-1), C_TEXT),
-                ('BACKGROUND',    (0,0),(0,-1),  C_LABEL_BG),
-                ('GRID',          (0,0),(-1,-1), 0.5, C_BORDER),
-                ('VALIGN',        (0,0),(-1,-1), 'MIDDLE'),
-            ] + PAD
-            # alternate value rows
-            for i in range(len(data)):
-                bg = C_ROW_WHITE if i % 2 == 0 else C_ROW_ALT
-                style.append(('BACKGROUND', (1,i),(1,i), bg))
-            t.setStyle(TableStyle(style))
-            return t
-
-        # ── Helper: financial table with col-header row ──
-        def fin_table(data, col_w, subtotal_row=None):
-            t = Table(data, colWidths=col_w)
-            style = [
-                # Header row
-                ('BACKGROUND',    (0,0),(-1,0),  C_PRIMARY),
-                ('TEXTCOLOR',     (0,0),(-1,0),  colors.white),
-                ('FONTNAME',      (0,0),(-1,0),  'Helvetica-Bold'),
-                ('FONTSIZE',      (0,0),(-1,0),  9),
-                # Body
-                ('FONTNAME',      (0,1),(-1,-1), 'Helvetica'),
-                ('FONTSIZE',      (0,1),(-1,-1), 9),
-                ('TEXTCOLOR',     (0,1),(-1,-1), C_TEXT),
-                ('ALIGN',         (1,0),(1,-1),  'RIGHT'),
-                ('GRID',          (0,0),(-1,-1), 0.5, C_BORDER),
-                ('VALIGN',        (0,0),(-1,-1), 'MIDDLE'),
-            ] + PAD
-            # alternate body rows
-            for i in range(1, len(data)):
-                bg = C_ROW_WHITE if i % 2 == 1 else C_ROW_ALT
-                style.append(('BACKGROUND', (0,i),(-1,i), bg))
-            # subtotal highlight
-            if subtotal_row is not None:
-                style += [
-                    ('BACKGROUND', (0,subtotal_row),(-1,subtotal_row), C_SUBTOTAL),
-                    ('TEXTCOLOR',  (0,subtotal_row),(-1,subtotal_row), colors.white),
-                    ('FONTNAME',   (0,subtotal_row),(-1,subtotal_row), 'Helvetica-Bold'),
-                ]
-            t.setStyle(TableStyle(style))
-            return t
-
-        elems = []
-
-        # ════════════════════════════════════════════════════
-        # HEADER  –  company name + address, clean & aligned
-        # ════════════════════════════════════════════════════
-        company_name    = bill.get('company_name') or 'Company Name'
-        company_address = bill.get('company_address') or ''
-
-        s_name = ParagraphStyle('cn', parent=styles['Normal'],
-                                 fontSize=22, textColor=C_PRIMARY,
-                                 fontName='Helvetica-Bold', alignment=1,
-                                 spaceBefore=0, spaceAfter=3)
-        s_addr = ParagraphStyle('ca', parent=styles['Normal'],
-                                 fontSize=9,  textColor=C_GREY,
-                                 fontName='Helvetica', alignment=1,
-                                 spaceBefore=0, spaceAfter=0)
-
-        hdr_data = [[Paragraph(company_name, s_name)],
-                    [Paragraph(company_address, s_addr)]]
-        hdr_tbl  = Table(hdr_data, colWidths=[W])
-        hdr_tbl.setStyle(TableStyle([
-            ('ALIGN',         (0,0),(-1,-1), 'CENTER'),
-            ('VALIGN',        (0,0),(-1,-1), 'MIDDLE'),
-            ('TOPPADDING',    (0,0),(-1,-1), 5),
-            ('BOTTOMPADDING', (0,0),(-1,-1), 5),
-            ('LEFTPADDING',   (0,0),(-1,-1), 0),
-            ('RIGHTPADDING',  (0,0),(-1,-1), 0),
-            ('LINEBELOW',     (0,1),(-1,1),  1.5, C_PRIMARY),   # underline below address
-        ]))
-        elems.append(hdr_tbl)
-        elems.append(Spacer(1, 5*mm))
-
-        # ════════════════════════════════════════════════════
-        # TITLE BAR
-        # ════════════════════════════════════════════════════
-        title_tbl = Table([['BILL & PAYMENT DETAILS']], colWidths=[W])
-        title_tbl.setStyle(TableStyle([
-            ('BACKGROUND',    (0,0),(-1,-1), C_PRIMARY),
-            ('TEXTCOLOR',     (0,0),(-1,-1), colors.white),
-            ('FONTNAME',      (0,0),(-1,-1), 'Helvetica-Bold'),
-            ('FONTSIZE',      (0,0),(-1,-1), 14),
-            ('ALIGN',         (0,0),(-1,-1), 'CENTER'),
-            ('TOPPADDING',    (0,0),(-1,-1), 11),
-            ('BOTTOMPADDING', (0,0),(-1,-1), 11),
-        ]))
-        elems.append(title_tbl)
-        elems.append(Spacer(1, 2*mm))
-
-        # ════════════════════════════════════════════════════
-        # BILL TYPE BANNER  (navy shade variant)
-        # ════════════════════════════════════════════════════
-        bt_tbl = Table([[bill['bill_type']]], colWidths=[W])
-        bt_tbl.setStyle(TableStyle([
-            ('BACKGROUND',    (0,0),(-1,-1), BT_COLOR),
-            ('TEXTCOLOR',     (0,0),(-1,-1), colors.white),
-            ('FONTNAME',      (0,0),(-1,-1), 'Helvetica-Bold'),
-            ('FONTSIZE',      (0,0),(-1,-1), 11),
-            ('ALIGN',         (0,0),(-1,-1), 'CENTER'),
-            ('TOPPADDING',    (0,0),(-1,-1), 7),
-            ('BOTTOMPADDING', (0,0),(-1,-1), 7),
-        ]))
-        elems.append(bt_tbl)
-        elems.append(Spacer(1, 4*mm))
-
-        # ════════════════════════════════════════════════════
-        # BILL & WORK ORDER INFO  (4-column grid)
-        # ════════════════════════════════════════════════════
-        c1, c2, c3, c4 = W*0.22, W*0.28, W*0.22, W*0.28
-        info_data = [
-            ['Bill No',       bill['bill_no'],
-             'Bill Date',     bill['bill_date'].strftime('%d-%m-%Y')],
-            ['Work Order No', bill['work_order_number'],
-             'Work Order Date', bill['work_order_date'].strftime('%d-%m-%Y')],
-        ]
-        info_tbl = Table(info_data, colWidths=[c1, c2, c3, c4])
-        info_tbl.setStyle(TableStyle([
-            ('BACKGROUND',    (0,0),(0,-1),  C_LABEL_BG),   # col 0 label
-            ('BACKGROUND',    (2,0),(2,-1),  C_LABEL_BG),   # col 2 label
-            ('BACKGROUND',    (1,0),(1,-1),  C_ROW_WHITE),
-            ('BACKGROUND',    (3,0),(3,-1),  C_ROW_ALT),
-            ('FONTNAME',      (0,0),(0,-1),  'Helvetica-Bold'),
-            ('FONTNAME',      (2,0),(2,-1),  'Helvetica-Bold'),
-            ('FONTNAME',      (1,0),(1,-1),  'Helvetica'),
-            ('FONTNAME',      (3,0),(3,-1),  'Helvetica'),
-            ('FONTSIZE',      (0,0),(-1,-1), 9),
-            ('TEXTCOLOR',     (0,0),(-1,-1), C_TEXT),
-            ('GRID',          (0,0),(-1,-1), 0.5, C_BORDER),
-            ('VALIGN',        (0,0),(-1,-1), 'MIDDLE'),
-        ] + PAD))
-        elems.append(info_tbl)
-        elems.append(Spacer(1, 2*mm))
-
-        # ════════════════════════════════════════════════════
-        # WORK DETAILS
-        # ════════════════════════════════════════════════════
-        work_data = [
-            ['Work Name',     bill['work_name']],
-            ['Tender Name',   bill.get('tender_name') or 'N/A'],
-            ['Tender Number', bill.get('tender_number') or 'N/A'],
-        ]
-        elems.append(kv_table(work_data, [W*0.30, W*0.70]))
-        elems.append(Spacer(1, 4*mm))
-
-        # ════════════════════════════════════════════════════
-        # AMOUNT DETAILS
-        # ════════════════════════════════════════════════════
-        elems.append(sec_hdr('AMOUNT DETAILS'))
-        elems.append(Spacer(1, 1*mm))
-
-        amt_data = [
-            ['Description',           'Amount (₹)'],
-            ['Advance Amount',         f"₹{float(bill['advance_amount']):,.2f}"],
-            ['Running Account Amount', f"₹{float(bill['running_account_amount']):,.2f}"],
-            ['Final Amount',           f"₹{float(bill['final_amount']):,.2f}"],
-        ]
-        elems.append(fin_table(amt_data, [W*0.70, W*0.30]))
-        elems.append(Spacer(1, 4*mm))
-
-        # ════════════════════════════════════════════════════
-        # FINANCIAL BREAKDOWN
-        # ════════════════════════════════════════════════════
-        elems.append(sec_hdr('FINANCIAL BREAKDOWN'))
-        elems.append(Spacer(1, 1*mm))
-
-        subtotal = float(bill['gross_amount']) + float(bill['gst_amount'])
-        fin_data = [
-            ['Description',                    'Amount (₹)'],
-            ['Gross Amount',                    f"₹{float(bill['gross_amount']):,.2f}"],
-            [f"(+) GST @ {float(bill['gst_percentage'])}%", f"₹{float(bill['gst_amount']):,.2f}"],
-            ['Sub Total',                       f"₹{subtotal:,.2f}"],
-            ['(−) Security Deposit',            f"₹{float(bill['security_deposit']):,.2f}"],
-            ['(−) Labour Charges (1.1%)',        f"₹{float(bill['labour_charges']):,.2f}"],
-        ]
-        elems.append(fin_table(fin_data, [W*0.70, W*0.30], subtotal_row=3))
-        elems.append(Spacer(1, 2*mm))
-
-        # ════════════════════════════════════════════════════
-        # NET PAYABLE AMOUNT
-        # ════════════════════════════════════════════════════
-        net_tbl = Table([['NET PAYABLE AMOUNT', f"₹{float(bill['net_amount']):,.2f}"]],
-                         colWidths=[W*0.70, W*0.30])
-        net_tbl.setStyle(TableStyle([
-            ('BACKGROUND',    (0,0),(-1,-1), C_GREEN),
-            ('TEXTCOLOR',     (0,0),(-1,-1), colors.white),
-            ('FONTNAME',      (0,0),(-1,-1), 'Helvetica-Bold'),
-            ('FONTSIZE',      (0,0),(-1,-1), 13),
-            ('ALIGN',         (1,0),(1,-1),  'RIGHT'),
-            ('TOPPADDING',    (0,0),(-1,-1), 11),
-            ('BOTTOMPADDING', (0,0),(-1,-1), 11),
-            ('LEFTPADDING',   (0,0),(-1,-1), 10),
-            ('RIGHTPADDING',  (0,0),(-1,-1), 10),
-        ]))
-        elems.append(net_tbl)
-        elems.append(Spacer(1, 3*mm))
-
-        # ════════════════════════════════════════════════════
-        # PAYMENT STATUS BANNER
-        # ════════════════════════════════════════════════════
-        status_color = C_GREEN if bill['payment_status'] == 'Paid' else C_RED
-        status_text  = 'PAID' if bill['payment_status'] == 'Paid' else 'UNPAID'
-        st_tbl = Table([[f"Payment Status :  {status_text}"]], colWidths=[W])
-        st_tbl.setStyle(TableStyle([
-            ('BACKGROUND',    (0,0),(-1,-1), status_color),
-            ('TEXTCOLOR',     (0,0),(-1,-1), colors.white),
-            ('FONTNAME',      (0,0),(-1,-1), 'Helvetica-Bold'),
-            ('FONTSIZE',      (0,0),(-1,-1), 11),
-            ('ALIGN',         (0,0),(-1,-1), 'CENTER'),
-            ('TOPPADDING',    (0,0),(-1,-1), 9),
-            ('BOTTOMPADDING', (0,0),(-1,-1), 9),
-        ]))
-        elems.append(st_tbl)
-        elems.append(Spacer(1, 5*mm))
-
-        # Footer
-        footer_txt = (f"Created by: {bill['created_by_name']} ({bill['created_by_role'].title()})   |   "
-                      f"Generated: {datetime.now().strftime('%d-%m-%Y %I:%M %p')}")
-        elems.append(Paragraph(footer_txt,
-            ParagraphStyle('ft', parent=styles['Normal'],
-                           fontSize=8, textColor=C_GREY, alignment=1)))
-
-        doc.build(elems)
-        buffer.seek(0)
-
-        safe_no  = bill['bill_no'].replace('/', '_').replace(' ', '_')
-        filename = f"Bill_{safe_no}.pdf"
-
-        return send_file(buffer, mimetype='application/pdf',
-                         as_attachment=True, download_name=filename)
-
-    except Exception as e:
-        if 'cur' in locals(): cur.close()
-        if 'conn' in locals(): conn.close()
-        flash(f'Error generating PDF: {str(e)}', 'danger')
-        return redirect(url_for('bills_and_payments', tab='history'))
+@app.route('/api/bill_pdf_status/<int:bill_id>')
+def api_bill_pdf_status(bill_id):
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    conn = get_connection()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
+    try:
+        cur.execute("SELECT pdf_filename FROM bills_and_payments WHERE id = %s AND org_id = %s", (bill_id, session['org_id']))
+        result = cur.fetchone()
+        if result and result['pdf_filename']:
+            return jsonify({'status': 'ready'})
+        else:
+            return jsonify({'status': 'processing'})
+    finally:
+        cur.close()
+        conn.close()
     
 @app.route('/api/get_accountant_projects/<int:accountant_id>')
 def get_accountant_projects(accountant_id):
@@ -8059,4 +8312,4 @@ def get_accountant_projects(accountant_id):
 
 
 if __name__ == "__main__":
-    app.run(debug=False)
+    app.run(host="0.0.0.0", port=5001)
