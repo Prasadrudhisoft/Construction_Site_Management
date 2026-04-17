@@ -3963,11 +3963,13 @@ def generate_cost_estimation_pdf():
         thread.daemon = True
         thread.start()
 
-        return jsonify({'success': True, 'project_id': project_id})
+        flash("Cost estimation saved. PDF is being generated.", "success")
+        return redirect(url_for('architect_dashboard', project_id=project_id, tab='cost'))
 
     except Exception as e:
         print("Error in generate_cost_estimation_pdf:", e)
-        return jsonify({'success': False, 'error': str(e)}), 500
+        flash(f"Error saving cost estimation: {str(e)}", "error")
+        return redirect(url_for('architect_dashboard'))
     
 @app.route('/api/cost_estimation_status/<int:project_id>')
 def api_cost_estimation_status(project_id):
