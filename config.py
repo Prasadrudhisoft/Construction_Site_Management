@@ -14,7 +14,7 @@ USER = os.environ.get("DB_USER")
 ############################### CONNECTION POOL ###############################
 pool = PooledDB(
     creator=pymysql,
-    maxconnections=50,     # max total connections (important for 100 req/sec)
+    maxconnections=80,     # max total connections (important for 100 req/sec)
     mincached=2,           # initial idle connections
     maxcached=5,           # max idle connections
     blocking=True,          # wait if no connection available

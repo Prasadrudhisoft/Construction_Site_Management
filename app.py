@@ -51,6 +51,7 @@ def generate_invoice_pdf_async(invoice_id, org_id, invoice_number, project_name,
     from reportlab.lib.pagesizes import A4
     from io import BytesIO
     import os
+    from datetime import datetime  # Add this import
 
     conn = get_connection()
     cur = conn.cursor(pymysql.cursors.DictCursor)
@@ -75,7 +76,21 @@ def generate_invoice_pdf_async(invoice_id, org_id, invoice_number, project_name,
         gst_amount = float(invoice['gst_amount'])
         grand_total = float(invoice['total_amount'])
         gst_percentage = (gst_amount / subtotal * 100) if subtotal > 0 else 0
-        invoice_date = invoice['generated_on'].strftime('%Y-%m-%d') if invoice['generated_on'] else ''
+        
+        # ✅ FIXED: Handle both string and datetime for generated_on
+        if invoice['generated_on']:
+            if isinstance(invoice['generated_on'], str):
+                # If it's a string, try to parse it or just use as is
+                try:
+                    invoice_date = datetime.strptime(invoice['generated_on'], '%Y-%m-%d').strftime('%Y-%m-%d')
+                except:
+                    # If parsing fails, just use the string as is (assuming it's already in correct format)
+                    invoice_date = invoice['generated_on'][:10] if len(invoice['generated_on']) >= 10 else invoice['generated_on']
+            else:
+                # It's a datetime object, use strftime
+                invoice_date = invoice['generated_on'].strftime('%Y-%m-%d')
+        else:
+            invoice_date = ''
 
         # ========== PDF GENERATION (exact copy from original route) ==========
         buffer = BytesIO()
@@ -209,6 +224,9 @@ def generate_invoice_pdf_async(invoice_id, org_id, invoice_number, project_name,
         elements.append(invoice_details_table)
         elements.append(Spacer(1, 20))
 
+        # The rest of your PDF generation code continues here...
+        # (Keep all the remaining code from line 97 onwards exactly as it is)
+        
         # Bill To Section with Enhanced Design
         elements.append(Paragraph("BILL TO", section_header_style))
         bill_to_data = [
@@ -400,6 +418,8 @@ def generate_invoice_pdf_async(invoice_id, org_id, invoice_number, project_name,
 
     except Exception as e:
         print(f"Background PDF generation failed for invoice {invoice_id}: {e}")
+        import traceback
+        traceback.print_exc()
         if conn:
             conn.rollback()
     finally:
