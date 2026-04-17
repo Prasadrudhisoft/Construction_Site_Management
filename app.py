@@ -5535,8 +5535,8 @@ def site_engineer_invoices():
 
         # Single query: invoices + their items via LEFT JOIN
         cursor.execute("""
-            SELECT 
-                i.id, i.invoice_number, i.generated_on, i.total_amount, 
+            SELECT
+                i.id, i.invoice_number, i.generated_on, i.total_amount,
                 i.status, i.rejection_reason, i.pdf_filename,
                 it.id AS item_id, it.description, it.quantity, it.rate, it.subtotal
             FROM invoices i
@@ -5552,11 +5552,13 @@ def site_engineer_invoices():
         for row in rows:
             inv_id = row['id']
             if inv_id not in invoices_dict:
-                # Copy invoice fields (convert date to string for template)
+                # FIX: Keep generated_on as a datetime object (not converted to string).
+                # The template calls {{ invoice.generated_on.strftime('%Y-%m-%d') }}
+                # which requires a datetime object, NOT a string.
                 invoices_dict[inv_id] = {
                     'id': inv_id,
                     'invoice_number': row['invoice_number'],
-                    'generated_on': row['generated_on'].strftime('%Y-%m-%d') if row['generated_on'] else None,
+                    'generated_on': row['generated_on'],   # <-- datetime object kept as-is
                     'total_amount': float(row['total_amount']),
                     'status': row['status'],
                     'rejection_reason': row['rejection_reason'],
@@ -5584,6 +5586,7 @@ def site_engineer_invoices():
             conn.close()
 
     return render_template('site_engineer_invoices.html', invoices=invoices)
+
 # @app.route('/admin/edit_invoice/<int:invoice_id>', methods=['GET', 'POST'])
 # def admin_edit_invoice(invoice_id):
 #     if session.get('role') != 'admin':
