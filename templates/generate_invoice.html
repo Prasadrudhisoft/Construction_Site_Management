@@ -81,13 +81,14 @@
         }
 
         .navbar-container {
-            max-width: 1200px;
+            max-width: 100%;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
             width: 100%;
             padding: 0 20px;
+            padding: 0 40px;
             height: 70px;
         }
 
@@ -601,6 +602,7 @@
             document.getElementById('grand_total').value = grandTotal.toFixed(2);
             document.getElementById('total_amount').value = grandTotal.toFixed(2);
         }
+
         // Set current date as default
         document.addEventListener('DOMContentLoaded', function () {
             const today = new Date().toISOString().split('T')[0];
@@ -617,36 +619,6 @@
             });
         });
 
-        // // Form validation
-        // document.getElementById('invoiceForm').addEventListener('submit', function (e) {
-        //     // Phone validation
-        //     const phone = document.getElementById('bill_to_phone').value;
-        //     if (phone && !/^[0-9]{10}$/.test(phone)) {
-        //         e.preventDefault();
-        //         alert('Please enter a valid 10-digit phone number.');
-        //         document.getElementById('bill_to_phone').focus();
-        //         return;
-        //     }
-
-        //     const lineItems = document.querySelectorAll('.line-item-row');
-        //     let hasValidItem = false;
-
-        //     lineItems.forEach(item => {
-        //         const desc = item.querySelector('input[name="description[]"]').value.trim();
-        //         const qty = item.querySelector('input[name="quantity[]"]').value;
-        //         const rate = item.querySelector('input[name="rate[]"]').value;
-
-        //         if (desc && qty && rate) {
-        //             hasValidItem = true;
-        //         }
-        //     });
-
-        //     if (!hasValidItem) {
-        //         e.preventDefault();
-        //         alert('Please add at least one valid line item with description, quantity, and rate.');
-        //     }
-        // });
-
         // Mobile menu toggle
         document.getElementById('mobileMenuToggle').addEventListener('click', function () {
             const navbarNav = document.getElementById('navbarNav');
@@ -660,7 +632,7 @@
                 icon.classList.add('fa-bars');
             }
         });
-        // Close mobile menu when clicking on a link
+
         // Close mobile menu when clicking on a link
         document.querySelectorAll('.navbar-link').forEach(link => {
             link.addEventListener('click', function () {
@@ -739,14 +711,71 @@
     </script>
     {% endif %}
 
+    <!-- Success Toast -->
+    <div id="successToast" style="
+        display: none;
+        position: fixed;
+        top: 90px;
+        right: 24px;
+        z-index: 9999;
+        background: #059669;
+        color: white;
+        padding: 18px 28px;
+        border-radius: 10px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+        font-size: 1rem;
+        font-weight: 500;
+        min-width: 280px;
+        align-items: center;
+        gap: 12px;
+    ">
+        <i class="fas fa-check-circle" style="font-size:1.4rem;"></i>
+        <span id="successToastMsg">Invoice PDF generated successfully!</span>
+    </div>
+
     <script>
+        function showSuccessToast(message) {
+            const toast = document.getElementById('successToast');
+            document.getElementById('successToastMsg').textContent = message;
+            toast.style.display = 'flex';
+            setTimeout(function() { toast.style.display = 'none'; }, 3000);
+        }
+
+        function pollPdfStatus(invoiceId, redirectUrl, attempts) {
+            attempts = attempts || 0;
+            // Max 30 attempts (~60 seconds), then redirect anyway
+            if (attempts > 30) {
+                showSuccessToast('Invoice created! PDF is being generated in background.');
+                setTimeout(function() { window.location.href = redirectUrl; }, 2500);
+                return;
+            }
+            fetch('/api/invoice_pdf_status/' + invoiceId)
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data.status === 'ready') {
+                        showSuccessToast('Invoice PDF generated successfully!');
+                        setTimeout(function() { window.location.href = redirectUrl; }, 2500);
+                    } else {
+                        setTimeout(function() {
+                            pollPdfStatus(invoiceId, redirectUrl, attempts + 1);
+                        }, 2000);
+                    }
+                })
+                .catch(function() {
+                    window.location.href = redirectUrl;
+                });
+        }
+
         function submitInvoiceForm() {
+            // Phone validation
             const phone = document.getElementById('bill_to_phone').value;
             if (phone && !/^[0-9]{10}$/.test(phone)) {
                 alert('Please enter a valid 10-digit phone number.');
                 document.getElementById('bill_to_phone').focus();
                 return;
             }
+
+            // Line item validation
             const lineItems = document.querySelectorAll('.line-item-row');
             let hasValidItem = false;
             lineItems.forEach(item => {
@@ -759,41 +788,70 @@
                 alert('Please add at least one valid line item with description, quantity, and rate.');
                 return;
             }
+
             const form = document.getElementById('invoiceForm');
             const formData = new FormData(form);
             const btn = document.getElementById('generateBtn');
             btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Generating...';
             btn.disabled = true;
+
             fetch(window.location.href, {
                 method: 'POST',
                 body: formData
             })
-                .then(response => {
-                    if (!response.ok) throw new Error('Generation failed');
-                    const disposition = response.headers.get('Content-Disposition');
-                    let filename = 'invoice.pdf';
-                    if (disposition && disposition.includes('filename=')) {
-                        filename = disposition.split('filename=')[1].replace(/"/g, '').trim();
-                    }
-                    return response.blob().then(blob => ({ blob, filename }));
-                })
-                .then(({ blob, filename }) => {
-                    const blobUrl = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = blobUrl;
-                    a.download = filename;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(blobUrl);
-                    btn.innerHTML = '<i class="fas fa-save me-2"></i>Generate Invoice';
-                    btn.disabled = false;
-                })
-                .catch(err => {
-                    alert('Error: ' + err.message);
-                    btn.innerHTML = '<i class="fas fa-save me-2"></i>Generate Invoice';
-                    btn.disabled = false;
-                });
+            .then(function(response) {
+                const contentType = response.headers.get('Content-Type') || '';
+
+                if (contentType.includes('text/html')) {
+                    return response.text().then(function() {
+                        const finalUrl = response.url || '';
+
+                        if (finalUrl && finalUrl !== window.location.href) {
+                            try {
+                                const urlParams = new URLSearchParams(new URL(finalUrl).search);
+                                const invoiceId = urlParams.get('new_invoice_id');
+                                if (invoiceId) {
+                                    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Waiting for PDF...';
+                                    pollPdfStatus(invoiceId, finalUrl, 0);
+                                    return;
+                                }
+                            } catch(e) {}
+                            // No invoice_id param — redirect directly
+                            window.location.href = finalUrl;
+                        } else {
+                            btn.innerHTML = '<i class="fas fa-save me-2"></i>Generate Invoice';
+                            btn.disabled = false;
+                            window.location.reload();
+                        }
+                    });
+                }
+
+                if (!response.ok) throw new Error('Generation failed with status: ' + response.status);
+                const disposition = response.headers.get('Content-Disposition');
+                let filename = 'invoice.pdf';
+                if (disposition && disposition.includes('filename=')) {
+                    filename = disposition.split('filename=')[1].replace(/"/g, '').trim();
+                }
+                return response.blob().then(function(blob) { return { blob: blob, filename: filename }; });
+            })
+            .then(function(result) {
+                if (!result || !result.blob) return;
+                const blobUrl = URL.createObjectURL(result.blob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = result.filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(blobUrl);
+                btn.innerHTML = '<i class="fas fa-save me-2"></i>Generate Invoice';
+                btn.disabled = false;
+            })
+            .catch(function(err) {
+                alert('Error: ' + err.message);
+                btn.innerHTML = '<i class="fas fa-save me-2"></i>Generate Invoice';
+                btn.disabled = false;
+            });
         }
     </script>
     <script src="{{ url_for('static', filename='js/background_download.js') }}"></script>

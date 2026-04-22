@@ -4867,7 +4867,7 @@ def generate_invoice():
             thread.start()
 
             flash(f'Invoice #{invoice_number} created. PDF is being generated in the background. You will be notified when ready.', 'success')
-            return redirect(url_for('site_engineer_invoices'))
+            return redirect(url_for('site_engineer_invoices', new_invoice_id=invoice_id))
 
         except Exception as e:
             conn.rollback()
@@ -5457,7 +5457,7 @@ def admin_generate_invoice():
                 thread.start()
 
                 flash(f'Admin invoice #{invoice_number} generated. PDF is being generated in the background.', 'success')
-                return redirect(url_for('admin_view_invoices'))
+                return redirect(url_for('admin_view_invoices', new_invoice_id=invoice_id))
 
             except Exception as e:
                 conn.rollback()
