@@ -659,6 +659,7 @@ CREATE TABLE IF NOT EXISTS bills_and_payments (
     created_by             INT           NOT NULL,
     created_by_role        ENUM('admin','accountant') NOT NULL,
     org_id                 INT           NOT NULL,
+    pdf_filename VARCHAR(255),
     project_id             INT           NULL,
     accountant_id          INT           NULL,
     created_at             TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

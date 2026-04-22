@@ -8,6 +8,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
+        /* (your existing CSS - unchanged) */
         body {
             padding-top: 80px;
             background-color: #f4f6f8;
@@ -45,13 +46,14 @@
         }
 
         .navbar-container {
-            max-width: 1200px;
+            max-width: 100%;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
             width: 100%;
             padding: 0 20px;
+            padding: 0 40px;
             height: 70px;
         }
 
@@ -1084,10 +1086,72 @@
             });
         });
 
-        // ✅ FILTER PROJECTS BY SELECTED ACCOUNTANT (ADMIN ONLY)
+        // ✅ GLOBAL triggerDownload function (available to admin AND accountant)
+        function triggerDownload(url, method = 'GET', data = null, btn = null) {
+            const originalHTML = btn ? btn.innerHTML : null;
+
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Downloading...';
+                btn.disabled = true;
+            }
+
+            const options = { method };
+
+            if (method === 'POST' && data) {
+                options.headers = { 'Content-Type': 'application/json' };
+                options.body = JSON.stringify(data);
+            }
+
+            fetch(url, options)
+                .then(response => {
+                    const contentType = response.headers.get('Content-Type') || '';
+
+                    // If the response is JSON (error message), parse and throw
+                    if (contentType.includes('application/json')) {
+                        return response.json().then(errData => {
+                            throw new Error(errData.error || 'Unknown error');
+                        });
+                    }
+
+                    // If not PDF, something is wrong
+                    if (!response.ok || !contentType.includes('application/pdf')) {
+                        throw new Error('Server error. Please try again.');
+                    }
+
+                    const disposition = response.headers.get('Content-Disposition');
+                    let filename = 'bill.pdf';
+                    if (disposition && disposition.includes('filename=')) {
+                        filename = disposition.split('filename=')[1].replace(/"/g, '').trim();
+                    }
+
+                    return response.blob().then(blob => ({ blob, filename }));
+                })
+                .then(({ blob, filename }) => {
+                    const blobUrl = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = blobUrl;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(blobUrl);
+
+                    if (btn) {
+                        btn.innerHTML = originalHTML;
+                        btn.disabled = false;
+                    }
+                })
+                .catch(err => {
+                    alert('Download failed: ' + err.message);
+                    if (btn) {
+                        btn.innerHTML = originalHTML;
+                        btn.disabled = false;
+                    }
+                });
+        }
     </script>
 
-    <!-- ✅ FILTER PROJECTS BY SELECTED ACCOUNTANT (ADMIN ONLY) -->
+    <!-- ✅ ADMIN-ONLY: Filter projects by selected accountant -->
     {% if session.role == 'admin' %}
     <script>
         (function () {
@@ -1151,66 +1215,8 @@
                 });
             }
         })();
-        function triggerDownload(url, method = 'GET', data = null, btn = null) {
-            const originalHTML = btn ? btn.innerHTML : null;
-
-            if (btn) {
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Downloading...';
-                btn.disabled = true;
-            }
-
-            const options = { method };
-
-            if (method === 'POST' && data) {
-                options.headers = { 'Content-Type': 'application/json' };
-                options.body = JSON.stringify(data);
-            }
-
-            fetch(url, options)
-                .then(response => {
-                    // ✅ Check Content-Type to catch HTML error pages masquerading as PDFs
-                    const contentType = response.headers.get('Content-Type') || '';
-                    if (!response.ok || !contentType.includes('application/pdf')) {
-                        return response.text().then(text => {
-                            throw new Error('Server error. Please try again.');
-                        });
-                    }
-
-                    const disposition = response.headers.get('Content-Disposition');
-                    let filename = 'bill.pdf';
-                    if (disposition && disposition.includes('filename=')) {
-                        filename = disposition.split('filename=')[1].replace(/"/g, '').trim();
-                    }
-
-                    return response.blob().then(blob => ({ blob, filename }));
-                })
-                .then(({ blob, filename }) => {
-                    const blobUrl = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = blobUrl;
-                    a.download = filename;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(blobUrl);
-
-                    if (btn) {
-                        btn.innerHTML = originalHTML;
-                        btn.disabled = false;
-                    }
-                })
-                .catch(err => {
-                    alert('Download failed: ' + err.message);
-                    if (btn) {
-                        btn.innerHTML = originalHTML;
-                        btn.disabled = false;
-                    }
-                });
-        }
     </script>
     {% endif %}
 </body>
-
-</html>
 
 </html>

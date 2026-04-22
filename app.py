@@ -1052,306 +1052,310 @@ def generate_salary_report_async(task_id, month_year, org_id, user_id):
         conn.close()
 
 
-def generate_bill_pdf_async(bill_id, org_id):
+def generate_bill_pdf_async(bill_id, org_id, app):
     """
     Background task: generate bill PDF and update bills_and_payments table.
+    Runs inside Flask app context to access static_folder.
     """
-    from config import get_connection
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-    from reportlab.lib import colors
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-    from reportlab.lib.pagesizes import A4
-    from reportlab.lib.units import mm
-    from io import BytesIO
-    import os
-    from datetime import datetime
+    with app.app_context():
+        from config import get_connection
+        import pymysql
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+        from reportlab.lib import colors
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.pagesizes import A4
+        from reportlab.lib.units import mm
+        from io import BytesIO
+        import os
+        from datetime import datetime
 
-    conn = get_connection()
-    cur = conn.cursor(pymysql.cursors.DictCursor)
-    try:
-        # Fetch bill details with company info
-        cur.execute("""
-            SELECT bp.*, r.name AS created_by_name,
-                   om.company_name, om.company_address
-            FROM bills_and_payments bp
-            JOIN register r ON bp.created_by = r.id
-            LEFT JOIN organization_master om ON bp.org_id = om.org_id
-            WHERE bp.id = %s AND bp.org_id = %s
-        """, (bill_id, org_id))
-        bill = cur.fetchone()
-        if not bill:
-            raise Exception("Bill not found")
+        conn = get_connection()
+        cur = conn.cursor(pymysql.cursors.DictCursor)
+        try:
+            # Fetch bill details with company info
+            cur.execute("""
+                SELECT bp.*, r.name AS created_by_name,
+                       om.company_name, om.company_address
+                FROM bills_and_payments bp
+                JOIN register r ON bp.created_by = r.id
+                LEFT JOIN organization_master om ON bp.org_id = om.org_id
+                WHERE bp.id = %s AND bp.org_id = %s
+            """, (bill_id, org_id))
+            bill = cur.fetchone()
+            if not bill:
+                raise Exception("Bill not found")
 
-        # Generate PDF (use the same code as your original download_bill_pdf)
-        buffer = BytesIO()
-        doc = SimpleDocTemplate(
-            buffer, pagesize=A4,
-            leftMargin=20*mm, rightMargin=20*mm,
-            topMargin=15*mm, bottomMargin=15*mm
-        )
-        styles = getSampleStyleSheet()
-        W = 170 * mm
+            # Generate PDF (same logic as your original download)
+            buffer = BytesIO()
+            doc = SimpleDocTemplate(
+                buffer, pagesize=A4,
+                leftMargin=20*mm, rightMargin=20*mm,
+                topMargin=15*mm, bottomMargin=15*mm
+            )
+            styles = getSampleStyleSheet()
+            W = 170 * mm
 
-        # Color palette (same as original)
-        C_PRIMARY    = colors.HexColor('#1e3a8a')
-        C_ROW_ALT    = colors.HexColor('#eef2ff')
-        C_ROW_WHITE  = colors.white
-        C_BORDER     = colors.HexColor('#c7d2fe')
-        C_LABEL_BG   = colors.HexColor('#dbe4ff')
-        C_TEXT       = colors.HexColor('#1e293b')
-        C_GREY       = colors.HexColor('#64748b')
-        C_GREEN      = colors.HexColor('#059669')
-        C_RED        = colors.HexColor('#dc2626')
-        C_SUBTOTAL   = colors.HexColor('#1e4d8c')
+            # Color palette
+            C_PRIMARY    = colors.HexColor('#1e3a8a')
+            C_ROW_ALT    = colors.HexColor('#eef2ff')
+            C_ROW_WHITE  = colors.white
+            C_BORDER     = colors.HexColor('#c7d2fe')
+            C_LABEL_BG   = colors.HexColor('#dbe4ff')
+            C_TEXT       = colors.HexColor('#1e293b')
+            C_GREY       = colors.HexColor('#64748b')
+            C_GREEN      = colors.HexColor('#059669')
+            C_RED        = colors.HexColor('#dc2626')
+            C_SUBTOTAL   = colors.HexColor('#1e4d8c')
 
-        BT_COLOR = {
-            'Advance Bill':        colors.HexColor('#1e3a8a'),
-            'Running Account Bill':colors.HexColor('#1d4ed8'),
-            'Final Bill':          colors.HexColor('#1e40af'),
-        }.get(bill['bill_type'], C_PRIMARY)
+            BT_COLOR = {
+                'Advance Bill':        colors.HexColor('#1e3a8a'),
+                'Running Account Bill':colors.HexColor('#1d4ed8'),
+                'Final Bill':          colors.HexColor('#1e40af'),
+            }.get(bill['bill_type'], C_PRIMARY)
 
-        PAD = [
-            ('TOPPADDING',    (0,0),(-1,-1), 7),
-            ('BOTTOMPADDING', (0,0),(-1,-1), 7),
-            ('LEFTPADDING',   (0,0),(-1,-1), 9),
-            ('RIGHTPADDING',  (0,0),(-1,-1), 9),
-        ]
+            PAD = [
+                ('TOPPADDING',    (0,0),(-1,-1), 7),
+                ('BOTTOMPADDING', (0,0),(-1,-1), 7),
+                ('LEFTPADDING',   (0,0),(-1,-1), 9),
+                ('RIGHTPADDING',  (0,0),(-1,-1), 9),
+            ]
 
-        def sec_hdr(title):
-            t = Table([[title]], colWidths=[W])
-            t.setStyle(TableStyle([
+            def sec_hdr(title):
+                t = Table([[title]], colWidths=[W])
+                t.setStyle(TableStyle([
+                    ('BACKGROUND',    (0,0),(-1,-1), C_PRIMARY),
+                    ('TEXTCOLOR',     (0,0),(-1,-1), colors.white),
+                    ('FONTNAME',      (0,0),(-1,-1), 'Helvetica-Bold'),
+                    ('FONTSIZE',      (0,0),(-1,-1), 10),
+                    ('ALIGN',         (0,0),(-1,-1), 'LEFT'),
+                    ('TOPPADDING',    (0,0),(-1,-1), 7),
+                    ('BOTTOMPADDING', (0,0),(-1,-1), 7),
+                    ('LEFTPADDING',   (0,0),(-1,-1), 10),
+                ]))
+                return t
+
+            def kv_table(data, col_w):
+                t = Table(data, colWidths=col_w)
+                style = [
+                    ('FONTNAME',      (0,0),(0,-1),  'Helvetica-Bold'),
+                    ('FONTNAME',      (1,0),(1,-1),  'Helvetica'),
+                    ('FONTSIZE',      (0,0),(-1,-1), 9),
+                    ('TEXTCOLOR',     (0,0),(-1,-1), C_TEXT),
+                    ('BACKGROUND',    (0,0),(0,-1),  C_LABEL_BG),
+                    ('GRID',          (0,0),(-1,-1), 0.5, C_BORDER),
+                    ('VALIGN',        (0,0),(-1,-1), 'MIDDLE'),
+                ] + PAD
+                for i in range(len(data)):
+                    bg = C_ROW_WHITE if i % 2 == 0 else C_ROW_ALT
+                    style.append(('BACKGROUND', (1,i),(1,i), bg))
+                t.setStyle(TableStyle(style))
+                return t
+
+            def fin_table(data, col_w, subtotal_row=None):
+                t = Table(data, colWidths=col_w)
+                style = [
+                    ('BACKGROUND',    (0,0),(-1,0),  C_PRIMARY),
+                    ('TEXTCOLOR',     (0,0),(-1,0),  colors.white),
+                    ('FONTNAME',      (0,0),(-1,0),  'Helvetica-Bold'),
+                    ('FONTSIZE',      (0,0),(-1,0),  9),
+                    ('FONTNAME',      (0,1),(-1,-1), 'Helvetica'),
+                    ('FONTSIZE',      (0,1),(-1,-1), 9),
+                    ('TEXTCOLOR',     (0,1),(-1,-1), C_TEXT),
+                    ('ALIGN',         (1,0),(1,-1),  'RIGHT'),
+                    ('GRID',          (0,0),(-1,-1), 0.5, C_BORDER),
+                    ('VALIGN',        (0,0),(-1,-1), 'MIDDLE'),
+                ] + PAD
+                for i in range(1, len(data)):
+                    bg = C_ROW_WHITE if i % 2 == 1 else C_ROW_ALT
+                    style.append(('BACKGROUND', (0,i),(-1,i), bg))
+                if subtotal_row is not None:
+                    style += [
+                        ('BACKGROUND', (0,subtotal_row),(-1,subtotal_row), C_SUBTOTAL),
+                        ('TEXTCOLOR',  (0,subtotal_row),(-1,subtotal_row), colors.white),
+                        ('FONTNAME',   (0,subtotal_row),(-1,subtotal_row), 'Helvetica-Bold'),
+                    ]
+                t.setStyle(TableStyle(style))
+                return t
+
+            elems = []
+
+            # Header
+            company_name    = bill.get('company_name') or 'Company Name'
+            company_address = bill.get('company_address') or ''
+            s_name = ParagraphStyle('cn', parent=styles['Normal'],
+                                     fontSize=22, textColor=C_PRIMARY,
+                                     fontName='Helvetica-Bold', alignment=1,
+                                     spaceBefore=0, spaceAfter=3)
+            s_addr = ParagraphStyle('ca', parent=styles['Normal'],
+                                     fontSize=9,  textColor=C_GREY,
+                                     fontName='Helvetica', alignment=1,
+                                     spaceBefore=0, spaceAfter=0)
+            hdr_data = [[Paragraph(company_name, s_name)],
+                        [Paragraph(company_address, s_addr)]]
+            hdr_tbl  = Table(hdr_data, colWidths=[W])
+            hdr_tbl.setStyle(TableStyle([
+                ('ALIGN',         (0,0),(-1,-1), 'CENTER'),
+                ('VALIGN',        (0,0),(-1,-1), 'MIDDLE'),
+                ('TOPPADDING',    (0,0),(-1,-1), 5),
+                ('BOTTOMPADDING', (0,0),(-1,-1), 5),
+                ('LINEBELOW',     (0,1),(-1,1),  1.5, C_PRIMARY),
+            ]))
+            elems.append(hdr_tbl)
+            elems.append(Spacer(1, 5*mm))
+
+            # Title
+            title_tbl = Table([['BILL & PAYMENT DETAILS']], colWidths=[W])
+            title_tbl.setStyle(TableStyle([
                 ('BACKGROUND',    (0,0),(-1,-1), C_PRIMARY),
                 ('TEXTCOLOR',     (0,0),(-1,-1), colors.white),
                 ('FONTNAME',      (0,0),(-1,-1), 'Helvetica-Bold'),
-                ('FONTSIZE',      (0,0),(-1,-1), 10),
-                ('ALIGN',         (0,0),(-1,-1), 'LEFT'),
+                ('FONTSIZE',      (0,0),(-1,-1), 14),
+                ('ALIGN',         (0,0),(-1,-1), 'CENTER'),
+                ('TOPPADDING',    (0,0),(-1,-1), 11),
+                ('BOTTOMPADDING', (0,0),(-1,-1), 11),
+            ]))
+            elems.append(title_tbl)
+            elems.append(Spacer(1, 2*mm))
+
+            # Bill Type Banner
+            bt_tbl = Table([[bill['bill_type']]], colWidths=[W])
+            bt_tbl.setStyle(TableStyle([
+                ('BACKGROUND',    (0,0),(-1,-1), BT_COLOR),
+                ('TEXTCOLOR',     (0,0),(-1,-1), colors.white),
+                ('FONTNAME',      (0,0),(-1,-1), 'Helvetica-Bold'),
+                ('FONTSIZE',      (0,0),(-1,-1), 11),
+                ('ALIGN',         (0,0),(-1,-1), 'CENTER'),
                 ('TOPPADDING',    (0,0),(-1,-1), 7),
                 ('BOTTOMPADDING', (0,0),(-1,-1), 7),
-                ('LEFTPADDING',   (0,0),(-1,-1), 10),
             ]))
-            return t
+            elems.append(bt_tbl)
+            elems.append(Spacer(1, 4*mm))
 
-        def kv_table(data, col_w):
-            t = Table(data, colWidths=col_w)
-            style = [
+            # Bill & Work Order Info
+            c1, c2, c3, c4 = W*0.22, W*0.28, W*0.22, W*0.28
+            info_data = [
+                ['Bill No',       bill['bill_no'],
+                 'Bill Date',     bill['bill_date'].strftime('%d-%m-%Y')],
+                ['Work Order No', bill['work_order_number'],
+                 'Work Order Date', bill['work_order_date'].strftime('%d-%m-%Y')],
+            ]
+            info_tbl = Table(info_data, colWidths=[c1, c2, c3, c4])
+            info_tbl.setStyle(TableStyle([
+                ('BACKGROUND',    (0,0),(0,-1),  C_LABEL_BG),
+                ('BACKGROUND',    (2,0),(2,-1),  C_LABEL_BG),
+                ('BACKGROUND',    (1,0),(1,-1),  C_ROW_WHITE),
+                ('BACKGROUND',    (3,0),(3,-1),  C_ROW_ALT),
                 ('FONTNAME',      (0,0),(0,-1),  'Helvetica-Bold'),
+                ('FONTNAME',      (2,0),(2,-1),  'Helvetica-Bold'),
                 ('FONTNAME',      (1,0),(1,-1),  'Helvetica'),
+                ('FONTNAME',      (3,0),(3,-1),  'Helvetica'),
                 ('FONTSIZE',      (0,0),(-1,-1), 9),
                 ('TEXTCOLOR',     (0,0),(-1,-1), C_TEXT),
-                ('BACKGROUND',    (0,0),(0,-1),  C_LABEL_BG),
                 ('GRID',          (0,0),(-1,-1), 0.5, C_BORDER),
                 ('VALIGN',        (0,0),(-1,-1), 'MIDDLE'),
-            ] + PAD
-            for i in range(len(data)):
-                bg = C_ROW_WHITE if i % 2 == 0 else C_ROW_ALT
-                style.append(('BACKGROUND', (1,i),(1,i), bg))
-            t.setStyle(TableStyle(style))
-            return t
+            ] + PAD))
+            elems.append(info_tbl)
+            elems.append(Spacer(1, 2*mm))
 
-        def fin_table(data, col_w, subtotal_row=None):
-            t = Table(data, colWidths=col_w)
-            style = [
-                ('BACKGROUND',    (0,0),(-1,0),  C_PRIMARY),
-                ('TEXTCOLOR',     (0,0),(-1,0),  colors.white),
-                ('FONTNAME',      (0,0),(-1,0),  'Helvetica-Bold'),
-                ('FONTSIZE',      (0,0),(-1,0),  9),
-                ('FONTNAME',      (0,1),(-1,-1), 'Helvetica'),
-                ('FONTSIZE',      (0,1),(-1,-1), 9),
-                ('TEXTCOLOR',     (0,1),(-1,-1), C_TEXT),
+            # Work Details
+            work_data = [
+                ['Work Name',     bill['work_name']],
+                ['Tender Name',   bill.get('tender_name') or 'N/A'],
+                ['Tender Number', bill.get('tender_number') or 'N/A'],
+            ]
+            elems.append(kv_table(work_data, [W*0.30, W*0.70]))
+            elems.append(Spacer(1, 4*mm))
+
+            # Amount Details
+            elems.append(sec_hdr('AMOUNT DETAILS'))
+            elems.append(Spacer(1, 1*mm))
+            amt_data = [
+                ['Description',           'Amount (₹)'],
+                ['Advance Amount',         f"₹{float(bill['advance_amount']):,.2f}"],
+                ['Running Account Amount', f"₹{float(bill['running_account_amount']):,.2f}"],
+                ['Final Amount',           f"₹{float(bill['final_amount']):,.2f}"],
+            ]
+            elems.append(fin_table(amt_data, [W*0.70, W*0.30]))
+            elems.append(Spacer(1, 4*mm))
+
+            # Financial Breakdown
+            elems.append(sec_hdr('FINANCIAL BREAKDOWN'))
+            elems.append(Spacer(1, 1*mm))
+            subtotal = float(bill['gross_amount']) + float(bill['gst_amount'])
+            fin_data = [
+                ['Description',                    'Amount (₹)'],
+                ['Gross Amount',                    f"₹{float(bill['gross_amount']):,.2f}"],
+                [f"(+) GST @ {float(bill['gst_percentage'])}%", f"₹{float(bill['gst_amount']):,.2f}"],
+                ['Sub Total',                       f"₹{subtotal:,.2f}"],
+                ['(−) Security Deposit',            f"₹{float(bill['security_deposit']):,.2f}"],
+                ['(−) Labour Charges (1.1%)',        f"₹{float(bill['labour_charges']):,.2f}"],
+            ]
+            elems.append(fin_table(fin_data, [W*0.70, W*0.30], subtotal_row=3))
+            elems.append(Spacer(1, 2*mm))
+
+            # Net Payable
+            net_tbl = Table([['NET PAYABLE AMOUNT', f"₹{float(bill['net_amount']):,.2f}"]],
+                             colWidths=[W*0.70, W*0.30])
+            net_tbl.setStyle(TableStyle([
+                ('BACKGROUND',    (0,0),(-1,-1), C_GREEN),
+                ('TEXTCOLOR',     (0,0),(-1,-1), colors.white),
+                ('FONTNAME',      (0,0),(-1,-1), 'Helvetica-Bold'),
+                ('FONTSIZE',      (0,0),(-1,-1), 13),
                 ('ALIGN',         (1,0),(1,-1),  'RIGHT'),
-                ('GRID',          (0,0),(-1,-1), 0.5, C_BORDER),
-                ('VALIGN',        (0,0),(-1,-1), 'MIDDLE'),
-            ] + PAD
-            for i in range(1, len(data)):
-                bg = C_ROW_WHITE if i % 2 == 1 else C_ROW_ALT
-                style.append(('BACKGROUND', (0,i),(-1,i), bg))
-            if subtotal_row is not None:
-                style += [
-                    ('BACKGROUND', (0,subtotal_row),(-1,subtotal_row), C_SUBTOTAL),
-                    ('TEXTCOLOR',  (0,subtotal_row),(-1,subtotal_row), colors.white),
-                    ('FONTNAME',   (0,subtotal_row),(-1,subtotal_row), 'Helvetica-Bold'),
-                ]
-            t.setStyle(TableStyle(style))
-            return t
+                ('TOPPADDING',    (0,0),(-1,-1), 11),
+                ('BOTTOMPADDING', (0,0),(-1,-1), 11),
+                ('LEFTPADDING',   (0,0),(-1,-1), 10),
+                ('RIGHTPADDING',  (0,0),(-1,-1), 10),
+            ]))
+            elems.append(net_tbl)
+            elems.append(Spacer(1, 3*mm))
 
-        elems = []
+            # Payment Status Banner
+            status_color = C_GREEN if bill['payment_status'] == 'Paid' else C_RED
+            status_text  = 'PAID' if bill['payment_status'] == 'Paid' else 'UNPAID'
+            st_tbl = Table([[f"Payment Status :  {status_text}"]], colWidths=[W])
+            st_tbl.setStyle(TableStyle([
+                ('BACKGROUND',    (0,0),(-1,-1), status_color),
+                ('TEXTCOLOR',     (0,0),(-1,-1), colors.white),
+                ('FONTNAME',      (0,0),(-1,-1), 'Helvetica-Bold'),
+                ('FONTSIZE',      (0,0),(-1,-1), 11),
+                ('ALIGN',         (0,0),(-1,-1), 'CENTER'),
+                ('TOPPADDING',    (0,0),(-1,-1), 9),
+                ('BOTTOMPADDING', (0,0),(-1,-1), 9),
+            ]))
+            elems.append(st_tbl)
+            elems.append(Spacer(1, 5*mm))
 
-        # Header
-        company_name    = bill.get('company_name') or 'Company Name'
-        company_address = bill.get('company_address') or ''
-        s_name = ParagraphStyle('cn', parent=styles['Normal'],
-                                 fontSize=22, textColor=C_PRIMARY,
-                                 fontName='Helvetica-Bold', alignment=1,
-                                 spaceBefore=0, spaceAfter=3)
-        s_addr = ParagraphStyle('ca', parent=styles['Normal'],
-                                 fontSize=9,  textColor=C_GREY,
-                                 fontName='Helvetica', alignment=1,
-                                 spaceBefore=0, spaceAfter=0)
-        hdr_data = [[Paragraph(company_name, s_name)],
-                    [Paragraph(company_address, s_addr)]]
-        hdr_tbl  = Table(hdr_data, colWidths=[W])
-        hdr_tbl.setStyle(TableStyle([
-            ('ALIGN',         (0,0),(-1,-1), 'CENTER'),
-            ('VALIGN',        (0,0),(-1,-1), 'MIDDLE'),
-            ('TOPPADDING',    (0,0),(-1,-1), 5),
-            ('BOTTOMPADDING', (0,0),(-1,-1), 5),
-            ('LINEBELOW',     (0,1),(-1,1),  1.5, C_PRIMARY),
-        ]))
-        elems.append(hdr_tbl)
-        elems.append(Spacer(1, 5*mm))
+            # Footer
+            footer_txt = (f"Created by: {bill['created_by_name']} ({bill['created_by_role'].title()})   |   "
+                          f"Generated: {datetime.now().strftime('%d-%m-%Y %I:%M %p')}")
+            elems.append(Paragraph(footer_txt,
+                ParagraphStyle('ft', parent=styles['Normal'],
+                               fontSize=8, textColor=C_GREY, alignment=1)))
 
-        # Title
-        title_tbl = Table([['BILL & PAYMENT DETAILS']], colWidths=[W])
-        title_tbl.setStyle(TableStyle([
-            ('BACKGROUND',    (0,0),(-1,-1), C_PRIMARY),
-            ('TEXTCOLOR',     (0,0),(-1,-1), colors.white),
-            ('FONTNAME',      (0,0),(-1,-1), 'Helvetica-Bold'),
-            ('FONTSIZE',      (0,0),(-1,-1), 14),
-            ('ALIGN',         (0,0),(-1,-1), 'CENTER'),
-            ('TOPPADDING',    (0,0),(-1,-1), 11),
-            ('BOTTOMPADDING', (0,0),(-1,-1), 11),
-        ]))
-        elems.append(title_tbl)
-        elems.append(Spacer(1, 2*mm))
+            doc.build(elems)
+            buffer.seek(0)
 
-        # Bill Type Banner
-        bt_tbl = Table([[bill['bill_type']]], colWidths=[W])
-        bt_tbl.setStyle(TableStyle([
-            ('BACKGROUND',    (0,0),(-1,-1), BT_COLOR),
-            ('TEXTCOLOR',     (0,0),(-1,-1), colors.white),
-            ('FONTNAME',      (0,0),(-1,-1), 'Helvetica-Bold'),
-            ('FONTSIZE',      (0,0),(-1,-1), 11),
-            ('ALIGN',         (0,0),(-1,-1), 'CENTER'),
-            ('TOPPADDING',    (0,0),(-1,-1), 7),
-            ('BOTTOMPADDING', (0,0),(-1,-1), 7),
-        ]))
-        elems.append(bt_tbl)
-        elems.append(Spacer(1, 4*mm))
+            # Save PDF to static/bill_pdfs/
+            pdf_dir = os.path.join(app.static_folder, 'bill_pdfs')
+            os.makedirs(pdf_dir, exist_ok=True)
+            pdf_filename = f"bill_{bill_id}.pdf"
+            pdf_path = os.path.join(pdf_dir, pdf_filename)
+            with open(pdf_path, 'wb') as f:
+                f.write(buffer.getvalue())
 
-        # Bill & Work Order Info
-        c1, c2, c3, c4 = W*0.22, W*0.28, W*0.22, W*0.28
-        info_data = [
-            ['Bill No',       bill['bill_no'],
-             'Bill Date',     bill['bill_date'].strftime('%d-%m-%Y')],
-            ['Work Order No', bill['work_order_number'],
-             'Work Order Date', bill['work_order_date'].strftime('%d-%m-%Y')],
-        ]
-        info_tbl = Table(info_data, colWidths=[c1, c2, c3, c4])
-        info_tbl.setStyle(TableStyle([
-            ('BACKGROUND',    (0,0),(0,-1),  C_LABEL_BG),
-            ('BACKGROUND',    (2,0),(2,-1),  C_LABEL_BG),
-            ('BACKGROUND',    (1,0),(1,-1),  C_ROW_WHITE),
-            ('BACKGROUND',    (3,0),(3,-1),  C_ROW_ALT),
-            ('FONTNAME',      (0,0),(0,-1),  'Helvetica-Bold'),
-            ('FONTNAME',      (2,0),(2,-1),  'Helvetica-Bold'),
-            ('FONTNAME',      (1,0),(1,-1),  'Helvetica'),
-            ('FONTNAME',      (3,0),(3,-1),  'Helvetica'),
-            ('FONTSIZE',      (0,0),(-1,-1), 9),
-            ('TEXTCOLOR',     (0,0),(-1,-1), C_TEXT),
-            ('GRID',          (0,0),(-1,-1), 0.5, C_BORDER),
-            ('VALIGN',        (0,0),(-1,-1), 'MIDDLE'),
-        ] + PAD))
-        elems.append(info_tbl)
-        elems.append(Spacer(1, 2*mm))
+            # Update bill record
+            cur.execute("UPDATE bills_and_payments SET pdf_filename = %s WHERE id = %s", (pdf_filename, bill_id))
+            conn.commit()
 
-        # Work Details
-        work_data = [
-            ['Work Name',     bill['work_name']],
-            ['Tender Name',   bill.get('tender_name') or 'N/A'],
-            ['Tender Number', bill.get('tender_number') or 'N/A'],
-        ]
-        elems.append(kv_table(work_data, [W*0.30, W*0.70]))
-        elems.append(Spacer(1, 4*mm))
+        except Exception as e:
+            print(f"Background bill PDF generation failed for bill {bill_id}: {e}")
+            if conn:
+                conn.rollback()
+        finally:
+            cur.close()
+            conn.close()
 
-        # Amount Details
-        elems.append(sec_hdr('AMOUNT DETAILS'))
-        elems.append(Spacer(1, 1*mm))
-        amt_data = [
-            ['Description',           'Amount (₹)'],
-            ['Advance Amount',         f"₹{float(bill['advance_amount']):,.2f}"],
-            ['Running Account Amount', f"₹{float(bill['running_account_amount']):,.2f}"],
-            ['Final Amount',           f"₹{float(bill['final_amount']):,.2f}"],
-        ]
-        elems.append(fin_table(amt_data, [W*0.70, W*0.30]))
-        elems.append(Spacer(1, 4*mm))
-
-        # Financial Breakdown
-        elems.append(sec_hdr('FINANCIAL BREAKDOWN'))
-        elems.append(Spacer(1, 1*mm))
-        subtotal = float(bill['gross_amount']) + float(bill['gst_amount'])
-        fin_data = [
-            ['Description',                    'Amount (₹)'],
-            ['Gross Amount',                    f"₹{float(bill['gross_amount']):,.2f}"],
-            [f"(+) GST @ {float(bill['gst_percentage'])}%", f"₹{float(bill['gst_amount']):,.2f}"],
-            ['Sub Total',                       f"₹{subtotal:,.2f}"],
-            ['(−) Security Deposit',            f"₹{float(bill['security_deposit']):,.2f}"],
-            ['(−) Labour Charges (1.1%)',        f"₹{float(bill['labour_charges']):,.2f}"],
-        ]
-        elems.append(fin_table(fin_data, [W*0.70, W*0.30], subtotal_row=3))
-        elems.append(Spacer(1, 2*mm))
-
-        # Net Payable
-        net_tbl = Table([['NET PAYABLE AMOUNT', f"₹{float(bill['net_amount']):,.2f}"]],
-                         colWidths=[W*0.70, W*0.30])
-        net_tbl.setStyle(TableStyle([
-            ('BACKGROUND',    (0,0),(-1,-1), C_GREEN),
-            ('TEXTCOLOR',     (0,0),(-1,-1), colors.white),
-            ('FONTNAME',      (0,0),(-1,-1), 'Helvetica-Bold'),
-            ('FONTSIZE',      (0,0),(-1,-1), 13),
-            ('ALIGN',         (1,0),(1,-1),  'RIGHT'),
-            ('TOPPADDING',    (0,0),(-1,-1), 11),
-            ('BOTTOMPADDING', (0,0),(-1,-1), 11),
-            ('LEFTPADDING',   (0,0),(-1,-1), 10),
-            ('RIGHTPADDING',  (0,0),(-1,-1), 10),
-        ]))
-        elems.append(net_tbl)
-        elems.append(Spacer(1, 3*mm))
-
-        # Payment Status Banner
-        status_color = C_GREEN if bill['payment_status'] == 'Paid' else C_RED
-        status_text  = 'PAID' if bill['payment_status'] == 'Paid' else 'UNPAID'
-        st_tbl = Table([[f"Payment Status :  {status_text}"]], colWidths=[W])
-        st_tbl.setStyle(TableStyle([
-            ('BACKGROUND',    (0,0),(-1,-1), status_color),
-            ('TEXTCOLOR',     (0,0),(-1,-1), colors.white),
-            ('FONTNAME',      (0,0),(-1,-1), 'Helvetica-Bold'),
-            ('FONTSIZE',      (0,0),(-1,-1), 11),
-            ('ALIGN',         (0,0),(-1,-1), 'CENTER'),
-            ('TOPPADDING',    (0,0),(-1,-1), 9),
-            ('BOTTOMPADDING', (0,0),(-1,-1), 9),
-        ]))
-        elems.append(st_tbl)
-        elems.append(Spacer(1, 5*mm))
-
-        # Footer
-        footer_txt = (f"Created by: {bill['created_by_name']} ({bill['created_by_role'].title()})   |   "
-                      f"Generated: {datetime.now().strftime('%d-%m-%Y %I:%M %p')}")
-        elems.append(Paragraph(footer_txt,
-            ParagraphStyle('ft', parent=styles['Normal'],
-                           fontSize=8, textColor=C_GREY, alignment=1)))
-
-        doc.build(elems)
-        buffer.seek(0)
-
-        # Save PDF to static/bill_pdfs/
-        pdf_dir = os.path.join(app.static_folder, 'bill_pdfs')
-        os.makedirs(pdf_dir, exist_ok=True)
-        pdf_filename = f"bill_{bill_id}.pdf"
-        pdf_path = os.path.join(pdf_dir, pdf_filename)
-        with open(pdf_path, 'wb') as f:
-            f.write(buffer.getvalue())
-
-        # Update bill record
-        cur.execute("UPDATE bills_and_payments SET pdf_filename = %s WHERE id = %s", (pdf_filename, bill_id))
-        conn.commit()
-
-    except Exception as e:
-        print(f"Background bill PDF generation failed for bill {bill_id}: {e}")
-        if conn:
-            conn.rollback()
-    finally:
-        cur.close()
-        conn.close()
 
 load_dotenv()
 
@@ -8115,17 +8119,17 @@ def bills_and_payments():
             # ── Commit bill insert ──
             conn.commit()
 
-            # 🔥 START BACKGROUND PDF GENERATION FOR BILL
-            import threading
+            # 🔥 START BACKGROUND PDF GENERATION (with app context)
+            # Import the current Flask app instance (global 'app' variable)
+            from flask import current_app
             thread = threading.Thread(
                 target=generate_bill_pdf_async,
-                args=(bill_id, org_id)
+                args=(bill_id, org_id, current_app._get_current_object())
             )
             thread.daemon = True
             thread.start()
 
             # ── Notifications after successful commit ──
-            # Use fresh cursor after commit
             cur.close()
             cur = conn.cursor(pymysql.cursors.DictCursor)
 
@@ -8140,7 +8144,6 @@ def bills_and_payments():
                 )
 
                 if role == 'admin':
-                    # Admin added bill → notify assigned accountant only
                     if accountant_id:
                         create_notification(
                             user_id=int(accountant_id),
@@ -8151,7 +8154,6 @@ def bills_and_payments():
                             cur=cur
                         )
                 elif role == 'accountant':
-                    # Accountant added bill → notify all admins
                     cur.execute("""
                         SELECT id FROM register 
                         WHERE role = 'admin' AND org_id = %s
@@ -8168,10 +8170,9 @@ def bills_and_payments():
                         )
                 conn.commit()
             except Exception as notif_err:
-                # Notification failure should NOT rollback the bill that was already saved
                 print(f"Warning: Notification failed after bill commit: {notif_err}")
 
-            flash('Bill added successfully! Bill PDF will be generated in the background.', 'success')
+            flash('Bill added successfully!', 'success')
             return redirect(url_for('bills_and_payments', tab='history'))
 
         except Exception as e:
@@ -8254,10 +8255,11 @@ def bills_and_payments():
         if conn:
             conn.close()
 
-# ── Route: Download Bill as PDF ──────────────────────────────
+
+# ── Route: Download Bill as PDF (improved with JSON error for AJAX) ─────────
 @app.route('/download_bill_pdf/<int:bill_id>')
 def download_bill_pdf(bill_id):
-    """Serve pre-generated bill PDF, or show message if not ready."""
+    """Serve pre-generated bill PDF, or return JSON error if not ready."""
     if 'role' not in session or session['role'] not in ['admin', 'accountant']:
         return redirect(url_for('login'))
 
@@ -8271,15 +8273,22 @@ def download_bill_pdf(bill_id):
             if os.path.exists(pdf_path):
                 return send_file(pdf_path, as_attachment=True, download_name=bill['pdf_filename'])
             else:
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return jsonify({'error': 'PDF file not found on server'}), 404
                 flash('PDF file not found. It may still be generating.', 'warning')
         else:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'error': 'PDF is being generated. Please try again in a few moments.'}), 202
             flash('Bill PDF is being generated. Please try again in a few moments.', 'info')
     except Exception as e:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'error': str(e)}), 500
         flash(f'Error: {str(e)}', 'danger')
     finally:
         cur.close()
         conn.close()
     return redirect(request.referrer or url_for('bills_and_payments', tab='history'))
+
 
 @app.route('/api/bill_pdf_status/<int:bill_id>')
 def api_bill_pdf_status(bill_id):
