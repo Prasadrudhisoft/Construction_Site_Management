@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,40 +9,84 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
+            background: #f4f6f8;
             padding-top: 80px;
         }
-        .invoice-form {
-            background: #fff;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+
+        .form-container {
+            max-width: 1000px;
+            margin: 0 auto;
         }
-        .section-header {
-            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #3498db, #2c3e50);
             color: white;
-            padding: 1rem;
+            border-radius: 12px 12px 0 0 !important;
+            padding: 1.2rem;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1e3a8a;
+            border-left: 4px solid #f59e0b;
+            padding-left: 12px;
+            margin-bottom: 1.2rem;
+        }
+
+        .item-row {
+            background: #f8fafc;
             border-radius: 8px;
-            margin-bottom: 2rem;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #e2e8f0;
         }
-        .items-section {
-            background: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: 8px;
-            border: 2px solid #ffffff;
-            margin-top: 2rem;
+
+        .remove-item {
+            color: #dc2626;
+            cursor: pointer;
+            margin-top: 32px;
         }
-        .item-list {
-            list-style: none;
-            padding: 0;
+
+        .remove-item:hover {
+            color: #b91c1c;
         }
-        .item-list li {
-            background: white;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 0.5rem;
-            border: 1px solid #dee2e6;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            border: none;
+            padding: 10px 30px;
         }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+        }
+
+        .total-card {
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .total-amount {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #059669;
+        }
+
+        @media (max-width: 768px) {
+            .remove-item {
+                margin-top: 10px;
+            }
+        }
+
         /* Navbar Styles */
         .navbar {
             position: fixed;
@@ -57,16 +102,19 @@
             display: flex;
             align-items: center;
         }
+
         .navbar-container {
-            max-width: 1200px;
+            max-width: 100%;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
             width: 100%;
             padding: 0 20px;
+            padding: 0 40px;
             height: 70px;
         }
+
         .navbar-brand {
             display: flex;
             align-items: center;
@@ -76,10 +124,12 @@
             font-weight: 700;
             font-size: 1.4rem;
         }
+
         .navbar-brand i {
             color: #3498db;
             font-size: 1.8rem;
         }
+
         .navbar-menu {
             display: flex;
             list-style: none;
@@ -87,6 +137,7 @@
             align-items: center;
             margin: 0;
         }
+
         .navbar-link {
             text-decoration: none;
             color: #2c3e50;
@@ -98,23 +149,28 @@
             align-items: center;
             gap: 8px;
         }
+
         .navbar-link:hover {
             background: rgba(52, 152, 219, 0.1);
             color: #3498db;
             transform: translateY(-2px);
         }
+
         .navbar-link.active {
             background: #3498db;
             color: white;
         }
+
         .navbar-link.logout {
             background: #e74c3c;
             color: white;
         }
+
         .navbar-link.logout:hover {
             background: #c0392b;
             transform: translateY(-2px);
         }
+
         .navbar-toggle {
             display: none;
             background: none;
@@ -123,21 +179,21 @@
             color: #2c3e50;
             cursor: pointer;
         }
-        @media (max-width: 900px) {
-            .navbar-container {
-                padding: 0 10px;
-            }
-        }
+
         @media (max-width: 768px) {
             body {
-                padding-top: 80px !important;
+                padding-top: 70px !important;
             }
+
             .navbar {
                 height: 60px;
             }
+
             .navbar-container {
                 height: 60px;
+                padding: 0 15px;
             }
+
             .navbar-menu {
                 position: fixed;
                 top: 60px;
@@ -149,27 +205,32 @@
                 flex-direction: column;
                 justify-content: flex-start;
                 align-items: center;
-                padding: 40px 20px;
+                padding: 30px 20px;
                 transition: left 0.3s ease;
                 gap: 20px;
             }
+
             .navbar-menu.active {
                 left: 0;
             }
+
             .navbar-toggle {
                 display: block;
             }
+
             .navbar-link {
                 width: 100%;
                 max-width: 300px;
                 justify-content: center;
                 padding: 15px 20px;
-                font-size: 1.1rem;
+                font-size: 1.05rem;
             }
         }
     </style>
 </head>
+
 <body>
+
     <nav class="navbar">
         <div class="navbar-container">
             <a href="{{ url_for('site_engineer_dashboard') }}" class="navbar-brand">
@@ -178,17 +239,14 @@
             </a>
             <ul class="navbar-menu" id="navbarNav">
                 <li><a href="{{ url_for('site_engineer_dashboard') }}" class="navbar-link">
-                    <i class="fas fa-tachometer-alt"></i>
-                    Dashboard
-                </a></li>
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a></li>
                 <li><a href="{{ url_for('site_engineer_invoices') }}" class="navbar-link active">
-                    <i class="fas fa-file-invoice"></i>
-                    Invoices
-                </a></li>
+                        <i class="fas fa-file-invoice"></i> Invoices
+                    </a></li>
                 <li><a href="{{ url_for('logout') }}" class="navbar-link logout">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Logout
-                </a></li>
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a></li>
             </ul>
             <button class="navbar-toggle" id="mobileMenuToggle">
                 <i class="fas fa-bars"></i>
@@ -196,63 +254,213 @@
         </div>
     </nav>
 
-    <div class="container mt-4">
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <div class="invoice-form">
-                    <div class="section-header text-center">
-                        <div class="header-icon mb-2">
-                            <i class="fas fa-edit" style="font-size:2.5rem;"></i>
+    <div class="container form-container mt-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0"><i class="fas fa-edit me-2"></i> Edit Invoice (Resubmit)</h3>
+                <p class="mb-0 mt-2 text-white-50">Invoice #{{ invoice.invoice_number }} – Originally rejected. Update
+                    details below.</p>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="editInvoiceForm">
+                    <!-- Vendor & Client Info -->
+                    <div class="section-title">Vendor & Client Details</div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Vendor Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="vendor_name" value="{{ invoice.vendor_name }}"
+                                required>
                         </div>
-                        <h2 class="mb-0" style="font-size:2rem;">Edit Invoice #{{ invoice.invoice_number }}</h2>
+                        <div class="col-md-6">
+                            <label class="form-label">Bill To (Client Name) <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="bill_to_name"
+                                value="{{ invoice.bill_to_name }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Client Address</label>
+                            <input type="text" class="form-control" name="bill_to_address"
+                                value="{{ invoice.bill_to_address or '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Client Phone</label>
+                            <input type="text" class="form-control" name="bill_to_phone"
+                                value="{{ invoice.bill_to_phone or '' }}">
+                        </div>
                     </div>
 
-                    <form method="POST">
-                        <div class="mb-3">
-                            <label for="vendor_name" class="form-label">Vendor Name:</label>
-                            <input type="text" class="form-control" id="vendor_name" name="vendor_name" 
-                                   value="{{ invoice.vendor_name }}" required>
+                    <!-- Invoice Items Section -->
+                    <div class="section-title">Invoice Items</div>
+                    <div id="itemsContainer">
+                        {% for item in items %}
+                        <div class="item-row">
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-5">
+                                    <label class="form-label">Description</label>
+                                    <input type="text" class="form-control" name="description[]"
+                                        value="{{ item.description }}" required>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Quantity</label>
+                                    <input type="number" step="0.01" class="form-control qty" name="quantity[]"
+                                        value="{{ item.quantity }}" required>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Rate (₹)</label>
+                                    <input type="number" step="0.01" class="form-control rate" name="rate[]"
+                                        value="{{ item.rate }}" required>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Amount (₹)</label>
+                                    <input type="number" step="0.01" class="form-control amount" name="total[]"
+                                        value="{{ item.subtotal }}" readonly style="background:#e9ecef">
+                                </div>
+                                <div class="col-md-1 text-center">
+                                    <i class="fas fa-trash-alt remove-item fa-lg"></i>
+                                </div>
+                            </div>
                         </div>
-
-                        <div class="mb-3">
-                            <label for="total_amount" class="form-label">Total Amount:</label>
-                            <input type="number" class="form-control" id="total_amount" name="total_amount" 
-                                   step="0.01" value="{{ invoice.total_amount }}" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="gst_amount" class="form-label">GST Amount:</label>
-                            <input type="number" class="form-control" id="gst_amount" name="gst_amount" 
-                                   step="0.01" value="{{ invoice.gst_amount }}" required>
-                        </div>
-
-                        <div class="text-center">
-                            <button type="submit" class="btn btn-primary btn-lg px-5">
-                                <i class="fas fa-save me-2"></i>Save Changes & Generate PDF
-                            </button>
-                            <a href="{{ url_for('site_engineer_invoices') }}" class="btn btn-secondary btn-lg px-5 ms-3">
-                                <i class="fas fa-arrow-left me-2"></i>Cancel
-                            </a>
-                        </div>
-                    </form>
-
-                    <div class="items-section">
-                        <h3 class="text-dark mb-3"><i class="fas fa-list me-2"></i>Invoice Items</h3>
-                        <ul class="item-list">
-                            {% for item in items %}
-                                <li>{{ item.description }} - Qty: {{ item.quantity }} x ₹{{ item.rate }} = ₹{{ item.subtotal }}</li>
-                            {% endfor %}
-                        </ul>
+                        {% endfor %}
                     </div>
-                </div>
+                    <button type="button" class="btn btn-sm btn-outline-primary mt-2 mb-4" id="addItemBtn">
+                        <i class="fas fa-plus-circle me-1"></i> Add Item
+                    </button>
+
+                    <!-- GST & Totals -->
+                    <div class="section-title">Tax & Totals</div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label">Subtotal (₹)</label>
+                            <input type="number" step="0.01" class="form-control" id="subtotal" name="subtotal"
+                                value="{{ invoice.subtotal }}" readonly style="background:#e9ecef">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">GST Percentage (%)</label>
+                            <select class="form-select" id="gst_percentage">
+                                <option value="0">0% (Exempted)</option>
+                                <option value="3">3%</option>
+                                <option value="5">5%</option>
+                                <option value="9">9%</option>
+                                <option value="12">12%</option>
+                                <option value="18" selected>18%</option>
+                                <option value="28">28%</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">GST Amount (₹)</label>
+                            <input type="number" step="0.01" class="form-control" id="gst_amount" name="gst_amount"
+                                value="{{ invoice.gst_amount }}" readonly style="background:#e9ecef">
+                        </div>
+                    </div>
+
+                    <div class="total-card text-end">
+                        <h5>Grand Total</h5>
+                        <div class="total-amount" id="grandTotalDisplay">₹{{ "%.2f"|format(invoice.total_amount) }}
+                        </div>
+                        <input type="hidden" name="total_amount" id="total_amount" value="{{ invoice.total_amount }}">
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{{ url_for('site_engineer_invoices') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-1"></i> Resubmit for Approval
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Recalculate item amounts, subtotal, GST, grand total
+        function recalcTotals() {
+            let subtotal = 0;
+            const qtyInputs = document.querySelectorAll('.qty');
+            const rateInputs = document.querySelectorAll('.rate');
+            const amountInputs = document.querySelectorAll('.amount');
+
+            for (let i = 0; i < qtyInputs.length; i++) {
+                let qty = parseFloat(qtyInputs[i].value) || 0;
+                let rate = parseFloat(rateInputs[i].value) || 0;
+                let amount = qty * rate;
+                amountInputs[i].value = amount.toFixed(2);
+                subtotal += amount;
+            }
+
+            document.getElementById('subtotal').value = subtotal.toFixed(2);
+
+            let gstPct = parseFloat(document.getElementById('gst_percentage').value) || 0;
+            let gstAmount = subtotal * gstPct / 100;
+            document.getElementById('gst_amount').value = gstAmount.toFixed(2);
+
+            let grandTotal = subtotal + gstAmount;
+            document.getElementById('total_amount').value = grandTotal.toFixed(2);
+            document.getElementById('grandTotalDisplay').innerHTML = '₹' + grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // Add new empty item row
+        function addItemRow() {
+            const container = document.getElementById('itemsContainer');
+            const newRow = document.createElement('div');
+            newRow.className = 'item-row';
+            newRow.innerHTML = `
+            <div class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label">Description</label>
+                    <input type="text" class="form-control" name="description[]" required>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Quantity</label>
+                    <input type="number" step="0.01" class="form-control qty" name="quantity[]" required>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Rate (₹)</label>
+                    <input type="number" step="0.01" class="form-control rate" name="rate[]" required>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Amount (₹)</label>
+                    <input type="number" step="0.01" class="form-control amount" name="total[]" readonly style="background:#e9ecef">
+                </div>
+                <div class="col-md-1 text-center">
+                    <i class="fas fa-trash-alt remove-item fa-lg"></i>
+                </div>
+            </div>
+        `;
+            container.appendChild(newRow);
+            attachRemoveEvents();
+            attachInputEvents();
+            recalcTotals();
+        }
+
+        function attachRemoveEvents() {
+            document.querySelectorAll('.remove-item').forEach(btn => {
+                btn.onclick = function () {
+                    if (document.querySelectorAll('.item-row').length > 1) {
+                        this.closest('.item-row').remove();
+                        recalcTotals();
+                    } else {
+                        alert("You need at least one item.");
+                    }
+                };
+            });
+        }
+
+        function attachInputEvents() {
+            document.querySelectorAll('.qty, .rate, #gst_percentage').forEach(el => {
+                el.removeEventListener('input', recalcTotals);
+                el.addEventListener('input', recalcTotals);
+            });
+        }
+
+        document.getElementById('addItemBtn').addEventListener('click', addItemRow);
+        attachRemoveEvents();
+        attachInputEvents();
+        recalcTotals();
+
         // Mobile menu toggle
-        document.getElementById('mobileMenuToggle').addEventListener('click', function() {
+        document.getElementById('mobileMenuToggle').addEventListener('click', function () {
             const navbarNav = document.getElementById('navbarNav');
             const icon = this.querySelector('i');
             navbarNav.classList.toggle('active');
@@ -267,15 +475,16 @@
 
         // Close mobile menu when clicking on a link
         document.querySelectorAll('.navbar-link').forEach(link => {
-            link.addEventListener('click', function() {
+            link.addEventListener('click', function () {
                 const navbarNav = document.getElementById('navbarNav');
                 const mobileToggle = document.getElementById('mobileMenuToggle');
                 const icon = mobileToggle.querySelector('i');
                 navbarNav.classList.remove('active');
                 icon.classList.remove('fa-times');
                 icon.classList.add('fa-bars');
-            }); 
+            });
         });
     </script>
 </body>
+
 </html>
