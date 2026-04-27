@@ -61,7 +61,6 @@
             background-repeat: no-repeat;
             background-attachment: fixed;
             padding-top: 80px;
-            /* Add padding for navbar */
         }
 
         .register-container {
@@ -75,6 +74,7 @@
             transform: translateY(0);
             transition: transform 0.3s ease;
             animation: fadeIn 0.5s ease-out;
+            margin-top: 70px;
         }
 
         .register-container:hover {
@@ -187,11 +187,33 @@
                 opacity: 0;
                 transform: translateY(20px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
+        }
+
+        /* ✅ NEW: fadeOut animation for auto-dismiss */
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+                max-height: 100px;
+                margin-bottom: 20px;
+                padding: 14px 16px;
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+                max-height: 0;
+                margin-bottom: 0;
+                padding: 0 16px;
+            }
+        }
+
+        .flash-message.hiding {
+            animation: fadeOut 0.4s ease-in forwards;
+            overflow: hidden;
         }
 
         /* Tablet Styles */
@@ -204,6 +226,7 @@
             .register-container {
                 padding: 30px 25px;
                 max-width: 400px;
+                margin-top: 70px;
             }
 
             .logo img {
@@ -251,6 +274,7 @@
                 padding: 25px 20px;
                 border-radius: 12px;
                 margin: 10px 0;
+                margin-top: 70px;
             }
 
             .register-container:hover {
@@ -316,6 +340,7 @@
             .register-container {
                 padding: 20px 15px;
                 border-radius: 10px;
+                margin-top: 70px;
             }
 
             .logo img {
@@ -356,6 +381,7 @@
             .register-container {
                 max-width: 450px;
                 padding: 50px;
+                margin-top: 70px;
             }
 
             .logo img {
@@ -396,6 +422,7 @@
             .register-container {
                 padding: 15px 20px;
                 margin: 5px 0;
+                margin-top: 70px;
             }
 
             .logo {
@@ -468,7 +495,6 @@
             color: #1a73e8;
         }
 
-        /* keep the original bottom margin on the wrapper */
         .form-group .password-wrapper {
             margin-bottom: 20px;
         }
@@ -561,7 +587,6 @@
                 opacity: 0;
                 transform: translateY(-10px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -609,6 +634,25 @@
                 font-size: 12px;
                 margin-bottom: 10px;
             }
+        }
+
+        /* Submit button style (matches existing design) */
+        button[type="submit"] {
+            width: 100%;
+            background-color: #1a73e8;
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #1557b0;
         }
     </style>
 </head>
@@ -694,46 +738,70 @@
             <!-- Contact Number: For ALL roles -->
             <div class="form-group">
                 <label>Contact Number:</label>
-                <input type="text" name="contact_no" class="form-control" placeholder="Enter 10-digit number"
-                    maxlength="10" pattern="[0-9]{10}" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                <input type="text" name="contact_no" class="form-control"
+                    placeholder="Enter 10-digit number"
+                    maxlength="10"
+                    pattern="[0-9]{10}"
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '')">
             </div>
 
-            <button type="submit" class="btn btn-primary">Register User</button>
+            <button type="submit">Register User</button>
         </form>
+    </div>
 
-        <script>
-            document.querySelector('form').addEventListener('submit', function (e) {
-                const contact = document.querySelector('input[name="contact_no"]').value;
-                if (contact && !/^[0-9]{10}$/.test(contact)) {
-                    e.preventDefault();
-                    alert('Please enter a valid 10-digit contact number.');
-                    document.querySelector('input[name="contact_no"]').focus();
-                    return;
+    <script>
+        // ✅ Auto-dismiss flash messages after 2 seconds
+        document.addEventListener('DOMContentLoaded', function () {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(function (msg) {
+                setTimeout(function () {
+                    // Add hiding class to trigger fadeOut animation
+                    msg.classList.add('hiding');
+                    // Remove from DOM after animation completes (0.4s)
+                    setTimeout(function () {
+                        if (msg && msg.parentNode) {
+                            msg.remove();
+                        }
+                    }, 400);
+                }, 2000); // 2 second visible duration
+            });
+        });
+
+        // Contact number validation
+        document.querySelector('form').addEventListener('submit', function (e) {
+            const contact = document.querySelector('input[name="contact_no"]').value;
+            if (contact && !/^[0-9]{10}$/.test(contact)) {
+                e.preventDefault();
+                alert('Please enter a valid 10-digit contact number.');
+                document.querySelector('input[name="contact_no"]').focus();
+                return;
+            }
+        });
+
+        // Show/hide architect license field based on role
+        document.getElementById('roleSelect').addEventListener('change', function () {
+            const role = this.value;
+            const fields = document.getElementById('architectFields');
+            fields.style.display = (role === 'architect') ? 'block' : 'none';
+        });
+
+        // Password show/hide toggle
+        document.querySelectorAll('.toggle-password').forEach(function (icon) {
+            icon.addEventListener('click', function () {
+                const targetId = this.getAttribute('data-target');
+                const input = document.getElementById(targetId);
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    this.classList.remove('fa-eye');
+                    this.classList.add('fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    this.classList.remove('fa-eye-slash');
+                    this.classList.add('fa-eye');
                 }
             });
-            document.getElementById('roleSelect').addEventListener('change', function () {
-                const role = this.value;
-                const fields = document.getElementById('architectFields');
-                fields.style.display = (role === 'architect') ? 'block' : 'none';
-            });
-            document.querySelectorAll('.toggle-password').forEach(function (icon) {
-                icon.addEventListener('click', function () {
-                    const targetId = this.getAttribute('data-target');
-                    const input = document.getElementById(targetId);
-
-                    if (input.type === 'password') {
-                        input.type = 'text';
-                        this.classList.remove('fa-eye');
-                        this.classList.add('fa-eye-slash');
-                    } else {
-                        input.type = 'password';
-                        this.classList.remove('fa-eye-slash');
-                        this.classList.add('fa-eye');
-                    }
-                });
-            });
-        </script>
+        });
+    </script>
 
 </body>
-
 </html>
