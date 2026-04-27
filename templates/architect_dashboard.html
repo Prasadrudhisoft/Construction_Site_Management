@@ -888,11 +888,11 @@
                                 value="{{ details.design_details.num_floors if details.design_details else '' }}"
                                 required>
                             <label>Area (sqft):</label>
-                            <input type="number" step="0.01" name="area_sqft"
+                            <input type="number" step="any" name="area_sqft"
                                 value="{{ details.design_details.area_sqft if details.design_details else '' }}"
                                 required>
                             <label>Plot Area:</label>
-                            <input type="number" step="0.01" name="plot_area"
+                            <input type="number" step="any" name="plot_area"
                                 value="{{ details.design_details.plot_area if details.design_details else '' }}"
                                 required>
                             <label>FSI:</label>
@@ -1177,10 +1177,10 @@
                             <input type="hidden" name="active_tab" value="cost">
 
                             <label>Architectural Design Cost:</label>
-                            <input type="number" step="0.01" name="architectural_design_cost" required>
+                            <input type="number" step="any" name="architectural_design_cost" required>
 
                             <label>Structural Design Cost:</label>
-                            <input type="number" step="0.01" name="structural_design_cost" required>
+                            <input type="number" step="any" name="structural_design_cost" required>
 
                             <label>Estimation Summary:</label>
                             <textarea name="estimation_summary" required></textarea>
@@ -1189,7 +1189,7 @@
                             <textarea name="boq_reference" required></textarea>
 
                             <label>Cost per Sqft:</label>
-                            <input type="number" step="0.01" name="cost_per_sqft" required>
+                            <input type="number" step="any" name="cost_per_sqft" required>
 
                             <button type="submit"><i class="fas fa-plus-circle"></i> Add Cost Estimation</button>
                         </form>
@@ -1200,11 +1200,11 @@
                             <input type="hidden" name="active_tab" value="cost">
 
                             <label>Architectural Design Cost:</label>
-                            <input type="number" step="0.01" name="architectural_design_cost"
+                            <input type="number" step="any" name="architectural_design_cost"
                                 value="{{ details.cost_estimation.architectural_design_cost or '' }}" required>
 
                             <label>Structural Design Cost:</label>
-                            <input type="number" step="0.01" name="structural_design_cost"
+                            <input type="number" step="any" name="structural_design_cost"
                                 value="{{ details.cost_estimation.structural_design_cost or '' }}" required>
 
                             <label>Estimation Summary:</label>
@@ -1216,7 +1216,7 @@
                                 required>{{ details.cost_estimation.boq_reference or '' }}</textarea>
 
                             <label>Cost per Sqft:</label>
-                            <input type="number" step="0.01" name="cost_per_sqft"
+                            <input type="number" step="any" name="cost_per_sqft"
                                 value="{{ details.cost_estimation.cost_per_sqft or '' }}" required>
 
                             <button type="submit"><i class="fas fa-save"></i> Update Cost Estimation</button>
