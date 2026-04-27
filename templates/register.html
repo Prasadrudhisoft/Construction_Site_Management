@@ -25,14 +25,15 @@
             margin: 0;
             padding: 0;
             display: flex;
-            justify-content: flex-start;
+            justify-content: space-between;
             align-items: center;
+
         }
 
         .navbar-link {
             color: white;
             text-decoration: none;
-            padding: 0.5rem 1rem;
+            padding: 0.5rem 0;
             display: flex;
             align-items: center;
             transition: color 0.3s ease;
@@ -187,6 +188,7 @@
                 opacity: 0;
                 transform: translateY(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -202,6 +204,7 @@
                 margin-bottom: 20px;
                 padding: 14px 16px;
             }
+
             to {
                 opacity: 0;
                 transform: translateY(-10px);
@@ -587,6 +590,7 @@
                 opacity: 0;
                 transform: translateY(-10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -738,11 +742,8 @@
             <!-- Contact Number: For ALL roles -->
             <div class="form-group">
                 <label>Contact Number:</label>
-                <input type="text" name="contact_no" class="form-control"
-                    placeholder="Enter 10-digit number"
-                    maxlength="10"
-                    pattern="[0-9]{10}"
-                    oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                <input type="text" name="contact_no" class="form-control" placeholder="Enter 10-digit number"
+                    maxlength="10" pattern="[0-9]{10}" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
             </div>
 
             <button type="submit">Register User</button>
@@ -804,4 +805,5 @@
     </script>
 
 </body>
+
 </html>

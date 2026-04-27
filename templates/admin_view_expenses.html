@@ -54,12 +54,13 @@
         }
 
         .navbar-container {
-            max-width: 1200px;
+            max-width: 100%;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 0 20px;
+            padding: 0 40px;
         }
 
         .navbar-brand {
@@ -594,7 +595,8 @@
                         <td>{{ expense.project_name }}</td>
                         <td>{{ expense.engineer_name }}</td>
                         <td class="description-cell">{{ expense.description }}</td>
-                        <td class="amount-cell">₹{{ "%.2f"|format(expense.amount) }}</td>
+                        <td class="amount-cell">₹{{ expense.amount|int if expense.amount|float ==
+                            (expense.amount|float)|int else expense.amount }}</td>
                         <td>
                             {% if expense.status == 'Approved' %}
                             <span class="status-approved">Approved</span>

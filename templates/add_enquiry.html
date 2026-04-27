@@ -38,13 +38,14 @@
         }
 
         .navbar-container {
-            max-width: 1200px;
+            max-width: 100%;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
             width: 100%;
             padding: 0 20px;
+            padding: 0% 40px;
             height: 70px;
         }
 
@@ -717,8 +718,8 @@
                 <div class="form-group">
                     <label for="contact"><i class="fas fa-phone"></i> Contact:</label>
                     <input type="tel" id="contact" name="contact_no" required placeholder="Enter your contact number"
-                        pattern="[0-9]{10}" title="Please enter a 10-digit contact number"
-                        value="{{ request.form.contact_no if request.form.contact_no }}">
+                        maxlength="10" value="{{ request.form.contact_no if request.form.contact_no }}"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
                     <div class="error-message" id="contactError">Please enter a valid 10-digit contact number</div>
                 </div>
 
@@ -735,11 +736,11 @@
             </form>
         </div>
 
-        <div class="action-links">
+        <!-- <div class="action-links">
             <a href="{{ url_for('view_enquiries') }}" class="action-link">
                 <i class="fas fa-list"></i> View All Enquiries
             </a>
-        </div>
+        </div> -->
     </div>
 
     <script>
@@ -783,6 +784,8 @@
         });
 
         document.getElementById('contact').addEventListener('input', function () {
+            
+            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);
             const phoneRegex = /^[0-9]{10}$/;
             validateField(this, 'contactError', phoneRegex.test(this.value));
         });

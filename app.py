@@ -40,10 +40,6 @@ from flask import send_file
 import threading
 
 def generate_invoice_pdf_async(invoice_id, org_id, invoice_number, project_name, grand_total, engineer_name):
-    """
-    Background task: generate PDF and update invoice record.
-    Runs in a separate thread.
-    """
     from config import get_connection
     from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
     from reportlab.lib import colors
@@ -51,12 +47,11 @@ def generate_invoice_pdf_async(invoice_id, org_id, invoice_number, project_name,
     from reportlab.lib.pagesizes import A4
     from io import BytesIO
     import os
-    from datetime import datetime  # Add this import
+    from datetime import datetime
 
     conn = get_connection()
     cur = conn.cursor(pymysql.cursors.DictCursor)
     try:
-        # Fetch invoice data (including organization details)
         cur.execute("""
             SELECT i.*, om.company_name, om.company_address, om.company_phone, om.company_email,
                    om.gst_number, om.bank_name, om.bank_account, om.ifsc_code, om.terms_conditions
@@ -71,331 +66,295 @@ def generate_invoice_pdf_async(invoice_id, org_id, invoice_number, project_name,
         cur.execute("SELECT * FROM invoice_items WHERE invoice_id = %s AND org_id = %s", (invoice_id, org_id))
         items = cur.fetchall()
 
-        # Prepare data for PDF
         subtotal = float(invoice['subtotal'])
         gst_amount = float(invoice['gst_amount'])
         grand_total = float(invoice['total_amount'])
         gst_percentage = (gst_amount / subtotal * 100) if subtotal > 0 else 0
-        
-        # ✅ FIXED: Handle both string and datetime for generated_on
+
         if invoice['generated_on']:
             if isinstance(invoice['generated_on'], str):
-                # If it's a string, try to parse it or just use as is
                 try:
                     invoice_date = datetime.strptime(invoice['generated_on'], '%Y-%m-%d').strftime('%Y-%m-%d')
                 except:
-                    # If parsing fails, just use the string as is (assuming it's already in correct format)
                     invoice_date = invoice['generated_on'][:10] if len(invoice['generated_on']) >= 10 else invoice['generated_on']
             else:
-                # It's a datetime object, use strftime
                 invoice_date = invoice['generated_on'].strftime('%Y-%m-%d')
         else:
             invoice_date = ''
 
-        # ========== PDF GENERATION (exact copy from original route) ==========
+        # ========== PDF GENERATION ==========
         buffer = BytesIO()
-        doc = SimpleDocTemplate(buffer, pagesize=A4, leftMargin=30, rightMargin=30, topMargin=30, bottomMargin=30)
+
+        # A4 usable width = 595 - 50 - 50 = 495pt
+        PAGE_W = 495  # single source of truth for all table widths
+
+        doc = SimpleDocTemplate(
+            buffer, pagesize=A4,
+            leftMargin=50, rightMargin=50,
+            topMargin=40, bottomMargin=40
+        )
         styles = getSampleStyleSheet()
 
-        # Professional Color Scheme
-        primary_color = colors.HexColor('#1e3a8a')      # Deep Blue
-        secondary_color = colors.HexColor('#3b82f6')    # Bright Blue
-        accent_color = colors.HexColor('#f59e0b')       # Golden Yellow
-        text_dark = colors.HexColor('#1f2937')          # Dark Gray
-        text_light = colors.HexColor('#6b7280')         # Light Gray
-        bg_light = colors.HexColor('#f8fafc')           # Very Light Gray
-        success_color = colors.HexColor('#059669')      # Green
+        # ── Monochrome palette ──
+        black      = colors.HexColor('#000000')
+        dark       = colors.HexColor('#222222')
+        mid_gray   = colors.HexColor('#666666')
+        light_gray = colors.HexColor('#f5f5f5')
+        border     = colors.HexColor('#bbbbbb')
+        white      = colors.white
 
-        # Enhanced Custom Styles
+        # ── Styles ──
         company_name_style = ParagraphStyle(
-            'company_name',
-            parent=styles['Heading1'],
-            fontSize=24,
-            textColor=primary_color,
-            fontName='Helvetica-Bold',
-            alignment=0,
-            spaceAfter=5
+            'company_name', parent=styles['Normal'],
+            fontSize=16, textColor=black,
+            fontName='Helvetica-Bold', alignment=0, spaceAfter=3
         )
-        
         company_info_style = ParagraphStyle(
-            'company_info',
-            parent=styles['Normal'],
-            fontSize=11,
-            textColor=text_light,
-            fontName='Helvetica',
-            alignment=0,
-            spaceAfter=3
+            'company_info', parent=styles['Normal'],
+            fontSize=9, textColor=mid_gray,
+            fontName='Helvetica', alignment=0, spaceAfter=2
         )
-        
         invoice_title_style = ParagraphStyle(
-            'invoice_title',
-            parent=styles['Heading1'],
-            fontSize=28,
-            textColor=accent_color,
-            fontName='Helvetica-Bold',
-            alignment=2,
-            spaceAfter=10
+            'invoice_title', parent=styles['Normal'],
+            fontSize=28, textColor=black,
+            fontName='Helvetica-Bold', alignment=2
         )
-        
-        section_header_style = ParagraphStyle(
-            'section_header',
-            parent=styles['Heading3'],
-            fontSize=14,
-            textColor=primary_color,
-            fontName='Helvetica-Bold',
-            spaceBefore=15,
-            spaceAfter=8,
-            borderWidth=0,
-            borderColor=primary_color,
-            backColor=bg_light,
-            leftIndent=10,
-            rightIndent=10,
-            topPadding=8,
-            bottomPadding=8
+        section_label_style = ParagraphStyle(
+            'section_label', parent=styles['Normal'],
+            fontSize=8, textColor=mid_gray,
+            fontName='Helvetica-Bold', spaceBefore=14, spaceAfter=4
         )
-        
-        client_info_style = ParagraphStyle(
-            'client_info',
-            parent=styles['Normal'],
-            fontSize=11,
-            textColor=text_dark,
-            fontName='Helvetica',
-            spaceAfter=4
+        body_style = ParagraphStyle(
+            'body', parent=styles['Normal'],
+            fontSize=10, textColor=dark,
+            fontName='Helvetica', spaceAfter=3
         )
-        
         footer_style = ParagraphStyle(
-            'footer',
-            parent=styles['Normal'],
-            fontSize=10,
-            textColor=text_light,
-            fontName='Helvetica-Oblique',
-            alignment=1,
-            spaceBefore=20
+            'footer', parent=styles['Normal'],
+            fontSize=9, textColor=mid_gray,
+            fontName='Helvetica-Oblique', alignment=1, spaceBefore=8
         )
 
         elements = []
 
-        # Professional Header with Company Branding
-        header_table_data = [
+        # ── 1. HEADER: Company left | INVOICE right ──
+        # Both cells sit inside PAGE_W
+        header_data = [[
             [
-                [
-                    Paragraph(invoice['company_name'] or 'Company Name', company_name_style),
-                    Paragraph(invoice['company_address'] or '', company_info_style),
-                    Paragraph(f"Phone: {invoice['company_phone'] or 'N/A'}", company_info_style),
-                    Paragraph(f"Email: {invoice['company_email'] or 'N/A'}", company_info_style),
-                    Paragraph(f"GST: {invoice['gst_number'] or 'N/A'}", company_info_style)
-                ],
-                Paragraph("INVOICE", invoice_title_style)
-            ]
-        ]
-        
-        header_table = Table(header_table_data, colWidths=[300, 250])
+                Paragraph(invoice['company_name'] or 'Company Name', company_name_style),
+                Paragraph(invoice['company_address'] or '', company_info_style),
+                Paragraph(f"Phone: {invoice['company_phone'] or 'N/A'}", company_info_style),
+                Paragraph(f"Email: {invoice['company_email'] or 'N/A'}", company_info_style),
+                Paragraph(f"GST: {invoice['gst_number'] or 'N/A'}", company_info_style),
+            ],
+            Paragraph("INVOICE", invoice_title_style)
+        ]]
+        header_table = Table(header_data, colWidths=[PAGE_W * 0.6, PAGE_W * 0.4])
         header_table.setStyle(TableStyle([
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ('ALIGN', (1, 0), (1, 0), 'RIGHT'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 0),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+            ('TOPPADDING', (0, 0), (-1, -1), 0),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
         ]))
         elements.append(header_table)
-        elements.append(Spacer(1, 20))
+        elements.append(Spacer(1, 10))
 
-        # Invoice Details with Professional Styling
-        invoice_details_data = [
-            ['Invoice Number:', invoice['invoice_number'], 'Invoice Date:', invoice_date]
-        ]
-        
-        invoice_details_table = Table(invoice_details_data, colWidths=[100, 150, 100, 150])
-        invoice_details_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, -1), bg_light),
-            ('TEXTCOLOR', (0, 0), (-1, -1), text_dark),
-            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),  # Labels bold
-            ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),       # Values normal
-            ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),  # Labels bold
-            ('FONTNAME', (3, 0), (3, -1), 'Helvetica'),       # Values normal
-            ('FONTSIZE', (0, 0), (-1, -1), 11),
-            ('GRID', (0, 0), (-1, -1), 1, primary_color),
-            ('ALIGN', (0, 0), (0, -1), 'LEFT'),
-            ('ALIGN', (1, 0), (1, -1), 'LEFT'),
-            ('ALIGN', (2, 0), (2, -1), 'LEFT'),
-            ('ALIGN', (3, 0), (3, -1), 'LEFT'),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        # Divider rule
+        rule = Table([['']], colWidths=[PAGE_W])
+        rule.setStyle(TableStyle([
+            ('LINEBELOW', (0, 0), (-1, -1), 0.75, black),
+            ('TOPPADDING', (0, 0), (-1, -1), 0),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+        ]))
+        elements.append(rule)
+        elements.append(Spacer(1, 12))
+
+        # ── 2. INVOICE META ──
+        # 4 equal columns, total = PAGE_W
+        col = PAGE_W / 4
+        meta_data = [['Invoice Number:', invoice['invoice_number'], 'Invoice Date:', invoice_date]]
+        meta_table = Table(meta_data, colWidths=[col, col, col, col])
+        meta_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), light_gray),
+            ('BOX', (0, 0), (-1, -1), 0.5, border),
+            ('INNERGRID', (0, 0), (-1, -1), 0.5, border),
+            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+            ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),
+            ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
+            ('FONTNAME', (3, 0), (3, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('TEXTCOLOR', (0, 0), (-1, -1), dark),
             ('TOPPADDING', (0, 0), (-1, -1), 8),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-            ('LEFTPADDING', (0, 0), (-1, -1), 12),
+            ('LEFTPADDING', (0, 0), (-1, -1), 10),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ]))
-        elements.append(invoice_details_table)
-        elements.append(Spacer(1, 20))
+        elements.append(meta_table)
+        elements.append(Spacer(1, 14))
 
-        # The rest of your PDF generation code continues here...
-        # (Keep all the remaining code from line 97 onwards exactly as it is)
-        
-        # Bill To Section with Enhanced Design
-        elements.append(Paragraph("BILL TO", section_header_style))
-        bill_to_data = [
+        # ── 3. BILL TO ──
+        elements.append(Paragraph("BILL TO", section_label_style))
+        bill_to_data = [[
             [
-                [
-                    Paragraph(f"<b>{invoice['bill_to_name']}</b>", client_info_style),
-                    Paragraph(invoice['bill_to_address'] or '', client_info_style),
-                    Paragraph(f"Phone: {invoice['bill_to_phone']}" if invoice['bill_to_phone'] else "", client_info_style)
-                ]
+                Paragraph(f"<b>{invoice['bill_to_name']}</b>", body_style),
+                Paragraph(invoice['bill_to_address'] or '', body_style),
+                Paragraph(f"Phone: {invoice['bill_to_phone']}" if invoice['bill_to_phone'] else "", body_style),
             ]
-        ]
-        
-        bill_to_table = Table(bill_to_data, colWidths=[470])
+        ]]
+        bill_to_table = Table(bill_to_data, colWidths=[PAGE_W])
         bill_to_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, -1), bg_light),
-            ('LEFTPADDING', (0, 0), (-1, -1), 15),
+            ('BOX', (0, 0), (-1, -1), 0.5, border),
+            ('LEFTPADDING', (0, 0), (-1, -1), 12),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 12),
             ('TOPPADDING', (0, 0), (-1, -1), 10),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
-            ('BOX', (0, 0), (-1, -1), 1, primary_color),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
         ]))
         elements.append(bill_to_table)
-        elements.append(Spacer(1, 25))
+        elements.append(Spacer(1, 16))
 
-        # Professional Line Items Table
+        # ── 4. LINE ITEMS ──
+        # colWidths must sum to PAGE_W = 495
+        item_col_widths = [30, 235, 90, 50, 90]  # sum = 495
         item_data = [['#', 'Description', 'Rate', 'Qty', 'Amount']]
         for i, it in enumerate(items, start=1):
             item_data.append([
-                str(i), 
-                it['description'], 
-                f"₹{float(it['rate']):,.2f}", 
-                str(it['quantity']), 
-                f"₹{float(it['subtotal']):,.2f}"
+                str(i),
+                it['description'],
+                f"Rs.{float(it['rate']):,.2f}",
+                str(it['quantity']),
+                f"Rs.{float(it['subtotal']):,.2f}"
             ])
 
-        item_table = Table(item_data, colWidths=[30, 220, 80, 50, 90])
+        item_table = Table(item_data, colWidths=item_col_widths)
         item_table.setStyle(TableStyle([
-            # Header row styling
-            ('BACKGROUND', (0, 0), (-1, 0), primary_color),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            # Header row
+            ('BACKGROUND', (0, 0), (-1, 0), black),
+            ('TEXTCOLOR', (0, 0), (-1, 0), white),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 12),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
             ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
-            ('TOPPADDING', (0, 0), (-1, 0), 12),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            
-            # Data rows styling
+            ('TOPPADDING', (0, 0), (-1, 0), 9),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 9),
+            # Data rows
             ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
             ('FONTSIZE', (0, 1), (-1, -1), 10),
-            ('ALIGN', (0, 1), (0, -1), 'CENTER'),  # Serial number center
-            ('ALIGN', (2, 1), (-1, -1), 'RIGHT'),  # Numbers right-aligned
-            ('ALIGN', (1, 1), (1, -1), 'LEFT'),    # Description left-aligned
+            ('TEXTCOLOR', (0, 1), (-1, -1), dark),
+            ('ALIGN', (0, 1), (0, -1), 'CENTER'),
+            ('ALIGN', (2, 1), (-1, -1), 'RIGHT'),
+            ('ALIGN', (1, 1), (1, -1), 'LEFT'),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            
-            # Alternating row colors
-            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_light]),
-            
-            # Grid and borders
-            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e5e7eb')),
-            ('BOX', (0, 0), (-1, -1), 2, primary_color),
-            
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [white, light_gray]),
+            # Borders
+            ('BOX', (0, 0), (-1, -1), 0.75, black),
+            ('INNERGRID', (0, 0), (-1, -1), 0.4, border),
             # Padding
-            ('TOPPADDING', (0, 1), (-1, -1), 8),
-            ('BOTTOMPADDING', (0, 1), (-1, -1), 8),
+            ('TOPPADDING', (0, 1), (-1, -1), 7),
+            ('BOTTOMPADDING', (0, 1), (-1, -1), 7),
             ('LEFTPADDING', (0, 0), (-1, -1), 8),
             ('RIGHTPADDING', (0, 0), (-1, -1), 8),
         ]))
         elements.append(item_table)
-        elements.append(Spacer(1, 20))
+        elements.append(Spacer(1, 14))
 
-        # Professional Totals Section
-        totals_data = [['Subtotal', f'₹{subtotal:,.2f}']]
-
+        # ── 5. TOTALS (right-aligned block, full width for alignment) ──
+        totals_data = [['Subtotal', f'Rs.{subtotal:,.2f}']]
         if gst_amount > 0:
             sgst = gst_amount / 2
             cgst = gst_amount / 2
             totals_data.extend([
-                [f'GST ({gst_percentage:.2f}%)', f'₹{gst_amount:,.2f}'],
-                [f'SGST ({gst_percentage/2:.2f}%)', f'₹{sgst:,.2f}'],
-                [f'CGST ({gst_percentage/2:.2f}%)', f'₹{cgst:,.2f}']
+                [f'GST ({gst_percentage:.2f}%)', f'Rs.{gst_amount:,.2f}'],
+                [f'SGST ({gst_percentage/2:.2f}%)', f'Rs.{sgst:,.2f}'],
+                [f'CGST ({gst_percentage/2:.2f}%)', f'Rs.{cgst:,.2f}'],
             ])
+        totals_data.append(['TOTAL AMOUNT', f'Rs.{grand_total:,.2f}'])
 
-        totals_data.append(['TOTAL AMOUNT', f'₹{grand_total:,.2f}'])
-        
-        totals_table = Table(totals_data, colWidths=[350, 120])
+        # Label col + amount col = PAGE_W
+        totals_table = Table(totals_data, colWidths=[PAGE_W - 130, 130])
         totals_table.setStyle(TableStyle([
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('ALIGN', (0, 0), (0, -1), 'LEFT'),
             ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
             ('FONTNAME', (0, 0), (-1, -2), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, -2), 10),
+            ('TEXTCOLOR', (0, 0), (-1, -2), dark),
+            # Total row
             ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, -2), 11),
-            ('FONTSIZE', (0, -1), (-1, -1), 14),
-            ('TEXTCOLOR', (0, 0), (-1, -2), text_dark),
-            ('TEXTCOLOR', (0, -1), (-1, -1), colors.white),
-            ('BACKGROUND', (0, -1), (-1, -1), success_color),
-            ('TOPPADDING', (0, 0), (-1, -1), 8),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 15),
-            ('LEFTPADDING', (0, 0), (-1, -1), 15),
-            ('BOX', (0, 0), (-1, -1), 1, primary_color),
-            ('INNERGRID', (0, 0), (-1, -2), 0.5, colors.HexColor('#e5e7eb')),
+            ('FONTSIZE', (0, -1), (-1, -1), 11),
+            ('TEXTCOLOR', (0, -1), (-1, -1), white),
+            ('BACKGROUND', (0, -1), (-1, -1), black),
+            # Borders
+            ('BOX', (0, 0), (-1, -1), 0.75, black),
+            ('LINEABOVE', (0, -1), (-1, -1), 0.75, black),
+            ('INNERGRID', (0, 0), (-1, -2), 0.4, border),
+            # Padding
+            ('TOPPADDING', (0, 0), (-1, -1), 7),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 7),
+            ('LEFTPADDING', (0, 0), (-1, -1), 10),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 10),
         ]))
         elements.append(totals_table)
-        elements.append(Spacer(1, 30))
+        elements.append(Spacer(1, 20))
 
-        # Bank Details Section
-        elements.append(Paragraph("BANK ACCOUNT DETAILS", section_header_style))
-        bank_details = [
-            f"Account Holder: {invoice['company_name'] or ''}",
-            f"Bank Name: {invoice['bank_name'] or 'N/A'}",
-            f"Account Number: {invoice['bank_account'] or 'N/A'}",
+        # ── 6. BANK DETAILS ──
+        elements.append(Paragraph("BANK ACCOUNT DETAILS", section_label_style))
+        bank_text = (
+            f"Account Holder: {invoice['company_name'] or ''}\n"
+            f"Bank Name: {invoice['bank_name'] or 'N/A'}\n"
+            f"Account Number: {invoice['bank_account'] or 'N/A'}\n"
             f"IFSC Code: {invoice['ifsc_code'] or 'N/A'}"
-        ]
-        
-        bank_info_data = [['\n'.join(bank_details)]]
-        bank_info_table = Table(bank_info_data, colWidths=[470])
-        bank_info_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, -1), bg_light),
-            ('LEFTPADDING', (0, 0), (-1, -1), 15),
-            ('TOPPADDING', (0, 0), (-1, -1), 12),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-            ('BOX', (0, 0), (-1, -1), 1, primary_color),
+        )
+        bank_table = Table([[bank_text]], colWidths=[PAGE_W])
+        bank_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), light_gray),
+            ('BOX', (0, 0), (-1, -1), 0.5, border),
+            ('LEFTPADDING', (0, 0), (-1, -1), 12),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 12),
+            ('TOPPADDING', (0, 0), (-1, -1), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
             ('FONTSIZE', (0, 0), (-1, -1), 10),
-            ('TEXTCOLOR', (0, 0), (-1, -1), text_dark),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('TEXTCOLOR', (0, 0), (-1, -1), dark),
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
         ]))
-        elements.append(bank_info_table)
-        elements.append(Spacer(1, 25))
+        elements.append(bank_table)
+        elements.append(Spacer(1, 16))
 
-        # Terms and Conditions Section
-        elements.append(Paragraph("TERMS & CONDITIONS", section_header_style))
-        if invoice['terms_conditions']:
-            terms_text = invoice['terms_conditions'].replace('\n', '<br/>')
-        else:
-            terms_text = "• Payment due within 14 days from invoice date<br/>• Late payments subject to 4% monthly interest<br/>• All disputes subject to local jurisdiction"
-        
-        terms_data = [[Paragraph(terms_text, client_info_style)]]
-        terms_table = Table(terms_data, colWidths=[470])
-        terms_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, -1), bg_light),
-            ('LEFTPADDING', (0, 0), (-1, -1), 15),
-            ('TOPPADDING', (0, 0), (-1, -1), 12),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-            ('BOX', (0, 0), (-1, -1), 1, primary_color),
+        # ── 7. TERMS & CONDITIONS ──
+        # elements.append(Paragraph("TERMS & CONDITIONS", section_label_style))
+        # if invoice['terms_conditions']:
+        #     terms_text = invoice['terms_conditions'].replace('\n', '<br/>')
+        # else:
+        #     terms_text = "• Payment due within 14 days from invoice date<br/>• Late payments subject to 4% monthly interest<br/>• All disputes subject to local jurisdiction"
+
+        # terms_table = Table([[Paragraph(terms_text, body_style)]], colWidths=[PAGE_W])
+        # terms_table.setStyle(TableStyle([
+        #     ('BOX', (0, 0), (-1, -1), 0.5, border),
+        #     ('LEFTPADDING', (0, 0), (-1, -1), 12),
+        #     ('RIGHTPADDING', (0, 0), (-1, -1), 12),
+        #     ('TOPPADDING', (0, 0), (-1, -1), 10),
+        #     ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+        # ]))
+        # elements.append(terms_table)
+        # elements.append(Spacer(1, 20))
+
+        # ── 8. FOOTER ──
+        footer_rule = Table([['']], colWidths=[PAGE_W])
+        footer_rule.setStyle(TableStyle([
+            ('LINEABOVE', (0, 0), (-1, -1), 0.5, border),
+            ('TOPPADDING', (0, 0), (-1, -1), 0),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
         ]))
-        elements.append(terms_table)
-        elements.append(Spacer(1, 30))
-
-        # Professional Footer
+        elements.append(footer_rule)
         elements.append(Paragraph(
             "Thank you for your business! We appreciate your trust in our services.",
             footer_style
         ))
-        
-        # Add a subtle line above footer
-        footer_line = Table([['']], colWidths=[470])
-        footer_line.setStyle(TableStyle([
-            ('LINEABOVE', (0, 0), (-1, -1), 2, accent_color),
-            ('TOPPADDING', (0, 0), (-1, -1), 10),
-        ]))
-        elements.append(footer_line)
 
-        # Build PDF
+        # ── Build PDF ──
         doc.build(elements)
         buffer.seek(0)
 
-        # Save PDF to static folder
         pdf_filename = f"{invoice['invoice_number']}.pdf"
         pdf_dir = os.path.join(app.static_folder, 'invoice_pdfs')
         os.makedirs(pdf_dir, exist_ok=True)
@@ -403,11 +362,9 @@ def generate_invoice_pdf_async(invoice_id, org_id, invoice_number, project_name,
         with open(pdf_path, 'wb') as f:
             f.write(buffer.getvalue())
 
-        # Update invoice record with pdf_filename
         cur.execute("UPDATE invoices SET pdf_filename = %s WHERE id = %s", (pdf_filename, invoice_id))
         conn.commit()
 
-        # Notify user that PDF is ready
         create_notification(
             user_id=invoice['site_engineer_id'],
             org_id=org_id,
@@ -5709,13 +5666,14 @@ def edit_invoice(invoice_id):
     if session.get('role') != 'site_engineer':
         return redirect(url_for('login'))
     
-    engineer_id = session.get('user_id')
+    engineer_id = session['user_id']
     conn = None
     cursor = None
     try:
         conn = get_connection()
         cursor = conn.cursor(pymysql.cursors.DictCursor)
-        # Verify the invoice belongs to this engineer
+        
+        # Verify invoice belongs to this engineer and is rejected
         cursor.execute("""
             SELECT * FROM invoices 
             WHERE id = %s AND site_engineer_id = %s AND status = 'Rejected' AND org_id = %s
@@ -5727,53 +5685,79 @@ def edit_invoice(invoice_id):
             return redirect(url_for('site_engineer_invoices'))
         
         # Get invoice items
-        cursor.execute("SELECT * FROM invoice_items WHERE invoice_id = %s and org_id = %s", (invoice_id, session['org_id']))
+        cursor.execute("SELECT * FROM invoice_items WHERE invoice_id = %s AND org_id = %s", (invoice_id, session['org_id']))
         items = cursor.fetchall()
         
         if request.method == 'POST':
+            # Get updated data from form (includes dynamic items)
             vendor_name = request.form.get('vendor_name')
             total_amount = float(request.form.get('total_amount'))
             gst_amount = float(request.form.get('gst_amount'))
+            subtotal = float(request.form.get('subtotal'))
+            bill_to_name = request.form.get('bill_to_name')
+            bill_to_address = request.form.get('bill_to_address')
+            bill_to_phone = request.form.get('bill_to_phone')
             
-            # Generate new PDF
-            new_pdf_filename = f"invoice_{uuid.uuid4().hex}.pdf"
-            pdf_path = os.path.join("static", "invoice_pdfs", new_pdf_filename)
-            os.makedirs(os.path.dirname(pdf_path), exist_ok=True)
+            # Delete old items
+            cursor.execute("DELETE FROM invoice_items WHERE invoice_id = %s AND org_id = %s", (invoice_id, session['org_id']))
             
-            from reportlab.pdfgen import canvas
-            from reportlab.lib.pagesizes import letter
-            c = canvas.Canvas(pdf_path, pagesize=letter)
-            width, height = letter
-            y = height - 50
-            c.drawString(50, y, f"Invoice Number: {invoice['invoice_number']}")
-            y -= 30
-            c.drawString(50, y, f"Vendor Name: {vendor_name}")
-            y -= 30
-            c.drawString(50, y, f"Total Amount: ₹{total_amount:.2f}")
-            y -= 30
-            c.drawString(50, y, f"GST Amount: ₹{gst_amount:.2f}")
-            y -= 50
-            c.drawString(50, y, "Items:")
-            y -= 30
-            for item in items:
-                line = f"{item['description']} - Qty: {item['quantity']} x ₹{item['rate']} = ₹{item['subtotal']}"
-                c.drawString(70, y, line)
-                y -= 25
-            c.save()
+            # Insert updated items
+            descriptions = request.form.getlist('description[]')
+            quantities = request.form.getlist('quantity[]')
+            rates = request.form.getlist('rate[]')
+            totals = request.form.getlist('total[]')
             
-            # Update invoice with new details and reset status
+            for i in range(len(descriptions)):
+                if descriptions[i].strip():
+                    cursor.execute("""
+                        INSERT INTO invoice_items (invoice_id, description, quantity, rate, subtotal, org_id)
+                        VALUES (%s, %s, %s, %s, %s, %s)
+                    """, (invoice_id, descriptions[i].strip(), float(quantities[i]), float(rates[i]), float(totals[i]), session['org_id']))
+            
+            # Update invoice – reset pdf_filename to NULL, status to Pending
             cursor.execute("""
                 UPDATE invoices 
-                SET vendor_name=%s, total_amount=%s, gst_amount=%s, pdf_filename=%s,
-                    status='Pending', rejection_reason=NULL
+                SET vendor_name=%s, total_amount=%s, gst_amount=%s, subtotal=%s,
+                    bill_to_name=%s, bill_to_address=%s, bill_to_phone=%s,
+                    pdf_filename=NULL, status='Pending', rejection_reason=NULL
                 WHERE id=%s
-            """, (vendor_name, total_amount, gst_amount, new_pdf_filename, invoice_id))
+            """, (vendor_name, total_amount, gst_amount, subtotal, bill_to_name, bill_to_address, bill_to_phone, invoice_id))
             conn.commit()
             
-            flash("Invoice updated and resubmitted for approval.", "success")
+            # 🔥 Start background PDF generation (reuse existing function)
+            cursor.execute("SELECT project_name FROM projects WHERE id = %s", (invoice['project_id'],))
+            proj = cursor.fetchone()
+            project_name = proj['project_name'] if proj else 'Unknown Project'
+            
+            import threading
+            from flask import current_app
+            thread = threading.Thread(
+                target=generate_invoice_pdf_async,
+                args=(invoice_id, session['org_id'], invoice['invoice_number'], 
+                      project_name, total_amount, session.get('name'))
+            )
+            thread.daemon = True
+            thread.start()
+            
+            # Notify admins that a revised invoice is pending
+            cursor.execute("SELECT id FROM register WHERE role = 'admin' AND org_id = %s", (session['org_id'],))
+            admins = cursor.fetchall()
+            for admin in admins:
+                create_notification(
+                    user_id=admin['id'],
+                    org_id=session['org_id'],
+                    notification_type='invoice_pending',
+                    reference_id=invoice_id,
+                    message=f'Revised invoice #{invoice["invoice_number"]} submitted by {session.get("name")} — ₹{total_amount:,.2f}',
+                    cur=cursor
+                )
+            conn.commit()
+            
+            flash('Invoice updated and resubmitted for approval. PDF will be generated in the background.', 'success')
             return redirect(url_for('site_engineer_invoices'))
         
         return render_template('edit_invoice.html', invoice=invoice, items=items)
+        
     except Exception as e:
         if conn:
             conn.rollback()
@@ -5784,7 +5768,6 @@ def edit_invoice(invoice_id):
             cursor.close()
         if conn:
             conn.close()
-    
 @app.route('/admin/assign_accountant', methods=['GET', 'POST'])
 def assign_accountant():
     if 'role' not in session or session['role'] != 'admin':

@@ -25,13 +25,14 @@
             align-items: center;
         }
         .navbar-container {
-            max-width: 1200px;
+            max-width: 100%;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
             width: 100%;
             padding: 0 20px;
+            padding: 0 40px;
             height: 70px;
         }
         .navbar-brand {
@@ -609,12 +610,12 @@
                 {% endif %}
             </div>
         {% endif %}
-        <div class="action-links">
+        <!-- <div class="action-links">
             <a href="{{ url_for('dashboard') }}" class="action-link back-link">
                 <i class="fas fa-arrow-left"></i> Back to Dashboard
             </a>
-            <!-- <a href="{{ url_for('logout') }}" class="action-link"><i class="fas fa-sign-out-alt"></i> Logout</a> -->
-        </div>
+           
+        </div> -->
     </div>
     <script>
         // Mobile menu toggle
