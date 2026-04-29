@@ -1466,6 +1466,58 @@ def create_notification(user_id, org_id, notification_type,
             if _conn: _conn.close()
 
 
+def notify_architect_update(project_id, org_id, section_name, cur):
+    """Notify admin and site engineer when architect updates project details."""
+    try:
+        cur.execute("""
+            SELECT project_name, site_id 
+            FROM projects 
+            WHERE id = %s AND org_id = %s
+        """, (project_id, org_id))
+        project = cur.fetchone()
+        if not project:
+            return
+        
+        project_name = project['project_name']
+        message = f'Architect updated {section_name} for project: {project_name}'
+
+        # Notify all admins
+        cur.execute("""
+            SELECT id FROM register 
+            WHERE role = 'admin' AND org_id = %s
+        """, (org_id,))
+        admins = cur.fetchall()
+        for admin in admins:
+            create_notification(
+                user_id=admin['id'],
+                org_id=org_id,
+                notification_type='project_details_updated',
+                reference_id=int(project_id),
+                message=message,
+                cur=cur
+            )
+
+        # Notify site engineer of this project
+        if project['site_id']:
+            cur.execute("""
+                SELECT site_engineer_id 
+                FROM sites 
+                WHERE site_id = %s
+            """, (project['site_id'],))
+            site = cur.fetchone()
+            if site and site['site_engineer_id']:
+                create_notification(
+                    user_id=site['site_engineer_id'],
+                    org_id=org_id,
+                    notification_type='project_details_updated',
+                    reference_id=int(project_id),
+                    message=message,
+                    cur=cur
+                )
+    except Exception as e:
+        print(f"Error in notify_architect_update: {e}")            
+
+
 def get_unread_notifications_count(user_id, org_id, notification_type=None):
     """Get count of unread notifications for a user"""
     conn = get_connection()
@@ -2338,13 +2390,13 @@ def add_design_details():
             conn = get_connection()
             cur = conn.cursor()
 
-            # Check if design details already exist for this project
-            cur.execute("SELECT id FROM design_details WHERE project_id = %s AND org_id = %s",
-                        (project_id, session['org_id']))
+            cur.execute("""
+                SELECT id FROM design_details 
+                WHERE project_id = %s AND org_id = %s
+            """, (project_id, session['org_id']))
             existing = cur.fetchone()
 
             if existing:
-                # Update existing record
                 cur.execute("""
                     UPDATE design_details
                     SET building_usage = %s,
@@ -2353,17 +2405,22 @@ def add_design_details():
                         plot_area = %s,
                         fsi = %s
                     WHERE project_id = %s AND org_id = %s
-                """, (building_usage, num_floors, area_sqft, plot_area, fsi, project_id, session['org_id']))
+                """, (building_usage, num_floors, area_sqft, plot_area, fsi,
+                      project_id, session['org_id']))
                 flash("Design details updated successfully.")
             else:
-                # Insert new record if not present
                 cur.execute("""
-                    INSERT INTO design_details (project_id, building_usage, num_floors, area_sqft, plot_area, fsi, org_id)
+                    INSERT INTO design_details 
+                        (project_id, building_usage, num_floors, area_sqft, plot_area, fsi, org_id)
                     VALUES (%s, %s, %s, %s, %s, %s, %s)
-                """, (project_id, building_usage, num_floors, area_sqft, plot_area, fsi, session['org_id']))
+                """, (project_id, building_usage, num_floors, area_sqft,
+                      plot_area, fsi, session['org_id']))
                 flash("Design details added successfully.")
 
+            # Notify admin and site engineer
+            notify_architect_update(project_id, session['org_id'], 'Design Details', cur)
             conn.commit()
+
         except Exception as e:
             if conn:
                 conn.rollback()
@@ -2373,7 +2430,7 @@ def add_design_details():
                 cur.close()
             if conn:
                 conn.close()
-        
+
         return redirect(url_for('architect_dashboard', project_id=project_id))
 
     return redirect(url_for('login'))
@@ -2396,13 +2453,13 @@ def add_structural_details():
             conn = get_connection()
             cur = conn.cursor()
 
-            # Check if structural details already exist for this project and org
-            cur.execute("SELECT id FROM structural_details WHERE project_id = %s AND org_id = %s",
-                        (project_id, session['org_id']))
+            cur.execute("""
+                SELECT id FROM structural_details 
+                WHERE project_id = %s AND org_id = %s
+            """, (project_id, session['org_id']))
             existing = cur.fetchone()
 
             if existing:
-                # Update existing record
                 cur.execute("""
                     UPDATE structural_details
                     SET foundation_type = %s,
@@ -2411,17 +2468,23 @@ def add_structural_details():
                         beam_details = %s,
                         load_calculation = %s
                     WHERE project_id = %s AND org_id = %s
-                """, (foundation_type, framing_system, slab_type, beam_details, load_calculation, project_id, session['org_id']))
+                """, (foundation_type, framing_system, slab_type, beam_details,
+                      load_calculation, project_id, session['org_id']))
                 flash("Structural details updated successfully.")
             else:
-                # Insert new record
                 cur.execute("""
-                    INSERT INTO structural_details (project_id, foundation_type, framing_system, slab_type, beam_details, load_calculation, org_id)
+                    INSERT INTO structural_details 
+                        (project_id, foundation_type, framing_system, slab_type, 
+                         beam_details, load_calculation, org_id)
                     VALUES (%s, %s, %s, %s, %s, %s, %s)
-                """, (project_id, foundation_type, framing_system, slab_type, beam_details, load_calculation, session['org_id']))
+                """, (project_id, foundation_type, framing_system, slab_type,
+                      beam_details, load_calculation, session['org_id']))
                 flash("Structural details added successfully.")
 
+            # Notify admin and site engineer
+            notify_architect_update(project_id, session['org_id'], 'Structural Details', cur)
             conn.commit()
+
         except Exception as e:
             if conn:
                 conn.rollback()
@@ -2435,7 +2498,6 @@ def add_structural_details():
         return redirect(url_for('architect_dashboard', project_id=project_id))
 
     return redirect(url_for('login'))
-
 
 ########################################## Add Material Specifications ######################################
 
@@ -2455,13 +2517,13 @@ def add_material_specification():
             conn = get_connection()
             cur = conn.cursor()
 
-            # Check if material specification already exists for this project and org
-            cur.execute("SELECT id FROM material_specifications WHERE project_id = %s AND org_id = %s",
-                        (project_id, session['org_id']))
+            cur.execute("""
+                SELECT id FROM material_specifications 
+                WHERE project_id = %s AND org_id = %s
+            """, (project_id, session['org_id']))
             existing = cur.fetchone()
 
             if existing:
-                # Update existing record
                 cur.execute("""
                     UPDATE material_specifications
                     SET primary_material = %s,
@@ -2470,17 +2532,24 @@ def add_material_specification():
                         flooring_material = %s,
                         fire_safety_materials = %s
                     WHERE project_id = %s AND org_id = %s
-                """, (primary_material, wall_material, roofing_material, flooring_material, fire_safety_materials, project_id, session['org_id']))
+                """, (primary_material, wall_material, roofing_material,
+                      flooring_material, fire_safety_materials,
+                      project_id, session['org_id']))
                 flash("Material specifications updated successfully.")
             else:
-                # Insert new record
                 cur.execute("""
-                    INSERT INTO material_specifications (project_id, primary_material, wall_material, roofing_material, flooring_material, fire_safety_materials, org_id)
+                    INSERT INTO material_specifications 
+                        (project_id, primary_material, wall_material, roofing_material,
+                         flooring_material, fire_safety_materials, org_id)
                     VALUES (%s, %s, %s, %s, %s, %s, %s)
-                """, (project_id, primary_material, wall_material, roofing_material, flooring_material, fire_safety_materials, session['org_id']))
+                """, (project_id, primary_material, wall_material, roofing_material,
+                      flooring_material, fire_safety_materials, session['org_id']))
                 flash("Material specifications added successfully.")
 
+            # Notify admin and site engineer
+            notify_architect_update(project_id, session['org_id'], 'Material Specifications', cur)
             conn.commit()
+
         except Exception as e:
             if conn:
                 conn.rollback()
@@ -2494,7 +2563,6 @@ def add_material_specification():
         return redirect(url_for('architect_dashboard', project_id=project_id))
 
     return redirect(url_for('login'))
-
     
 import os
 from werkzeug.utils import secure_filename
@@ -2516,7 +2584,10 @@ def upload_layout():
         project_id = request.form.get('project_id')
         uploaded_by = session.get('user_id')
 
-        required_types = ['Architectural Layout', 'Elevation Drawing', 'Section/Structural', 'Electrical', 'Plumbing/Sanitation']
+        required_types = [
+            'Architectural Layout', 'Elevation Drawing',
+            'Section/Structural', 'Electrical', 'Plumbing/Sanitation'
+        ]
 
         if layout_type in required_types and (not file or not allowed_file(file.filename)):
             flash("PDF file is required for selected layout type.")
@@ -2537,6 +2608,7 @@ def upload_layout():
         try:
             conn = get_connection()
             cur = conn.cursor()
+
             cur.execute("""
                 SELECT id FROM drawing_documents
                 WHERE project_id = %s AND layout_type = %s
@@ -2544,7 +2616,6 @@ def upload_layout():
             existing = cur.fetchone()
 
             if existing:
-                # Update existing document
                 cur.execute("""
                     UPDATE drawing_documents
                     SET document_title = %s,
@@ -2554,15 +2625,21 @@ def upload_layout():
                     WHERE project_id = %s AND layout_type = %s
                 """, (document_title, file_path, uploaded_by, project_id, layout_type))
             else:
-                # Insert new document
                 cur.execute("""
-                    INSERT INTO drawing_documents (
-                        project_id, layout_type, document_title, file_path, uploaded_by, org_id
-                    ) VALUES (%s, %s, %s, %s, %s, %s)
-                """, (project_id, layout_type, document_title, file_path, uploaded_by, session['org_id']))
+                    INSERT INTO drawing_documents 
+                        (project_id, layout_type, document_title, file_path, uploaded_by, org_id)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                """, (project_id, layout_type, document_title, file_path,
+                      uploaded_by, session['org_id']))
 
+            # Notify admin and site engineer
+            notify_architect_update(
+                project_id, session['org_id'],
+                f'Drawing Documents ({layout_type})', cur
+            )
             conn.commit()
             flash("Drawing document uploaded successfully.")
+
         except Exception as e:
             if conn:
                 conn.rollback()
@@ -2577,7 +2654,6 @@ def upload_layout():
 
     flash("Unauthorized access.")
     return redirect(url_for('login'))
-
 
 ################################# site conditions #######################################
 @app.route('/upload_site_conditions', methods=['POST'])
@@ -2608,16 +2684,23 @@ def upload_site_conditions():
         try:
             conn = get_connection()
             cur = conn.cursor()
+
             cur.execute("""
-                INSERT INTO site_conditions (project_id, soil_report_path, water_table_level, topo_counter_map_path, org_id)
+                INSERT INTO site_conditions 
+                    (project_id, soil_report_path, water_table_level, 
+                     topo_counter_map_path, org_id)
                 VALUES (%s, %s, %s, %s, %s)
                 ON DUPLICATE KEY UPDATE
-                    soil_report_path = VALUES(soil_report_path),
-                    water_table_level = VALUES(water_table_level),
+                    soil_report_path      = VALUES(soil_report_path),
+                    water_table_level     = VALUES(water_table_level),
                     topo_counter_map_path = VALUES(topo_counter_map_path)
             """, (project_id, soil_path, water_table_level, topo_path, session['org_id']))
+
+            # Notify admin and site engineer
+            notify_architect_update(project_id, session['org_id'], 'Site Conditions', cur)
             conn.commit()
             flash("Site condition documents uploaded successfully.")
+
         except Exception as e:
             if conn:
                 conn.rollback()
@@ -3756,17 +3839,23 @@ def upload_utilities_services():
         try:
             conn = get_connection()
             cur = conn.cursor()
+
             cur.execute("""
-                INSERT INTO utilities_services (
-                    project_id, water_supply_source, drainage_system_type, power_supply_source, org_id
-                ) VALUES (%s, %s, %s, %s, %s)
+                INSERT INTO utilities_services 
+                    (project_id, water_supply_source, drainage_system_type,
+                     power_supply_source, org_id)
+                VALUES (%s, %s, %s, %s, %s)
                 ON DUPLICATE KEY UPDATE
-                    water_supply_source = VALUES(water_supply_source),
+                    water_supply_source  = VALUES(water_supply_source),
                     drainage_system_type = VALUES(drainage_system_type),
-                    power_supply_source = VALUES(power_supply_source)
+                    power_supply_source  = VALUES(power_supply_source)
             """, (project_id, water_supply, drainage_system, power_supply, session['org_id']))
+
+            # Notify admin and site engineer
+            notify_architect_update(project_id, session['org_id'], 'Utilities & Services', cur)
             conn.commit()
             flash("Utilities Services uploaded successfully.")
+
         except Exception as e:
             if conn:
                 conn.rollback()
@@ -3880,38 +3969,46 @@ def generate_cost_estimation_pdf():
         return jsonify({'success': False, 'error': 'Unauthorized'}), 403
 
     try:
-        project_id = request.form['project_id']
-        architectural_cost = request.form['architectural_design_cost']
-        structural_cost = request.form['structural_design_cost']
-        estimation_summary = request.form['estimation_summary']
-        boq_reference = request.form['boq_reference']
-        cost_per_sqft = request.form['cost_per_sqft']
+        project_id      = request.form['project_id']
+        architectural_cost  = request.form['architectural_design_cost']
+        structural_cost     = request.form['structural_design_cost']
+        estimation_summary  = request.form['estimation_summary']
+        boq_reference       = request.form['boq_reference']
+        cost_per_sqft       = request.form['cost_per_sqft']
         org_id = session['org_id']
 
         conn = get_connection()
         cur = conn.cursor()
-        cur.execute("SELECT id FROM cost_estimation WHERE project_id = %s AND org_id = %s", (project_id, org_id))
+
+        cur.execute("""
+            SELECT id FROM cost_estimation 
+            WHERE project_id = %s AND org_id = %s
+        """, (project_id, org_id))
         existing = cur.fetchone()
 
         if existing:
             cur.execute("""
                 UPDATE cost_estimation 
                 SET architectural_design_cost = %s,
-                    structural_design_cost = %s,
-                    estimation_summary = %s,
-                    boq_reference = %s,
-                    cost_per_sqft = %s,
-                    generated_on = NOW()
+                    structural_design_cost    = %s,
+                    estimation_summary        = %s,
+                    boq_reference             = %s,
+                    cost_per_sqft             = %s,
+                    generated_on              = NOW()
                 WHERE project_id = %s AND org_id = %s
-            """, (architectural_cost, structural_cost, estimation_summary, boq_reference, cost_per_sqft, project_id, org_id))
+            """, (architectural_cost, structural_cost, estimation_summary,
+                  boq_reference, cost_per_sqft, project_id, org_id))
         else:
             cur.execute("""
                 INSERT INTO cost_estimation 
-                (project_id, architectural_design_cost, structural_design_cost, 
-                 estimation_summary, boq_reference, cost_per_sqft, generated_on, org_id)
+                    (project_id, architectural_design_cost, structural_design_cost, 
+                     estimation_summary, boq_reference, cost_per_sqft, generated_on, org_id)
                 VALUES (%s, %s, %s, %s, %s, %s, NOW(), %s)
-            """, (project_id, architectural_cost, structural_cost, estimation_summary,
-                  boq_reference, cost_per_sqft, org_id))
+            """, (project_id, architectural_cost, structural_cost,
+                  estimation_summary, boq_reference, cost_per_sqft, org_id))
+
+        # Notify admin and site engineer
+        notify_architect_update(project_id, org_id, 'Cost Estimation', cur)
         conn.commit()
         cur.close()
         conn.close()
@@ -3931,7 +4028,6 @@ def generate_cost_estimation_pdf():
         print("Error in generate_cost_estimation_pdf:", e)
         flash(f"Error saving cost estimation: {str(e)}", "error")
         return redirect(url_for('architect_dashboard'))
-    
 @app.route('/api/cost_estimation_status/<int:project_id>')
 def api_cost_estimation_status(project_id):
     if 'user_id' not in session:
@@ -4206,6 +4302,8 @@ def view_project_details():
     user_id = session['user_id']
     role = session['role']
     org_id = session.get('org_id')
+
+    mark_notifications_as_read(user_id, org_id, 'project_details_updated')
 
     conn = get_connection()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
@@ -7727,6 +7825,7 @@ def get_notification_counts():
             counts['vendor_inventory'] = type_counts.get('vendor_approved', 0)
             counts['legal']            = type_counts.get('legal_updated', 0)
             counts['communication']    = unread_messages
+            counts['project_updates']  = type_counts.get('project_details_updated', 0)
 
         elif role == 'admin':
             counts['invoices']         = type_counts.get('invoice_pending', 0)
@@ -7739,6 +7838,7 @@ def get_notification_counts():
             counts['inventory']        = type_counts.get('inventory_added', 0)
             counts['communication']    = unread_messages
             counts['bills']            = type_counts.get('bill_added', 0)
+            counts['project_updates']  = type_counts.get('project_details_updated', 0)
 
         elif role == 'architect':
             counts['projects']      = type_counts.get('project_assigned', 0)

@@ -517,6 +517,7 @@
                     <a href="{{ url_for('view_project_details') }}" class="nav-link">
                         <i class="fas fa-eye"></i>
                         <span>View Architect Projects</span>
+                        <span class="notification-badge" id="badge-project-updates"></span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -783,6 +784,8 @@
                     updateBadge('badge-vendor-inventory', data.vendor_inventory || 0);
                     updateBadge('badge-legal', data.legal || 0);
                     updateBadge('badge-communication', data.communication || 0);
+                    updateBadge('badge-project-updates',  data.project_updates || 0);
+
                 })
                 .catch(error => console.error('❌ Error:', error));
         }
@@ -863,6 +866,7 @@
                 'invoices': 'invoice_rejected',
                 'site_engineer_approved_vendor_quotations': 'vendor_approved',
                 'legal_compliances_dashboard': 'legal_updated',
+                'view_project_details': 'project_details_updated',
             };
 
             document.querySelectorAll('.nav-link').forEach(link => {
