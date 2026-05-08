@@ -1322,6 +1322,14 @@ os.makedirs(UPLOAD_FOLDER_INVOICES, exist_ok=True)
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY')
 
+app.config['MAX_CONTENT_LENGTH'] = 4 * 1024 * 1024  # 4MB max upload size
+
+@app.errorhandler(413)
+def file_too_large(e):
+    flash('File is too large. Maximum allowed size is 4MB.', 'danger')
+    return redirect(request.referrer or url_for('login'))
+
+
 moment = Moment(app)
 
 ZEPTOMAIL_API_URL = "https://api.zeptomail.in/v1.1/email"
@@ -2584,6 +2592,8 @@ def upload_layout():
         project_id = request.form.get('project_id')
         uploaded_by = session.get('user_id')
 
+        MAX_SIZE = 4 * 1024 * 1024  # 4MB
+
         required_types = [
             'Architectural Layout', 'Elevation Drawing',
             'Section/Structural', 'Electrical', 'Plumbing/Sanitation'
@@ -2595,6 +2605,15 @@ def upload_layout():
 
         file_path = ""
         if file and allowed_file(file.filename):
+            file.seek(0, 2)
+            file_size = file.tell()
+            file.seek(0)
+
+            if file_size > MAX_SIZE:
+                flash("Drawing file is too large. Please upload a file smaller than 4MB.", "error")
+                return redirect(url_for('architect_dashboard', project_id=project_id))
+
+
             filename = secure_filename(file.filename)
             save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(save_path)
@@ -2664,16 +2683,31 @@ def upload_site_conditions():
         water_table_level = request.form.get('water_table_level')
         project_id = request.form.get('project_id')
 
+        MAX_SIZE = 4 * 1024 * 1024  # 4MB
+
         soil_path = ""
         topo_path = ""
 
         if soil_file and allowed_file(soil_file.filename):
+
+            soil_file.seek(0, 2)
+            soil_size = soil_file.tell()
+            soil_file.seek(0)
+            if soil_size > MAX_SIZE:
+                flash("Soil report file is too large. Please upload a file smaller than 4MB.", "error")
+                return redirect(url_for('architect_dashboard', project_id=project_id))
             soil_filename = secure_filename("soil_" + soil_file.filename)
             soil_save_path = os.path.join(app.config['UPLOAD_FOLDER'], soil_filename)
             soil_file.save(soil_save_path)
             soil_path = os.path.join('uploads', soil_filename).replace("\\", "/")
 
         if topo_file and allowed_file(topo_file.filename):
+            topo_file.seek(0, 2)
+            topo_size = topo_file.tell()
+            topo_file.seek(0)
+            if topo_size > MAX_SIZE:
+                flash("Topo map file is too large. Please upload a file smaller than 4MB.", "error")
+                return redirect(url_for('architect_dashboard', project_id=project_id))
             topo_filename = secure_filename("topo_" + topo_file.filename)
             topo_save_path = os.path.join(app.config['UPLOAD_FOLDER'], topo_filename)
             topo_file.save(topo_save_path)
@@ -3186,9 +3220,20 @@ def upload_progress():
         remark = request.form['remark']
         today = date.today()
 
+        max_file_size = 4 * 1024 * 1024  # 4MB
+
         img_filename = None
         img = request.files.get('image')
         if img and img.filename:
+            img.seek(0, 2)
+            img_size = img.tell()
+            img.seek(0)
+
+            if img_size > max_file_size:
+                flash('Image file is too large. Maximum allowed size is 4MB.', 'danger')
+                return redirect(url_for('upload_progress'))
+        
+
             ext = img.filename.rsplit('.', 1)[1].lower()
             if ext in ['jpg', 'jpeg', 'png', 'gif']:
                 img_filename = f"{int(time.time())}_{secure_filename(img.filename)}"
@@ -4858,6 +4903,14 @@ def generate_invoice():
                     allowed_extensions = {'.png', '.jpg', '.jpeg'}
                     file_ext = os.path.splitext(file.filename)[1].lower()
                     if file_ext in allowed_extensions:
+
+                        file.seek(0, 2)
+                        file_size = file.tell()
+                        file.seek(0)
+
+                        if file_size > 4 * 1024 * 1024:  # 4MB limit
+                            flash("Invoice image is too large. Please upload a file smaller than 4MB.", "error")
+                            return redirect(request.url)
                         try:
                             safe_name = secure_filename(file.filename)
                             unique_name = f"{invoice_number}_{safe_name}"
@@ -8155,6 +8208,15 @@ def bills_and_payments():
             if 'bill_file' in request.files:
                 file = request.files['bill_file']
                 if file and file.filename and allowed_bill_file(file.filename):
+                    file.seek(0, 2)
+                    file_size = file.tell()
+                    file.seek(0)
+                    max_size = 4 * 1024 * 1024  # 4 MB
+                    if file_size > max_size:
+                        flash('Uploaded file is too large. Please upload a file smaller than 4 MB.', 'danger')
+                        return redirect(url_for('bills_and_payments'))
+                    
+
                     filename    = secure_filename(file.filename)
                     file_ext    = filename.rsplit('.', 1)[1].lower()
                     unique_name = f"bill_{bill_no.replace('/', '_')}_{int(time.time())}.{file_ext}"

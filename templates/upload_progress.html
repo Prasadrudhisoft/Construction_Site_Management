@@ -700,7 +700,7 @@
                             </div>
                         </div>
                         <small style="color:#7f8c8d;font-size:0.85rem;margin-top:6px;display:block;">Maximum file size:
-                            10MB</small>
+                            4MB</small>
                     </div>
                 </div>
                 <div class="form-group">
@@ -717,7 +717,7 @@
                             </div>
                         </div>
                         <small style="color:#7f8c8d;font-size:0.85rem;margin-top:6px;display:block;">Maximum file size:
-                            10MB</small>
+                            4MB</small>
                     </div>
                 </div>
             </div>
@@ -827,13 +827,13 @@
             input.addEventListener('change', function () {
                 const wrapper = this.closest('.file-input');
                 const textElement = wrapper.querySelector('.file-input-text span');
-                const maxSize = 10 * 1024 * 1024;
+                const maxSize = 4 * 1024 * 1024;
 
                 if (this.files.length > 0) {
                     const file = this.files[0];
                     if (file.size > maxSize) {
                         const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
-                        alert('❌ File size exceeds 10MB!\n\nFile: ' + file.name + '\nSize: ' + fileSizeMB + 'MB\nMaximum allowed: 10MB\n\nPlease upload a smaller file.');
+                        alert('❌ File size exceeds 4MB!\n\nFile: ' + file.name + '\nSize: ' + fileSizeMB + 'MB\nMaximum allowed: 4MB\n\nPlease upload a smaller file.');
                         this.value = '';
                         textElement.textContent = this.accept.includes('image') ? 'Click to upload image or drag and drop' : 'Click to upload PDF or drag and drop';
                         wrapper.style.borderColor = '#e74c3c';
@@ -879,7 +879,7 @@
                         e.preventDefault();
                         const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
                         const fileType = input.accept.includes('image') ? 'Image' : 'PDF';
-                        alert('❌ ' + fileType + ' file size exceeds 10MB!\n\nFile: ' + file.name + '\nSize: ' + fileSizeMB + 'MB\nMaximum allowed: 10MB');
+                        alert('❌ ' + fileType + ' file size exceeds 4MB!\n\nFile: ' + file.name + '\nSize: ' + fileSizeMB + 'MB\nMaximum allowed: 4MB');
                         input.focus();
                         return;
                     }

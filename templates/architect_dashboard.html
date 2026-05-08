@@ -991,7 +991,7 @@
                             <label>Select PDF File:</label>
                             <input type="file" name="layout_file" accept=".pdf" required>
                             <small style="color:#7f8c8d;font-size:0.85rem;margin-top:4px;display:block;">Maximum file
-                                size: 10MB</small>
+                                size: 4MB</small>
                             <button type="submit" id="uploadDrawingBtn">
                                 <i class="fas fa-upload"></i> Upload Drawing
                             </button>
@@ -1037,7 +1037,7 @@
                                             <input type="file" name="layout_file" accept=".pdf">
                                             <small
                                                 style="color:#7f8c8d;font-size:0.85rem;margin-top:4px;display:block;">Max:
-                                                10MB</small>
+                                                4MB</small>
                                         </td>
                                         <td>
                                             <button type="submit"><i class="fas fa-save"></i> Update</button>
@@ -1069,7 +1069,7 @@
                             <label>Soil Report (PDF):</label>
                             <input type="file" name="soil_report" accept=".pdf" required>
                             <small style="color:#7f8c8d;font-size:0.85rem;margin-top:4px;display:block;">Maximum file
-                                size: 10MB</small>
+                                size: 4MB</small>
 
                             <label>Water Table Level:</label>
                             <input type="text" name="water_table_level" required>
@@ -1077,7 +1077,7 @@
                             <label>Topography Counter Map (PDF):</label>
                             <input type="file" name="topo_map" accept=".pdf" required>
                             <small style="color:#7f8c8d;font-size:0.85rem;margin-top:4px;display:block;">Maximum file
-                                size: 10MB</small>
+                                size: 4MB</small>
 
                             <button type="submit"><i class="fas fa-plus-circle"></i> Add Site Conditions</button>
                         </form>
@@ -1100,7 +1100,7 @@
                             <label>Update Soil Report (PDF):</label>
                             <input type="file" name="soil_report" accept=".pdf">
                             <small style="color:#7f8c8d;font-size:0.85rem;margin-top:4px;display:block;">Maximum file
-                                size: 10MB</small>
+                                size: 4MB</small>
 
                             <label>Water Table Level:</label>
                             <input type="text" name="water_table_level"
@@ -1118,7 +1118,7 @@
                             <label>Update Topography Counter Map (PDF):</label>
                             <input type="file" name="topo_map" accept=".pdf">
                             <small style="color:#7f8c8d;font-size:0.85rem;margin-top:4px;display:block;">Maximum file
-                                size: 10MB</small>
+                                size: 4MB</small>
 
                             <button type="submit"><i class="fas fa-save"></i> Update Site Conditions</button>
                         </form>
@@ -1334,9 +1334,9 @@
             }
         });
 
-        // ==================== FILE SIZE VALIDATION (10MB LIMIT) ====================
+        // ==================== FILE SIZE VALIDATION (4MB LIMIT) ====================
         document.addEventListener('DOMContentLoaded', function () {
-            const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+            const maxSize = 4 * 1024 * 1024; // 4MB in bytes
 
             // Get all file inputs
             const fileInputs = document.querySelectorAll('input[type="file"]');
@@ -1354,11 +1354,11 @@
                         const label = e.target.previousElementSibling?.textContent || 'File';
 
                         // Show alert with file details
-                        alert('❌ File size exceeds 10MB!\n\n' +
+                        alert('❌ File size exceeds 4MB!\n\n' +
                             'Field: ' + label + '\n' +
                             'File: ' + fileName + '\n' +
                             'Size: ' + fileSizeMB + 'MB\n' +
-                            'Maximum allowed: 10MB\n\n' +
+                            'Maximum allowed: 4MB\n\n' +
                             'Please upload a smaller PDF file.');
 
                         // Clear the file input
@@ -1382,7 +1382,7 @@
 
             if (fileInputs.length === 0) return; // No file inputs in this form
 
-            const maxSize = 10 * 1024 * 1024; // 10MB
+            const maxSize = 4 * 1024 * 1024; // 4MB
 
             for (let input of fileInputs) {
                 if (input.files.length > 0) {
@@ -1397,7 +1397,7 @@
                             'Field: ' + label + '\n' +
                             'File: ' + file.name + '\n' +
                             'Size: ' + fileSizeMB + 'MB\n' +
-                            'Maximum allowed: 10MB\n\n' +
+                            'Maximum allowed: 4MB\n\n' +
                             'Please upload a smaller file before submitting.');
 
                         // Scroll to the problematic input

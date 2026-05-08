@@ -677,6 +677,7 @@
                                         <label class="form-label">Upload Bill (PDF or Image)</label>
                                         <input type="file" class="form-control" name="bill_file"
                                             accept=".pdf,.png,.jpg,.jpeg,.gif">
+                                        <small class="text-muted">Allowed: PDF, PNG, JPG, GIF. Max size: 4MB.</small>
                                     </div>
                                 </div>
                             </div>
@@ -827,7 +828,7 @@
 
                             <!-- Submit -->
                             <div class="text-center mt-4">
-                                <button type="submit" class="btn btn-primary btn-lg px-5">
+                                <button type="button" class="btn btn-primary btn-lg px-5" onclick="submitBillForm()">
                                     <i class="fas fa-save me-2"></i>Add Bill
                                 </button>
                                 <a href="{{ url_for('admin_dashboard') if session.role == 'admin' else url_for('accountant_dashboard') }}"
@@ -979,6 +980,32 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
+        function submitBillForm() {
+            // ✅ FILE SIZE CHECK
+            const fileInput = document.querySelector('input[name="bill_file"]');
+            if (fileInput && fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const maxSize = 5 * 1024 * 1024; // 5MB
+
+                if (file.size > maxSize) {
+                    const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                    alert(
+                        `File is too large!\n\n` +
+                        `File: ${file.name}\n` +
+                        `Size: ${fileSizeMB}MB\n` +
+                        `Maximum allowed: 5MB\n\n` +
+                        `Please upload a smaller file.`
+                    );
+                    fileInput.value = ''; // Clear the file input
+                    return; // Stop form submission
+                }
+            }
+
+            // ✅ If size is fine, submit the form
+            document.getElementById('billForm').submit();
+        }
+
+
         // Tab switching
         function switchTab(tab, btn) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));

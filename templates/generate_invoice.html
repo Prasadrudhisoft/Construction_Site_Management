@@ -472,7 +472,7 @@
                             </label>
                             <input type="file" class="form-control" id="invoice_image" name="invoice_image"
                                 accept="image/png, image/jpeg, image/jpg">
-                            <small class="text-muted">Allowed formats: png, jpg, jpeg. Max size 5 MB.</small>
+                            <small class="text-muted">Allowed formats: png, jpg, jpeg. Max size 4 MB.</small>
                         </div>
 
                         <!-- Hidden inputs for totals -->
@@ -767,6 +767,20 @@
         }
 
         function submitInvoiceForm() {
+
+
+            const imageInput = document.getElementById('invoice_image');
+            if (imageInput && imageInput.files.length > 0) {
+                const file = imageInput.files[0];
+                const maxSize = 4 * 1024 * 1024; // 4 MB
+                if (file.size > maxSize) {
+                    const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                    alert(`Image file is too large!\n\nFile: ${file.name}\nSize: ${fileSizeMB}MB\nMaximum allowed: 4MB\n\nPlease upload a smaller image.`);
+                    imageInput.value = '';
+                    return;
+                }
+
+            }
             // Phone validation
             const phone = document.getElementById('bill_to_phone').value;
             if (phone && !/^[0-9]{10}$/.test(phone)) {
