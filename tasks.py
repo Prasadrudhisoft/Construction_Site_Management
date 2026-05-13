@@ -27,7 +27,7 @@ load_dotenv()
 
 logger = get_task_logger(__name__)
 
-REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6380/0")
+REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
 
 celery = Celery(
     "tasks",
