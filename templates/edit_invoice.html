@@ -335,14 +335,21 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">GST Percentage (%)</label>
-                            <select class="form-select" id="gst_percentage">
-                                <option value="0">0% (Exempted)</option>
-                                <option value="3">3%</option>
-                                <option value="5">5%</option>
-                                <option value="9">9%</option>
-                                <option value="12">12%</option>
-                                <option value="18" selected>18%</option>
-                                <option value="28">28%</option>
+                            <select class="form-select" id="gst_percentage" name="gst_percentage">
+                                <option value="0" {% if (invoice.get('gst_percentage', 0)|float)==0 %}selected{% endif
+                                    %}>0% (Exempted)</option>
+                                <option value="3" {% if (invoice.get('gst_percentage', 0)|float)==3 %}selected{% endif
+                                    %}>3%</option>
+                                <option value="5" {% if (invoice.get('gst_percentage', 0)|float)==5 %}selected{% endif
+                                    %}>5%</option>
+                                <option value="9" {% if (invoice.get('gst_percentage', 0)|float)==9 %}selected{% endif
+                                    %}>9%</option>
+                                <option value="12" {% if (invoice.get('gst_percentage', 0)|float)==12 %}selected{% endif
+                                    %}>12%</option>
+                                <option value="18" {% if (invoice.get('gst_percentage', 0)|float)==18 %}selected{% endif
+                                    %}>18%</option>
+                                <option value="28" {% if (invoice.get('gst_percentage', 0)|float)==28 %}selected{% endif
+                                    %}>28%</option>
                             </select>
                         </div>
                         <div class="col-md-4">

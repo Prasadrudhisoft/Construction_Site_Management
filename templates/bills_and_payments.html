@@ -955,7 +955,7 @@
                                         <td>
                                             <button class="action-btn btn-download" title="Download Bill as PDF"
                                                 data-url="{{ url_for('download_bill_pdf', bill_id=bill.id) }}"
-                                                onclick="triggerDownload(this.dataset.url, 'GET', null, this)">
+                                                onclick="window.open(this.dataset.url, '_blank')">
                                                 <i class="fas fa-file-pdf"></i> PDF
                                             </button>
                                         </td>

@@ -699,7 +699,7 @@
     {% if invoices %}
     <div class="invoice-grid">
         {% for invoice in invoices %}
-        <div class="invoice-card">
+        <div class="invoice-card" data-invoice-id="{{ invoice.id }}">
 
             <!-- Card Header -->
             <div class="invoice-header">
@@ -789,7 +789,9 @@
                         <i class="fas fa-file-pdf"></i> View PDF
                     </a>
                     {% else %}
-                    <span class="no-pdf">PDF not available</span>
+                    <span class="no-pdf">
+                        <i class="fas fa-spinner fa-spin"></i> PDF generating...
+                    </span>
                     {% endif %}
 
                     {% if invoice.status == 'Rejected' %}
@@ -855,6 +857,61 @@
                 icon.classList.add('fa-bars');
             });
         });
+    </script>
+    <script>
+        // ── PDF POLLING: Auto-check when PDF is ready ──
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // Find all cards that show "PDF not available"
+            const noPdfSpans = document.querySelectorAll('.no-pdf');
+
+            noPdfSpans.forEach(function (span) {
+                // Get invoice_id from the card
+                const card = span.closest('.invoice-card');
+                if (!card) return;
+
+                const invoiceId = card.getAttribute('data-invoice-id');
+                if (!invoiceId) return;
+
+                // Start polling for this invoice
+                pollPdfReady(invoiceId, span);
+            });
+        });
+
+        function pollPdfReady(invoiceId, spanElement) {
+            let attempts = 0;
+            const maxAttempts = 20; // Poll for max 40 seconds
+
+            const interval = setInterval(function () {
+                attempts++;
+
+                fetch('/api/invoice_pdf_status/' + invoiceId)
+                    .then(function (res) { return res.json(); })
+                    .then(function (data) {
+                        if (data.status === 'ready') {
+                            clearInterval(interval);
+
+                            // Replace "PDF not available" with Download button
+                            const actionsDiv = spanElement.closest('.invoice-actions');
+                            if (actionsDiv) {
+                                spanElement.remove();
+
+                                // Reload page to show the PDF button properly
+                                location.reload();
+                            }
+                        }
+                    })
+                    .catch(function () {
+                        clearInterval(interval);
+                    });
+
+                // Stop after max attempts
+                if (attempts >= maxAttempts) {
+                    clearInterval(interval);
+                }
+
+            }, 2000); // Check every 2 seconds
+        }
     </script>
 </body>
 
