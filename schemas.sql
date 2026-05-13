@@ -312,6 +312,7 @@ CREATE TABLE IF NOT EXISTS invoices (
     generated_on           DATETIME DEFAULT CURRENT_TIMESTAMP,
     pdf_filename           VARCHAR(255),
     gst_amount             DECIMAL(10,2) DEFAULT 0.00,
+    gst_percentage         DECIMAL(5,2) DEFAULT 0.00,
     invoice_number         VARCHAR(50),
     bill_to_name           VARCHAR(255),
     bill_to_address        TEXT,
