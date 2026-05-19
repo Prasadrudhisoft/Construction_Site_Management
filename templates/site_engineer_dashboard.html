@@ -12,10 +12,11 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
+            /* font-family: 'Poppins', sans-serif; */
         }
 
         body {
+            font-family: 'Poppins', sans-serif;
             background-color: #f4f6f8;
             min-height: 100vh;
         }
@@ -32,7 +33,7 @@
             position: fixed;
             top: 20px;
             left: 20px;
-            z-index: 1001;
+            z-index: 1100;
             background: #2c3e50;
             color: white;
             border: none;
@@ -40,7 +41,7 @@
             border-radius: 8px;
             cursor: pointer;
             font-size: 18px;
-            transition: all 0.3s ease;
+            transition: opacity 0.3s ease;
         }
 
         .mobile-menu-toggle:hover {
@@ -54,6 +55,8 @@
             color: white;
             padding: 20px;
             position: fixed;
+            top: 0;
+            left: 0;
             height: 100vh;
             overflow-y: auto;
             overflow-x: hidden;
@@ -151,12 +154,12 @@
         /* Badge color variations */
         .notification-badge.high {
             background: linear-gradient(135deg, #e74c3c, #c0392b);
-             margin-left: -30px;
+            margin-left: -30px;
         }
 
         .notification-badge.medium {
             background: linear-gradient(135deg, #f39c12, #e67e22);
-             margin-left: -30px;
+            margin-left: -30px;
         }
 
         .notification-badge.low {
@@ -286,12 +289,19 @@
 
         /* Mobile Styles */
         @media screen and (max-width: 768px) {
+            .sidebar-header {
+                padding: 15px;
+            }
+
             .mobile-menu-toggle {
                 display: block;
             }
 
             .sidebar {
                 transform: translateX(-100%);
+                top: 0;
+                left: 0;
+                height: 100vh;
             }
 
             .sidebar.active {
@@ -745,15 +755,30 @@
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.querySelector('.sidebar-overlay');
+            const toggle = document.querySelector('.mobile-menu-toggle');
+
             sidebar.classList.toggle('active');
             overlay.classList.toggle('active');
+
+            if (sidebar.classList.contains('active')) {
+                toggle.style.opacity = '0';
+                toggle.style.pointerEvents = 'none';
+            } else {
+                toggle.style.opacity = '1';
+                toggle.style.pointerEvents = 'auto';
+            }
         }
 
         function closeSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.querySelector('.sidebar-overlay');
+            const toggle = document.querySelector('.mobile-menu-toggle');
+
+            toggle.style.opacity = '1';
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
+            toggle.style.pointerEvents = 'auto';
+
         }
 
         document.querySelectorAll('.nav-link').forEach(link => {
@@ -784,7 +809,7 @@
                     updateBadge('badge-vendor-inventory', data.vendor_inventory || 0);
                     updateBadge('badge-legal', data.legal || 0);
                     updateBadge('badge-communication', data.communication || 0);
-                    updateBadge('badge-project-updates',  data.project_updates || 0);
+                    updateBadge('badge-project-updates', data.project_updates || 0);
 
                 })
                 .catch(error => console.error('❌ Error:', error));
@@ -859,6 +884,32 @@
                 }
             });
 
+            let lastScrollY = 0;
+
+            window.addEventListener('scroll', function () {
+                const toggle = document.querySelector('.mobile-menu-toggle');
+                const sidebar = document.getElementById('sidebar');
+
+                if (sidebar.classList.contains('active')) return;
+
+                if (window.innerWidth <= 768) {
+                    if (window.scrollY > lastScrollY && window.scrollY > 50) {
+                        toggle.style.opacity = '0';
+                        toggle.style.pointerEvents = 'none';
+                    } else {
+                        toggle.style.opacity = '1';
+                        toggle.style.pointerEvents = 'auto';
+                    }
+
+                    if (window.scrollY === 0) {
+                        toggle.style.opacity = '1';
+                        toggle.style.pointerEvents = 'auto';
+                    }
+                }
+
+                lastScrollY = window.scrollY;
+            }, { passive: true });
+
             // ✅ KEEP YOUR EXISTING NAVIGATION MARK-AS-READ CODE
             // Site Engineer example:
             const navLinks = {
@@ -896,6 +947,8 @@
                 });
             });
         });
+
+
     </script>
 </body>
 
