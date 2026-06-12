@@ -10,12 +10,14 @@ CREATE TABLE IF NOT EXISTS register (
     contact_no    VARCHAR(20),
     org_id        INT           NOT NULL,
     status        ENUM('active','disabled') DEFAULT 'active',
+    last_seen     DATETIME DEFAULT NULL,
 
     INDEX idx_reg_org      (org_id),
     INDEX idx_reg_role     (role),
     INDEX idx_reg_org_role (org_id, role),
     INDEX idx_register_email (email),
     INDEX idx_register_org_role_name (org_id, role, name)
+    INDEX idx_register_last_seen (last_seen)
 );
 
 
@@ -678,3 +680,8 @@ CREATE TABLE IF NOT EXISTS bills_and_payments (
     INDEX idx_bills_accountant (accountant_id, org_id, created_at DESC),
     INDEX idx_bills_work_order (work_order_number, org_id)
 );
+
+
+-- ALTER TABLE register 
+-- ADD COLUMN last_seen DATETIME DEFAULT NULL,
+-- ADD INDEX idx_register_last_seen (last_seen);
