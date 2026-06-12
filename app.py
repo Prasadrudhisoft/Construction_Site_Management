@@ -1336,6 +1336,38 @@ def file_too_large(e):
 
 moment = Moment(app)
 
+# ════════════════════════════════════════════════════════════
+# LAST SEEN HEARTBEAT — updates register.last_seen on every request
+# ════════════════════════════════════════════════════════════
+@app.before_request
+def update_user_last_seen():
+    user_id = session.get('user_id')
+    if not user_id:
+        return
+    # Skip static files to avoid pointless DB writes
+    if request.endpoint == 'static':
+        return
+
+    # ✅ Throttle: only update if last update was > 30 seconds ago
+    now_ts = time.time()
+    last_update_ts = session.get('_last_seen_update_ts', 0)
+    if (now_ts - last_update_ts) < 30:
+        return  # Skip — already updated recently
+
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute(
+            "UPDATE register SET last_seen = NOW() WHERE id = %s",
+            (user_id,)
+        )
+        conn.commit()
+        cur.close()
+        conn.close()
+        # Remember when we last updated (stored in session per user)
+        session['_last_seen_update_ts'] = now_ts
+    except Exception as e:
+        print(f"[last_seen] update failed: {e}")
 ZEPTOMAIL_API_URL = "https://api.zeptomail.in/v1.1/email"
 ZEPTOMAIL_API_TOKEN = os.environ.get("ZEPTO_TOKEN")
 ZEPTOMAIL_FROM_EMAIL = "contact@rudhisoft.com"
@@ -2765,6 +2797,21 @@ def upload_site_conditions():
 
 @app.route('/logout')
 def logout():
+    user_id = session.get('user_id')
+    # ✅ Record final last_seen at logout time
+    if user_id:
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute(
+                "UPDATE register SET last_seen = NOW() WHERE id = %s",
+                (user_id,)
+            )
+            conn.commit()
+            cur.close()
+            conn.close()
+        except Exception as e:
+            print(f"[logout last_seen] update failed: {e}")
     session.clear()
     return redirect(url_for('login'))
 
@@ -3845,17 +3892,23 @@ def view_architects():
         conn = get_connection()
         cur = conn.cursor(pymysql.cursors.DictCursor)
         try:
-
             if session['role'] == 'site_engineer':
                 site_engineer_id = session['user_id']
-                cur.execute("SELECT * FROM architects WHERE site_engineer_id = %s", (site_engineer_id,))
+                cur.execute("""
+                    SELECT * FROM architects 
+                    WHERE site_engineer_id = %s AND org_id = %s
+                """, (site_engineer_id, session['org_id']))  
             else:
-                cur.execute("SELECT * FROM architects")
+                cur.execute("""
+                    SELECT * FROM architects 
+                    WHERE org_id = %s
+                """, (session['org_id'],))  
 
             architects = cur.fetchall()
         finally:
             cur.close()
             conn.close()
+
         return render_template('view_architects.html', architects=architects)
     return redirect(url_for('login'))
 
@@ -4585,7 +4638,7 @@ def submit_legal_compliances():
         if conn:
             conn.rollback()
         flash(f'Error: {str(e)}', 'danger')
-        return redirect(url_for('login'))
+        return redirect(url_for('submit_legal_compliances'))
     finally:
         if cur:
             cur.close()
@@ -6162,7 +6215,7 @@ def get_users():
         # Get users
         if current_user_role == 'admin':
             cursor.execute("""
-                SELECT r.id, r.name, r.role,
+                SELECT r.id, r.name, r.role, r.last_seen,
                     (SELECT COUNT(*) FROM messages 
                         WHERE receiver_id = %s AND sender_id = r.id AND is_read = FALSE) AS unread_count
                 FROM register r
@@ -6171,7 +6224,7 @@ def get_users():
             """, (current_user_id, current_user_id, org_id))
         elif current_user_role == 'accountant':
             cursor.execute("""
-                SELECT r.id, r.name, r.role,
+                SELECT r.id, r.name, r.role, r.last_seen,
                     (SELECT COUNT(*) FROM messages 
                         WHERE receiver_id = %s AND sender_id = r.id AND is_read = FALSE) AS unread_count
                 FROM register r
@@ -6180,7 +6233,7 @@ def get_users():
             """, (current_user_id, current_user_id, org_id))
         else:
             cursor.execute("""
-                SELECT r.id, r.name, r.role,
+                SELECT r.id, r.name, r.role, r.last_seen,
                     (SELECT COUNT(*) FROM messages 
                         WHERE receiver_id = %s AND sender_id = r.id AND is_read = FALSE) AS unread_count
                 FROM register r
@@ -6210,6 +6263,10 @@ def get_users():
         if user['role'] == 'site_engineer':
             user['role'] = 'project_manager'
 
+        if user.get('last_seen'):
+            user['last_seen'] = user['last_seen'].isoformat()   
+        else:
+            user['last_seen'] = None
     return jsonify(users)
 
 @app.route('/get_messages/<int:receiver_id>')
@@ -8168,56 +8225,56 @@ def delete_notification_api(notification_id):
         conn.close()
 
 
-@app.route('/api/notifications/debug-all')
-def debug_all_notifications():
-    """DEBUG ONLY - See all notifications in database"""
-    conn = None
-    cur = None
-    try:
-        conn = get_connection()
-        cur = conn.cursor(pymysql.cursors.DictCursor)
+# @app.route('/api/notifications/debug-all')
+# def debug_all_notifications():
+#     """DEBUG ONLY - See all notifications in database"""
+#     conn = None
+#     cur = None
+#     try:
+#         conn = get_connection()
+#         cur = conn.cursor(pymysql.cursors.DictCursor)
         
-        # Get ALL notifications (not filtered by user)
-        cur.execute("""
-            SELECT 
-                n.id,
-                n.user_id,
-                n.org_id,
-                n.notification_type,
-                n.reference_id,
-                n.message,
-                n.is_read,
-                n.created_at,
-                r.name as user_name,
-                r.role as user_role
-            FROM notifications n
-            LEFT JOIN register r ON n.user_id = r.id
-            ORDER BY n.created_at DESC
-            LIMIT 50
-        """)
+#         # Get ALL notifications (not filtered by user)
+#         cur.execute("""
+#             SELECT 
+#                 n.id,
+#                 n.user_id,
+#                 n.org_id,
+#                 n.notification_type,
+#                 n.reference_id,
+#                 n.message,
+#                 n.is_read,
+#                 n.created_at,
+#                 r.name as user_name,
+#                 r.role as user_role
+#             FROM notifications n
+#             LEFT JOIN register r ON n.user_id = r.id
+#             ORDER BY n.created_at DESC
+#             LIMIT 50
+#         """)
         
-        all_notifs = cur.fetchall()
+#         all_notifs = cur.fetchall()
         
-        # Convert datetime
-        for n in all_notifs:
-            if n['created_at']:
-                n['created_at'] = n['created_at'].strftime('%Y-%m-%d %H:%M:%S')
+#         # Convert datetime
+#         for n in all_notifs:
+#             if n['created_at']:
+#                 n['created_at'] = n['created_at'].strftime('%Y-%m-%d %H:%M:%S')
         
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-    finally:
-        if cur:
-            cur.close()
-        if conn:
-            conn.close()
+#     except Exception as e:
+#         return jsonify({'error': str(e)}), 500
+#     finally:
+#         if cur:
+#             cur.close()
+#         if conn:
+#             conn.close()
     
-    return jsonify({
-        'total_count': len(all_notifs),
-        'notifications': all_notifs,
-        'session_user_id': session.get('user_id'),
-        'session_org_id': session.get('org_id'),
-        'session_role': session.get('role')
-    })
+#     return jsonify({
+#         'total_count': len(all_notifs),
+#         'notifications': all_notifs,
+#         'session_user_id': session.get('user_id'),
+#         'session_org_id': session.get('org_id'),
+#         'session_role': session.get('role')
+#     })
 
     ################################### NOTIFICATION TYPE CONSTANTS ###################################
 
