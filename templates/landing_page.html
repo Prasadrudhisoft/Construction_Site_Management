@@ -10,7 +10,6 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Base Styles */
         * {
             margin: 0;
             padding: 0;
@@ -95,6 +94,7 @@
         .section {
             padding: 100px 0;
             position: relative;
+            scroll-margin-top: 80px;
         }
 
         .section-title {
@@ -128,7 +128,6 @@
             animation: fadeInUp 0.8s ease 0.2s forwards;
         }
 
-        /* Animations */
         @keyframes fadeInUp {
             to {
                 opacity: 1;
@@ -184,7 +183,7 @@
             }
         }
 
-        /* Header - Fully Responsive Design */
+        /* HEADER */
         header {
             background: rgba(34, 34, 34, 0.95);
             backdrop-filter: blur(10px);
@@ -204,7 +203,6 @@
             min-height: 60px;
         }
 
-        /* Logo Styling - Much Larger Size */
         .logo {
             display: flex;
             align-items: center;
@@ -227,16 +225,6 @@
             transform: scale(1.05);
         }
 
-        /* .logo-text {
-            color: #fff;
-            font-family: 'Roboto Slab', serif;
-            font-size: clamp(24px, 4vw, 32px);
-            font-weight: 700;
-            letter-spacing: 0.8px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        } */
-
-        /* Navigation Links - Enhanced Responsive */
         .nav-links {
             display: flex;
             list-style: none;
@@ -292,7 +280,6 @@
             font-weight: 600;
         }
 
-        /* Mobile Menu Button - Enhanced */
         .mobile-menu-btn {
             display: none;
             background: none;
@@ -317,7 +304,6 @@
             transform: scale(0.95);
         }
 
-        /* Mobile Menu Icon Animation */
         .mobile-menu-btn i {
             transition: all 0.3s ease;
         }
@@ -327,25 +313,15 @@
             color: #FFD700;
         }
 
-        /* Hero Section - Adjusted for larger header */
+        /* HERO */
         .hero {
-            background: linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(34, 34, 34, 0.8)),
-                url('/static/images/landing.png') no-repeat center center/cover;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(34, 34, 34, 0.8)), url('/static/images/landing.png') no-repeat center center/cover;
             color: #fff;
             padding: 220px 0 120px;
             text-align: center;
             position: relative;
             overflow: hidden;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            pointer-events: none;
+            scroll-margin-top: 80px;
         }
 
         .hero-content {
@@ -383,7 +359,7 @@
             animation: fadeInUp 1s ease 0.9s forwards;
         }
 
-        /* Features Section */
+        /* FEATURES */
         .features {
             background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
             position: relative;
@@ -422,31 +398,27 @@
         }
 
         .feature-card:nth-child(1) {
-            animation-delay: 0.1s;
+            animation-delay: 0.1s
         }
 
         .feature-card:nth-child(2) {
-            animation-delay: 0.2s;
+            animation-delay: 0.2s
         }
 
         .feature-card:nth-child(3) {
-            animation-delay: 0.3s;
+            animation-delay: 0.3s
         }
 
         .feature-card:nth-child(4) {
-            animation-delay: 0.4s;
+            animation-delay: 0.4s
         }
 
         .feature-card:nth-child(5) {
-            animation-delay: 0.5s;
+            animation-delay: 0.5s
         }
 
         .feature-card:nth-child(6) {
-            animation-delay: 0.6s;
-        }
-
-        .feature-card:nth-child(7) {
-            animation-delay: 0.7s;
+            animation-delay: 0.6s
         }
 
         .feature-card::before {
@@ -497,11 +469,23 @@
             line-height: 1.6;
         }
 
-        /* How It Works Section */
+        /* ===================== HOW IT WORKS - NEW DESIGN ===================== */
         .how-it-works {
-            background: linear-gradient(135deg, #222 0%, #333 100%);
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
             color: #fff;
             position: relative;
+            overflow: hidden;
+        }
+
+        .how-it-works::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.04) 0%, transparent 60%);
+            pointer-events: none;
         }
 
         .how-it-works .section-title {
@@ -509,69 +493,176 @@
         }
 
         .how-it-works .section-subtitle {
-            color: #ccc;
+            color: #bbb;
+        }
+
+        .workflow-eyebrow {
+            text-align: center;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: #FFD700;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease 0.1s forwards;
+        }
+
+        /* Horizontal scrolling card strip */
+        .steps-wrapper {
+            overflow-x: auto;
+            padding-bottom: 20px;
+            scrollbar-width: thin;
+            scrollbar-color: #FFD700 #333;
+        }
+
+        .steps-wrapper::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .steps-wrapper::-webkit-scrollbar-track {
+            background: #333;
+            border-radius: 3px;
+        }
+
+        .steps-wrapper::-webkit-scrollbar-thumb {
+            background: #FFD700;
+            border-radius: 3px;
         }
 
         .steps {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 40px;
+            display: flex;
+            gap: 20px;
             margin-top: 60px;
+            min-width: max-content;
+            padding: 10px 4px 10px;
         }
 
         .step {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 35px 25px 30px;
             text-align: center;
+            width: 220px;
+            flex-shrink: 0;
+            transition: all 0.35s ease;
             position: relative;
             opacity: 0;
             transform: translateY(30px);
-            animation: fadeInUp 0.8s ease forwards;
+            animation: fadeInUp 0.7s ease forwards;
         }
 
         .step:nth-child(1) {
-            animation-delay: 0.2s;
+            animation-delay: 0.15s
         }
 
         .step:nth-child(2) {
-            animation-delay: 0.4s;
+            animation-delay: 0.25s
         }
 
         .step:nth-child(3) {
-            animation-delay: 0.6s;
+            animation-delay: 0.35s
+        }
+
+        .step:nth-child(4) {
+            animation-delay: 0.45s
+        }
+
+        .step:nth-child(5) {
+            animation-delay: 0.55s
+        }
+
+        .step:hover {
+            background: rgba(255, 255, 255, 0.09);
+            border-color: rgba(255, 215, 0, 0.5);
+            transform: translateY(-8px);
+            box-shadow: 0 16px 40px rgba(255, 215, 0, 0.12);
+        }
+
+        /* Active/featured card (3rd by default) */
+        .step.featured {
+            background: rgba(40, 40, 40, 0.95);
+            border-color: #FFD700;
+            box-shadow: 0 12px 35px rgba(255, 215, 0, 0.18);
         }
 
         .step-number {
-            width: 80px;
-            height: 80px;
+            width: 72px;
+            height: 72px;
             background: linear-gradient(45deg, #FFD700, #FFA500);
             color: #222;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 700;
-            margin: 0 auto 25px;
+            margin: 0 auto 22px;
             transition: transform 0.3s ease;
-            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);
         }
 
         .step:hover .step-number {
             transform: scale(1.1);
-            animation: pulse 1.5s ease-in-out infinite;
         }
 
         .step-title {
-            font-size: 22px;
-            margin-bottom: 15px;
+            font-size: 17px;
+            margin-bottom: 14px;
             color: #fff;
+            line-height: 1.35;
         }
 
         .step-desc {
-            color: #ccc;
+            color: #aaa;
             line-height: 1.6;
+            font-size: 14px;
         }
 
-        /* About Us Section */
+        /* On larger screens show as a wrapping grid */
+        @media (min-width: 1100px) {
+            .steps-wrapper {
+                overflow-x: visible;
+            }
+
+            .steps {
+                min-width: unset;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 24px;
+            }
+
+            .step {
+                width: calc(20% - 24px);
+                min-width: 190px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .step {
+                width: 185px;
+                padding: 28px 18px 24px;
+            }
+
+            .step-number {
+                width: 60px;
+                height: 60px;
+                font-size: 22px;
+            }
+
+            .step-title {
+                font-size: 15px;
+            }
+
+            .step-desc {
+                font-size: 13px;
+            }
+        }
+
+        /* ===================== END HOW IT WORKS ===================== */
+
+        /* ABOUT */
         .about-section {
             background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
             position: relative;
@@ -625,7 +716,7 @@
             color: #666;
         }
 
-        /* Chat Communication Section */
+        /* CHAT */
         .chat-section {
             background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
             position: relative;
@@ -719,39 +810,7 @@
             color: #222;
         }
 
-        .chat-input {
-            display: flex;
-            gap: 10px;
-        }
-
-        .chat-input input {
-            flex: 1;
-            padding: 12px 16px;
-            border: 1px solid #ddd;
-            border-radius: 25px;
-            outline: none;
-            transition: border-color 0.3s ease;
-        }
-
-        .chat-input input:focus {
-            border-color: #FFD700;
-        }
-
-        .chat-input button {
-            padding: 12px 20px;
-            background: linear-gradient(45deg, #FFD700, #FFA500);
-            color: #222;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-
-        .chat-input button:hover {
-            transform: scale(1.05);
-        }
-
-        /* Footer */
+        /* FOOTER */
         footer {
             background: linear-gradient(135deg, #111 0%, #222 100%);
             color: #aaa;
@@ -773,19 +832,19 @@
         }
 
         .footer-column:nth-child(1) {
-            animation-delay: 0.1s;
+            animation-delay: 0.1s
         }
 
         .footer-column:nth-child(2) {
-            animation-delay: 0.2s;
+            animation-delay: 0.2s
         }
 
         .footer-column:nth-child(3) {
-            animation-delay: 0.3s;
+            animation-delay: 0.3s
         }
 
         .footer-column:nth-child(4) {
-            animation-delay: 0.4s;
+            animation-delay: 0.4s
         }
 
         .footer-column h4 {
@@ -819,88 +878,305 @@
             border-top: 1px solid #333;
         }
 
-        /* Enhanced Responsive Styles - Complete Redesign */
+        /* ROLES SECTION */
+        .roles-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+        }
+
+        .roles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .role-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .role-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 35px rgba(255, 215, 0, 0.2);
+            border-color: #FFD700;
+        }
+
+        .role-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .role-icon i {
+            font-size: 38px;
+            color: #222;
+        }
+
+        .role-card h3 {
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+
+        .role-card p {
+            color: #666;
+            font-size: 15px;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: #fff;
+            max-width: 700px;
+            width: 90%;
+            max-height: 95vh;
+            border-radius: 24px;
+            overflow-y: auto;
+            position: relative;
+            animation: fadeInUp 0.3s ease;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            padding: 20px 25px;
+            background: linear-gradient(45deg, #222, #333);
+            color: #FFD700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 24px 24px 0 0;
+        }
+
+        .modal-header h2 {
+            color: #FFD700;
+            margin: 0;
+        }
+
+        .modal-close {
+            font-size: 28px;
+            cursor: pointer;
+            color: #fff;
+            transition: 0.2s;
+        }
+
+        .modal-close:hover {
+            color: #FFD700;
+            transform: scale(1.1);
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .modal-body h4 {
+            color: #FFA500;
+            margin: 20px 0 10px;
+            font-size: 20px;
+        }
+
+        .modal-body ul {
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+
+        .modal-body li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .role-badge {
+            display: inline-block;
+            background: #FFD700;
+            color: #222;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        /* USAGE SECTION */
+        .usage-section {
+            background: linear-gradient(135deg, #fff 0%, #f0f2f5 100%);
+        }
+
+        .flow-container {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            position: relative;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 25px;
+            background: white;
+            border-radius: 20px;
+            padding: 25px 30px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border-left: 5px solid #FFD700;
+            position: relative;
+        }
+
+        .flow-step:hover {
+            transform: translateX(8px);
+            box-shadow: 0 12px 28px rgba(255, 215, 0, 0.15);
+        }
+
+        .flow-step.critical {
+            border-left-color: #e67e22;
+            background: #fffaf5;
+        }
+
+        .flow-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .flow-icon i {
+            font-size: 28px;
+            color: #222;
+        }
+
+        .flow-content {
+            flex: 1;
+        }
+
+        .flow-content h3 {
+            margin-bottom: 8px;
+            font-size: 20px;
+        }
+
+        .flow-content p {
+            color: #555;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .critical-badge {
+            background: #e67e22;
+            color: white;
+            font-size: 12px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-left: 12px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .flow-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            color: #FFA500;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        /* RESPONSIVE */
         @media (max-width: 1400px) {
             .container {
-                padding: 0 40px;
+                padding: 0 40px
             }
 
             .nav-links li {
-                margin-left: 35px;
+                margin-left: 35px
             }
 
             .logo-icon {
                 width: 160px;
-                max-height: 70px;
+                max-height: 70px
             }
-
-            /* .logo-text {
-                font-size: 28px;
-            } */
         }
 
         @media (max-width: 1200px) {
             .container {
-                padding: 0 30px;
+                padding: 0 30px
             }
 
             .nav-links li {
-                margin-left: 30px;
+                margin-left: 30px
             }
 
             .nav-links a {
-                font-size: 17px;
+                font-size: 17px
             }
 
             .logo-icon {
                 width: 150px;
-                max-height: 65px;
+                max-height: 65px
             }
-
-            /* .logo-text {
-                font-size: 26px;
-            } */
         }
 
         @media (max-width: 1024px) {
             .hero {
-                padding: 200px 0 100px;
+                padding: 200px 0 100px
             }
 
             .section {
-                padding: 80px 0;
+                padding: 80px 0
             }
 
             .features-grid {
                 grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                gap: 25px;
+                gap: 25px
             }
 
             .chat-container,
             .about-container {
                 grid-template-columns: 1fr;
-                gap: 40px;
+                gap: 40px
             }
 
             .nav-links li {
-                margin-left: 25px;
+                margin-left: 25px
             }
 
             .nav-links a {
-                font-size: 16px;
+                font-size: 16px
             }
 
             .logo-icon {
                 width: 140px;
-                max-height: 100px;
+                max-height: 100px
             }
 
-            /* .logo-text {
-                font-size: 24px;
-            } */
-
             header {
-                padding: 18px 0;
+                padding: 18px 0
             }
         }
 
@@ -919,16 +1195,17 @@
                 border-radius: 0 0 20px 20px;
                 animation: slideDown 0.4s ease;
                 border-top: 3px solid #FFD700;
+                scroll-margin-top: 70px;
             }
 
             .nav-links.show {
-                display: flex;
+                display: flex
             }
 
             .nav-links li {
                 margin: 0;
                 margin-bottom: 25px;
-                width: 100%;
+                width: 100%
             }
 
             .nav-links a {
@@ -940,13 +1217,13 @@
                 font-weight: 500;
                 text-align: center;
                 background: rgba(255, 255, 255, 0.05);
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.1)
             }
 
             .nav-links a:hover {
                 background: rgba(255, 215, 0, 0.15);
                 transform: translateY(-3px);
-                box-shadow: 0 8px 25px rgba(255, 215, 0, 0.2);
+                box-shadow: 0 8px 25px rgba(255, 215, 0, 0.2)
             }
 
             .nav-links .btn {
@@ -954,312 +1231,186 @@
                 padding: 15px 30px;
                 font-size: 18px;
                 font-weight: 600;
-                box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+                box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3)
             }
 
             .mobile-menu-btn {
-                display: block;
+                display: block
             }
 
             .logo-icon {
                 width: 130px;
-                max-height: 55px;
+                max-height: 55px
             }
 
-            /* .logo-text {
-                font-size: 22px;
-            } */
-
             .header-container {
-                min-height: 70px;
+                min-height: 70px
             }
         }
 
         @media (max-width: 768px) {
             .container {
-                padding: 0 20px;
+                padding: 0 20px
             }
 
             .hero {
-                padding: 180px 0 80px;
+                padding: 180px 0 80px
             }
 
             .hero-buttons {
                 flex-direction: column;
                 align-items: center;
-                gap: 15px;
+                gap: 15px
             }
 
             .hero-buttons .btn {
                 width: 100%;
-                max-width: 300px;
+                max-width: 300px
             }
 
             .features-grid {
                 grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            .steps {
-                grid-template-columns: 1fr;
-                gap: 30px;
+                gap: 20px
             }
 
             .chat-container,
             .about-container {
                 grid-template-columns: 1fr;
-                gap: 30px;
+                gap: 30px
             }
 
             .section {
-                padding: 60px 0;
+                padding: 60px 0
             }
 
             .header-container {
                 padding: 0 15px;
-                min-height: 65px;
+                min-height: 65px
             }
 
             .logo-icon {
                 width: 120px;
                 max-height: 80px;
-                margin-right: 12px;
+                margin-right: 12px
             }
 
-            /* .logo-text {
-                font-size: 20px;
-            } */
-
             header {
-                padding: 15px 0;
+                padding: 15px 0
             }
 
             .mobile-menu-btn {
                 font-size: 30px;
-                padding: 10px;
+                padding: 10px
             }
 
             .nav-links {
-                padding: 35px 25px;
+                padding: 35px 25px
             }
 
             .nav-links a {
                 font-size: 18px;
-                padding: 16px 20px;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .logo-icon {
-                width: 110px;
-                max-height: 45px;
-                margin-right: 10px;
+                padding: 16px 20px
             }
 
-            /* .logo-text {
-                font-size: 18px;
-            } */
-
-            .nav-links {
-                padding: 30px 20px;
+            .flow-step {
+                flex-direction: column;
+                text-align: center;
+                padding: 20px
             }
 
-            .nav-links a {
-                font-size: 17px;
-                padding: 15px 18px;
+            .flow-arrow {
+                transform: rotate(90deg);
+                margin: 5px auto
             }
 
-            .mobile-menu-btn {
-                font-size: 28px;
-                padding: 8px;
+            .flow-icon {
+                margin: 0 auto
             }
         }
 
         @media (max-width: 480px) {
             .container {
-                padding: 0 15px;
+                padding: 0 15px
             }
 
             .feature-card {
-                padding: 30px 20px;
+                padding: 30px 20px
             }
 
             .footer-content {
                 grid-template-columns: 1fr;
-                gap: 30px;
+                gap: 30px
             }
 
-            .chat-demo,
             .about-image {
-                padding: 20px;
+                padding: 20px
             }
 
             .chat-messages {
-                height: 250px;
+                height: 250px
             }
 
             .header-container {
                 padding: 0 10px;
-                min-height: 60px;
+                min-height: 60px
             }
 
             .logo-icon {
                 width: 100px;
                 max-height: 80px;
-                margin-right: 8px;
+                margin-right: 8px
             }
-
-            /* .logo-text {
-                font-size: 16px;
-            } */
 
             .mobile-menu-btn {
                 font-size: 26px;
-                padding: 8px;
+                padding: 8px
             }
 
             .nav-links {
-                padding: 25px 15px;
+                padding: 25px 15px
             }
 
             .nav-links a {
                 padding: 14px 16px;
-                font-size: 16px;
+                font-size: 16px
             }
 
             .nav-links .btn {
                 padding: 14px 25px;
-                font-size: 16px;
+                font-size: 16px
             }
 
             header {
-                padding: 12px 0;
+                padding: 12px 0
             }
         }
 
-        @media (max-width: 380px) {
-            .logo-icon {
-                width: 90px;
-                max-height: 80px;
-                margin-right: 6px;
-            }
-
-            .logo-text {
-                font-size: 14px;
-            }
-
-            .mobile-menu-btn {
-                font-size: 24px;
-                padding: 6px;
-            }
-
-            .nav-links {
-                padding: 20px 12px;
-            }
-
-            .nav-links a {
-                padding: 12px 14px;
-                font-size: 15px;
-            }
-
-            .header-container {
-                min-height: 55px;
-                padding: 0 8px;
-            }
-        }
-
-        @media (max-width: 320px) {
-            .logo-icon {
-                width: 180px;
-                max-height: 150px;
-                margin-right: 5px;
-            }
-
-            .logo-text {
-                font-size: 13px;
-            }
-
-            .mobile-menu-btn {
-                font-size: 22px;
-                padding: 5px;
-            }
-
-            .nav-links a {
-                padding: 10px 12px;
-                font-size: 14px;
-            }
-
-            .header-container {
-                min-height: 50px;
-                padding: 0 5px;
-            }
-        }
-
-        /* Slide down animation for mobile menu */
         @keyframes slideDown {
             from {
                 opacity: 0;
-                transform: translateY(-20px);
+                transform: translateY(-20px)
             }
 
             to {
                 opacity: 1;
-                transform: translateY(0);
+                transform: translateY(0)
             }
         }
 
-        /* Enhanced header scroll effect */
         .header-scrolled {
             padding: 12px 0 !important;
             background: rgba(34, 34, 34, 0.98) !important;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important
         }
 
         .header-scrolled .logo-icon {
             transform: scale(0.85);
-            width: 140px;
+            width: 140px
         }
 
-        .header-scrolled .logo-text {
-            font-size: 24px;
-        }
-
-        /* Mobile specific scroll adjustments */
-        @media (max-width: 992px) {
-            .header-scrolled .logo-icon {
-                width: 110px;
-                transform: scale(0.9);
-            }
-
-            .header-scrolled  {
-                font-size: 20px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .header-scrolled {
-                padding: 10px 0 !important;
-            }
-
-            .header-scrolled .logo-icon {
-                width: 100px;
-                height: 80px;
-                transform: scale(0.9);
-            }
-
-            .header-scrolled  {
-                font-size: 18px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .header-scrolled .logo-icon {
-                width: 85px;
-                transform: scale(0.9);
-            }
-
-            .header-scrolled  {
-                font-size: 15px;
+        @media (max-width:700px) {
+            .roles-grid {
+                grid-template-columns: 1fr
             }
         }
     </style>
@@ -1271,18 +1422,18 @@
         <div class="container header-container">
             <div class="logo">
                 <img src="/static/images/ci.png" alt="RudhiArch Logo" class="logo-icon">
-
             </div>
             <button class="mobile-menu-btn" id="mobileMenuBtn">
                 <i class="fas fa-bars"></i>
             </button>
             <ul class="nav-links" id="navLinks">
+                <li><a href="#usage">System Usage</a></li>
+                <li><a href="#roles">Roles</a></li>
                 <li><a href="#features">Features</a></li>
                 <li><a href="#how-it-works">How It Works</a></li>
                 <li><a href="#chat">Communication</a></li>
                 <li><a href="#about">About Us</a></li>
-                <li><a href="/login" class="btn btn-primary" style="padding: 8px 20px; margin-left: 10px;">Login</a>
-                </li>
+                <li><a href="/login" class="btn btn-primary" style="padding:8px 20px;margin-left:10px;">Login</a></li>
             </ul>
         </div>
     </header>
@@ -1308,57 +1459,39 @@
             <h2 class="section-title">Powerful Features for Your Construction Business</h2>
             <p class="section-subtitle">Everything you need to manage your construction projects efficiently with
                 enhanced team communication</p>
-
             <div class="features-grid">
                 <div class="feature-card">
-                    <div class="feature-image">
-                        <i class="fas fa-users-cog feature-icon"></i>
-                    </div>
+                    <div class="feature-image"><i class="fas fa-users-cog feature-icon"></i></div>
                     <h3 class="feature-title">Multi-User Roles</h3>
                     <p class="feature-desc">Separate dashboards for Admins, Engineers, Architects with appropriate
                         permissions and role-based access control.</p>
                 </div>
-
                 <div class="feature-card">
-                    <div class="feature-image">
-                        <i class="fas fa-file-upload feature-icon"></i>
-                    </div>
+                    <div class="feature-image"><i class="fas fa-file-upload feature-icon"></i></div>
                     <h3 class="feature-title">Progress Tracking</h3>
                     <p class="feature-desc">Upload images, PDFs, and reports to track real-time site progress with
                         detailed milestone tracking.</p>
                 </div>
-
                 <div class="feature-card">
-                    <div class="feature-image">
-                        <i class="fas fa-file-invoice-dollar feature-icon"></i>
-                    </div>
+                    <div class="feature-image"><i class="fas fa-file-invoice-dollar feature-icon"></i></div>
                     <h3 class="feature-title">Invoice Generation</h3>
                     <p class="feature-desc">Create, manage, and track invoices with automated PDF output and integrated
                         payment tracking.</p>
                 </div>
-
                 <div class="feature-card">
-                    <div class="feature-image">
-                        <i class="fas fa-shield-alt feature-icon"></i>
-                    </div>
+                    <div class="feature-image"><i class="fas fa-shield-alt feature-icon"></i></div>
                     <h3 class="feature-title">Compliance Management</h3>
                     <p class="feature-desc">Track safety checks, permits, and legal documents in one centralized
                         compliance dashboard.</p>
                 </div>
-
                 <div class="feature-card">
-                    <div class="feature-image">
-                        <i class="fas fa-chart-line feature-icon"></i>
-                    </div>
+                    <div class="feature-image"><i class="fas fa-chart-line feature-icon"></i></div>
                     <h3 class="feature-title">Reporting & Analytics</h3>
                     <p class="feature-desc">Generate detailed reports on project progress, expenses, timelines with
                         advanced data visualization.</p>
                 </div>
-
                 <div class="feature-card">
-                    <div class="feature-image">
-                        <i class="fas fa-comments feature-icon"></i>
-                    </div>
+                    <div class="feature-image"><i class="fas fa-comments feature-icon"></i></div>
                     <h3 class="feature-title">Team Communication</h3>
                     <p class="feature-desc">Built-in chat system for real-time team communication, file sharing, and
                         project discussions.</p>
@@ -1367,65 +1500,186 @@
         </div>
     </section>
 
-    <!-- How It Works Section -->
+    <!-- How It Works Section - NEW DESIGN -->
     <section id="how-it-works" class="section how-it-works">
         <div class="container">
+            <p class="workflow-eyebrow">WORKFLOW</p>
             <h2 class="section-title">How RudhiArch ERP Works</h2>
-            <p class="section-subtitle">Get started in just three simple steps</p>
+            <p class="section-subtitle">A complete, role‑based workflow for modern construction management</p>
 
-            <div class="steps">
-                <div class="step">
-                    <div class="step-number">1</div>
-                    <h3 class="step-title">Create a Project</h3>
-                    <p class="step-desc">Set up your construction project with all necessary details, timelines, and
-                        assigned teams with integrated communication channels.</p>
-                </div>
-
-                <div class="step">
-                    <div class="step-number">2</div>
-                    <h3 class="step-title">Track & Communicate</h3>
-                    <p class="step-desc">Teams update progress with photos, reports, and real-time chat communication
-                        for seamless collaboration.</p>
-                </div>
-
-                <div class="step">
-                    <div class="step-number">3</div>
-                    <h3 class="step-title">Manage & Monitor</h3>
-                    <p class="step-desc">Generate invoices, track payments, monitor progress, and maintain team
-                        communication all in one platform.</p>
+            <div class="steps-wrapper">
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <h3 class="step-title">Admin Setup &amp; Assignments</h3>
+                        <p class="step-desc">Admin registers users, assigns sites, links projects to architects and
+                            accountants, and sets up organizational details.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <h3 class="step-title">Architect Design &amp; Compliance</h3>
+                        <p class="step-desc">Architect uploads design details, structural plans, material specs,
+                            drawings, cost estimation, and legal compliances. PDFs auto‑generated.</p>
+                    </div>
+                    <div class="step featured">
+                        <div class="step-number">3</div>
+                        <h3 class="step-title">Project Manager Execution</h3>
+                        <p class="step-desc">Project manager submits daily progress reports, worker counts, expenses,
+                            vendor quotes, and generates invoices. All notify admin.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <h3 class="step-title">Accountant Financial Management</h3>
+                        <p class="step-desc">Sets base salaries, processes monthly salaries with advance deductions,
+                            manages bills/payments, and generates reports with PDF output.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">5</div>
+                        <h3 class="step-title">Admin Oversight &amp; Approvals</h3>
+                        <p class="step-desc">Reviews and approves invoices, expenses, vendor quotes, legal documents.
+                            Real‑time notifications and chat keep every stakeholder aligned.</p>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
+
+    <!-- Roles Section -->
+    <section id="roles" class="section roles-section">
+        <div class="container">
+            <h2 class="section-title">Role‑Based Workflows</h2>
+            <p class="section-subtitle">Every role in your construction ecosystem has a clear, powerful path</p>
+            <div class="roles-grid">
+                <div class="role-card" data-role="admin">
+                    <div class="role-icon"><i class="fas fa-user-shield"></i></div>
+                    <h3>Admin</h3>
+                    <p>Orchestrates users, sites, projects, and approvals – the central command.</p>
+                </div>
+                <div class="role-card" data-role="pm">
+                    <div class="role-icon"><i class="fas fa-hard-hat"></i></div>
+                    <h3>Project Manager</h3>
+                    <p>Daily reports, expenses, vendor quotes, invoices – executes on site.</p>
+                </div>
+                <div class="role-card" data-role="architect">
+                    <div class="role-icon"><i class="fas fa-drafting-compass"></i></div>
+                    <h3>Architect</h3>
+                    <p>Design, specifications, drawings, cost estimation, legal compliance.</p>
+                </div>
+                <div class="role-card" data-role="accountant">
+                    <div class="role-icon"><i class="fas fa-calculator"></i></div>
+                    <h3>Accountant</h3>
+                    <p>Salaries, advances, bills, financial reports – controls the purse.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- System Architecture & Flow Section -->
+    <section id="usage" class="section usage-section">
+        <div class="container">
+            <h2 class="section-title">System Architecture &amp; Real‑Time Flow</h2>
+            <p class="section-subtitle">See how data and responsibilities move through the ERP – from creation to
+                execution</p>
+            <div class="flow-container">
+                <div class="flow-step">
+                    <div class="flow-icon"><i class="fas fa-user-plus"></i></div>
+                    <div class="flow-content">
+                        <h3>1. Admin Creates Users</h3>
+                        <p>Registers <strong>Project Managers, Architects, Accountants</strong> with role‑based access.
+                        </p>
+                    </div>
+                    <div class="flow-arrow"><i class="fas fa-arrow-down"></i></div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <div class="flow-content">
+                        <h3>2. Admin Assigns Site to Project Manager</h3>
+                        <p>Creates a site and links it to a Project Manager.</p>
+                    </div>
+                    <div class="flow-arrow"><i class="fas fa-arrow-down"></i></div>
+                </div>
+                <div class="flow-step critical">
+                    <div class="flow-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="flow-content">
+                        <h3>3. Admin Assigns Architect to Project <span class="critical-badge">MANDATORY</span></h3>
+                        <p><strong>Only after this assignment, the project becomes visible</strong> to the architect,
+                            project manager, and accountant. This is the <strong>starting point</strong> of all further
+                            work.</p>
+                    </div>
+                    <div class="flow-arrow"><i class="fas fa-arrow-down"></i></div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-icon"><i class="fas fa-drafting-compass"></i></div>
+                    <div class="flow-content">
+                        <h3>4. Architect Submissions</h3>
+                        <p>Uploads design details, structural plans, material specs, drawings, cost estimation, legal
+                            compliances → auto‑PDF generation.</p>
+                    </div>
+                    <div class="flow-arrow"><i class="fas fa-arrow-down"></i></div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-icon"><i class="fas fa-hard-hat"></i></div>
+                    <div class="flow-content">
+                        <h3>5. Project Manager On‑Site Work</h3>
+                        <p>Submits daily progress, worker reports, expenses, vendor quotes, generates invoices – all
+                            notify admin.</p>
+                    </div>
+                    <div class="flow-arrow"><i class="fas fa-arrow-down"></i></div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-icon"><i class="fas fa-calculator"></i></div>
+                    <div class="flow-content">
+                        <h3>6. Accountant Processes Finances</h3>
+                        <p>Base salary setup, monthly salary (with advance deduction), bills, salary reports – PDF
+                            generation.</p>
+                    </div>
+                    <div class="flow-arrow"><i class="fas fa-arrow-down"></i></div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-icon"><i class="fas fa-check-double"></i></div>
+                    <div class="flow-content">
+                        <h3>7. Admin Approves &amp; Monitors</h3>
+                        <p>Approves invoices, expenses, vendor quotes, legal documents. Real‑time notifications keep
+                            everyone aligned.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Role Modal -->
+    <div id="roleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Role Details</h2>
+                <span class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
 
     <!-- About Us Section -->
     <section id="about" class="section about-section">
         <div class="container">
             <h2 class="section-title">About RudhiArch</h2>
             <p class="section-subtitle">Innovating technology to shape a smarter tomorrow</p>
-
             <div class="about-container">
                 <div class="about-content">
                     <h3 class="about-heading">WHO WE ARE</h3>
                     <p class="about-text">We're Changing the Way the World Adopts and Utilizes Technology.</p>
                     <p class="about-text">We are Innovating The Technology to Shape a Smarter Tomorrow.</p>
-
                     <h3 class="about-subheading">Our Mission</h3>
                     <p class="about-text">To revolutionize the civil engineering industry through cutting-edge ERP
-                        technology that connects people ,processes, and projects, ensuring transparency, productivity,
-                        and profitability at every stage of constuction.
-                        We believe in the power of digital transformation to shape the future of infrastructure
-                        development.
-                    </p>
-
+                        technology that connects people, processes, and projects, ensuring transparency, productivity,
+                        and profitability at every stage of construction. We believe in the power of digital
+                        transformation to shape the future of infrastructure development.</p>
                     <h3 class="about-subheading">WHAT WE DO</h3>
-                    <p class="about-text">Construction Projects are complex-involving people,materials, timelines, &
-                        budgets that constantly need alignment. At RUDHIARCH, we simplify this complexity. our ERP
+                    <p class="about-text">Construction Projects are complex—involving people, materials, timelines,
+                        &amp; budgets that constantly need alignment. At RUDHIARCH, we simplify this complexity. Our ERP
                         system is built to manage every aspect of your civil engineering business. From starting of your
-                        project to the final stage, we give you complete control & visibility across every stage of your
-                        project.</p>
+                        project to the final stage, we give you complete control &amp; visibility across every stage of
+                        your project.</p>
                 </div>
-
                 <div class="about-image">
                     <img src="/static/images/team.jpg" alt="Rudhisoft Team">
                 </div>
@@ -1438,27 +1692,20 @@
         <div class="container">
             <h2 class="section-title">Real-Time Team Communication</h2>
             <p class="section-subtitle">Stay connected with your team through our integrated chat system</p>
-
             <div class="chat-container">
                 <div class="chat-content">
                     <h3 class="about-heading">Seamless Communication</h3>
                     <p class="about-text">Keep your entire construction team connected with our built-in messaging
                         system. Share updates, photos, documents, and coordinate activities in real-time.</p>
-
-
                 </div>
-
                 <div class="chat-demo">
                     <div class="chat-header">
-                        <div class="chat-avatar">
-                            <i class="fas fa-hard-hat" style="color: #222;"></i>
-                        </div>
+                        <div class="chat-avatar"><i class="fas fa-hard-hat" style="color:#222;"></i></div>
                         <div class="chat-info">
                             <h4>Project Team Chat</h4>
                             <p>Downtown Office Complex</p>
                         </div>
                     </div>
-
                     <div class="chat-messages" id="chatMessages">
                         <div class="message received">
                             <div class="message-bubble">Foundation work is 80% complete. Photos uploaded to progress
@@ -1477,13 +1724,6 @@
                             <div class="message-bubble">Sounds good. I'll send you the updated timeline.</div>
                         </div>
                     </div>
-<!-- 
-                    <div class="chat-input">
-                        <input type="text" id="chatInput" placeholder="Type your message..." />
-                        <button onclick="sendMessage()">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </div> -->
                 </div>
             </div>
         </div>
@@ -1494,15 +1734,10 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-column">
-                    <div class="logo">
-                        <img src="/static/images/ci.png" alt="RudhiArch Logo" class="logo-icon">
-                        <!-- <span class="logo-text" style="color: #fff;">RudhiArch</span> -->
-                    </div>
-                    <p style="margin-top: 15px;">Comprehensive construction management software for projects of all
-                        sizes with integrated team
-                        communication.</p>
+                    <div class="logo"><img src="/static/images/ci.png" alt="RudhiArch Logo" class="logo-icon"></div>
+                    <p style="margin-top:15px;">Comprehensive construction management software for projects of all sizes
+                        with integrated team communication.</p>
                 </div>
-
                 <div class="footer-column">
                     <h4>Quick Links</h4>
                     <ul class="footer-links">
@@ -1512,31 +1747,18 @@
                         <li><a href="#about">About Us</a></li>
                     </ul>
                 </div>
-
                 <div class="footer-column">
                     <h4>Contact Us</h4>
                     <ul class="footer-links">
                         <li><i class="fas fa-phone"></i> +91 9766149500</li>
-                        <li>
-                            <i class="fas fa-envelope"></i>
-                            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=support@rudhiarch.com"
-                                target="_blank">
-                                support@rudhiarch.com
-                            </a>
-                        </li>
-
-
-                        <li>
-                            <i class="fas fa-map-marker-alt"></i>
-                            <a href="https://www.google.com/maps/place/Rudhisoft+Private+Limited/@20.0089767,73.7638132,18z/data=!4m14!1m7!3m6!1s0x3bddebe593b45277:0x78a8e1b3f866db1f!2sRudhisoft+Private+Limited!8m2!3d20.0089057!4d73.7665634!16s%2Fg%2F11x83zdx67!3m5!1s0x3bddebe593b45277:0x78a8e1b3f866db1f!8m2!3d20.0089057!4d73.7665634!16s%2Fg%2F11x83zdx67?entry=ttu"
-                                target="_blank">
-                                Rudhisoft Private Limited, Nashik, Maharashtra 422005
-                            </a>
-                        </li>
-
+                        <li><i class="fas fa-envelope"></i> <a
+                                href="https://mail.google.com/mail/?view=cm&fs=1&to=support@rudhiarch.com"
+                                target="_blank">support@rudhiarch.com</a></li>
+                        <li><i class="fas fa-map-marker-alt"></i> <a
+                                href="https://www.google.com/maps/place/Rudhisoft+Private+Limited/@20.0089767,73.7638132,18z"
+                                target="_blank">Rudhisoft Private Limited, Nashik, Maharashtra 422005</a></li>
                     </ul>
                 </div>
-
                 <div class="footer-column">
                     <h4>Follow Us</h4>
                     <ul class="footer-links">
@@ -1549,167 +1771,173 @@
                     </ul>
                 </div>
             </div>
-
             <div class="footer-bottom">
-                <p>&copy; 2025 RudhiArch. All rights reserved.</p>
+                <p>&copy; 2026 RudhiArch. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
     <script>
-        // Enhanced Mobile menu toggle with animation
+        // Mobile menu toggle
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const navLinks = document.getElementById('navLinks');
-
         mobileMenuBtn.addEventListener('click', function () {
             navLinks.classList.toggle('show');
             mobileMenuBtn.classList.toggle('active');
-
             const icon = mobileMenuBtn.querySelector('i');
-            if (navLinks.classList.contains('show')) {
-                icon.classList.remove('fa-bars');
-                icon.classList.add('fa-times');
-            } else {
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
-            }
+            if (navLinks.classList.contains('show')) { icon.classList.remove('fa-bars'); icon.classList.add('fa-times'); }
+            else { icon.classList.remove('fa-times'); icon.classList.add('fa-bars'); }
         });
-
-        // Close mobile menu when clicking on links
         document.querySelectorAll('.nav-links a').forEach(link => {
             link.addEventListener('click', () => {
-                navLinks.classList.remove('show');
-                mobileMenuBtn.classList.remove('active');
-                const icon = mobileMenuBtn.querySelector('i');
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
+                navLinks.classList.remove('show'); mobileMenuBtn.classList.remove('active');
+                const icon = mobileMenuBtn.querySelector('i'); icon.classList.remove('fa-times'); icon.classList.add('fa-bars');
             });
         });
-
-        // Close mobile menu when clicking outside
         document.addEventListener('click', function (event) {
-            const isClickInsideNav = navLinks.contains(event.target);
-            const isClickOnButton = mobileMenuBtn.contains(event.target);
-
-            if (!isClickInsideNav && !isClickOnButton && navLinks.classList.contains('show')) {
-                navLinks.classList.remove('show');
-                mobileMenuBtn.classList.remove('active');
-                const icon = mobileMenuBtn.querySelector('i');
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
+            if (!navLinks.contains(event.target) && !mobileMenuBtn.contains(event.target) && navLinks.classList.contains('show')) {
+                navLinks.classList.remove('show'); mobileMenuBtn.classList.remove('active');
+                const icon = mobileMenuBtn.querySelector('i'); icon.classList.remove('fa-times'); icon.classList.add('fa-bars');
             }
         });
 
-        // Smooth scrolling for anchor links
+        // Smooth scrolling
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
                 const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
+                if (target) { target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
             });
         });
 
-        // Chat functionality
-        function sendMessage() {
-            const input = document.getElementById('chatInput');
-            const messagesContainer = document.getElementById('chatMessages');
-
-            if (input.value.trim() !== '') {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = 'message sent';
-                messageDiv.innerHTML = `<div class="message-bubble">${input.value}</div>`;
-
-                messagesContainer.appendChild(messageDiv);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-                input.value = '';
-
-                // Simulate response after 1 second
-                setTimeout(() => {
-                    const responses = [
-                        "Thanks for the update!",
-                        "Got it, I'll check that out.",
-                        "Sounds good, keep me posted.",
-                        "Perfect, thanks for letting me know.",
-                        "I'll review this and get back to you."
-                    ];
-
-                    const responseDiv = document.createElement('div');
-                    responseDiv.className = 'message received';
-                    responseDiv.innerHTML = `<div class="message-bubble">${responses[Math.floor(Math.random() * responses.length)]}</div>`;
-
-                    messagesContainer.appendChild(responseDiv);
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                }, 1000);
-            }
-        }
-
-        // Allow Enter key to send message
-        document.getElementById('chatInput').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
-
-        // Enhanced header scroll effect
+        // Header scroll effect
         const header = document.getElementById('header');
         window.addEventListener('scroll', function () {
-            if (window.scrollY > 100) {
-                header.classList.add('header-scrolled');
-            } else {
-                header.classList.remove('header-scrolled');
-            }
+            header.classList.toggle('header-scrolled', window.scrollY > 100);
         });
 
         // Intersection Observer for animations
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
         const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.animationPlayState = 'running';
-                }
-            });
-        }, observerOptions);
+            entries.forEach(entry => { if (entry.isIntersecting) { entry.target.style.animationPlayState = 'running'; } });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+        document.querySelectorAll('.feature-card, .step, .footer-column, .about-content, .about-image, .chat-content, .chat-demo').forEach(el => observer.observe(el));
 
-        // Observe all animated elements
-        document.querySelectorAll('.feature-card, .step, .footer-column, .about-content, .about-image, .chat-content, .chat-demo').forEach(el => {
-            observer.observe(el);
-        });
+        // Auto-scroll chat
+        document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
 
-        // Auto-scroll chat messages
-        const chatMessages = document.getElementById('chatMessages');
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-
-        // Add active state to navigation links based on scroll position
+        // Active nav link on scroll
         window.addEventListener('scroll', function () {
             const sections = document.querySelectorAll('section[id]');
-            const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
-
+            const links = document.querySelectorAll('.nav-links a[href^="#"]');
             let current = '';
-            sections.forEach(section => {
-                const sectionTop = section.offsetTop;
-                const sectionHeight = section.clientHeight;
-                if (pageYOffset >= (sectionTop - 200)) {
-                    current = section.getAttribute('id');
-                }
-            });
+            sections.forEach(section => { if (pageYOffset >= (section.offsetTop - 200)) current = section.getAttribute('id'); });
+            links.forEach(link => { link.classList.remove('active'); if (link.getAttribute('href') === '#' + current) link.classList.add('active'); });
+        });
 
-            navLinks.forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('href') === '#' + current) {
-                    link.classList.add('active');
+        // ===== ROLES MODAL =====
+        const modal = document.getElementById('roleModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+        const closeModal = document.querySelector('.modal-close');
+
+        const roleContent = {
+            admin: {
+                title: '👑 Admin Workspace',
+                details: `
+                    <div class="role-badge">Full Control & Oversight</div>
+                    <h4>🔧 Setup & Assignments</h4>
+                    <ul>
+                        <li>Register new users (Project manager, architects, accountants).</li>
+                        <li>Create sites and assign project managers.</li>
+                        <li><strong>Assign architect to project → then only the project becomes visible to that architect.</strong></li>
+                        <li>Assign projects to accountants.</li>
+                        <li>Configure organization details (GST, bank, company info).</li>
+                    </ul>
+                    <h4>✅ Approvals & Monitoring</h4>
+                    <ul>
+                        <li>Approve or reject invoices, expenses, vendor quotes, legal documents.</li>
+                        <li>View all progress reports, worker reports, salary entries.</li>
+                        <li>Real‑time notifications and chat moderation.</li>
+                    </ul>
+                    <h4>📊 Reports</h4>
+                    <ul><li>Generate organisation‑wide financial and project reports.</li></ul>`
+            },
+            pm: {
+                title: '🏗️ Project Manager Workspace',
+                details: `
+                    <div class="role-badge">On‑Site Execution & Reporting</div>
+                    <h4>📝 Daily Operations</h4>
+                    <ul>
+                        <li>Submit daily progress reports (with images/PDF).</li>
+                        <li>Record worker counts per day.</li>
+                        <li>Add site expenses (description, amount, date).</li>
+                        <li>Upload vendor quotes (PDF) for admin approval.</li>
+                    </ul>
+                    <h4>💰 Invoicing</h4>
+                    <ul><li>Generate client/vendor invoices with line items, GST, and auto‑PDF.</li></ul>
+                    <h4>📦 Inventory</h4>
+                    <ul><li>Manage material inventory (add/view items).</li></ul>
+                    <h4>📢 Communication</h4>
+                    <ul><li>Chat with admin, architect, and accountant.</li></ul>`
+            },
+            architect: {
+                title: '📐 Architect Workspace',
+                details: `
+                    <div class="role-badge">Design, Compliance & Documentation</div>
+                    <h4>🏛️ Project Design</h4>
+                    <ul>
+                        <li>Enter design details (building usage, floors, area, FSI).</li>
+                        <li>Structural details (foundation, framing, slab).</li>
+                        <li>Material specifications (primary, wall, roofing, flooring).</li>
+                        <li>Site conditions (soil report, water table, topo map).</li>
+                        <li>Utilities & services (water, drainage, power).</li>
+                    </ul>
+                    <h4>📎 Legal & Compliance</h4>
+                    <ul><li>Upload municipal approvals, building permits, fire NOC, MNGL documents.</li></ul>
+                    <h4>💰 Cost Estimation</h4>
+                    <ul><li>Set architectural & structural costs, BOQ reference, generate PDF report.</li></ul>
+                    <h4>🖼️ Drawings</h4>
+                    <ul><li>Upload architectural, structural, electrical, plumbing drawings (PDF).</li></ul>`
+            },
+            accountant: {
+                title: '💰 Accountant Workspace',
+                details: `
+                    <div class="role-badge">Financial Management & Payroll</div>
+                    <h4>💵 Salary Processing</h4>
+                    <ul>
+                        <li>Set monthly base salaries for employees.</li>
+                        <li>Process monthly salaries – auto‑fetch base, add allowances, deduct PF, advance, others.</li>
+                        <li>Salary slip PDF generated automatically.</li>
+                        <li>Generate monthly salary disbursement report (PDF).</li>
+                    </ul>
+                    <h4>📈 Advance Management</h4>
+                    <ul><li>Give advances to employees, track remaining balance (FIFO deduction).</li></ul>
+                    <h4>📑 Bills & Payments</h4>
+                    <ul>
+                        <li>Add bills (advance, running account, final) with attachments.</li>
+                        <li>Bill PDF generated automatically.</li>
+                    </ul>
+                    <h4>📋 Visibility</h4>
+                    <ul><li>View approved invoices, approved expenses, and legal compliances for assigned projects.</li></ul>`
+            }
+        };
+
+        document.querySelectorAll('.role-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const role = card.getAttribute('data-role');
+                const content = roleContent[role];
+                if (content) {
+                    modalTitle.innerHTML = content.title;
+                    modalBody.innerHTML = content.details;
+                    modal.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
                 }
             });
         });
+
+        function closeModalFunc() { modal.style.display = 'none'; document.body.style.overflow = 'auto'; }
+        closeModal.addEventListener('click', closeModalFunc);
+        window.addEventListener('click', e => { if (e.target === modal) closeModalFunc(); });
     </script>
 </body>
 
