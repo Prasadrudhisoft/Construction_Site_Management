@@ -27,7 +27,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-
         }
 
         .navbar-link {
@@ -47,35 +46,38 @@
             color: #ffd700;
         }
 
+        /* FIX: body uses block layout with padding instead of flex centering.
+           Flex on body prevents natural scrolling when content overflows.
+           background-attachment: fixed is kept only on desktop (removed on mobile below). */
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
             margin: 0;
-            padding: 20px;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+            background: linear-gradient(rgba(0, 0, 0, 0.7),
+                    rgba(0, 0, 0, 0.7)),
                 url(/static/images/construction.jpg);
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             background-attachment: fixed;
-            padding-top: 80px;
+            padding: 100px 20px 40px;
         }
 
+        /* FIX: Container uses margin: auto for centering instead of relying on flex parent */
         .register-container {
-            background-color: rgba(255, 255, 255, 0.95);
+            background-color: rgba(255, 255, 255, 0);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
             padding: 40px;
             border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
             width: 100%;
             max-width: 420px;
-            backdrop-filter: blur(10px);
+            margin: 0 auto;
             transform: translateY(0);
             transition: transform 0.3s ease;
             animation: fadeIn 0.5s ease-out;
-            margin-top: 70px;
         }
 
         .register-container:hover {
@@ -89,7 +91,6 @@
 
         .logo img {
             width: 120px;
-            height: 120px;
             margin-bottom: 15px;
             max-width: 100%;
             height: auto;
@@ -154,6 +155,14 @@
             background-color: #1557b0;
         }
 
+        .form-group label {
+            font-size: 16px;
+            font-weight: 600;
+            color: #f8f9fa;
+            display: block;
+            margin-bottom: 8px;
+        }
+
         .login-link {
             text-align: center;
             margin-top: 25px;
@@ -195,7 +204,6 @@
             }
         }
 
-        /* ✅ NEW: fadeOut animation for auto-dismiss */
         @keyframes fadeOut {
             from {
                 opacity: 1;
@@ -222,19 +230,18 @@
         /* Tablet Styles */
         @media screen and (max-width: 768px) {
             body {
-                padding: 15px;
+                /* FIX: scroll on mobile — background-attachment: fixed causes jank on iOS/Android */
                 background-attachment: scroll;
+                padding: 90px 15px 30px;
             }
 
             .register-container {
                 padding: 30px 25px;
                 max-width: 400px;
-                margin-top: 70px;
             }
 
             .logo img {
                 width: 100px;
-                height: 100px;
             }
 
             h2 {
@@ -269,15 +276,13 @@
         /* Mobile Styles */
         @media screen and (max-width: 480px) {
             body {
-                padding: 10px;
                 background-attachment: scroll;
+                padding: 80px 10px 30px;
             }
 
             .register-container {
                 padding: 25px 20px;
                 border-radius: 12px;
-                margin: 10px 0;
-                margin-top: 70px;
             }
 
             .register-container:hover {
@@ -290,7 +295,6 @@
 
             .logo img {
                 width: 80px;
-                height: 80px;
                 margin-bottom: 10px;
             }
 
@@ -337,18 +341,16 @@
         /* Extra Small Mobile Styles */
         @media screen and (max-width: 360px) {
             body {
-                padding: 5px;
+                padding: 80px 5px 20px;
             }
 
             .register-container {
                 padding: 20px 15px;
                 border-radius: 10px;
-                margin-top: 70px;
             }
 
             .logo img {
                 width: 70px;
-                height: 70px;
             }
 
             h2 {
@@ -384,12 +386,10 @@
             .register-container {
                 max-width: 450px;
                 padding: 50px;
-                margin-top: 70px;
             }
 
             .logo img {
                 width: 140px;
-                height: 140px;
             }
 
             h2 {
@@ -419,13 +419,12 @@
         /* Landscape Mobile Orientation */
         @media screen and (max-height: 500px) and (orientation: landscape) {
             body {
-                padding: 5px;
+                background-attachment: scroll;
+                padding: 70px 20px 20px;
             }
 
             .register-container {
                 padding: 15px 20px;
-                margin: 5px 0;
-                margin-top: 70px;
             }
 
             .logo {
@@ -434,7 +433,6 @@
 
             .logo img {
                 width: 60px;
-                height: 60px;
                 margin-bottom: 5px;
             }
 
@@ -470,7 +468,7 @@
             }
         }
 
-        /* ─── Password Toggle Icon ─── */
+        /* Password Toggle Icon */
         .password-wrapper {
             position: relative;
             width: 100%;
@@ -502,7 +500,6 @@
             margin-bottom: 20px;
         }
 
-        /* ─── Responsive adjustments ─── */
         @media screen and (max-width: 768px) {
             .password-wrapper .toggle-password {
                 right: 12px;
@@ -554,7 +551,7 @@
             }
         }
 
-        /* ─── Flash Messages ─── */
+        /* Flash Messages */
         .flash-message {
             padding: 14px 16px;
             border-radius: 8px;
@@ -597,7 +594,6 @@
             }
         }
 
-        /* Responsive flash messages */
         @media screen and (max-width: 768px) {
             .flash-message {
                 padding: 12px 14px;
@@ -640,7 +636,7 @@
             }
         }
 
-        /* Submit button style (matches existing design) */
+        /* Submit button */
         button[type="submit"] {
             width: 100%;
             background-color: #1a73e8;
@@ -751,20 +747,18 @@
     </div>
 
     <script>
-        // ✅ Auto-dismiss flash messages after 2 seconds
+        // Auto-dismiss flash messages after 2 seconds
         document.addEventListener('DOMContentLoaded', function () {
             const flashMessages = document.querySelectorAll('.flash-message');
             flashMessages.forEach(function (msg) {
                 setTimeout(function () {
-                    // Add hiding class to trigger fadeOut animation
                     msg.classList.add('hiding');
-                    // Remove from DOM after animation completes (0.4s)
                     setTimeout(function () {
                         if (msg && msg.parentNode) {
                             msg.remove();
                         }
                     }, 400);
-                }, 2000); // 2 second visible duration
+                }, 2000);
             });
         });
 
