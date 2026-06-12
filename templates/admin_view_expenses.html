@@ -27,6 +27,7 @@
             padding-top: 80px;
         }
 
+        /* ===== NAVBAR ===== */
         .navbar {
             position: fixed;
             top: 0;
@@ -38,10 +39,10 @@
             padding: 15px 0;
             z-index: 1000;
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-            animation: slideDown 0.7s cubic-bezier(.77, 0, .18, 1) 0s 1;
+            /* animation: slideDown 0.7s cubic-bezier(.77, 0, .18, 1) 0s 1; */
         }
 
-        @keyframes slideDown {
+        /* @keyframes slideDown {
             from {
                 transform: translateY(-100%);
                 opacity: 0;
@@ -51,7 +52,7 @@
                 transform: translateY(0);
                 opacity: 1;
             }
-        }
+        } */
 
         .navbar-container {
             max-width: 100%;
@@ -59,7 +60,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 20px;
             padding: 0 40px;
         }
 
@@ -161,21 +161,19 @@
             color: #3498db;
         }
 
+        /* ===== CONTAINER ===== */
         .container {
             max-width: 1200px;
             width: 100%;
-            margin: 60px auto 0 auto;
+            margin: 40px auto 0 auto;
             background: #fff;
             border-radius: 22px;
             box-shadow: 0 8px 32px rgba(52, 152, 219, 0.13);
-            padding: 60px 50px 40px 50px;
-            animation: fadeIn 0.7s cubic-bezier(.77, 0, .18, 1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            padding: 40px 40px 40px 40px;
+            /* animation: fadeIn 0.7s cubic-bezier(.77, 0, .18, 1); */
         }
 
-        @keyframes fadeIn {
+        /* @keyframes fadeIn {
             from {
                 opacity: 0;
                 transform: translateY(30px);
@@ -185,31 +183,33 @@
                 opacity: 1;
                 transform: translateY(0);
             }
-        }
+        } */
 
         .form-title {
             color: #2c3e50;
-            margin-bottom: 35px;
-            font-size: 2.1rem;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
             font-weight: 700;
             border-bottom: 2px solid #3498db;
             padding-bottom: 14px;
-            display: inline-block;
+            display: block;
             letter-spacing: 1px;
+            text-align: center;
+            width: 100%;
         }
 
         .form-section {
             width: 100%;
             margin-bottom: 40px;
             background: #f8fafd;
-            padding: 30px;
+            padding: 25px;
             border-radius: 15px;
             border: 1px solid #e3e8f0;
         }
 
         .section-title {
             color: #2c3e50;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 600;
             margin-bottom: 20px;
             display: flex;
@@ -217,6 +217,7 @@
             gap: 10px;
         }
 
+        /* ===== FLASH MESSAGES ===== */
         .success-message {
             background: linear-gradient(90deg, #27ae60 60%, #2ecc71 100%);
             color: white;
@@ -226,7 +227,7 @@
             text-align: center;
             font-weight: 500;
             animation: fadeIn 0.5s;
-            font-size: 1.08rem;
+            font-size: 1rem;
             width: 100%;
         }
 
@@ -239,18 +240,26 @@
             text-align: center;
             font-weight: 500;
             animation: fadeIn 0.5s;
-            font-size: 1.08rem;
+            font-size: 1rem;
             width: 100%;
+        }
+
+        /* ===== TABLE — DESKTOP ===== */
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 12px;
         }
 
         .expenses-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
             background: white;
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+            min-width: 700px;
         }
 
         .expenses-table th {
@@ -258,68 +267,130 @@
             color: white;
             font-weight: 600;
             white-space: nowrap;
-            padding: 15px 12px;
-            font-size: 0.9rem;
+            padding: 14px 12px;
+            font-size: 0.88rem;
+            text-align: left;
         }
 
         .expenses-table td {
-            padding: 14px 12px;
+            padding: 12px;
             border-bottom: 1px solid #e3e8f0;
             color: #2c3e50;
-            font-size: 0.9rem;
-            vertical-align: top;
+            font-size: 0.88rem;
+            vertical-align: middle;
+        }
+
+        .expenses-table tr:last-child td {
+            border-bottom: none;
         }
 
         .expenses-table tr:hover {
             background: #f8fafd;
         }
 
+        /* ===== STATUS BADGES ===== */
         .status-pending {
             background: #f39c12;
             color: white;
-            padding: 6px 12px;
+            padding: 5px 12px;
             border-radius: 20px;
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             font-weight: 500;
             display: inline-block;
+            white-space: nowrap;
         }
 
         .status-approved {
             background: #27ae60;
             color: white;
-            padding: 6px 12px;
+            padding: 5px 12px;
             border-radius: 20px;
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             font-weight: 500;
             display: inline-block;
+            white-space: nowrap;
         }
 
         .status-rejected {
             background: #e74c3c;
             color: white;
-            padding: 6px 12px;
+            padding: 5px 12px;
             border-radius: 20px;
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             font-weight: 500;
             display: inline-block;
+            white-space: nowrap;
         }
 
+        .page-header {
+            background: #fff;
+            border-radius: 22px;
+            box-shadow: 0 8px 32px rgba(52, 152, 219, 0.13);
+            padding: 40px 40px 32px;
+            margin-bottom: 28px;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            /* animation: fadeIn 0.3s ease-out; */
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #3498db, #2c3e50);
+        }
+
+        .page-header .header-icon {
+            font-size: 3rem;
+            color: #3498db;
+            margin-bottom: 14px;
+            display: block;
+        }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .page-header h1 i {
+            color: #3498db;
+            font-size: 1.6rem;
+        }
+
+        .page-header p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+
+        /* ===== ACTION FORM ===== */
         .action-form {
             display: flex;
             flex-direction: column;
             gap: 8px;
             align-items: stretch;
-            min-width: 200px;
+            min-width: 180px;
         }
 
         .action-form select {
             padding: 8px 10px;
             border: 1.5px solid #ddd;
             border-radius: 8px;
-            font-size: 0.85rem;
+            font-size: 0.83rem;
             color: #2c3e50;
             background-color: #fff;
             transition: all 0.3s;
+            width: 100%;
         }
 
         .action-form select:focus {
@@ -332,10 +403,11 @@
             padding: 8px 10px;
             border: 1.5px solid #ddd;
             border-radius: 8px;
-            font-size: 0.85rem;
+            font-size: 0.83rem;
             color: #2c3e50;
             background-color: #fff;
             transition: all 0.3s;
+            width: 100%;
         }
 
         .action-form input[type="text"]:focus {
@@ -345,20 +417,21 @@
         }
 
         .action-form button {
-            background: linear-gradient(90deg, #27ae60 60%, #2ecc71 100%);
+            background: linear-gradient(90deg, #3498db 60%, #2980b9 100%);
             color: white;
             border: none;
             padding: 8px 12px;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 500;
-            font-size: 0.85rem;
+            font-size: 0.83rem;
             transition: all 0.2s;
             box-shadow: 0 2px 8px rgba(39, 174, 96, 0.2);
+            width: 100%;
         }
 
         .action-form button:hover {
-            background: linear-gradient(90deg, #219a52 60%, #27ae60 100%);
+            background: linear-gradient(90deg, #3498db 60%, #2980b9 100%);
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
         }
@@ -367,50 +440,228 @@
             color: #7f8c8d;
             font-style: italic;
             text-align: center;
+            font-size: 0.83rem;
         }
 
         .description-cell {
-            max-width: 200px;
+            max-width: 160px;
             word-wrap: break-word;
+            white-space: normal;
             line-height: 1.4;
         }
 
         .amount-cell {
             font-weight: 600;
             color: #27ae60;
+            white-space: nowrap;
         }
 
-        @media (max-width: 1100px) {
+        /* ===== CARD VIEW — MOBILE ===== */
+        .expense-cards {
+            display: none;
+        }
+
+        .expense-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(52, 152, 219, 0.10);
+            padding: 18px;
+            margin-bottom: 16px;
+            border: 1px solid #e3e8f0;
+            animation: fadeIn 0.4s;
+        }
+
+        .card-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+
+        .card-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .card-label {
+            font-size: 0.75rem;
+            color: #7f8c8d;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            min-width: 90px;
+        }
+
+        .card-value {
+            font-size: 0.88rem;
+            color: #2c3e50;
+            text-align: right;
+            flex: 1;
+            word-break: break-word;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e3e8f0;
+        }
+
+        .card-project {
+            font-weight: 700;
+            color: #2c3e50;
+            font-size: 1rem;
+        }
+
+        .card-amount {
+            font-weight: 700;
+            color: #27ae60;
+            font-size: 1.1rem;
+        }
+
+        .card-action-form {
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid #e3e8f0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .card-action-form select,
+        .card-action-form input[type="text"] {
+            padding: 10px 12px;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            color: #2c3e50;
+            background: #fff;
+            width: 100%;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .card-action-form select:focus,
+        .card-action-form input[type="text"]:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .card-action-form button {
+            background: linear-gradient(90deg, #3498db 60%, #2980b9 100%);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.88rem;
+            width: 100%;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .card-action-form button:hover {
+            background: linear-gradient(90deg, #3498db 60%, #2980b9 100%);
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #7f8c8d;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: #bdc3c7;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        /* ===== RESPONSIVE ===== */
+
+        /* Large Desktop */
+        @media (min-width: 1400px) {
+            .container {
+                max-width: 1350px;
+            }
+        }
+
+        /* Laptop */
+        @media (max-width: 1200px) {
             .container {
                 max-width: 95vw;
-                padding: 40px 5vw 30px 5vw;
-            }
-
-            .navbar-container {
-                max-width: 98vw;
-                padding: 0 10px;
+                padding: 35px 30px;
             }
         }
 
-        @media (max-width: 900px) {
+        /* Tablet landscape */
+        @media (max-width: 1024px) {
             .container {
-                max-width: 98vw;
-                padding: 30px 2vw 25px 2vw;
+                max-width: 97vw;
+                padding: 30px 20px;
             }
 
             .navbar-container {
-                max-width: 100vw;
-                padding: 0 8px;
+                padding: 0 20px;
+            }
+
+            .expenses-table th,
+            .expenses-table td {
+                padding: 10px 8px;
+                font-size: 0.82rem;
+            }
+
+            .description-cell {
+                max-width: 120px;
             }
         }
 
+        /* Tablet portrait */
         @media (max-width: 768px) {
+            .page-header {
+                padding: 28px 20px 22px;
+                margin-bottom: 20px;
+            }
+
+            .page-header h1 {
+                font-size: 1.4rem;
+            }
+
+            .page-header .header-icon {
+                font-size: 2.5rem;
+            }
+
+
+            body {
+                padding-top: 70px;
+            }
+
+            .navbar {
+                padding: 10px 0;
+            }
+
+            .navbar-container {
+                padding: 0 15px;
+                height: 60px;
+            }
+
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
+
+            .navbar-brand i {
+                font-size: 1.4rem;
+            }
+
             .navbar-nav {
                 position: fixed;
-                top: 80px;
+                top: 70px;
                 left: -100%;
                 width: 100vw;
-                height: calc(100vh - 80px);
+                height: calc(100vh - 70px);
                 background: rgba(255, 255, 255, 0.98);
                 backdrop-filter: blur(20px);
                 flex-direction: column;
@@ -419,6 +670,7 @@
                 padding: 40px 20px;
                 gap: 20px;
                 transition: left 0.3s cubic-bezier(.77, 0, .18, 1);
+                z-index: 999;
             }
 
             .navbar-nav.active {
@@ -434,87 +686,185 @@
                 max-width: 300px;
                 justify-content: center;
                 padding: 15px 20px;
-                font-size: 1.1rem;
+                font-size: 1.05rem;
             }
 
-            .expenses-table {
-                font-size: 0.8rem;
-            }
-
-            .expenses-table th,
-            .expenses-table td {
-                padding: 8px 6px;
-            }
-
-            .action-form {
-                min-width: 150px;
-            }
-        }
-
-        @media (max-width: 700px) {
             .container {
-                padding: 18px 2vw 18px 2vw;
-                margin: 18px 2vw 0 2vw;
+                max-width: 98vw;
+                margin: 20px auto 0 auto;
+                padding: 25px 15px;
+                border-radius: 15px;
             }
 
             .form-title {
-                font-size: 1.5rem;
-                padding-bottom: 8px;
+                font-size: 1.4rem;
+                padding-bottom: 10px;
             }
 
             .form-section {
-                padding: 20px 15px;
+                padding: 18px 12px;
             }
 
-            .section-title {
-                font-size: 1.1rem;
+            /* Switch to card view on tablet */
+            .table-wrapper {
+                display: none;
             }
 
-            .expenses-table {
+            .expense-cards {
                 display: block;
-                overflow-x: auto;
-                white-space: nowrap;
             }
         }
 
-        @media (max-width: 600px) {
-            .container {
-                padding: 10px 2vw 10px 2vw;
-                margin: 10px 2vw 0 2vw;
-            }
-
-            .form-title {
-                font-size: 1.3rem;
-                padding-bottom: 7px;
-            }
-        }
-
+        /* Mobile */
         @media (max-width: 480px) {
+
+            .page-header {
+                padding: 22px 16px 18px;
+            }
+
+            .page-header h1 {
+                font-size: 1.2rem;
+            }
+
+            .page-header .header-icon {
+                font-size: 2rem;
+            }
+
+            body {
+                padding-top: 65px;
+            }
+
             .navbar-container {
-                padding: 0 2vw;
+                padding: 0 12px;
             }
 
             .navbar-brand {
                 font-size: 1rem;
             }
 
+            .navbar-brand i {
+                font-size: 1.3rem;
+            }
+
             .container {
-                margin: 8px 1vw 0 1vw;
-                padding: 8px 1vw 10px 1vw;
+                max-width: 100vw;
+                margin: 10px 0 0 0;
+                padding: 18px 12px;
+                border-radius: 12px;
+            }
+
+            .form-title {
+                font-size: 1.2rem;
+            }
+
+            .form-section {
+                padding: 14px 10px;
+                border-radius: 10px;
+            }
+
+            .section-title {
+                font-size: 1rem;
+            }
+
+            .expense-card {
+                padding: 14px;
+            }
+
+            .card-project {
+                font-size: 0.92rem;
+            }
+
+            .card-amount {
+                font-size: 1rem;
+            }
+        }
+
+        /* Small mobile */
+        @media (max-width: 360px) {
+            .container {
+                padding: 14px 8px;
             }
 
             .form-title {
                 font-size: 1.1rem;
             }
+
+            .expense-card {
+                padding: 12px;
+            }
+
+            .card-label {
+                font-size: 0.7rem;
+                min-width: 80px;
+            }
+
+            .card-value {
+                font-size: 0.82rem;
+            }
         }
 
-        @media (max-width: 400px) {
+        /* Landscape mobile */
+        @media (max-height: 500px) and (orientation: landscape) {
+            body {
+                padding-top: 55px;
+            }
+
+            .navbar {
+                padding: 5px 0;
+            }
+
+            .navbar-container {
+                height: 55px;
+            }
+
+            .navbar-nav {
+                top: 55px;
+                height: calc(100vh - 55px);
+                padding: 20px;
+            }
+
             .container {
-                padding: 4px 1vw 6px 1vw;
+                margin: 10px auto 0 auto;
+                padding: 15px;
             }
 
             .form-title {
-                font-size: 1rem;
+                font-size: 1.1rem;
+                margin-bottom: 15px;
+            }
+
+            .form-section {
+                padding: 12px;
+                margin-bottom: 15px;
+            }
+        }
+
+        /* Touch devices */
+        @media (hover: none) {
+            .nav-link:hover {
+                transform: none;
+            }
+
+            .action-form button:hover {
+                transform: none;
+            }
+
+            .card-action-form button:hover {
+                transform: none;
+            }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+
+            .navbar,
+            .container {
+                animation: none;
+            }
+
+            .nav-link,
+            .action-form button {
+                transition: none;
             }
         }
     </style>
@@ -555,7 +905,13 @@
     </nav>
 
     <div class="container">
-        <h2 class="form-title"><i class="fas fa-eye" style="color:#3498db"></i> Admin - View All Expenses</h2>
+        <div class="page-header">
+            <i class="fas fa-receipt header-icon"></i>
+            <h1>
+                Admin — View All Expenses
+            </h1>
+            <p>Review and manage all submitted expense requests.</p>
+        </div>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -568,36 +924,101 @@
         {% endif %}
         {% endwith %}
 
-        <!-- Expenses List Section -->
         <div class="form-section">
             <h3 class="section-title">
                 <i class="fas fa-list" style="color:#3498db"></i>
                 All Submitted Expenses
             </h3>
 
-            <table class="expenses-table">
-                <thead>
-                    <tr>
-                        <th><i class="fas fa-calendar"></i> Date</th>
-                        <th><i class="fas fa-project-diagram"></i> Project</th>
-                        <th><i class="fas fa-user"></i> Engineer</th>
-                        <th><i class="fas fa-file-alt"></i> Description</th>
-                        <th><i class="fas fa-rupee-sign"></i> Amount</th>
-                        <th><i class="fas fa-info-circle"></i> Status</th>
-                        <th><i class="fas fa-comment"></i> Comment</th>
-                        <th><i class="fas fa-cogs"></i> Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for expense in expenses %}
-                    <tr>
-                        <td>{{ expense.date }}</td>
-                        <td>{{ expense.project_name }}</td>
-                        <td>{{ expense.engineer_name }}</td>
-                        <td class="description-cell">{{ expense.description }}</td>
-                        <td class="amount-cell">₹{{ expense.amount|int if expense.amount|float ==
-                            (expense.amount|float)|int else expense.amount }}</td>
-                        <td>
+            {% if expenses %}
+
+            <!-- ── DESKTOP TABLE VIEW ── -->
+            <div class="table-wrapper">
+                <table class="expenses-table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-calendar"></i> Date</th>
+                            <th><i class="fas fa-project-diagram"></i> Project</th>
+                            <th><i class="fas fa-user"></i> Engineer</th>
+                            <th><i class="fas fa-file-alt"></i> Description</th>
+                            <th><i class="fas fa-rupee-sign"></i> Amount</th>
+                            <th><i class="fas fa-info-circle"></i> Status</th>
+                            <th><i class="fas fa-comment"></i> Comment</th>
+                            <th><i class="fas fa-cogs"></i> Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for expense in expenses %}
+                        <tr>
+                            <td>{{ expense.date }}</td>
+                            <td>{{ expense.project_name }}</td>
+                            <td>{{ expense.engineer_name }}</td>
+                            <td class="description-cell">{{ expense.description }}</td>
+                            <td class="amount-cell">
+                                ₹{{ expense.amount|int if expense.amount|float == (expense.amount|float)|int else
+                                expense.amount }}
+                            </td>
+                            <td>
+                                {% if expense.status == 'Approved' %}
+                                <span class="status-approved">Approved</span>
+                                {% elif expense.status == 'Rejected' %}
+                                <span class="status-rejected">Rejected</span>
+                                {% else %}
+                                <span class="status-pending">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ expense.admin_comment or '-' }}</td>
+                            <td>
+                                {% if expense.status not in ['Approved', 'Rejected'] %}
+                                <form method="POST" class="action-form">
+                                    <input type="hidden" name="expense_id" value="{{ expense.id }}">
+                                    <select name="action" required>
+                                        <option value="">Select Action</option>
+                                        <option value="Approved">Approve</option>
+                                        <option value="Rejected">Reject</option>
+                                    </select>
+                                    <input type="text" name="admin_comment" placeholder="Enter comment" required>
+                                    <button type="submit">
+                                        <i class="fas fa-check"></i> Submit
+                                    </button>
+                                </form>
+                                {% else %}
+                                <div class="no-action">No action needed</div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ── MOBILE CARD VIEW ── -->
+            <div class="expense-cards">
+                {% for expense in expenses %}
+                <div class="expense-card">
+                    <div class="card-header">
+                        <span class="card-project">{{ expense.project_name }}</span>
+                        <span class="card-amount">
+                            ₹{{ expense.amount|int if expense.amount|float == (expense.amount|float)|int else
+                            expense.amount }}
+                        </span>
+                    </div>
+
+                    <div class="card-row">
+                        <span class="card-label"><i class="fas fa-calendar"></i> Date</span>
+                        <span class="card-value">{{ expense.date }}</span>
+                    </div>
+                    <div class="card-row">
+                        <span class="card-label"><i class="fas fa-user"></i> Engineer</span>
+                        <span class="card-value">{{ expense.engineer_name }}</span>
+                    </div>
+                    <div class="card-row">
+                        <span class="card-label"><i class="fas fa-file-alt"></i> Description</span>
+                        <span class="card-value">{{ expense.description }}</span>
+                    </div>
+                    <div class="card-row">
+                        <span class="card-label"><i class="fas fa-info-circle"></i> Status</span>
+                        <span class="card-value">
                             {% if expense.status == 'Approved' %}
                             <span class="status-approved">Approved</span>
                             {% elif expense.status == 'Rejected' %}
@@ -605,30 +1026,40 @@
                             {% else %}
                             <span class="status-pending">Pending</span>
                             {% endif %}
-                        </td>
-                        <td>{{ expense.admin_comment or '-' }}</td>
-                        <td>
-                            {% if expense.status not in ['Approved', 'Rejected'] %}
-                            <form method="POST" class="action-form">
-                                <input type="hidden" name="expense_id" value="{{ expense.id }}">
-                                <select name="action" required>
-                                    <option value="">Select Action</option>
-                                    <option value="Approved">Approve</option>
-                                    <option value="Rejected">Reject</option>
-                                </select>
-                                <input type="text" name="admin_comment" placeholder="Enter comment" required>
-                                <button type="submit">
-                                    <i class="fas fa-check"></i> Submit
-                                </button>
-                            </form>
-                            {% else %}
-                            <div class="no-action">No action needed</div>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                        </span>
+                    </div>
+                    {% if expense.admin_comment %}
+                    <div class="card-row">
+                        <span class="card-label"><i class="fas fa-comment"></i> Comment</span>
+                        <span class="card-value">{{ expense.admin_comment }}</span>
+                    </div>
+                    {% endif %}
+
+                    {% if expense.status not in ['Approved', 'Rejected'] %}
+                    <form method="POST" class="card-action-form">
+                        <input type="hidden" name="expense_id" value="{{ expense.id }}">
+                        <select name="action" required>
+                            <option value="">Select Action</option>
+                            <option value="Approved">Approve</option>
+                            <option value="Rejected">Reject</option>
+                        </select>
+                        <input type="text" name="admin_comment" placeholder="Enter comment" required>
+                        <button type="submit">
+                            <i class="fas fa-check"></i> Submit
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-receipt"></i>
+                <p>No expenses found.</p>
+            </div>
+            {% endif %}
+
         </div>
     </div>
 
@@ -643,6 +1074,8 @@
                     setTimeout(() => msg.remove(), 500);
                 }, 2000);
             });
+
+            // Mobile menu toggle
             const mobileMenuToggle = document.getElementById('mobileMenuToggle');
             const navbarNav = document.getElementById('navbarNav');
 
@@ -650,7 +1083,6 @@
                 mobileMenuToggle.addEventListener('click', function () {
                     const icon = this.querySelector('i');
                     navbarNav.classList.toggle('active');
-
                     if (navbarNav.classList.contains('active')) {
                         icon.classList.remove('fa-bars');
                         icon.classList.add('fa-times');
@@ -660,7 +1092,6 @@
                     }
                 });
 
-                // Close mobile menu when clicking on nav links
                 document.querySelectorAll('.nav-link').forEach(link => {
                     link.addEventListener('click', function () {
                         navbarNav.classList.remove('active');
@@ -670,7 +1101,6 @@
                     });
                 });
 
-                // Close mobile menu when clicking outside
                 document.addEventListener('click', function (e) {
                     if (!mobileMenuToggle.contains(e.target) && !navbarNav.contains(e.target)) {
                         navbarNav.classList.remove('active');
@@ -682,7 +1112,7 @@
             }
 
             // Button loading animation on submit
-            document.querySelectorAll('.action-form').forEach(form => {
+            document.querySelectorAll('.action-form, .card-action-form').forEach(form => {
                 form.addEventListener('submit', function (e) {
                     const submitBtn = this.querySelector('button[type="submit"]');
                     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';

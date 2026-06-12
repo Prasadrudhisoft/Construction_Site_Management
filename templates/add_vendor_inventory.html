@@ -1,434 +1,442 @@
 <!DOCTYPE html>
-
 <html>
-
 <head>
-
     <title>Add Vendor Inventory (Multi-Item)</title>
-
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
 
-        html,
-        body {
-            height: 100%;
-        }
+        html, body { height: 100%; }
 
         body {
-            min-height: 100vh;
             background: #f4f6f8;
-            padding-top: 80px;
+            min-height: 100vh;
+            padding-top: 70px;
         }
 
+        /* ── Navbar — identical to upload_progress ── */
         .navbar {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: rgba(255, 255, 255, .95);
+            top: 0; left: 0; right: 0;
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, .2);
-            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             z-index: 1000;
-            box-shadow: 0 2px 20px rgba(0, 0, 0, .1);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            height: 70px;
+            display: flex;
+            align-items: center;
         }
 
         .navbar-container {
-            max-width: 100%;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 20px;
-            padding: 0 40px;
+            max-width: 100%; margin: 0 auto;
+            display: flex; justify-content: space-between; align-items: center;
+            width: 100%; padding: 0 40px; height: 70px;
         }
 
         .navbar-brand {
+            display: flex; align-items: center; gap: 12px;
+            text-decoration: none; color: #2c3e50;
+            font-weight: 700; font-size: 1.4rem;
+            transition: color 0.2s; flex-shrink: 0;
+        }
+        .navbar-brand:hover { color: #3498db; }
+        .navbar-brand i { color: #3498db; font-size: 1.8rem; transition: transform 0.2s; }
+        .navbar-brand:hover i { transform: rotate(-15deg) scale(1.1); }
+
+        .navbar-menu { display: flex; list-style: none; gap: 30px; align-items: center; margin: 0; }
+
+        .navbar-link {
+            text-decoration: none; color: #2c3e50; font-weight: 500;
+            padding: 10px 15px; border-radius: 8px;
+            transition: all 0.3s ease; display: flex; align-items: center;
+            gap: 8px; white-space: nowrap;
+        }
+        .navbar-link:hover { background: rgba(52, 152, 219, 0.1); color: #3498db; transform: translateY(-2px); }
+        .navbar-link.active { background: #3498db; color: white; }
+        .navbar-link.logout { background: #e74c3c; color: white; }
+        .navbar-link.logout:hover { background: #c0392b; transform: translateY(-2px); }
+
+        .navbar-toggle {
+            display: none; background: none; border: none;
+            font-size: 1.5rem; color: #2c3e50; cursor: pointer;
+            padding: 5px; border-radius: 4px; transition: all 0.3s ease;
+        }
+        .navbar-toggle:hover { background: rgba(52, 152, 219, 0.1); color: #3498db; }
+
+        /* ── Main Content — identical to upload_progress ── */
+        .main-content {
             display: flex;
             align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            color: #2c3e50;
-            font-weight: 700;
-            font-size: 1.4rem;
+            justify-content: center;
+            min-height: calc(100vh - 70px);
+            padding: 20px;
         }
 
-        .navbar-brand i {
-            color: #3498db;
-            font-size: 1.8rem;
+        /* ── Card — identical to upload_progress ── */
+        .form-container {
+            max-width: 1100px;
+            width: 95%;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 22px;
+            box-shadow: 0 8px 32px rgba(52, 152, 219, 0.13);
+            padding: 40px 60px;
+            animation: fadeIn 0.3s ease-out;
+            position: relative;
+            overflow: hidden;
         }
 
-        .navbar-nav {
-            display: flex;
-            list-style: none;
-            gap: 30px;
-            align-items: center;
+        @keyframes fadeIn {
+            from { opacity: 0.7; transform: translateY(10px); }
+            to   { opacity: 1;   transform: translateY(0); }
         }
 
-        .nav-link {
-            text-decoration: none;
-            color: #2c3e50;
+        .form-container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #3498db, #2c3e50);
+        }
+
+        /* ── Header — identical to upload_progress ── */
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-header i {
+            font-size: 3rem; color: #3498db;
+            margin-bottom: 15px; display: block;
+        }
+        .form-header h2 {
+            color: #2c3e50; font-size: 1.8rem;
+            font-weight: 600; margin-bottom: 8px;
+        }
+        .form-header p { color: #666; font-size: 0.95rem; }
+
+        /* ── Flash message (unchanged) ── */
+        .success-message {
+            background: #27ae60; color: white;
+            padding: 15px; border-radius: 12px;
+            margin-bottom: 20px; text-align: center;
+            display: flex; align-items: center;
+            justify-content: center; gap: 10px;
             font-weight: 500;
-            padding: 10px 15px;
-            border-radius: 8px;
-            transition: all .3s;
+        }
+
+        /* ── Item block — styled like upload_progress sections ── */
+        .item-block {
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            position: relative;
+            background: #f8f9fa;
+        }
+
+        .item-block h4 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+            font-size: 1rem;
+            font-weight: 600;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .nav-link.active {
-            background: #3498db;
-            color: white;
-        }
-
-        .nav-link.logout {
-            background: #e74c3c;
-            color: white;
-        }
-
-        .mobile-menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: #2c3e50;
-            cursor: pointer;
-        }
-
-        .container {
-            max-width: 900px;
-            width: 100%;
-            margin: 60px auto;
-            background: #fff;
-            border-radius: 22px;
-            box-shadow: 0 8px 32px rgba(52, 152, 219, .13);
-            padding: 40px;
-        }
-
-        .form-title {
-            color: #2c3e50;
-            margin-bottom: 25px;
-            font-size: 2rem;
-            font-weight: 700;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
+        .item-block h4::before {
+            content: '';
             display: inline-block;
-        }
-
-        .success-message {
-            background: #27ae60;
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .item-block {
-            border: 1.5px solid #ddd;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 25px;
-            position: relative;
-            background: #f8fafd;
-        }
-
-        .item-block h4 {
-            margin-bottom: 15px;
-            color: #2c3e50;
+            width: 4px; height: 18px;
+            background: #3498db;
+            border-radius: 2px;
         }
 
         .remove-btn {
             position: absolute;
-            right: 15px;
-            top: 15px;
-            background: #e74c3c;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            font-size: 1rem;
-            cursor: pointer;
-            line-height: 1;
+            right: 15px; top: 15px;
+            background: #e74c3c; color: white;
+            border: none; border-radius: 50%;
+            width: 32px; height: 32px;
+            font-size: 1rem; cursor: pointer; line-height: 1;
+            transition: background 0.2s;
+            display: flex; align-items: center; justify-content: center;
         }
+        .remove-btn:hover { background: #c0392b; }
 
+        /* ── Form groups — identical to upload_progress ── */
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 25px;
+            position: relative;
         }
 
         .form-group label {
-            display: block;
-            margin-bottom: 6px;
-            color: #34495e;
-            font-weight: 500;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 1.5px solid #ddd;
-            border-radius: 10px;
-            font-size: 1rem;
-            background: #fff;
-            transition: border-color .3s;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-
-        .form-group input[type="file"] {
-            padding: 8px 0;
-            background: none;
-        }
-
-        .btn-row {
             display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-top: 15px;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+        .form-group label i {
+            color: #3498db; font-size: 1rem;
+            width: 16px; text-align: center;
+        }
+
+        /* ── Inputs — identical to upload_progress ── */
+        .form-control {
+            width: 100%; padding: 15px 20px;
+            border: 2px solid #e1e8ed; border-radius: 12px;
+            font-size: 1rem; transition: all 0.3s ease;
+            background: #f8f9fa; color: #2c3e50;
+            font-family: 'Poppins', sans-serif;
+        }
+        .form-control:focus {
+            outline: none; border-color: #3498db;
+            background: white; box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        /* ── Two-col grid — identical to upload_progress form-row ── */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* ── File input — identical to upload_progress ── */
+        .file-input-wrapper { position: relative; width: 100%; }
+
+        .file-input {
+            width: 100%; padding: 20px 15px;
+            border: 2px dashed #e1e8ed; border-radius: 12px;
+            background: #f8f9fa; cursor: pointer;
+            transition: all 0.3s ease; text-align: center; position: relative;
+        }
+        .file-input:hover { border-color: #3498db; background: #ebf3fd; }
+
+        .file-input input[type="file"] {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 2;
+        }
+
+        .file-input-text {
+            pointer-events: none; display: flex;
+            align-items: center; justify-content: center;
+            gap: 10px; color: #666; font-size: 0.95rem;
+        }
+        .file-input-text i { font-size: 1.3rem; color: #3498db; }
+        .file-note { color: #7f8c8d; font-size: 0.82rem; margin-top: 6px; display: block; }
+
+        /* ── Buttons ── */
+        .btn-row {
+            display: flex; gap: 15px;
+            flex-wrap: wrap; margin-top: 10px;
         }
 
         .btn-row button {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all .2s;
+            padding: 15px 28px; border: none;
+            border-radius: 12px; font-size: 1rem;
+            cursor: pointer; transition: all 0.3s ease;
+            display: flex; align-items: center; gap: 8px;
+            font-family: 'Poppins', sans-serif; font-weight: 600;
         }
 
         #addMoreBtn {
-            background: #34495e;
-            color: white;
+            background: #3498db; color: white;
         }
-
-        #addMoreBtn:hover {
-            background: #2c3e50;
-        }
+        #addMoreBtn:hover { background: #2980b9; transform: translateY(-2px); }
 
         #submitBtn {
-            background: #3498db;
-            color: white;
-            font-weight: 600;
+            flex: 1;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white; justify-content: center;
+        }
+        #submitBtn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3); }
+        #submitBtn:active { transform: translateY(0); }
+        #submitBtn:disabled { background: #bdc3c7; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        /* ── Responsive — identical to upload_progress ── */
+        @media (max-width: 1024px) {
+            .navbar-menu { gap: 20px; }
+            .navbar-link { padding: 8px 12px; font-size: 0.95rem; }
+            .navbar-brand { font-size: 1.3rem; }
+            .navbar-brand i { font-size: 1.7rem; }
         }
 
-        #submitBtn:hover {
-            background: #2980b9;
+        @media (max-width: 900px) {
+            .navbar-container { padding: 0 20px; }
+            .form-container { max-width: 99vw; padding: 30px 3vw 20px 3vw; }
         }
 
-        @media(max-width:768px) {
+        @media (max-width: 768px) {
+            body { padding-top: 60px; }
+            .navbar { height: 60px; }
+            .navbar-container { height: 60px; padding: 0 15px; }
+            .navbar-brand { font-size: 1.2rem; }
+            .navbar-brand i { font-size: 1.5rem; }
 
-            .container {
-                padding: 20px;
+            .navbar-menu {
+                position: fixed;
+                top: 60px; left: -100%; width: 100%;
+                height: calc(100vh - 60px);
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                justify-content: flex-start; align-items: center;
+                padding: 40px 20px;
+                transition: left 0.3s ease; gap: 20px; z-index: 2000;
             }
+            .navbar-menu.active { left: 0; }
+            .navbar-toggle { display: block; }
+            .navbar-link { width: 100%; max-width: 300px; justify-content: center; padding: 15px 20px; font-size: 1.1rem; }
 
-            .form-title {
-                font-size: 1.6rem;
-            }
+            .main-content { min-height: calc(100vh - 60px); padding: 15px; }
+            .form-container { margin: 20px auto 30px auto; padding: 30px 24px; }
+            .form-header h2 { font-size: 1.5rem; }
+            .form-header i { font-size: 2.5rem; }
+            .form-row { grid-template-columns: 1fr; }
+            .btn-row { flex-direction: column; }
+            #submitBtn { flex: none; }
+        }
 
+        @media (max-width: 480px) {
+            .navbar { height: 55px; }
+            .navbar-container { height: 55px; padding: 0 10px; }
+            .navbar-brand { font-size: 1.1rem; gap: 8px; }
+            .navbar-brand i { font-size: 1.4rem; }
+            .navbar-menu { top: 55px; height: calc(100vh - 55px); padding: 30px 15px; }
+            body { padding-top: 55px; }
+            .form-container { padding: 25px 16px; margin: 10px auto 20px auto; }
+            .form-header h2 { font-size: 1.3rem; }
+            .form-header i { font-size: 2rem; }
+            .form-control { padding: 12px 15px; font-size: 0.9rem; }
+            .btn-row button { padding: 12px; font-size: 1rem; }
+        }
+
+        @media (max-width: 320px) {
+            .navbar { height: 50px; }
+            .navbar-container { height: 50px; padding: 0 5px; }
+            .navbar-brand { font-size: 1rem; }
+            .navbar-brand i { font-size: 1.3rem; }
+            .navbar-menu { top: 50px; height: calc(100vh - 50px); padding: 25px 10px; }
+            body { padding-top: 50px; }
+            .form-container { padding: 20px 10px; }
+            .form-header h2 { font-size: 1.2rem; }
         }
     </style>
-
 </head>
 
 <body>
-
-
-
-    <!-- ---------- Navbar (unchanged) ---------- -->
-
     <nav class="navbar">
-
         <div class="navbar-container">
-
             <a href="{{ url_for('add_vendor_inventory') }}" class="navbar-brand">
-
                 <i class="fas fa-hard-hat"></i> Add Vendor Inventory
-
             </a>
-
-            <ul class="navbar-nav" id="navbarNav">
-
-                <li><a href="{{ url_for('dashboard') }}" class="nav-link"><i class="fas fa-tachometer-alt"></i>
-                        Dashboard</a></li>
-
-                <li><a href="{{ url_for('add_vendor_inventory') }}" class="nav-link active"><i class="fas fa-truck"></i>
-                        Add Inventory</a></li>
-
-                <li><a href="{{ url_for('logout') }}" class="nav-link logout"><i class="fas fa-sign-out-alt"></i>
-                        Logout</a></li>
-
+            <ul class="navbar-menu" id="navbarNav">
+                <li><a href="{{ url_for('dashboard') }}" class="navbar-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="{{ url_for('add_vendor_inventory') }}" class="navbar-link active"><i class="fas fa-truck"></i> Add Inventory</a></li>
+                <li><a href="{{ url_for('logout') }}" class="navbar-link logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
-
-            <button class="mobile-menu-toggle" id="mobileMenuToggle"><i class="fas fa-bars"></i></button>
-
+            <button class="navbar-toggle" id="mobileMenuToggle"><i class="fas fa-bars"></i></button>
+        </div>
     </nav>
 
+    <div class="main-content">
+        <div class="form-container">
 
+            <div class="form-header">
+                <i class="fas fa-truck"></i>
+                <h2>Add Vendor Inventory</h2>
+                <p>Add one or more vendor inventory items for your project</p>
+            </div>
 
-    <!-- ---------- Main Form ---------- -->
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <div class="success-message">
+                <i class="fas fa-check-circle"></i> {{ messages[0] }}
+            </div>
+            {% endif %}
+            {% endwith %}
 
-    <div class="container">
+            <form method="POST" enctype="multipart/form-data" id="inventoryForm">
 
-        <h2 class="form-title"><i class="fas fa-truck" style="color:#3498db"></i> Add Vendor Inventory</h2>
-
-
-        {% with messages = get_flashed_messages() %}
-
-        {% if messages %}
-
-        <div class="success-message"><i class="fas fa-check-circle"></i> {{ messages[0] }}</div>
-
-        {% endif %}
-
-        {% endwith %}
-
-
-
-        <form method="POST" enctype="multipart/form-data" id="inventoryForm">
-
-            <div id="itemsWrapper">
-
-                <!-- Item block template -->
-
-                <div class="item-block" data-index="0">
-
-                    <button type="button" class="remove-btn" onclick="removeItem(this)" title="Remove">×</button>
-
-                    <h4>Item 1</h4>
-
-
-
-                    <div class="form-group">
-
-                        <label>Material Description <span style="color:#e74c3c">*</span></label>
-
-                        <input type="text" name="material_description[]" required>
-
-                    </div>
-
-
-
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
+                <div id="itemsWrapper">
+                    <div class="item-block" data-index="0">
+                        <button type="button" class="remove-btn" onclick="removeItem(this)" title="Remove">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <h4>Item 1</h4>
 
                         <div class="form-group">
+                            <label><i class="fas fa-clipboard-list"></i> Material Description <span style="color:#e74c3c">*</span></label>
+                            <input type="text" name="material_description[]" class="form-control" required placeholder="e.g., Portland Cement">
+                        </div>
 
-                            <label>Quantity <span style="color:#e74c3c">*</span></label>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label><i class="fas fa-sort-numeric-up"></i> Quantity <span style="color:#e74c3c">*</span></label>
+                                <input type="number" name="quantity[]" min="1" class="form-control" required placeholder="Enter quantity">
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-flag"></i> Status <span style="color:#e74c3c">*</span></label>
+                                <select name="status[]" class="form-control" required>
+                                    <option value="">Select</option>
+                                    <option value="available">Available</option>
+                                    <option value="low">Low</option>
+                                    <option value="out_of_stock">Out of Stock</option>
+                                    <option value="ordered">Ordered</option>
+                                </select>
+                            </div>
+                        </div>
 
-                            <input type="number" name="quantity[]" min="1" required>
-
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label><i class="fas fa-tools"></i> Vendor Type <span style="color:#e74c3c">*</span></label>
+                                <select name="vendor_type[]" class="form-control" required>
+                                    <option value="">Select</option>
+                                    <option value="electrical">Electrical</option>
+                                    <option value="plumber">Plumber</option>
+                                    <option value="carpenter">Carpenter</option>
+                                    <option value="painter">Painter</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-user-tie"></i> Vendor Name <span style="color:#e74c3c">*</span></label>
+                                <input type="text" name="vendor_name[]" class="form-control" required placeholder="Enter vendor name">
+                            </div>
                         </div>
 
                         <div class="form-group">
-
-                            <label>Status <span style="color:#e74c3c">*</span></label>
-
-                            <select name="status[]" required>
-
-                                <option value="">Select</option>
-
-                                <option value="available">Available</option>
-
-                                <option value="low">Low</option>
-
-                                <option value="out_of_stock">Out of Stock</option>
-
-                                <option value="ordered">Ordered</option>
-
-                            </select>
-
+                            <label><i class="fas fa-file-pdf"></i> Quotation PDF <span style="color:#e74c3c">*</span></label>
+                            <div class="file-input-wrapper">
+                                <div class="file-input">
+                                    <input type="file" name="quotation[]" accept=".pdf" required class="quotation-input">
+                                    <div class="file-input-text">
+                                        <i class="fas fa-file-upload"></i>
+                                        <span>Click to upload PDF or drag and drop</span>
+                                    </div>
+                                </div>
+                                <small class="file-note">Maximum file size: 4MB</small>
+                            </div>
                         </div>
-
                     </div>
-
-
-
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
-
-                        <div class="form-group">
-
-                            <label>Vendor Type <span style="color:#e74c3c">*</span></label>
-
-                            <select name="vendor_type[]" required>
-
-                                <option value="">Select</option>
-
-                                <option value="electrical">Electrical</option>
-
-                                <option value="plumber">Plumber</option>
-
-                                <option value="carpenter">Carpenter</option>
-
-                                <option value="painter">Painter</option>
-
-                                <option value="other">Other</option>
-
-                            </select>
-
-                        </div>
-
-                        <div class="form-group">
-
-                            <label>Vendor Name <span style="color:#e74c3c">*</span></label>
-
-                            <input type="text" name="vendor_name[]" required>
-
-                        </div>
-
-                    </div>
-
-
-
-                    <div class="form-group">
-                        <label>Quotation PDF <span style="color:#e74c3c">*</span></label>
-                        <input type="file" name="quotation[]" accept=".pdf" required class="quotation-input">
-                        <small style="color:#7f8c8d;font-size:0.85rem;margin-top:4px;display:block;">Maximum file size:
-                            10MB</small>
-                    </div>
-
                 </div>
 
-            </div>
+                <div class="btn-row">
+                    <button type="button" id="addMoreBtn"><i class="fas fa-plus"></i> Add Another Item</button>
+                    <button type="submit" id="submitBtn"><i class="fas fa-upload"></i> Submit All Items</button>
+                </div>
 
-
-
-            <div class="btn-row">
-
-                <button type="button" id="addMoreBtn"><i class="fas fa-plus"></i> Add Another Item</button>
-
-                <button type="submit" id="submitBtn"><i class="fas fa-upload"></i> Submit All Items</button>
-
-            </div>
-
-        </form>
-
+            </form>
+        </div>
     </div>
 
-
-
-    <!-- ---------- JavaScript ---------- -->
-
     <script>
-
-        /* Mobile menu */
-
         document.addEventListener('DOMContentLoaded', () => {
             // Flash message auto-dismiss
             const flashMsg = document.querySelector('.success-message');
@@ -444,100 +452,95 @@
             const nav = document.getElementById('navbarNav');
 
             toggle.addEventListener('click', () => {
-
                 nav.classList.toggle('active');
-
                 toggle.querySelector('i').className = nav.classList.contains('active') ? 'fas fa-times' : 'fas fa-bars';
-
             });
 
-            nav.querySelectorAll('.nav-link').forEach(link => link.addEventListener('click', () => nav.classList.remove('active')));
+            nav.querySelectorAll('.navbar-link').forEach(link => link.addEventListener('click', () => {
+                nav.classList.remove('active');
+                toggle.querySelector('i').className = 'fas fa-bars';
+            }));
 
+            document.addEventListener('click', function (e) {
+                if (!toggle.contains(e.target) && !nav.contains(e.target)) {
+                    nav.classList.remove('active');
+                    toggle.querySelector('i').className = 'fas fa-bars';
+                }
+            });
         });
 
-
-
         /* Dynamic rows */
-
         let itemIndex = 1;
 
         document.getElementById('addMoreBtn').addEventListener('click', () => {
-
             const wrapper = document.getElementById('itemsWrapper');
-
             const template = wrapper.querySelector('.item-block').cloneNode(true);
-
             itemIndex++;
-
             template.dataset.index = itemIndex;
-
-            template.querySelector('h4').textContent = `Item ${itemIndex}`;
-
+            // Simply set textContent — h4 is plain text
+            template.querySelector('h4').textContent = 'Item ' + itemIndex;
+            // Clear all inputs and selects
             template.querySelectorAll('input, select').forEach(el => el.value = '');
-
+            // Reset file input text
+            const fileText = template.querySelector('.file-input-text span');
+            if (fileText) fileText.textContent = 'Click to upload PDF or drag and drop';
+            // Reset file input border/bg
+            const fileInput = template.querySelector('.file-input');
+            if (fileInput) { fileInput.style.borderColor = ''; fileInput.style.backgroundColor = ''; }
             wrapper.appendChild(template);
-
         });
 
-
-
         function removeItem(btn) {
-
             const blocks = document.querySelectorAll('.item-block');
-
             if (blocks.length > 1) {
-
                 btn.closest('.item-block').remove();
-
             } else {
-
                 alert('At least one item is required.');
-
             }
-
         }
-
 
         /* File size validation (10MB limit) */
         document.addEventListener('change', function (e) {
             if (e.target.classList.contains('quotation-input')) {
                 const file = e.target.files[0];
-                const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+                const maxSize = 10 * 1024 * 1024;
+                const wrapper = e.target.closest('.file-input');
+                const textEl = wrapper.querySelector('.file-input-text span');
 
                 if (file && file.size > maxSize) {
-                    alert('❌ File size exceeds 10MB!\n\nFile size: ' + (file.size / (1024 * 1024)).toFixed(2) + 'MB\nMaximum allowed: 10MB\n\nPlease upload a smaller PDF file.');
-                    e.target.value = ''; // Clear the file input
+                    alert('\u274C File size exceeds 10MB!\n\nFile size: ' + (file.size / (1024 * 1024)).toFixed(2) + 'MB\nMaximum allowed: 10MB\n\nPlease upload a smaller PDF file.');
+                    e.target.value = '';
+                    textEl.textContent = 'Click to upload PDF or drag and drop';
+                    wrapper.style.borderColor = '#e74c3c';
+                    wrapper.style.backgroundColor = '#fadbd8';
+                    return;
+                }
+                if (file) {
+                    textEl.textContent = file.name;
+                    wrapper.style.borderColor = '#27ae60';
+                    wrapper.style.backgroundColor = '#d4edda';
                 }
             }
         });
 
-
-
-        /* Loading spinner on submit */
-
         /* Loading spinner on submit + File validation */
         document.getElementById('inventoryForm').addEventListener('submit', function (e) {
-            // Validate all file inputs before submitting
             const fileInputs = document.querySelectorAll('.quotation-input');
-            const maxSize = 10 * 1024 * 1024; // 10MB
+            const maxSize = 10 * 1024 * 1024;
 
             for (let input of fileInputs) {
                 const file = input.files[0];
                 if (file && file.size > maxSize) {
                     e.preventDefault();
-                    alert('❌ One or more files exceed 10MB!\n\nPlease check all PDF files and ensure they are under 10MB.');
+                    alert('\u274C One or more files exceed 10MB!\n\nPlease check all PDF files and ensure they are under 10MB.');
                     return;
                 }
             }
 
-            // If validation passes, show loading spinner
             const btn = document.getElementById('submitBtn');
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
             btn.disabled = true;
         });
-
     </script>
-
 </body>
-
 </html>
