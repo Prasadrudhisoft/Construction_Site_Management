@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>View Inventory</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -16,16 +18,10 @@
         body {
             background: #f4f6f8;
             min-height: 100vh;
-            padding: 20px;
             padding-top: 90px;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            position: relative;
-        }
-
+        /* ── Navbar ── */
         .navbar {
             position: fixed;
             top: 0;
@@ -34,7 +30,7 @@
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            z-index: 2000;
+            z-index: 1000;
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
             height: 70px;
             display: flex;
@@ -48,7 +44,6 @@
             justify-content: space-between;
             align-items: center;
             width: 100%;
-            padding: 0 20px;
             padding: 0 40px;
             height: 70px;
         }
@@ -61,11 +56,21 @@
             color: #2c3e50;
             font-weight: 700;
             font-size: 1.4rem;
+            transition: color 0.2s;
+        }
+
+        .navbar-brand:hover {
+            color: #3498db;
         }
 
         .navbar-brand i {
             color: #3498db;
             font-size: 1.8rem;
+            transition: transform 0.2s;
+        }
+
+        .navbar-brand:hover i {
+            transform: rotate(-15deg) scale(1.1);
         }
 
         .navbar-menu {
@@ -76,7 +81,7 @@
             margin: 0;
         }
 
-        .navbar-link {
+        .navbar-menu a {
             text-decoration: none;
             color: #2c3e50;
             font-weight: 500;
@@ -86,200 +91,260 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            white-space: nowrap;
         }
 
-        .navbar-link:hover {
+        .navbar-menu a:hover {
             background: rgba(52, 152, 219, 0.1);
             color: #3498db;
             transform: translateY(-2px);
         }
 
-        .navbar-link.active {
+        .navbar-menu a.active {
             background: #3498db;
             color: white;
         }
 
-        .navbar-link.logout {
+        .navbar-menu a.logout-link {
             background: #e74c3c;
             color: white;
         }
 
-        .navbar-link.logout:hover {
+        .navbar-menu a.logout-link:hover {
             background: #c0392b;
             transform: translateY(-2px);
         }
 
         .navbar-toggle {
             display: none;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: #2c3e50;
+            flex-direction: column;
             cursor: pointer;
-            padding: 8px;
-            border-radius: 4px;
-            transition: background 0.3s ease;
+            padding: 5px;
+            gap: 5px;
         }
 
-        .navbar-toggle:hover {
-            background: rgba(52, 152, 219, 0.1);
+        .navbar-toggle span {
+            width: 25px;
+            height: 3px;
+            background: #2c3e50;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+            transform-origin: center;
         }
 
-        .main-content {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-            overflow: hidden;
+        .navbar-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .navbar-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .navbar-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        /* ── Main container ── */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        /* ── Page header ── */
+        .header-section {
+            background: #fff;
+            border-radius: 22px;
+            box-shadow: 0 8px 32px rgba(52, 152, 219, 0.13);
+            padding: 40px 40px 32px;
+            margin-bottom: 28px;
             position: relative;
-            margin-top: 20px;
+            overflow: hidden;
+            text-align: center;
+            /* animation: fadeIn 0.3s ease-out; */
         }
 
-        .main-content::before {
+        .header-section::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             height: 5px;
-            background: linear-gradient(90deg, #3498db, #2c3e50, #27ae60);
+            background: linear-gradient(90deg, #3498db, #2c3e50);
         }
 
-        .header {
-            padding: 40px 40px 30px;
-            text-align: center;
-            border-bottom: 1px solid #e8f4fd;
-        }
-
-        .header i {
-            font-size: 3.5rem;
-            background: linear-gradient(135deg, #3498db, #2c3e50);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 15px;
+        .header-section .header-icon {
+            font-size: 3rem;
+            color: #3498db;
+            margin-bottom: 14px;
             display: block;
         }
 
-        .header h2 {
-            color: #2c3e50;
-            font-size: 2rem;
+        .header-section h1 {
+            font-size: 1.8rem;
             font-weight: 600;
+            color: #2c3e50;
             margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
         }
 
-        .header p {
+        .header-section p {
             color: #666;
-            font-size: 1rem;
+            font-size: 0.95rem;
         }
 
-        .stats-section {
-            padding: 30px 40px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e8f4fd;
+        @keyframes fadeIn {
+            from {
+                opacity: 0.7;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .stats-grid {
+        /* ── Stats cards ── */
+        .stats-cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            gap: 18px;
+            margin-bottom: 24px;
         }
 
         .stat-card {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
+            background: #fff;
+            padding: 24px 20px;
+            border-radius: 18px;
+            box-shadow: 0 4px 18px rgba(52, 152, 219, 0.08);
             text-align: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .stat-card.available::before {
+            background: linear-gradient(90deg, #3498db, #2980b9);
+        }
+
+        .stat-card.low::before {
+            background: linear-gradient(90deg, #2980b9, #3498db);
+        }
+
+        .stat-card.out::before {
+            background: linear-gradient(90deg, #2e86c1, #1f618d);
+        }
+
+        .stat-card.ordered::before {
+            background: linear-gradient(90deg, #3498db, #2980b9);
         }
 
         .stat-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 28px rgba(52, 152, 219, 0.14);
         }
 
         .stat-card i {
-            font-size: 2rem;
+            font-size: 1.8rem;
             margin-bottom: 10px;
             display: block;
         }
 
+        .stat-card.available i {
+            color: #2980b9;
+        }
+
+        .stat-card.low i {
+            color: #3498db;
+        }
+
+        .stat-card.out i {
+            color: #2e86c1;
+        }
+
+        .stat-card.ordered i {
+            color: #3498db;
+        }
+
         .stat-card h3 {
             font-size: 1.8rem;
-            font-weight: 700;
+            color: #2c3e50;
             margin-bottom: 5px;
+            font-weight: 600;
         }
 
         .stat-card p {
-            color: #666;
-            font-size: 0.9rem;
+            color: #7f8c8d;
+            font-size: 0.88rem;
         }
 
-        .stat-available { color: #27ae60; }
-        .stat-low { color: #f39c12; }
-        .stat-out { color: #e74c3c; }
-        .stat-ordered { color: #3498db; }
-
-        .filters-section {
-            padding: 20px 40px;
-            background: #e8f4fd;
-            border-bottom: 1px solid #d1ecf1;
-        }
-
-        .filters-row {
+        /* ── Controls section ── */
+        .controls-section {
+            background: #fff;
+            padding: 20px 28px;
+            border-radius: 18px;
+            box-shadow: 0 4px 18px rgba(52, 152, 219, 0.08);
+            margin-bottom: 24px;
             display: flex;
-            gap: 15px;
+            justify-content: space-between;
             align-items: center;
+            gap: 16px;
             flex-wrap: wrap;
+            position: relative;
+            overflow: hidden;
         }
 
-        .filter-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .controls-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3498db, #2c3e50);
         }
 
-        .filter-group label {
-            color: #2c3e50;
-            font-weight: 500;
-            font-size: 0.9rem;
-            white-space: nowrap;
-        }
-
-        .filter-control {
-            padding: 8px 15px;
-            border: 2px solid #bdc3c7;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            background: white;
-            min-width: 120px;
-        }
-
-        .filter-control:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-
+        /* ── Search ── */
         .search-box {
             flex: 1;
             min-width: 250px;
             position: relative;
         }
 
-        .search-input {
+        .search-box input {
             width: 100%;
-            padding: 10px 45px 10px 15px;
-            border: 2px solid #bdc3c7;
-            border-radius: 8px;
-            font-size: 0.9rem;
+            padding: 13px 45px 13px 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-family: 'Poppins', sans-serif;
+            background: #f8f9fa;
+            color: #2c3e50;
+            transition: all 0.3s ease;
         }
 
-        .search-input:focus {
+        .search-box input:focus {
             outline: none;
             border-color: #3498db;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
 
-        .search-icon {
+        .search-box i {
             position: absolute;
             right: 15px;
             top: 50%;
@@ -287,57 +352,108 @@
             color: #7f8c8d;
         }
 
-        .table-section {
-            padding: 0;
-            overflow-x: auto;
+        /* ── Filter + Sort row ── */
+        .filter-sort-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
-        .inventory-table {
+        .filter-sort-row label {
+            color: #2c3e50;
+            font-weight: 500;
+            font-size: 0.88rem;
+            white-space: nowrap;
+        }
+
+        .filter-sort-row select {
+            padding: 10px 14px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-family: 'Poppins', sans-serif;
+            background: #f8f9fa;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-sort-row select:focus {
+            outline: none;
+            border-color: #3498db;
+            background: #fff;
+        }
+
+        /* ── Table container ── */
+        .table-container {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 4px 18px rgba(52, 152, 219, 0.08);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            color: white;
+            padding: 20px 28px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
             min-width: 600px;
         }
 
-        .inventory-table th {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white;
-            padding: 18px 15px;
-            text-align: left;
+        th {
+            background: #f0f6fd;
+            color: #2c3e50;
             font-weight: 600;
-            font-size: 0.95rem;
-            letter-spacing: 0.5px;
+            padding: 14px;
+            text-align: left;
+            border-bottom: 2px solid #e1e8ed;
+            font-size: 0.88rem;
+            white-space: nowrap;
             position: sticky;
             top: 0;
-            z-index: 5;
+            z-index: 1;
         }
 
-        .inventory-table th i {
-            margin-right: 8px;
+        th i {
+            color: #3498db;
+            margin-right: 6px;
         }
 
-        .inventory-table td {
-            padding: 15px;
-            border-bottom: 1px solid #ecf0f1;
+        td {
+            padding: 14px;
+            border-bottom: 1px solid #e9ecef;
             color: #2c3e50;
             font-size: 0.9rem;
-            vertical-align: middle;
         }
 
-        .inventory-table tr:hover {
-            background: #f8f9fa;
+        tr:hover td {
+            background: #f0f6fd;
+            transition: background 0.2s;
         }
 
-        .inventory-table tr:nth-child(even) {
-            background: #fdfdfd;
+        tr:last-child td {
+            border-bottom: none;
         }
 
-        .inventory-table tr:nth-child(even):hover {
-            background: #f1f2f6;
-        }
-
+        /* ── Badges ── */
         .status-badge {
-            padding: 6px 12px;
+            padding: 5px 12px;
             border-radius: 20px;
             font-size: 0.8rem;
             font-weight: 600;
@@ -348,186 +464,167 @@
         }
 
         .status-available {
-            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            background: #d4edda;
             color: #155724;
+            border: 1px solid #c3e6cb;
         }
 
         .status-low {
-            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            background: #fff3cd;
             color: #856404;
+            border: 1px solid #ffc107;
         }
 
         .status-out {
-            background: linear-gradient(135deg, #f8d7da, #fab1a0);
+            background: #f8d7da;
             color: #721c24;
+            border: 1px solid #f5c6cb;
         }
 
         .status-ordered {
-            background: linear-gradient(135deg, #d1ecf1, #74b9ff);
+            background: #d1ecf1;
             color: #0c5460;
+            border: 1px solid #bee5eb;
         }
 
         .quantity-badge {
-            padding: 4px 10px;
-            background: #e8f4fd;
-            border-radius: 12px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
             font-weight: 600;
-            color: #2c3e50;
+            font-size: 0.82rem;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.25);
             display: inline-block;
-            white-space: nowrap;
         }
 
-        .date-text {
-            color: #7f8c8d;
-            font-size: 0.85rem;
+        .date-badge {
+            background: #d4edda;
+            color: #155724;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 500;
             white-space: nowrap;
+            border: 1px solid #c3e6cb;
         }
 
-        .actions-section {
-            padding: 30px 40px;
-            background: #f8f9fa;
+        /* ── Empty state ── */
+        .empty-state {
             text-align: center;
+            padding: 60px 20px;
+            color: #666;
         }
 
-        .action-buttons {
+        .empty-state i {
+            font-size: 3.5rem;
+            color: #bdc3c7;
+            margin-bottom: 18px;
+            display: block;
+        }
+
+        .empty-state h3 {
+            font-size: 1.2rem;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        /* ── Actions / Print ── */
+        .actions-section {
             display: flex;
-            gap: 15px;
+            gap: 14px;
             justify-content: center;
+            margin-top: 10px;
             flex-wrap: wrap;
         }
 
-        .action-btn {
-            padding: 12px 25px;
+        .nav-link {
+            padding: 12px 22px;
             text-decoration: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-weight: 600;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 8px;
-            min-width: 160px;
+            font-size: 0.92rem;
+            cursor: pointer;
+            border: none;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
+        .btn-print {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            box-shadow: 0 4px 12px rgba(149, 165, 166, 0.3);
+        }
+
+        .btn-print:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(149, 165, 166, 0.4);
             color: white;
         }
 
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(39, 174, 96, 0.4);
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(149, 165, 166, 0.4);
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 40px;
-            color: #7f8c8d;
-        }
-
-        .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-
-        .empty-state h3 {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-            color: #2c3e50;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.6s ease-out;
-        }
-
-        /* Tablet Styles */
+        /* ── Responsive ── */
         @media (max-width: 1024px) {
             .container {
-                padding: 0 15px;
+                padding: 20px 15px;
             }
-            
+
             .navbar-container {
-                padding: 0 15px;
+                padding: 0 20px;
             }
-            
-            .header {
-                padding: 30px 30px 25px;
+
+            .controls-section {
+                flex-direction: column;
+                align-items: stretch;
             }
-            
-            .header h2 {
-                font-size: 1.8rem;
+
+            .search-box {
+                min-width: auto;
             }
-            
-            .stats-section {
-                padding: 25px 30px;
+
+            .filter-sort-row {
+                justify-content: flex-start;
             }
-            
-            .stats-grid {
-                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-                gap: 15px;
-            }
-            
-            .stat-card {
-                padding: 18px;
-            }
-            
-            .stat-card h3 {
-                font-size: 1.6rem;
-            }
-            
-            .filters-section {
-                padding: 18px 30px;
-            }
-            
-            .actions-section {
-                padding: 25px 30px;
+
+            .stats-cards {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
 
-        /* Mobile Styles */
         @media (max-width: 768px) {
             body {
-                padding: 10px;
-                padding-top: 70px;
+                padding-top: 60px;
             }
-            
+
             .navbar {
                 height: 60px;
             }
-            
+
             .navbar-container {
                 height: 60px;
                 padding: 0 15px;
             }
-            
+
             .navbar-brand {
                 font-size: 1.2rem;
             }
-            
+
             .navbar-brand i {
                 font-size: 1.5rem;
             }
-            
+
+            .navbar-toggle {
+                display: flex;
+                z-index: 1001;
+            }
+
             .navbar-menu {
                 position: fixed;
                 top: 60px;
-                left: -100%;
+                left: 0;
                 width: 100%;
                 height: calc(100vh - 60px);
                 background: rgba(255, 255, 255, 0.98);
@@ -536,339 +633,351 @@
                 justify-content: flex-start;
                 align-items: center;
                 padding: 40px 20px;
-                transition: left 0.3s ease;
                 gap: 20px;
-                z-index: 3000;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                border-top: 1px solid #e9ecef;
+                z-index: 2000;
             }
-            
+
             .navbar-menu.active {
-                left: 0;
+                transform: translateX(0);
             }
-            
-            .navbar-toggle {
-                display: block;
-            }
-            
-            .navbar-link {
+
+            .navbar-menu a {
                 width: 100%;
                 max-width: 300px;
                 justify-content: center;
                 padding: 15px 20px;
                 font-size: 1.1rem;
             }
-            
+
             .container {
-                padding: 0 10px;
+                padding: 15px 10px;
             }
-            
-            .main-content {
-                border-radius: 15px;
-                margin-top: 10px;
+
+            .header-section {
+                padding: 28px 20px 22px;
+                margin-bottom: 20px;
+                border-radius: 16px;
             }
-            
-            .header {
-                padding: 25px 20px 20px;
-            }
-            
-            .header i {
-                font-size: 2.5rem;
-            }
-            
-            .header h2 {
-                font-size: 1.5rem;
-            }
-            
-            .header p {
-                font-size: 0.9rem;
-            }
-            
-            .stats-section {
-                padding: 20px;
-            }
-            
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
-            }
-            
-            .stat-card {
-                padding: 15px;
-            }
-            
-            .stat-card i {
-                font-size: 1.5rem;
-            }
-            
-            .stat-card h3 {
+
+            .header-section h1 {
                 font-size: 1.4rem;
             }
-            
-            .stat-card p {
-                font-size: 0.8rem;
+
+            .header-section .header-icon {
+                font-size: 2.5rem;
             }
-            
-            .filters-section {
-                padding: 15px 20px;
+
+            .stats-cards {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 14px;
             }
-            
-            .filters-row {
+
+            .controls-section {
+                padding: 16px 14px;
+            }
+
+            .filter-sort-row {
                 flex-direction: column;
-                gap: 12px;
                 align-items: stretch;
+                gap: 10px;
             }
-            
-            .filter-group {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 5px;
-            }
-            
-            .filter-control {
+
+            .filter-sort-row select {
                 width: 100%;
             }
-            
-            .search-box {
-                min-width: unset;
-            }
-            
-            .table-section {
-                padding: 0 10px;
-            }
-            
-            .inventory-table {
-                font-size: 0.85rem;
-            }
-            
-            .inventory-table th {
-                padding: 12px 8px;
-                font-size: 0.8rem;
-            }
-            
-            .inventory-table td {
-                padding: 10px 8px;
-                font-size: 0.8rem;
-            }
-            
-            .status-badge {
-                font-size: 0.7rem;
-                padding: 4px 8px;
-            }
-            
-            .quantity-badge {
-                font-size: 0.8rem;
-                padding: 3px 8px;
-            }
-            
-            .date-text {
-                font-size: 0.75rem;
-            }
-            
-            .actions-section {
-                padding: 20px;
-            }
-            
-            .action-btn {
-                width: 100%;
-                max-width: 250px;
-                padding: 15px 25px;
-            }
-        }
 
-        /* Small Mobile Styles */
-        @media (max-width: 480px) {
-            body {
-                padding: 8px;
-                padding-top: 65px;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .inventory-table {
-                min-width: 500px;
-            }
-            
-            .inventory-table th {
-                padding: 10px 6px;
-                font-size: 0.75rem;
-            }
-            
-            .inventory-table td {
-                padding: 8px 6px;
-                font-size: 0.75rem;
-            }
-            
-            .header {
-                padding: 20px 15px 15px;
-            }
-            
-            .stats-section {
-                padding: 15px;
-            }
-            
-            .filters-section {
-                padding: 12px 15px;
-            }
-            
-            .actions-section {
-                padding: 15px;
-            }
-        }
-
-        /* Extra Small Mobile Styles */
-        @media (max-width: 360px) {
-            .navbar-brand {
+            .table-header {
+                padding: 16px 18px;
                 font-size: 1rem;
             }
-            
+
+            table {
+                min-width: 600px;
+            }
+
+            th,
+            td {
+                padding: 12px 10px;
+                font-size: 0.85rem;
+            }
+
+            .actions-section {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .nav-link {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding-top: 55px;
+            }
+
+            .navbar {
+                height: 55px;
+            }
+
+            .navbar-container {
+                height: 55px;
+                padding: 0 12px;
+            }
+
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
+
             .navbar-brand i {
                 font-size: 1.3rem;
             }
-            
-            .header h2 {
-                font-size: 1.3rem;
+
+            .navbar-menu {
+                top: 55px;
+                height: calc(100vh - 55px);
             }
-            
-            .stat-card h3 {
+
+            .container {
+                padding: 12px 8px;
+            }
+
+            .header-section {
+                padding: 22px 16px 18px;
+            }
+
+            .header-section h1 {
                 font-size: 1.2rem;
             }
-            
-            .inventory-table {
-                min-width: 450px;
+
+            .header-section .header-icon {
+                font-size: 2rem;
+            }
+
+            .stats-cards {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+
+            .stat-card {
+                padding: 18px 12px;
+            }
+
+            .controls-section {
+                padding: 14px 12px;
+            }
+
+            .search-box input {
+                font-size: 0.9rem;
+            }
+
+            table {
+                min-width: 560px;
+            }
+
+            th,
+            td {
+                padding: 10px 8px;
+                font-size: 0.8rem;
+            }
+
+            th i {
+                display: none;
+            }
+
+            .nav-link {
+                padding: 12px 16px;
+                font-size: 0.88rem;
             }
         }
 
-        /* Print Styles */
+        @media (max-width: 320px) {
+            body {
+                padding-top: 50px;
+            }
+
+            .navbar {
+                height: 50px;
+            }
+
+            .navbar-container {
+                height: 50px;
+                padding: 0 8px;
+            }
+
+            .navbar-brand {
+                font-size: 1rem;
+            }
+
+            .navbar-brand i {
+                font-size: 1.2rem;
+            }
+
+            .navbar-menu {
+                top: 50px;
+                height: calc(100vh - 50px);
+            }
+
+            .container {
+                padding: 8px 5px;
+            }
+
+            .header-section {
+                padding: 18px 12px 14px;
+            }
+
+            .header-section h1 {
+                font-size: 1.05rem;
+            }
+
+            .stats-cards {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .stat-card {
+                padding: 14px 10px;
+            }
+
+            table {
+                min-width: 520px;
+            }
+
+            th,
+            td {
+                padding: 8px 6px;
+                font-size: 0.75rem;
+            }
+        }
+
         @media print {
             body {
                 background: white;
                 padding: 0;
             }
-            
+
             .navbar {
                 display: none;
             }
-            
-            .main-content {
-                box-shadow: none;
-                border-radius: 0;
+
+            .controls-section {
+                display: none;
             }
-            
+
             .actions-section {
                 display: none;
             }
-            
-            .filters-section {
-                display: none;
+
+            .table-container {
+                box-shadow: none;
+                border-radius: 0;
             }
-            
-            .inventory-table {
+
+            table {
                 font-size: 12px;
             }
-            
-            .inventory-table th,
-            .inventory-table td {
+
+            th,
+            td {
                 padding: 8px 4px;
             }
         }
     </style>
 </head>
+
 <body>
-    <nav class="navbar">
+
+    <!-- Navbar -->
+    <div class="navbar">
         <div class="navbar-container">
             <a href="{{ url_for('view_inventory') }}" class="navbar-brand">
                 <i class="fas fa-warehouse"></i>
                 Inventory
             </a>
-            <ul class="navbar-menu" id="navbarNav">
-                <li>
-                    <a href="{{ url_for('dashboard') }}" class="navbar-link">
-                        <i class="fas fa-tachometer-alt"></i>
-                        Dashboard
-                    </a>
+            <div class="navbar-toggle" id="navbar-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul class="navbar-menu" id="navbar-menu">
+                <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="{{ url_for('view_inventory') }}" class="active"><i class="fas fa-boxes"></i> Inventory</a>
                 </li>
-                <li><a href="{{ url_for('view_inventory') }}" class="navbar-link active">
-                    <i class="fas fa-boxes"></i>
-                    Inventory
-                </a></li>
-                <li><a href="{{ url_for('logout') }}" class="navbar-link logout">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Logout
-                </a></li>
+                <li><a href="{{ url_for('logout') }}" class="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </li>
             </ul>
-            <button class="navbar-toggle" id="mobileMenuToggle">
-                <i class="fas fa-bars"></i>
-            </button>
         </div>
-    </nav>
+    </div>
+
     <div class="container">
-        <div class="main-content fade-in">
-            <!-- Header Section -->
-            <div class="header">
-                <i class="fas fa-warehouse"></i>
-                <h2>Inventory Records</h2>
-                <p>Complete overview of all materials and supplies</p>
-            </div>
 
-            <!-- Stats Section -->
-            <div class="stats-section">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <i class="fas fa-check-circle stat-available"></i>
-                        <h3 class="stat-available" id="available-count">0</h3>
-                        <p>Available Items</p>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-exclamation-triangle stat-low"></i>
-                        <h3 class="stat-low" id="low-count">0</h3>
-                        <p>Low Stock</p>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-times-circle stat-out"></i>
-                        <h3 class="stat-out" id="out-count">0</h3>
-                        <p>Out of Stock</p>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-shopping-cart stat-ordered"></i>
-                        <h3 class="stat-ordered" id="ordered-count">0</h3>
-                        <p>Ordered</p>
-                    </div>
-                </div>
-            </div>
+        <!-- Header -->
+        <div class="header-section">
+            <i class="fas fa-warehouse header-icon"></i>
+            <h1>Inventory Records</h1>
+            <p>Complete overview of all materials and supplies</p>
+        </div>
 
-            <!-- Filters Section -->
-            <div class="filters-section">
-                <div class="filters-row">
-                    <div class="search-box">
-                        <input type="text" class="search-input" placeholder="Search materials..." id="searchInput">
-                        <i class="fas fa-search search-icon"></i>
-                    </div>
-                    <div class="filter-group">
-                        <label for="statusFilter">Status:</label>
-                        <select class="filter-control" id="statusFilter">
-                            <option value="">All Status</option>
-                            <option value="Available">Available</option>
-                            <option value="Low">Low Stock</option>
-                            <option value="Out Of Stock">Out of Stock</option>
-                            <option value="Ordered">Ordered</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label for="sortBy">Sort by:</label>
-                        <select class="filter-control" id="sortBy">
-                            <option value="id">ID</option>
-                            <option value="description">Description</option>
-                            <option value="quantity">Quantity</option>
-                            <option value="date">Date</option>
-                        </select>
-                    </div>
-                </div>
+        <!-- Stats Cards -->
+        <div class="stats-cards">
+            <div class="stat-card available">
+                <i class="fas fa-check-circle"></i>
+                <h3 id="available-count">0</h3>
+                <p>Available Items</p>
             </div>
+            <div class="stat-card low">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3 id="low-count">0</h3>
+                <p>Low Stock</p>
+            </div>
+            <div class="stat-card out">
+                <i class="fas fa-times-circle"></i>
+                <h3 id="out-count">0</h3>
+                <p>Out of Stock</p>
+            </div>
+            <div class="stat-card ordered">
+                <i class="fas fa-shopping-cart"></i>
+                <h3 id="ordered-count">0</h3>
+                <p>Ordered</p>
+            </div>
+        </div>
 
-            <!-- Table Section -->
-            <div class="table-section">
-                <table class="inventory-table">
+        <!-- Controls -->
+        <div class="controls-section">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search materials, engineer, or ID...">
+                <i class="fas fa-search"></i>
+            </div>
+            <div class="filter-sort-row">
+                <label for="statusFilter">Status:</label>
+                <select id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="Available">Available</option>
+                    <option value="Low">Low Stock</option>
+                    <option value="Out Of Stock">Out of Stock</option>
+                    <option value="Ordered">Ordered</option>
+                </select>
+                <label for="sortBy">Sort by:</label>
+                <select id="sortBy">
+                    <option value="id">ID</option>
+                    <option value="description">Description</option>
+                    <option value="quantity">Quantity</option>
+                    <option value="date">Date</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-container">
+            <div class="table-header">
+                <i class="fas fa-table"></i>
+                Inventory Overview
+            </div>
+            <div class="table-wrapper">
+                <table>
                     <thead>
                         <tr>
                             <th><i class="fas fa-hashtag"></i>ID</th>
@@ -876,7 +985,7 @@
                             <th><i class="fas fa-sort-numeric-up"></i>Quantity</th>
                             <th><i class="fas fa-calendar-alt"></i>Date</th>
                             <th><i class="fas fa-user"></i>Engineer</th>
-                            <th><i class="fas fa-info-circle"></i>Status</th> 
+                            <th><i class="fas fa-info-circle"></i>Status</th>
                         </tr>
                     </thead>
                     <tbody id="inventoryTableBody">
@@ -885,10 +994,10 @@
                             <td><strong>{{ item.material_id }}</strong></td>
                             <td>{{ item.material_description }}</td>
                             <td><span class="quantity-badge">{{ item.quantity }}</span></td>
-                            <td><span class="date-text">{{ item.date }}</span></td>
+                            <td><span class="date-badge">{{ item.date }}</span></td>
                             <td>{{ item.site_engineer_name }}</td>
                             <td>
-                                <span class="status-badge 
+                                <span class="status-badge
                                     {% if item.status == 'available' %}status-available
                                     {% elif item.status == 'low' %}status-low
                                     {% elif item.status == 'out_of_stock' %}status-out
@@ -904,104 +1013,89 @@
                     </tbody>
                 </table>
             </div>
-
-            <!-- Actions Section -->
-            <div class="actions-section">
-                <div class="action-buttons">
-                    <a href="#" class="action-btn btn-secondary" onclick="window.print()">
-                        <i class="fas fa-print"></i>
-                        Print Report
-                    </a>
-                </div>
-            </div>
         </div>
+
+        <!-- Actions -->
+        <div class="actions-section">
+            <a href="#" class="nav-link btn-print" onclick="window.print()">
+                <i class="fas fa-print"></i>
+                Print Report
+            </a>
+        </div>
+
     </div>
 
     <script>
-        // Mobile menu toggle
-        document.getElementById('mobileMenuToggle').addEventListener('click', function() {
-            const navbarMenu = document.getElementById('navbarNav');
-            navbarMenu.classList.toggle('active');
-            
-            // Change icon
-            const icon = this.querySelector('i');
-            if (navbarMenu.classList.contains('active')) {
-                icon.classList.remove('fa-bars');
-                icon.classList.add('fa-times');
-            } else {
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
-            }
-        });
+        // ── Mobile menu ──
+        const navbarToggle = document.getElementById('navbar-toggle');
+        const navbarMenu = document.getElementById('navbar-menu');
 
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', function(event) {
-            const navbarMenu = document.getElementById('navbarNav');
-            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-            
-            if (!navbarMenu.contains(event.target) && !mobileMenuToggle.contains(event.target)) {
-                navbarMenu.classList.remove('active');
-                const icon = mobileMenuToggle.querySelector('i');
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
-            }
-        });
+        if (navbarToggle && navbarMenu) {
+            navbarToggle.addEventListener('click', function () {
+                navbarToggle.classList.toggle('active');
+                navbarMenu.classList.toggle('active');
+            });
+            navbarMenu.addEventListener('click', function (e) {
+                if (e.target.tagName === 'A') {
+                    navbarToggle.classList.remove('active');
+                    navbarMenu.classList.remove('active');
+                }
+            });
+            document.addEventListener('click', function (e) {
+                if (!navbarToggle.contains(e.target) && !navbarMenu.contains(e.target)) {
+                    navbarToggle.classList.remove('active');
+                    navbarMenu.classList.remove('active');
+                }
+            });
+        }
 
-        // Global variables for filter state
+        // ── Filter state ──
         let currentSearchTerm = '';
         let currentStatusFilter = '';
 
-        // Get all rows for filtering and stats
         function getAllRows() {
             return document.querySelectorAll('#inventoryTableBody tr');
         }
 
-        // Apply all filters together
         function applyFilters() {
             const rows = getAllRows();
-            
+
             rows.forEach(row => {
                 let shouldShow = true;
-                
-                // Apply search filter
+
                 if (currentSearchTerm) {
                     const description = row.cells[1].textContent.toLowerCase();
                     const id = row.cells[0].textContent.toLowerCase();
                     const engineer = row.cells[4].textContent.toLowerCase();
-                    
                     shouldShow = shouldShow && (
-                        description.includes(currentSearchTerm) || 
+                        description.includes(currentSearchTerm) ||
                         id.includes(currentSearchTerm) ||
                         engineer.includes(currentSearchTerm)
                     );
                 }
-                
-                // Apply status filter
+
                 if (currentStatusFilter) {
-                    const statusElement = row.cells[5].querySelector('.status-badge');
-                    const status = statusElement.textContent.trim();
+                    const statusEl = row.cells[5].querySelector('.status-badge');
+                    const status = statusEl ? statusEl.textContent.trim() : '';
                     shouldShow = shouldShow && (status === currentStatusFilter);
                 }
-                
-                // Show or hide row
+
                 row.style.display = shouldShow ? '' : 'none';
             });
-            
-            // Update stats after filtering
+
             updateVisibleStats();
+            checkEmptyState();
         }
 
-        // Update stats based on visible rows only
         function updateVisibleStats() {
             const rows = getAllRows();
             let available = 0, low = 0, out = 0, ordered = 0;
-            
+
             rows.forEach(row => {
                 if (row.style.display !== 'none') {
-                    const statusElement = row.cells[5].querySelector('.status-badge');
-                    const status = statusElement.textContent.trim();
-                    
-                    switch(status) {
+                    const statusEl = row.cells[5].querySelector('.status-badge');
+                    const status = statusEl ? statusEl.textContent.trim() : '';
+                    switch (status) {
                         case 'Available': available++; break;
                         case 'Low': low++; break;
                         case 'Out Of Stock': out++; break;
@@ -1009,58 +1103,77 @@
                     }
                 }
             });
-            
+
             document.getElementById('available-count').textContent = available;
             document.getElementById('low-count').textContent = low;
             document.getElementById('out-count').textContent = out;
             document.getElementById('ordered-count').textContent = ordered;
         }
 
-        // Update stats based on all rows (for initial load)
         function updateAllStats() {
             const rows = getAllRows();
             let available = 0, low = 0, out = 0, ordered = 0;
-            
+
             rows.forEach(row => {
-                const statusElement = row.cells[5].querySelector('.status-badge');
-                const status = statusElement.textContent.trim();
-                
-                switch(status) {
+                const statusEl = row.cells[5].querySelector('.status-badge');
+                const status = statusEl ? statusEl.textContent.trim() : '';
+                switch (status) {
                     case 'Available': available++; break;
                     case 'Low': low++; break;
                     case 'Out Of Stock': out++; break;
                     case 'Ordered': ordered++; break;
                 }
             });
-            
+
             document.getElementById('available-count').textContent = available;
             document.getElementById('low-count').textContent = low;
             document.getElementById('out-count').textContent = out;
             document.getElementById('ordered-count').textContent = ordered;
         }
 
-        // Search functionality
-        document.getElementById('searchInput').addEventListener('input', function() {
+        function checkEmptyState() {
+            const tableWrapper = document.querySelector('.table-wrapper');
+            const visibleRows = Array.from(getAllRows()).filter(r => r.style.display !== 'none');
+            const existing = document.querySelector('.empty-state');
+
+            if (existing) existing.remove();
+
+            if (visibleRows.length === 0) {
+                const emptyState = document.createElement('div');
+                emptyState.className = 'empty-state';
+                emptyState.innerHTML = `
+                    <i class="fas fa-search"></i>
+                    <h3>No Results Found</h3>
+                    <p>Try adjusting your search or filter criteria</p>
+                `;
+                tableWrapper.appendChild(emptyState);
+                document.querySelector('table').style.display = 'none';
+            } else {
+                document.querySelector('table').style.display = 'table';
+            }
+        }
+
+        // ── Search ──
+        document.getElementById('searchInput').addEventListener('input', function () {
             currentSearchTerm = this.value.toLowerCase();
             applyFilters();
         });
 
-        // Status filter
-        document.getElementById('statusFilter').addEventListener('change', function() {
+        // ── Status filter ──
+        document.getElementById('statusFilter').addEventListener('change', function () {
             currentStatusFilter = this.value;
             applyFilters();
         });
 
-        // Sort functionality
-        document.getElementById('sortBy').addEventListener('change', function() {
+        // ── Sort ──
+        document.getElementById('sortBy').addEventListener('change', function () {
             const sortBy = this.value;
             const tbody = document.getElementById('inventoryTableBody');
             const rows = Array.from(tbody.querySelectorAll('tr'));
-            
+
             rows.sort((a, b) => {
                 let aVal, bVal;
-                
-                switch(sortBy) {
+                switch (sortBy) {
                     case 'id':
                         aVal = parseInt(a.cells[0].textContent.replace(/\D/g, ''));
                         bVal = parseInt(b.cells[0].textContent.replace(/\D/g, ''));
@@ -1072,80 +1185,26 @@
                     case 'quantity':
                         aVal = parseInt(a.cells[2].textContent.replace(/\D/g, '')) || 0;
                         bVal = parseInt(b.cells[2].textContent.replace(/\D/g, '')) || 0;
-                        return bVal - aVal; // Descending order for quantity
+                        return bVal - aVal;
                     case 'date':
                         aVal = new Date(a.cells[3].textContent.trim());
                         bVal = new Date(b.cells[3].textContent.trim());
-                        return bVal - aVal; // Most recent first
+                        return bVal - aVal;
                     default:
                         return 0;
                 }
             });
-            
-            // Clear and re-append sorted rows
+
             tbody.innerHTML = '';
             rows.forEach(row => tbody.appendChild(row));
-            
-            // Reapply filters after sorting
             applyFilters();
         });
 
-        // Initialize stats and filters on page load
-        document.addEventListener('DOMContentLoaded', function() {
+        // ── Init ──
+        document.addEventListener('DOMContentLoaded', function () {
             updateAllStats();
-            
-            // Add some visual feedback for empty results
-            const originalApplyFilters = applyFilters;
-            applyFilters = function() {
-                originalApplyFilters();
-                
-                // Check if any rows are visible
-                const visibleRows = Array.from(getAllRows()).filter(row => row.style.display !== 'none');
-                const tableSection = document.querySelector('.table-section');
-                
-                // Remove existing empty state
-                const existingEmptyState = document.querySelector('.empty-state');
-                if (existingEmptyState) {
-                    existingEmptyState.remove();
-                }
-                
-                if (visibleRows.length === 0) {
-                    // Create empty state
-                    const emptyState = document.createElement('div');
-                    emptyState.className = 'empty-state';
-                    emptyState.innerHTML = `
-                        <i class="fas fa-search"></i>
-                        <h3>No Results Found</h3>
-                        <p>Try adjusting your search or filter criteria</p>
-                    `;
-                    tableSection.appendChild(emptyState);
-                    document.querySelector('.inventory-table').style.display = 'none';
-                } else {
-                    document.querySelector('.inventory-table').style.display = 'table';
-                }
-            };
         });
-
-        // Reset filters function (optional - you can add a reset button)
-        function resetFilters() {
-            document.getElementById('searchInput').value = '';
-            document.getElementById('statusFilter').value = '';
-            document.getElementById('sortBy').value = 'id';
-            currentSearchTerm = '';
-            currentStatusFilter = '';
-            
-            // Reset table order and show all rows
-            const rows = getAllRows();
-            rows.forEach(row => row.style.display = '');
-            updateAllStats();
-            
-            // Remove empty state if exists
-            const existingEmptyState = document.querySelector('.empty-state');
-            if (existingEmptyState) {
-                existingEmptyState.remove();
-            }
-            document.querySelector('.inventory-table').style.display = 'table';
-        }
     </script>
 </body>
+
 </html>
