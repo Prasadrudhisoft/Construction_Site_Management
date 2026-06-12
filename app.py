@@ -1358,7 +1358,7 @@ def update_user_last_seen():
         conn = get_connection()
         cur = conn.cursor()
         cur.execute(
-            "UPDATE register SET last_seen = NOW() WHERE id = %s",
+            "UPDATE register SET last_seen = CONVERT_TZ(NOW(), '+00:00', '+05:30') WHERE id = %s",
             (user_id,)
         )
         conn.commit()
@@ -2804,7 +2804,7 @@ def logout():
             conn = get_connection()
             cur = conn.cursor()
             cur.execute(
-                "UPDATE register SET last_seen = NOW() WHERE id = %s",
+                "UPDATE register SET last_seen = CONVERT_TZ(NOW(), '+00:00', '+05:30') WHERE id = %s",
                 (user_id,)
             )
             conn.commit()
@@ -6264,7 +6264,7 @@ def get_users():
             user['role'] = 'project_manager'
 
         if user.get('last_seen'):
-            user['last_seen'] = user['last_seen'].isoformat()   
+             user['last_seen'] = user['last_seen'].strftime('%Y-%m-%dT%H:%M:%S+05:30')  
         else:
             user['last_seen'] = None
     return jsonify(users)
