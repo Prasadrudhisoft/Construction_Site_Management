@@ -1,579 +1,453 @@
 <!DOCTYPE html>
-
 <html>
 
 <head>
-
     <title>Add Inventory</title>
-
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
-
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-
     <style>
         * {
-
             margin: 0;
-
             padding: 0;
-
             box-sizing: border-box;
-
             font-family: 'Poppins', sans-serif;
-
         }
 
-
-
-        html,
         body {
-
-            height: 100%;
-
-        }
-
-
-
-        body {
-
-            min-height: 100vh;
-
             background: #f4f6f8;
-
-            font-family: 'Poppins', sans-serif;
-
-            margin: 0;
-
-            padding-top: 80px;
-
+            min-height: 100vh;
+            padding-top: 70px;
         }
 
-
-
-        /* Navbar Styles - Same as assign site */
-
+        /* Navbar Styles — identical to Submit Worker Report */
         .navbar {
-
             position: fixed;
-
             top: 0;
-
             left: 0;
-
             right: 0;
-
             background: rgba(255, 255, 255, 0.95);
-
             backdrop-filter: blur(20px);
-
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-
-            padding: 15px 0;
-
             z-index: 1000;
-
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-
-            animation: slideDown 0.7s cubic-bezier(.77, 0, .18, 1) 0s 1;
-
+            height: 70px;
+            display: flex;
+            align-items: center;
         }
-
-
-
-        @keyframes slideDown {
-
-            from {
-                transform: translateY(-100%);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-
-        }
-
-
 
         .navbar-container {
-
             max-width: 100%;
-
             margin: 0 auto;
-
             display: flex;
-
             justify-content: space-between;
-
             align-items: center;
-
-            padding: 0 20px;
-
+            width: 100%;
             padding: 0 40px;
-
+            height: 70px;
         }
-
-
 
         .navbar-brand {
-
             display: flex;
-
             align-items: center;
-
             gap: 12px;
-
             text-decoration: none;
-
             color: #2c3e50;
-
             font-weight: 700;
-
             font-size: 1.4rem;
-
             transition: color 0.2s;
-
+            flex-shrink: 0;
         }
-
-
 
         .navbar-brand:hover {
-
             color: #3498db;
-
         }
-
-
 
         .navbar-brand i {
-
             color: #3498db;
-
             font-size: 1.8rem;
-
             transition: transform 0.2s;
-
         }
-
-
 
         .navbar-brand:hover i {
-
             transform: rotate(-15deg) scale(1.1);
-
         }
 
-
-
-        .navbar-nav {
-
+        .navbar-menu {
             display: flex;
-
             list-style: none;
-
             gap: 30px;
-
             align-items: center;
-
+            margin: 0;
         }
 
-
-
-        .nav-link {
-
+        .navbar-link {
             text-decoration: none;
-
             color: #2c3e50;
-
             font-weight: 500;
-
             padding: 10px 15px;
-
             border-radius: 8px;
-
-            transition: all 0.3s cubic-bezier(.77, 0, .18, 1);
-
+            transition: all 0.3s ease;
             display: flex;
-
             align-items: center;
-
             gap: 8px;
-
-            position: relative;
-
-            overflow: hidden;
-
+            white-space: nowrap;
         }
 
-
-
-        .nav-link::after {
-
-            content: "";
-
-            position: absolute;
-
-            left: 0;
-            bottom: 0;
-
-            width: 0;
-
-            height: 3px;
-
-            background: #3498db;
-
-            transition: width 0.3s cubic-bezier(.77, 0, .18, 1);
-
-        }
-
-
-
-        .nav-link:hover::after,
-        .nav-link.active::after {
-
-            width: 100%;
-
-        }
-
-
-
-        .nav-link:hover {
-
-            background: rgba(52, 152, 219, 0.12);
-
+        .navbar-link:hover {
+            background: rgba(52, 152, 219, 0.1);
             color: #3498db;
-
-            transform: translateY(-2px) scale(1.04);
-
+            transform: translateY(-2px);
         }
 
-
-
-        .nav-link.active {
-
+        .navbar-link.active {
             background: #3498db;
-
             color: white;
-
-            box-shadow: 0 4px 16px rgba(52, 152, 219, 0.08);
-
         }
 
-
-
-        .nav-link.logout {
-
+        .navbar-link.logout {
             background: #e74c3c;
-
             color: white;
-
         }
 
-
-
-        .nav-link.logout:hover {
-
+        .navbar-link.logout:hover {
             background: #c0392b;
-
-            transform: translateY(-2px) scale(1.04);
-
+            transform: translateY(-2px);
         }
 
-
-
-        .mobile-menu-toggle {
-
+        .navbar-toggle {
             display: none;
-
             background: none;
-
             border: none;
-
             font-size: 1.5rem;
-
             color: #2c3e50;
-
             cursor: pointer;
-
-            transition: color 0.2s;
-
+            padding: 5px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
         }
 
-
-
-        .mobile-menu-toggle:hover {
-
+        .navbar-toggle:hover {
+            background: rgba(52, 152, 219, 0.1);
             color: #3498db;
-
         }
 
+        /* Main Content */
+        .main-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 70px);
+            padding: 20px;
+        }
 
-
+        /* Card — matches Submit Worker Report exactly */
         .form-container {
-
-            max-width: 700px;
-
-            width: 100%;
-
-            margin: 60px auto 0 auto;
-
-            background: white;
-
-            padding: 60px 50px 40px 50px;
-
+            max-width: 1100px;
+            width: 95%;
+            margin: 0 auto;
+            background: #fff;
             border-radius: 22px;
-
             box-shadow: 0 8px 32px rgba(52, 152, 219, 0.13);
-
-            animation: fadeIn 0.7s cubic-bezier(.77, 0, .18, 1);
-
+            padding: 40px 60px;
+            animation: fadeIn 0.3s ease-out;
             position: relative;
-
             overflow: hidden;
-
         }
-
-
 
         @keyframes fadeIn {
-
             from {
-                opacity: 0;
-                transform: translateY(30px);
+                opacity: 0.7;
+                transform: translateY(10px);
             }
 
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
-
         }
-
-
 
         .form-container::before {
-
             content: '';
-
             position: absolute;
-
             top: 0;
-
             left: 0;
-
             right: 0;
-
             height: 5px;
-
-            background: linear-gradient(90deg, #3498db, #2c3e50, #27ae60);
-
+            background: linear-gradient(90deg, #3498db, #2c3e50);
         }
 
-
-
+        /* Header — center-aligned, icon + title + subtitle like Submit Worker Report */
         .form-header {
-
             text-align: center;
-
-            margin-bottom: 35px;
-
+            margin-bottom: 30px;
         }
-
-
 
         .form-header i {
-
-            font-size: 3.5rem;
-
-            background: linear-gradient(135deg, #3498db, #2c3e50);
-
-            -webkit-background-clip: text;
-
-            -webkit-text-fill-color: transparent;
-
-            background-clip: text;
-
+            font-size: 3rem;
+            color: #3498db;
             margin-bottom: 15px;
-
             display: block;
-
         }
-
-
 
         .form-header h2 {
-
             color: #2c3e50;
-
-            font-size: 2.1rem;
-
-            font-weight: 700;
-
+            font-size: 1.8rem;
+            font-weight: 600;
             margin-bottom: 8px;
-
-            letter-spacing: 1px;
-
         }
-
-
 
         .form-header p {
-
             color: #666;
-
-            font-size: 1rem;
-
+            font-size: 0.95rem;
         }
 
+        /* Flash message */
+        .flash-message {
+            background: #27ae60;
+            color: #fff;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            animation: slideDown 0.5s ease-out;
+        }
 
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
 
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Form groups */
         .form-group {
-
-            margin-bottom: 28px;
-
+            margin-bottom: 25px;
             position: relative;
-
         }
-
-
 
         .form-group label {
-
-            display: block;
-
-            margin-bottom: 10px;
-
-            color: #34495e;
-
-            font-weight: 500;
-
-            font-size: 1.08rem;
-
             display: flex;
-
             align-items: center;
-
             gap: 8px;
-
-            letter-spacing: 0.5px;
-
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 500;
+            font-size: 1rem;
         }
-
-
 
         .form-group label i {
-
             color: #3498db;
-
-            width: 18px;
-
+            font-size: 1rem;
+            width: 16px;
+            text-align: center;
         }
 
-
-
+        /* Inputs — identical to Submit Worker Report */
         .form-control {
-
             width: 100%;
-
-            padding: 16px 20px;
-
-            border: 1.5px solid #ddd;
-
+            padding: 15px 20px;
+            border: 2px solid #e1e8ed;
             border-radius: 12px;
-
-            font-size: 1.08rem;
-
+            font-size: 1rem;
             transition: all 0.3s ease;
-
-            background: #f8fafd;
-
+            background: #f8f9fa;
             color: #2c3e50;
-
+            font-family: 'Poppins', sans-serif;
         }
-
-
 
         .form-control:focus {
-
             outline: none;
-
             border-color: #3498db;
-
             background: white;
-
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.13);
-
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
 
-
-
-        .form-control:hover {
-
-            border-color: #3498db;
-
-            background: white;
-
+        /* Form row — two-column grid */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
         }
 
-
-
-        .status-select {
-
-            position: relative;
-
+        /* Materials section */
+        .materials-section {
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            padding: 20px;
+            background: #f8f9fa;
+            margin-bottom: 25px;
         }
 
-
-
-        .status-select select {
-
-            appearance: none;
-
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-
-            background-position: right 12px center;
-
-            background-repeat: no-repeat;
-
-            background-size: 16px;
-
-            padding-right: 40px;
-
-        }
-
-
-
-        .status-badges {
-
+        .materials-header {
             display: flex;
-
-            gap: 8px;
-
-            margin-top: 8px;
-
-            flex-wrap: wrap;
-
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
         }
 
+        .materials-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #2c3e50;
+            font-weight: 500;
+            font-size: 1rem;
+        }
 
+        .materials-title i {
+            color: #3498db;
+        }
+
+        .add-item-btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .add-item-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        /* Individual material row */
+        .material-item {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: flex-start;
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            border: 2px solid #e1e8ed;
+            transition: border-color 0.2s;
+        }
+
+        .material-item:last-child {
+            margin-bottom: 0;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .material-item-content {
+            flex: 1;
+            display: flex;
+            gap: 16px;
+        }
+
+        .material-desc-group {
+            flex: 2;
+        }
+
+        .material-qty-group {
+            flex: 1;
+        }
+
+        .material-item-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        /* Inputs inside material rows inherit same style */
+        .material-item .form-control {
+            padding: 12px 15px;
+            font-size: 0.95rem;
+        }
+
+        .remove-item-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            margin-top: 22px;
+            /* align with input */
+        }
+
+        .remove-item-btn:hover {
+            background: #c0392b;
+            transform: scale(1.05);
+        }
+
+        .remove-item-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Summary bar */
+        .materials-summary {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            background: rgba(52, 152, 219, 0.08);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #2c3e50;
+        }
+
+        .materials-summary i {
+            color: #3498db;
+        }
+
+        /* Status badges */
+        .status-badges {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
 
         .status-badge {
-
-            padding: 4px 8px;
-
+            padding: 4px 10px;
             border-radius: 12px;
-
-            font-size: 0.75rem;
-
+            font-size: 0.78rem;
             font-weight: 500;
-
+            opacity: 1;
+            transition: opacity 0.3s;
         }
-
-
 
         .status-available {
             background: #d4edda;
@@ -595,1368 +469,419 @@
             color: #0c5460;
         }
 
-
-
-        .input-group {
-
-            position: relative;
-
-        }
-
-
-
-        .input-icon {
-
-            position: absolute;
-
-            left: 15px;
-
-            top: 50%;
-
-            transform: translateY(-50%);
-
-            color: #3498db;
-
-            z-index: 1;
-
-        }
-
-
-
-        .input-with-icon {
-
-            padding-left: 50px;
-
-        }
-
-
-
-        /* Multiple Items Styles */
-
-        .materials-section {
-
-            border: 2px solid #e8f4fd;
-
-            border-radius: 12px;
-
-            padding: 20px;
-
-            background: #fafbfc;
-
-            margin-bottom: 28px;
-
-        }
-
-
-
-        .materials-header {
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: space-between;
-
-            margin-bottom: 20px;
-
-        }
-
-
-
-        .materials-title {
-
-            display: flex;
-
-            align-items: center;
-
-            gap: 8px;
-
-            color: #34495e;
-
-            font-weight: 500;
-
-            font-size: 1.08rem;
-
-        }
-
-
-
-        .add-item-btn {
-
-            background: linear-gradient(90deg, #3498db 60%, #6dd5fa 100%);
-
-            color: white;
-
-            border: none;
-
-            padding: 8px 16px;
-
-            border-radius: 8px;
-
-            cursor: pointer;
-
-            font-size: 0.9rem;
-
-            font-weight: 500;
-
-            transition: all 0.3s ease;
-
-            display: flex;
-
-            align-items: center;
-
-            gap: 6px;
-
-        }
-
-
-
-        .add-item-btn:hover {
-
-            background: linear-gradient(90deg, #2980b9 60%, #3498db 100%);
-
-            transform: translateY(-1px) scale(1.02);
-
-        }
-
-
-
-        .material-item {
-
-            display: flex;
-
-            gap: 12px;
-
-            margin-bottom: 15px;
-
-            align-items: flex-start;
-
-            background: white;
-
-            padding: 15px;
-
-            border-radius: 10px;
-
-            border: 1px solid #e0e6ed;
-
-            animation: slideIn 0.3s ease-out;
-
-        }
-
-
-
-        @keyframes slideIn {
-
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-
-        }
-
-
-
-        .material-item-content {
-
-            flex: 1;
-
-            display: flex;
-
-            gap: 12px;
-
-        }
-
-
-
-        .material-desc-group {
-
-            flex: 2;
-
-        }
-
-
-
-        .material-qty-group {
-
-            flex: 1;
-
-        }
-
-
-
-        .material-item .form-control {
-
-            padding: 12px 16px;
-
-            font-size: 1rem;
-
-            margin-bottom: 0;
-
-        }
-
-
-
-        .material-item .input-with-icon {
-
-            padding-left: 42px;
-
-        }
-
-
-
-        .material-item .input-icon {
-
-            left: 12px;
-
-            font-size: 0.9rem;
-
-        }
-
-
-
-        .remove-item-btn {
-
-            background: #e74c3c;
-
-            color: white;
-
-            border: none;
-
-            width: 36px;
-
-            height: 36px;
-
-            border-radius: 8px;
-
-            cursor: pointer;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            transition: all 0.3s ease;
-
-            flex-shrink: 0;
-
-            margin-top: 2px;
-
-        }
-
-
-
-        .remove-item-btn:hover {
-
-            background: #c0392b;
-
-            transform: scale(1.05);
-
-        }
-
-
-
-        .material-item-label {
-
-            font-size: 0.85rem;
-
-            color: #666;
-
-            margin-bottom: 4px;
-
-            font-weight: 500;
-
-        }
-
-
-
-        .materials-summary {
-
-            background: #e8f4fd;
-
-            padding: 12px 16px;
-
-            border-radius: 8px;
-
-            margin-top: 15px;
-
-            display: flex;
-
-            align-items: center;
-
-            gap: 8px;
-
-            font-size: 0.9rem;
-
-            color: #2c3e50;
-
-        }
-
-
-
+        /* Submit button — identical to Submit Worker Report */
         .submit-btn {
-
             width: 100%;
-
-            padding: 16px;
-
-            background: linear-gradient(90deg, #3498db 60%, #6dd5fa 100%);
-
+            padding: 15px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
             color: white;
-
             border: none;
-
             border-radius: 12px;
-
-            font-size: 1.12rem;
-
+            font-size: 1.1rem;
             font-weight: 600;
-
             cursor: pointer;
-
             transition: all 0.3s ease;
-
             margin-top: 10px;
-
             display: flex;
-
             align-items: center;
-
             justify-content: center;
-
-            gap: 10px;
-
-            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.10);
-
+            gap: 8px;
+            font-family: 'Poppins', sans-serif;
         }
-
-
 
         .submit-btn:hover {
-
-            background: linear-gradient(90deg, #2980b9 60%, #3498db 100%);
-
-            transform: translateY(-2px) scale(1.03);
-
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3);
         }
-
-
 
         .submit-btn:active {
-
-            transform: translateY(-1px);
-
+            transform: translateY(0);
         }
 
-
-
-        .submit-btn.loading {
-
-            opacity: 0.8;
-
+        .submit-btn:disabled {
+            background: #bdc3c7;
             cursor: not-allowed;
-
+            transform: none;
+            box-shadow: none;
         }
 
-
-
-        .action-links {
-
-            display: flex;
-
-            gap: 15px;
-
-            margin-top: 30px;
-
-            flex-wrap: wrap;
-
-        }
-
-
-
-        .action-link {
-
-            flex: 1;
-
-            min-width: 140px;
-
-            padding: 14px 32px;
-
-            text-align: center;
-
-            text-decoration: none;
-
-            border-radius: 12px;
-
-            font-weight: 500;
-
-            transition: all 0.3s ease;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            gap: 8px;
-
-            font-size: 1.08rem;
-
-            box-shadow: 0 2px 8px rgba(46, 204, 113, 0.10);
-
-        }
-
-
-
-        .primary-link {
-
-            background: linear-gradient(90deg, #2ecc71 60%, #27ae60 100%);
-
-            color: white;
-
-        }
-
-
-
-        .primary-link:hover {
-
-            background: linear-gradient(90deg, #27ae60 60%, #2ecc71 100%);
-
-            transform: translateY(-2px) scale(1.03);
-
-        }
-
-
-
-        .secondary-link {
-
-            background: linear-gradient(90deg, #95a5a6 60%, #7f8c8d 100%);
-
-            color: white;
-
-        }
-
-
-
-        .secondary-link:hover {
-
-            background: linear-gradient(90deg, #7f8c8d 60%, #95a5a6 100%);
-
-            transform: translateY(-2px) scale(1.03);
-
-        }
-
-
-
-        .success-message {
-
-            background: linear-gradient(90deg, #27ae60 60%, #2ecc71 100%);
-
-            color: white;
-
-            padding: 14px;
-
-            border-radius: 12px;
-
-            margin-bottom: 25px;
-
-            text-align: center;
-
-            font-weight: 500;
-
-            animation: fadeIn 0.5s ease-out;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            gap: 10px;
-
-            font-size: 1.08rem;
-
-        }
-
-
-
-        /* .form-tips {
-
-            background: #e8f4fd;
-
-            border-left: 4px solid #3498db;
-
-            padding: 15px 20px;
-
-            margin-bottom: 25px;
-
-            border-radius: 0 8px 8px 0;
-
-        }
-
-
-
-        .form-tips h4 {
-
-            color: #2c3e50;
-
-            margin-bottom: 8px;
-
-            display: flex;
-
-            align-items: center;
-
-            gap: 8px;
-
-        }
-
-
-
-        .form-tips ul {
-
-            color: #666;
-
-            font-size: 0.9rem;
-
-            margin-left: 20px;
-
-        }
-
-
-
-        .form-tips li {
-
-            margin-bottom: 4px;
-
-        } */
-
-
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                transform: scale(1);
+        /* ── Responsive ── */
+        @media (max-width: 1024px) {
+            .navbar-menu {
+                gap: 20px;
             }
 
-            50% {
-                transform: scale(1.05);
+            .navbar-link {
+                padding: 8px 12px;
+                font-size: 0.95rem;
             }
 
+            .navbar-brand {
+                font-size: 1.3rem;
+            }
+
+            .navbar-brand i {
+                font-size: 1.7rem;
+            }
         }
-
-
-
-        /* Responsive Design - Same as assign site */
-
-        @media (max-width: 1100px) {
-
-            .form-container {
-
-                max-width: 95vw;
-
-                padding: 40px 5vw 30px 5vw;
-
-            }
-
-            .navbar-container {
-
-                max-width: 98vw;
-
-                padding: 0 10px;
-
-            }
-
-        }
-
-
 
         @media (max-width: 900px) {
+            .navbar-container {
+                padding: 0 20px;
+            }
 
             .form-container {
-
-                max-width: 98vw;
-
-                padding: 30px 2vw 25px 2vw;
-
+                max-width: 99vw;
+                padding: 30px 3vw 20px 3vw;
             }
-
-            .navbar-container {
-
-                max-width: 100vw;
-
-                padding: 0 8px;
-
-            }
-
         }
-
-
 
         @media (max-width: 768px) {
-
-            .navbar-nav {
-
-                position: fixed;
-
-                top: 80px;
-
-                left: -100%;
-
-                width: 100vw;
-
-                height: calc(100vh - 80px);
-
-                background: rgba(255, 255, 255, 0.98);
-
-                backdrop-filter: blur(20px);
-
-                flex-direction: column;
-
-                justify-content: flex-start;
-
-                align-items: center;
-
-                padding: 40px 20px;
-
-                gap: 20px;
-
-                transition: left 0.3s cubic-bezier(.77, 0, .18, 1);
-
+            body {
+                padding-top: 60px;
             }
 
-            .navbar-nav.active {
-
-                left: 0;
-
+            .navbar {
+                height: 60px;
             }
-
-            .mobile-menu-toggle {
-
-                display: block;
-
-            }
-
-            .nav-link {
-
-                width: 100%;
-
-                max-width: 300px;
-
-                justify-content: center;
-
-                padding: 15px 20px;
-
-                font-size: 1.1rem;
-
-            }
-
-
-
-            .form-container {
-
-                padding: 30px 20px 25px 20px;
-
-            }
-
-
-
-            .form-header h2 {
-
-                font-size: 1.8rem;
-
-            }
-
-
-
-            .form-header i {
-
-                font-size: 3rem;
-
-            }
-
-
-
-            .material-item-content {
-
-                flex-direction: column;
-
-                gap: 10px;
-
-            }
-
-
-
-            .material-desc-group,
-
-            .material-qty-group {
-
-                flex: 1;
-
-            }
-
-        }
-
-
-
-        @media (max-width: 700px) {
-
-            .form-container {
-
-                padding: 25px 15px 20px 15px;
-
-                margin: 30px 15px 0 15px;
-
-            }
-
-            .form-header h2 {
-
-                font-size: 1.6rem;
-
-            }
-
-            .form-header i {
-
-                font-size: 2.8rem;
-
-            }
-
-            .form-control {
-
-                font-size: 1rem;
-
-                padding: 14px 16px;
-
-            }
-
-            .input-with-icon {
-
-                padding-left: 45px;
-
-            }
-
-            .submit-btn {
-
-                font-size: 1rem;
-
-                padding: 14px;
-
-            }
-
-            .action-links {
-
-                flex-direction: column;
-
-            }
-
-            .action-link {
-
-                min-width: auto;
-
-                font-size: 1rem;
-
-                padding: 12px 20px;
-
-            }
-
-
-
-            .materials-header {
-
-                flex-direction: column;
-
-                gap: 10px;
-
-                align-items: flex-start;
-
-            }
-
-
-
-            .add-item-btn {
-
-                font-size: 0.85rem;
-
-                padding: 6px 12px;
-
-            }
-
-        }
-
-
-
-        @media (max-width: 600px) {
-
-            .form-container {
-
-                padding: 20px 12px 15px 12px;
-
-                margin: 20px 12px 0 12px;
-
-            }
-
-            .form-header h2 {
-
-                font-size: 1.4rem;
-
-            }
-
-            .form-header i {
-
-                font-size: 2.5rem;
-
-            }
-
-            .form-control {
-
-                font-size: 0.95rem;
-
-                padding: 12px 14px;
-
-            }
-
-            .input-with-icon {
-
-                padding-left: 42px;
-
-            }
-
-            .input-icon {
-
-                left: 12px;
-
-            }
-
-            .submit-btn {
-
-                font-size: 0.95rem;
-
-                padding: 12px;
-
-            }
-
-            .action-link {
-
-                font-size: 0.95rem;
-
-                padding: 10px 16px;
-
-            }
-
-            .status-badges {
-
-                gap: 5px;
-
-            }
-
-            .status-badge {
-
-                font-size: 0.7rem;
-
-                padding: 3px 6px;
-
-            }
-
-
-
-            .material-item {
-
-                padding: 12px;
-
-            }
-
-
-
-            .remove-item-btn {
-
-                width: 32px;
-
-                height: 32px;
-
-            }
-
-        }
-
-
-
-        @media (max-width: 480px) {
 
             .navbar-container {
-
-                padding: 0 2vw;
-
+                height: 60px;
+                padding: 0 15px;
             }
 
             .navbar-brand {
-
                 font-size: 1.2rem;
+            }
 
+            .navbar-brand i {
+                font-size: 1.5rem;
+            }
+
+            .navbar-menu {
+                position: fixed;
+                top: 60px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 60px);
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
+                padding: 40px 20px;
+                transition: left 0.3s ease;
+                gap: 20px;
+                z-index: 2000;
+            }
+
+            .navbar-menu.active {
+                left: 0;
+            }
+
+            .navbar-toggle {
+                display: block;
+            }
+
+            .navbar-link {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+                padding: 15px 20px;
+                font-size: 1.1rem;
+            }
+
+            .main-content {
+                min-height: calc(100vh - 60px);
+                padding: 15px;
             }
 
             .form-container {
-
-                margin: 15px 8px 0 8px;
-
-                padding: 18px 10px 12px 10px;
-
+                margin: 20px auto 30px auto;
+                padding: 30px 24px;
             }
 
             .form-header h2 {
-
-                font-size: 1.3rem;
-
+                font-size: 1.5rem;
             }
 
             .form-header i {
-
-                font-size: 2.3rem;
-
+                font-size: 2.5rem;
             }
 
-            .form-control {
-
-                font-size: 0.9rem;
-
-                padding: 11px 12px;
-
+            .form-row {
+                grid-template-columns: 1fr;
             }
-
-            .input-with-icon {
-
-                padding-left: 38px;
-
-            }
-
-            .input-icon {
-
-                left: 10px;
-
-            }
-
-            .submit-btn {
-
-                font-size: 0.9rem;
-
-                padding: 11px;
-
-            }
-
-            .action-link {
-
-                font-size: 0.9rem;
-
-                padding: 9px 14px;
-
-            }
-
         }
 
+        @media (max-width: 600px) {
+            .material-item-content {
+                flex-direction: column;
+                gap: 10px;
+            }
 
+            .remove-item-btn {
+                margin-top: 4px;
+            }
 
-        @media (max-width: 400px) {
+            .materials-header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar {
+                height: 55px;
+            }
+
+            .navbar-container {
+                height: 55px;
+                padding: 0 10px;
+            }
 
             .navbar-brand {
+                font-size: 1.1rem;
+                gap: 8px;
+            }
 
-                font-size: 1rem;
+            .navbar-brand i {
+                font-size: 1.4rem;
+            }
 
+            .navbar-menu {
+                top: 55px;
+                height: calc(100vh - 55px);
+                padding: 30px 15px;
+            }
+
+            body {
+                padding-top: 55px;
             }
 
             .form-container {
-
-                padding: 15px 8px 10px 8px;
-
+                padding: 25px 16px;
+                margin: 10px auto 20px auto;
             }
 
             .form-header h2 {
-
-                font-size: 1.2rem;
-
+                font-size: 1.3rem;
             }
 
             .form-header i {
-
                 font-size: 2rem;
-
             }
 
             .form-control {
-
-                font-size: 0.85rem;
-
-                padding: 10px 11px;
-
-            }
-
-            .input-with-icon {
-
-                padding-left: 35px;
-
-            }
-
-            .input-icon {
-
-                left: 9px;
-
+                padding: 12px 15px;
+                font-size: 0.9rem;
             }
 
             .submit-btn {
+                padding: 12px;
+                font-size: 1rem;
+            }
+        }
 
-                font-size: 0.85rem;
-
-                padding: 10px;
-
+        @media (max-width: 320px) {
+            .navbar {
+                height: 50px;
             }
 
-            .action-link {
-
-                font-size: 0.85rem;
-
-                padding: 8px 12px;
-
+            .navbar-container {
+                height: 50px;
+                padding: 0 5px;
             }
 
+            .navbar-brand {
+                font-size: 1rem;
+            }
+
+            .navbar-brand i {
+                font-size: 1.3rem;
+            }
+
+            .navbar-menu {
+                top: 50px;
+                height: calc(100vh - 50px);
+                padding: 25px 10px;
+            }
+
+            body {
+                padding-top: 50px;
+            }
+
+            .form-container {
+                padding: 20px 10px;
+            }
+
+            .form-header h2 {
+                font-size: 1.2rem;
+            }
         }
     </style>
-
 </head>
 
 <body>
-
-    <!-- Navbar -->
-
     <nav class="navbar">
-
         <div class="navbar-container">
-
             <a href="{{ url_for('add_inventory') }}" class="navbar-brand">
-
                 <i class="fas fa-hard-hat"></i>
-
-                <span>Project Manager Portal</span>
-
+                Project Manager Portal
             </a>
 
-
-
-            <ul class="navbar-nav" id="navbarNav">
-
+            <ul class="navbar-menu" id="navbarNav">
                 <li>
-
-                    <a href="{{ url_for('site_engineer_dashboard') }}" class="nav-link">
-
+                    <a href="{{ url_for('site_engineer_dashboard') }}" class="navbar-link">
                         <i class="fas fa-tachometer-alt"></i>
-
                         Dashboard
-
                     </a>
-
                 </li>
-
                 <li>
-
-                    <a href="{{ url_for('add_inventory') }}" class="nav-link active">
-
+                    <a href="{{ url_for('add_inventory') }}" class="navbar-link active">
                         <i class="fas fa-plus-circle"></i>
-
                         Add Inventory
-
                     </a>
-
                 </li>
-
                 <li>
-
-                    <a href="{{ url_for('site_engineer_view_inventory') }}" class="nav-link">
-
+                    <a href="{{ url_for('site_engineer_view_inventory') }}" class="navbar-link">
                         <i class="fas fa-boxes"></i>
-
                         View Inventory
-
                     </a>
-
                 </li>
-
                 <li>
-
-                    <a href="{{ url_for('logout') }}" class="nav-link logout">
-
+                    <a href="{{ url_for('logout') }}" class="navbar-link logout">
                         <i class="fas fa-sign-out-alt"></i>
-
                         Logout
-
                     </a>
-
                 </li>
-
             </ul>
 
-
-
-            <button class="mobile-menu-toggle" id="mobileMenuToggle">
-
+            <button class="navbar-toggle" id="mobileMenuToggle">
                 <i class="fas fa-bars"></i>
-
             </button>
-
         </div>
-
     </nav>
 
-
-
-    <div class="form-container">
-
-        <div class="form-header">
-
-            <i class="fas fa-boxes"></i>
-
-            <h2>Add Inventory</h2>
-
-            <p>Add new materials and supplies to your inventory</p>
-
-        </div>
-
-
-
-        {% with messages = get_flashed_messages() %}
-
-        {% if messages %}
-
-        <div class="success-message">
-
-            <i class="fas fa-check-circle"></i>
-
-            {{ messages[0] }}
-
-        </div>
-
-        {% endif %}
-
-        {% endwith %}
-
-
-
-        <!-- <div class="form-tips">
-
-            <h4>
-
-                <i class="fas fa-lightbulb"></i>
-
-                Quick Tips
-
-            </h4>
-
-            <ul>
-
-                <li>You can add multiple materials at once with their individual quantities</li>
-
-                <li>Update status regularly to maintain accurate inventory</li>
-
-                <li>Use today's date when adding new materials</li>
-
-            </ul>
-
-        </div> -->
-
-
-
-        <form method="POST" action="{{ url_for('add_inventory') }}" id="inventoryForm">
-
-            <!-- Materials Section -->
-
-            <div class="materials-section">
-
-                <div class="materials-header">
-
-                    <div class="materials-title">
-
-                        <i class="fas fa-clipboard-list"></i>
-
-                        Materials & Quantities
-
-                    </div>
-
-                    <button type="button" class="add-item-btn" id="addItemBtn">
-
-                        <i class="fas fa-plus"></i>
-
-                        Add Item
-
-                    </button>
-
-                </div>
-
-
-
-                <div id="materialsContainer">
-
-                    <!-- Initial material item -->
-
-                    <div class="material-item">
-
-                        <div class="material-item-content">
-
-                            <div class="material-desc-group">
-
-                                <div class="material-item-label">Material Description</div>
-
-                                <div class="input-group">
-
-                                    <i class="fas fa-clipboard-list input-icon"></i>
-
-                                    <input type="text" name="material_description[]"
-                                        class="form-control input-with-icon" required
-                                        placeholder="e.g., Portland Cement - Grade 43">
-
-                                </div>
-
-                            </div>
-
-                            <div class="material-qty-group">
-
-                                <div class="material-item-label">Quantity</div>
-
-                                <div class="input-group">
-
-                                    <i class="fas fa-sort-numeric-up input-icon"></i>
-
-                                    <input type="number" name="quantity[]"
-                                        class="form-control input-with-icon quantity-input" required min="0"
-                                        placeholder="Qty">
-
-                                </div>
-
-                            </div>
-
+    <div class="main-content">
+        <div class="form-container">
+
+            <!-- Header — center-aligned, matching Submit Worker Report -->
+            <div class="form-header">
+                <i class="fas fa-boxes"></i>
+                <h2>Add Inventory</h2>
+                <p>Record materials and quantities for your project</p>
+            </div>
+
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <div class="flash-message">
+                <i class="fas fa-check-circle"></i>
+                {{ messages[0] }}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('add_inventory') }}" id="inventoryForm">
+
+                <!-- Materials section -->
+                <div class="materials-section">
+                    <div class="materials-header">
+                        <div class="materials-title">
+                            <i class="fas fa-clipboard-list"></i>
+                            Materials &amp; Quantities
                         </div>
-
-                        <button type="button" class="remove-item-btn" disabled>
-
-                            <i class="fas fa-times"></i>
-
+                        <button type="button" class="add-item-btn" id="addItemBtn">
+                            <i class="fas fa-plus"></i> Add Item
                         </button>
-
                     </div>
 
+                    <div id="materialsContainer">
+                        <div class="material-item">
+                            <div class="material-item-content">
+                                <div class="material-desc-group">
+                                    <div class="material-item-label">Material Description</div>
+                                    <input type="text" name="material_description[]" class="form-control" required
+                                        placeholder="e.g., Portland Cement - Grade 43">
+                                </div>
+                                <div class="material-qty-group">
+                                    <div class="material-item-label">Quantity</div>
+                                    <input type="number" name="quantity[]" class="form-control quantity-input" required
+                                        min="0" placeholder="Qty">
+                                </div>
+                            </div>
+                            <button type="button" class="remove-item-btn" disabled>
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="materials-summary" id="materialsSummary">
+                        <i class="fas fa-info-circle"></i>
+                        <span id="summaryText">1 material item</span>
+                    </div>
                 </div>
 
+                <!-- Status + Date row -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="status">
+                            <i class="fas fa-flag"></i>
+                            Status (applies to all items)
+                        </label>
+                        <select name="status" id="status" class="form-control" required>
+                            <option value="">Select status...</option>
+                            <option value="available">Available</option>
+                            <option value="low">Low Stock</option>
+                            <option value="out_of_stock">Out of Stock</option>
+                            <option value="ordered">Ordered</option>
+                        </select>
+                        <div class="status-badges">
+                            <span class="status-badge status-available">Available</span>
+                            <span class="status-badge status-low">Low Stock</span>
+                            <span class="status-badge status-out">Out of Stock</span>
+                            <span class="status-badge status-ordered">Ordered</span>
+                        </div>
+                    </div>
 
-
-                <div class="materials-summary" id="materialsSummary">
-
-                    <i class="fas fa-info-circle"></i>
-
-                    <span id="summaryText">1 material item added</span>
-
+                    <div class="form-group">
+                        <label for="date">
+                            <i class="fas fa-calendar-alt"></i>
+                            Date
+                        </label>
+                        <input type="date" name="date" id="date" class="form-control" required>
+                    </div>
                 </div>
 
-            </div>
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <i class="fas fa-plus-circle"></i>
+                    Add to Inventory
+                </button>
 
-
-
-            <div class="form-group">
-
-                <label for="status">
-
-                    <i class="fas fa-flag"></i>
-
-                    Status (applies to all items)
-
-                </label>
-
-                <div class="status-select">
-
-                    <select name="status" id="status" class="form-control" required>
-
-                        <option value="">Select status...</option>
-
-                        <option value="available">Available</option>
-
-                        <option value="low">Low Stock</option>
-
-                        <option value="out_of_stock">Out of Stock</option>
-
-                        <option value="ordered">Ordered</option>
-
-                    </select>
-
-                </div>
-
-                <div class="status-badges">
-
-                    <span class="status-badge status-available">Available</span>
-
-                    <span class="status-badge status-low">Low Stock</span>
-
-                    <span class="status-badge status-out">Out of Stock</span>
-
-                    <span class="status-badge status-ordered">Ordered</span>
-
-                </div>
-
-            </div>
-
-
-
-            <div class="form-group">
-
-                <label for="date">
-
-                    <i class="fas fa-calendar-alt"></i>
-
-                    Date
-
-                </label>
-
-                <div class="input-group">
-
-                    <i class="fas fa-calendar-alt input-icon"></i>
-
-                    <input type="date" name="date" id="date" class="form-control input-with-icon" required>
-
-                </div>
-
-            </div>
-
-
-
-            <button type="submit" class="submit-btn" id="submitBtn">
-                <i class="fas fa-plus-circle"></i>
-                Add to Inventory
-            </button>
-        </form>
-
-        <div class="action-links">
-            <!-- <a href="{{ url_for('site_engineer_view_inventory') }}" class="action-link primary-link">
-                <i class="fas fa-eye"></i>
-                View Inventory
-            </a> -->
-            <!-- <a href="{{ url_for('logout') }}" class="action-link secondary-link">
-                <i class="fas fa-sign-out-alt"></i>
-                Logout
-            </a> -->
+            </form>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            let materialCount = 1;
-            // Flash message auto-dismiss
-            const flashMsg = document.querySelector('.success-message');
-            if (flashMsg) {
-                setTimeout(function () {
-                    flashMsg.style.transition = 'opacity 0.5s';
-                    flashMsg.style.opacity = '0';
-                    setTimeout(() => flashMsg.remove(), 500);
-                }, 2000);
-            }
+        // Set today's date
+        document.getElementById('date').valueAsDate = new Date();
 
-            // Mobile navbar toggle - Same as assign site
+        let materialCount = 1;
+
+        // Flash message auto-hide
+        const flashMsg = document.querySelector('.flash-message');
+        if (flashMsg) {
+            setTimeout(function () {
+                flashMsg.style.transition = 'opacity 0.5s, transform 0.5s';
+                flashMsg.style.opacity = '0';
+                flashMsg.style.transform = 'translateY(-20px)';
+                setTimeout(() => flashMsg.style.display = 'none', 500);
+            }, 2000);
+        }
+
+        // Mobile nav toggle
+        document.addEventListener('DOMContentLoaded', function () {
             const mobileMenuToggle = document.getElementById('mobileMenuToggle');
             const navbarNav = document.getElementById('navbarNav');
 
@@ -1964,7 +889,6 @@
                 mobileMenuToggle.addEventListener('click', function () {
                     const icon = this.querySelector('i');
                     navbarNav.classList.toggle('active');
-
                     if (navbarNav.classList.contains('active')) {
                         icon.classList.remove('fa-bars');
                         icon.classList.add('fa-times');
@@ -1974,8 +898,7 @@
                     }
                 });
 
-                // Close mobile menu when clicking on nav links
-                document.querySelectorAll('.nav-link').forEach(link => {
+                document.querySelectorAll('.navbar-link').forEach(link => {
                     link.addEventListener('click', function () {
                         navbarNav.classList.remove('active');
                         const icon = mobileMenuToggle.querySelector('i');
@@ -1984,7 +907,6 @@
                     });
                 });
 
-                // Close mobile menu when clicking outside
                 document.addEventListener('click', function (e) {
                     if (!mobileMenuToggle.contains(e.target) && !navbarNav.contains(e.target)) {
                         navbarNav.classList.remove('active');
@@ -1994,143 +916,81 @@
                     }
                 });
             }
+        });
 
-            // Set today's date as default
-            document.getElementById('date').valueAsDate = new Date();
-
-            // Add Item functionality
-            document.getElementById('addItemBtn').addEventListener('click', function () {
-                materialCount++;
-                const materialsContainer = document.getElementById('materialsContainer');
-
-                const newItem = document.createElement('div');
-                newItem.className = 'material-item';
-                newItem.innerHTML = `
-                    <div class="material-item-content">
-                        <div class="material-desc-group">
-                            <div class="material-item-label">Material Description</div>
-                            <div class="input-group">
-                                <i class="fas fa-clipboard-list input-icon"></i>
-                                <input type="text" name="material_description[]" 
-                                       class="form-control input-with-icon" required
-                                       placeholder="e.g., Portland Cement - Grade 43">
-                            </div>
-                        </div>
-                        <div class="material-qty-group">
-                            <div class="material-item-label">Quantity</div>
-                            <div class="input-group">
-                                <i class="fas fa-sort-numeric-up input-icon"></i>
-                                <input type="number" name="quantity[]" 
-                                       class="form-control input-with-icon quantity-input" required min="0"
-                                       placeholder="Qty">
-                            </div>
-                        </div>
+        // Add material item
+        document.getElementById('addItemBtn').addEventListener('click', function () {
+            materialCount++;
+            const container = document.getElementById('materialsContainer');
+            const newItem = document.createElement('div');
+            newItem.className = 'material-item';
+            newItem.style.animation = 'slideIn 0.3s ease-out';
+            newItem.innerHTML = `
+                <div class="material-item-content">
+                    <div class="material-desc-group">
+                        <div class="material-item-label">Material Description</div>
+                        <input type="text" name="material_description[]"
+                               class="form-control" required
+                               placeholder="e.g., Portland Cement - Grade 43">
                     </div>
-                    <button type="button" class="remove-item-btn">
-                        <i class="fas fa-times"></i>
-                    </button>
-                `;
-
-                materialsContainer.appendChild(newItem);
-                updateMaterialsSummary();
-                updateRemoveButtons();
-
-                // Add event listeners to new inputs
-                addInputEventListeners(newItem);
-
-                // Focus on the new material description input
-                newItem.querySelector('input[name="material_description[]"]').focus();
-            });
-
-            // Remove Item functionality
-            document.addEventListener('click', function (e) {
-                if (e.target.closest('.remove-item-btn') && !e.target.closest('.remove-item-btn').disabled) {
-                    const materialItem = e.target.closest('.material-item');
-                    materialItem.remove();
-                    materialCount--;
-                    updateMaterialsSummary();
-                    updateRemoveButtons();
-                }
-            });
-
-            // Update materials summary
-            function updateMaterialsSummary() {
-                const summaryText = document.getElementById('summaryText');
-                summaryText.textContent = `${materialCount} material item${materialCount !== 1 ? 's' : ''} added`;
-            }
-
-            // Update remove buttons state
-            function updateRemoveButtons() {
-                const removeButtons = document.querySelectorAll('.remove-item-btn');
-                removeButtons.forEach(btn => {
-                    btn.disabled = materialCount <= 1;
-                });
-            }
-
-            // Add event listeners to inputs
-            function addInputEventListeners(container) {
-                const inputs = container.querySelectorAll('.form-control');
-                inputs.forEach(input => {
-                    input.addEventListener('blur', function () {
-                        if (this.checkValidity()) {
-                            this.style.borderColor = '#27ae60';
-                        } else {
-                            this.style.borderColor = '#e74c3c';
-                        }
-                    });
-
-                    input.addEventListener('input', function () {
-                        if (this.style.borderColor === '#e74c3c') {
-                            this.style.borderColor = '#ddd';
-                        }
-                    });
-
-                    // Quantity validation
-                    if (input.classList.contains('quantity-input')) {
-                        input.addEventListener('input', function () {
-                            if (parseInt(this.value) < 0) {
-                                this.value = 0;
-                            }
-                        });
-                    }
-                });
-            }
-
-            // Initialize event listeners for existing inputs
-            addInputEventListeners(document);
-
-            // Form submission handling
-            document.getElementById('inventoryForm').addEventListener('submit', function (e) {
-                const submitBtn = document.getElementById('submitBtn');
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
-                submitBtn.classList.add('loading');
-                submitBtn.disabled = true;
-            });
-
-            // Status select enhancement
-            document.getElementById('status').addEventListener('change', function () {
-                const badges = document.querySelectorAll('.status-badge');
-                badges.forEach(badge => badge.style.opacity = '0.3');
-
-                const selectedStatus = this.value;
-                if (selectedStatus) {
-                    const targetBadge = document.querySelector(`.status-${selectedStatus.replace('_', '')}`);
-                    if (targetBadge) {
-                        targetBadge.style.opacity = '1';
-                        targetBadge.style.animation = 'pulse 0.5s ease-in-out';
-                    }
-                } else {
-                    badges.forEach(badge => badge.style.opacity = '1');
-                }
-            });
-
-            // Auto-focus first input after page load
-            window.addEventListener('load', function () {
-                document.querySelector('input[name="material_description[]"]').focus();
-            });
-
-            // Initialize remove buttons state
+                    <div class="material-qty-group">
+                        <div class="material-item-label">Quantity</div>
+                        <input type="number" name="quantity[]"
+                               class="form-control quantity-input" required min="0"
+                               placeholder="Qty">
+                    </div>
+                </div>
+                <button type="button" class="remove-item-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            container.appendChild(newItem);
+            updateSummary();
             updateRemoveButtons();
+            newItem.querySelector('input[name="material_description[]"]').focus();
+        });
+
+        // Remove material item
+        document.addEventListener('click', function (e) {
+            const btn = e.target.closest('.remove-item-btn');
+            if (btn && !btn.disabled) {
+                btn.closest('.material-item').remove();
+                materialCount--;
+                updateSummary();
+                updateRemoveButtons();
+            }
+        });
+
+        function updateSummary() {
+            const summary = document.getElementById('materialsSummary');
+            document.getElementById('summaryText').textContent =
+                materialCount + ' material item' + (materialCount !== 1 ? 's' : '');
+            summary.style.display = materialCount > 1 ? 'flex' : 'none';
+        }
+
+        function updateRemoveButtons() {
+            document.querySelectorAll('.remove-item-btn').forEach(btn => {
+                btn.disabled = materialCount <= 1;
+            });
+        }
+
+        // Submit spinner — matches Submit Worker Report pattern
+        document.getElementById('inventoryForm').addEventListener('submit', function () {
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+            submitBtn.disabled = true;
+        });
+
+        // Status badge highlight
+        document.getElementById('status').addEventListener('change', function () {
+            document.querySelectorAll('.status-badge').forEach(b => b.style.opacity = '0.3');
+            const map = { available: 'status-available', low: 'status-low', out_of_stock: 'status-out', ordered: 'status-ordered' };
+            if (this.value && map[this.value]) {
+                const target = document.querySelector('.' + map[this.value]);
+                if (target) { target.style.opacity = '1'; }
+            } else {
+                document.querySelectorAll('.status-badge').forEach(b => b.style.opacity = '1');
+            }
         });
     </script>
 </body>

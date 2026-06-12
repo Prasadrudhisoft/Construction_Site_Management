@@ -4,7 +4,8 @@
 <head>
     <title>Assign Projects to Accountant</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -17,18 +18,16 @@
         html,
         body {
             height: 100%;
+            background: #f4f6f8;
         }
 
         body {
+            background: #f4f6f8;
             min-height: 100vh;
-            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            padding-top: 80px;
-            /* Account for fixed navbar */
+            padding-top: 70px;
         }
 
-        /* Navbar Styles */
+        /* ── Navbar ── */
         .navbar {
             position: fixed;
             top: 0;
@@ -37,32 +36,20 @@
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 15px 0;
             z-index: 1000;
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-            animation: slideDown 0.7s cubic-bezier(.77, 0, .18, 1) 0s 1;
-        }
-
-        @keyframes slideDown {
-            from {
-                transform: translateY(-100%);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+            height: 70px;
+            display: flex;
+            align-items: center;
         }
 
         .navbar-container {
-            max-width: 100%;
-            margin: 0 auto;
+            width: 100%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 20px;
-            padding: 0 40px;;
+            padding: 0 40px;
+            height: 70px;
         }
 
         .navbar-brand {
@@ -74,6 +61,7 @@
             font-weight: 700;
             font-size: 1.4rem;
             transition: color 0.2s;
+            flex-shrink: 0;
         }
 
         .navbar-brand:hover {
@@ -95,6 +83,7 @@
             list-style: none;
             gap: 30px;
             align-items: center;
+            margin: 0;
         }
 
         .nav-link {
@@ -109,6 +98,7 @@
             gap: 8px;
             position: relative;
             overflow: hidden;
+            white-space: nowrap;
         }
 
         .nav-link::after {
@@ -136,7 +126,6 @@
         .nav-link.active {
             background: #3498db;
             color: white;
-            box-shadow: 0 4px 16px rgba(52, 152, 219, 0.08);
         }
 
         .nav-link.logout {
@@ -156,32 +145,201 @@
             font-size: 1.5rem;
             color: #2c3e50;
             cursor: pointer;
-            transition: color 0.2s;
+            padding: 5px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
         }
 
         .mobile-menu-toggle:hover {
+            background: rgba(52, 152, 219, 0.1);
             color: #3498db;
         }
 
-        /* Main container */
-        .container {
-            max-width: 700px;
-            width: 100%;
-            margin: 60px auto 0 auto;
-            background: #fff;
-            border-radius: 22px;
-            box-shadow: 0 8px 32px rgba(52, 152, 219, 0.13);
-            padding: 60px 50px 40px 50px;
-            animation: fadeIn 0.7s cubic-bezier(.77, 0, .18, 1);
+        /* ── Main content ── */
+        .main-content {
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            align-items: flex-start;
+            justify-content: center;
+            min-height: calc(100vh - 70px);
+            padding: 30px 20px;
         }
 
-        @keyframes fadeIn {
+     
+        .container-wrapper {
+            max-width: 1100px;
+            width: 95%;
+            border-radius: 22px;
+            box-shadow: 0 8px 32px rgba(52, 152, 219, 0.13);
+            overflow: hidden;
+        }
+
+        .container-accent {
+            height: 5px;
+            background: linear-gradient(90deg, #3498db, #2c3e50);
+        }
+
+        .container {
+            width: 100%;
+            background: #fff;
+            border-radius: 0 0 22px 22px;
+            padding: 40px 50px;
+            position: relative;
+            overflow: visible;
+            /* lets fixed dropdown render freely */
+        }
+
+    
+
+        /* ── Header ── */
+        .page-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .page-header .header-icon {
+            font-size: 3rem;
+            color: #3498db;
+            margin-bottom: 14px;
+            display: block;
+        }
+
+        .form-title {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .page-header p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        /* ── Flash ── */
+        .success-message {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            text-align: center;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 0.95rem;
+        }
+
+        /* ── Form groups ── */
+        .form-group {
+            margin-bottom: 24px;
+            position: relative;
+            width: 100%;
+        }
+
+        .form-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .form-group label i {
+            color: #3498db;
+            width: 16px;
+            text-align: center;
+        }
+
+        /* ── Hidden real select (for form submit) ── */
+        .hidden-select {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+            width: 0;
+            height: 0;
+        }
+
+        /* ── Custom dropdown ── */
+        .custom-select-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .custom-select-trigger {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            background: #f8f9fa;
+            color: #2c3e50;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            transition: all 0.3s ease;
+            user-select: none;
+            min-width: 0;
+        }
+
+        /* Text label — truncate on overflow */
+        .custom-select-trigger span {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .custom-select-trigger:hover,
+        .custom-select-trigger.open {
+            border-color: #3498db;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .custom-select-trigger .arrow {
+            transition: transform 0.3s;
+            color: #3498db;
+            font-size: 0.88rem;
+            flex-shrink: 0;
+        }
+
+        .custom-select-trigger.open .arrow {
+            transform: rotate(180deg);
+        }
+
+        .custom-select-trigger .placeholder {
+            color: #999;
+        }
+
+        /* Panel uses position:fixed so it escapes every overflow:hidden parent.
+           JS sets top/left/width on open.                                       */
+        .custom-select-options {
+            position: fixed;
+            background: #fff;
+            border: 2px solid #3498db;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(52, 152, 219, 0.18);
+            z-index: 99999;
+            max-height: 220px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: none;
+            animation: dropDown 0.18s ease;
+        }
+
+        @keyframes dropDown {
             from {
                 opacity: 0;
-                transform: translateY(30px);
+                transform: translateY(-6px);
             }
 
             to {
@@ -190,166 +348,99 @@
             }
         }
 
-        .form-title {
-            color: #2c3e50;
-            margin-bottom: 35px;
-            font-size: 2.1rem;
-            font-weight: 700;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 14px;
-            display: inline-block;
-            letter-spacing: 1px;
-        }
-
-        .form-group {
-            margin-bottom: 28px;
-            position: relative;
-            width: 100%;
-        }
-
-        .form-group label {
+        .custom-select-options.open {
             display: block;
-            margin-bottom: 10px;
-            color: #34495e;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-            font-size: 1.08rem;
         }
 
-        .form-group select,
+        .custom-select-option {
+            padding: 12px 18px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            color: #2c3e50;
+            transition: background 0.15s;
+            border-bottom: 1px solid #f0f4f8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .custom-select-option:last-child {
+            border-bottom: none;
+        }
+
+        .custom-select-option:hover {
+            background: #ebf5fb;
+            color: #3498db;
+        }
+
+        .custom-select-option.selected {
+            background: #3498db;
+            color: #fff;
+        }
+
+        .custom-select-option.placeholder-opt {
+            color: #aaa;
+            font-style: italic;
+        }
+
+        .custom-select-options::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .custom-select-options::-webkit-scrollbar-track {
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .custom-select-options::-webkit-scrollbar-thumb {
+            background: #3498db;
+            border-radius: 10px;
+        }
+
+        /* ── Submit button ── */
         .form-group button {
             width: 100%;
-            padding: 18px 18px;
-            border: 1.5px solid #ddd;
-            border-radius: 12px;
-            font-size: 1.08rem;
-            color: #2c3e50;
-            background-color: #f8fafd;
-            transition: all 0.3s;
-        }
-
-        .form-group select:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.13);
-            background: #fff;
-        }
-
-        .form-group button {
-            background: linear-gradient(90deg, #3498db 60%, #6dd5fa 100%);
+            padding: 15px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
             color: white;
             border: none;
-            cursor: pointer;
+            border-radius: 12px;
+            font-size: 1rem;
             font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
             margin-top: 10px;
-            transition: background 0.2s, transform 0.2s;
-            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.10);
-            font-size: 1.12rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: 'Poppins', sans-serif;
+            box-shadow: 0 4px 14px rgba(52, 152, 219, 0.3);
         }
 
         .form-group button:hover {
-            background: linear-gradient(90deg, #2980b9 60%, #3498db 100%);
-            transform: translateY(-2px) scale(1.03);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(52, 152, 219, 0.4);
+        }
+
+        .form-group button:active {
+            transform: translateY(0);
         }
 
         .form-group button:disabled {
-            background: #bdc3c7;
+            background: linear-gradient(135deg, #bdc3c7, #95a5a6);
             cursor: not-allowed;
             transform: none;
+            box-shadow: none;
         }
 
-        .projects-section {
-            width: 100%;
-            margin-top: 20px;
-            display: none;
-        }
-
-        .projects-section.active {
-            display: block;
-        }
-
-        .projects-card {
-            background: #f8fafd;
-            border: 1.5px solid #e8f0fe;
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 20px;
-        }
-
-        .projects-card h3 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
-
-        .project-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-            padding: 12px;
-            background: white;
-            border-radius: 8px;
-            border: 1px solid #e8f0fe;
-            transition: all 0.2s;
-        }
-
-        .project-item:hover {
-            background: #f0f8ff;
-            border-color: #3498db;
-        }
-
-        .project-item input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            margin-right: 12px;
-            cursor: pointer;
-        }
-
-        .project-item label {
-            flex: 1;
-            margin: 0;
-            cursor: pointer;
-            font-weight: 500;
-            color: #2c3e50;
-        }
-
-        .dashboard-link {
-            display: inline-block;
-            margin-top: 22px;
-            background: linear-gradient(90deg, #2ecc71 60%, #27ae60 100%);
-            color: #fff !important;
-            padding: 14px 32px;
-            border-radius: 12px;
-            font-weight: 500;
-            text-decoration: none;
-            transition: background 0.2s, transform 0.2s;
-            box-shadow: 0 2px 8px rgba(46, 204, 113, 0.10);
-            font-size: 1.08rem;
-        }
-
-        .dashboard-link:hover {
-            background: linear-gradient(90deg, #27ae60 60%, #2ecc71 100%);
-            transform: translateY(-2px) scale(1.03);
-        }
-
-        .success-message {
-            background: linear-gradient(90deg, #27ae60 60%, #2ecc71 100%);
-            color: white;
-            padding: 14px;
-            border-radius: 10px;
-            margin-bottom: 22px;
-            text-align: center;
-            font-weight: 500;
-            animation: fadeIn 0.5s;
-            font-size: 1.08rem;
-        }
-
+        /* ── Loading spinner ── */
         .loading-spinner {
             display: none;
             text-align: center;
             color: #3498db;
-            font-size: 1.1rem;
+            font-size: 1rem;
             margin: 20px 0;
         }
 
@@ -358,78 +449,267 @@
         }
 
         @keyframes spin {
-            0% {
+            from {
                 transform: rotate(0deg);
             }
 
-            100% {
+            to {
                 transform: rotate(360deg);
             }
         }
 
-        /* Responsive Styles */
-        @media (max-width: 1100px) {
-            .container {
-                max-width: 95vw;
-                padding: 40px 5vw 30px 5vw;
-            }
-
-            .navbar-container {
-                max-width: 98vw;
-                padding: 0 10px;
-            }
+        /* ── Projects section ── */
+        .projects-section {
+            width: 100%;
+            margin-top: 10px;
+            display: none;
         }
 
-        @media (max-width: 900px) {
-            .container {
-                max-width: 98vw;
-                padding: 30px 2vw 25px 2vw;
-            }
-
-            .navbar-container {
-                max-width: 100vw;
-                padding: 0 8px;
-            }
+        .projects-section.active {
+            display: block;
         }
 
-        @media (max-width: 700px) {
+        .projects-card {
+            background: #f8f9fa;
+            border: 1px solid #e1e8ed;
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 20px;
+        }
+
+        .projects-card h3 {
+            color: #2c3e50;
+            margin-bottom: 18px;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-left: 12px;
+            border-left: 4px solid #3498db;
+        }
+
+        .projects-card h3 i {
+            color: #3498db;
+        }
+
+        .project-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #e1e8ed;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .project-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .project-item:hover {
+            background: #ebf5fb;
+            border-color: #3498db;
+        }
+
+        .project-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 12px;
+            cursor: pointer;
+            accent-color: #3498db;
+        }
+
+        .project-item label {
+            flex: 1;
+            margin: 0;
+            cursor: pointer;
+            font-weight: 500;
+            color: #2c3e50;
+            font-size: 0.95rem;
+        }
+
+        /* ════════════════════════════════════════
+           RESPONSIVE BREAKPOINTS
+        ════════════════════════════════════════ */
+
+        /* 2560px+ */
+        @media (min-width: 2560px) {
+            .navbar-container {
+                padding: 0 80px;
+            }
+
+            .navbar-brand {
+                font-size: 1.6rem;
+            }
+
+            .navbar-brand i {
+                font-size: 2rem;
+            }
+
+            .nav-link {
+                font-size: 1.05rem;
+                padding: 12px 18px;
+            }
+
+            .main-content {
+                padding: 50px 40px;
+            }
+
             .container {
-                padding: 18px 2vw 18px 2vw;
-                margin: 18px 2vw 0 2vw;
+                padding: 60px 72px;
             }
 
             .form-title {
-                font-size: 1.3rem;
-                padding-bottom: 8px;
+                font-size: 2.2rem;
             }
 
-            .form-group select,
+            .page-header .header-icon {
+                font-size: 3.6rem;
+            }
+
+            .custom-select-trigger {
+                font-size: 1.05rem;
+                padding: 17px 20px;
+            }
+
+            .custom-select-option {
+                font-size: 1.05rem;
+                padding: 14px 20px;
+            }
+
             .form-group button {
-                font-size: 1rem;
-                padding: 13px 10px;
-            }
-
-            .dashboard-link {
-                padding: 10px 10px;
-                font-size: 1rem;
+                font-size: 1.1rem;
+                padding: 18px;
             }
         }
 
-        @media (max-width: 600px) {
+        /* 1440px */
+        @media (min-width: 1440px) and (max-width: 2559px) {
+            .navbar-container {
+                padding: 0 60px;
+            }
+
+            .main-content {
+                padding: 40px 30px;
+            }
+
+            .container {
+                padding: 48px 64px;
+            }
+        }
+
+        /* 1280px */
+        @media (min-width: 1280px) and (max-width: 1439px) {
+            .navbar-container {
+                padding: 0 50px;
+            }
+
+            .container {
+                padding: 44px 56px;
+            }
+        }
+
+        /* 1024px */
+        @media (min-width: 1024px) and (max-width: 1279px) {
+            .navbar-container {
+                padding: 0 30px;
+            }
+
             .navbar-nav {
-                flex-direction: column;
+                gap: 20px;
+            }
+
+            .nav-link {
+                padding: 8px 12px;
+                font-size: 0.95rem;
+            }
+
+            .container {
+                padding: 40px 44px;
+            }
+        }
+
+        /* 900px */
+        @media (min-width: 900px) and (max-width: 1023px) {
+            .navbar-container {
+                padding: 0 24px;
+            }
+
+            .navbar-nav {
+                gap: 16px;
+            }
+
+            .nav-link {
+                padding: 8px 11px;
+                font-size: 0.92rem;
+            }
+
+            .container {
+                padding: 35px 36px;
+            }
+        }
+
+        /* 768–899px */
+        @media (max-width: 899px) and (min-width: 769px) {
+            .navbar-container {
+                padding: 0 20px;
+            }
+
+            .navbar-nav {
+                gap: 14px;
+            }
+
+            .nav-link {
+                padding: 8px 10px;
+                font-size: 0.9rem;
+            }
+
+            .container {
+                padding: 32px 32px;
+            }
+        }
+
+        /* ≤768px: mobile drawer */
+        @media (max-width: 768px) {
+            body {
+                padding-top: 60px;
+            }
+
+            .navbar {
+                height: 60px;
+            }
+
+            .navbar-container {
+                height: 60px;
+                padding: 0 15px;
+            }
+
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+
+            .navbar-brand i {
+                font-size: 1.5rem;
+            }
+
+            .navbar-nav {
                 position: fixed;
-                top: 80px;
+                top: 60px;
                 left: -100%;
-                width: 100vw;
-                height: calc(100vh - 80px);
+                width: 100%;
+                height: calc(100vh - 60px);
                 background: rgba(255, 255, 255, 0.98);
                 backdrop-filter: blur(20px);
+                flex-direction: column;
                 justify-content: flex-start;
                 align-items: center;
                 padding: 40px 20px;
                 transition: left 0.3s cubic-bezier(.77, 0, .18, 1);
                 gap: 20px;
+                z-index: 2000;
             }
 
             .navbar-nav.active {
@@ -448,69 +728,224 @@
                 font-size: 1.1rem;
             }
 
+            .main-content {
+                padding: 15px;
+                min-height: calc(100vh - 60px);
+            }
+
+            .container-wrapper {
+                width: 100%;
+            }
+
             .container {
-                padding: 10px 2vw 10px 2vw;
-                margin: 10px 2vw 0 2vw;
+                padding: 30px 24px;
             }
 
             .form-title {
-                font-size: 1.1rem;
-                padding-bottom: 7px;
+                font-size: 1.5rem;
             }
 
-            .form-group select,
-            .form-group button {
-                font-size: 0.98rem;
-                padding: 11px 10px;
-            }
-
-            .dashboard-link {
-                padding: 10px 10px;
-                font-size: 0.98rem;
+            .page-header .header-icon {
+                font-size: 2.5rem;
             }
         }
 
-        @media (max-width: 480px) {
-            .navbar-container {
-                padding: 0 2vw;
+        /* 600px */
+        @media (max-width: 600px) {
+            .container {
+                padding: 26px 20px;
             }
 
+            .form-title {
+                font-size: 1.35rem;
+            }
+
+            .page-header .header-icon {
+                font-size: 2.3rem;
+            }
+        }
+
+        /* 480px */
+        @media (max-width: 480px) {
+            body {
+                padding-top: 55px;
+            }
+
+            .navbar {
+                height: 55px;
+            }
+
+            .navbar-container {
+                height: 55px;
+                padding: 0 10px;
+            }
+
+            .navbar-brand {
+                font-size: 1.1rem;
+                gap: 8px;
+            }
+
+            .navbar-brand i {
+                font-size: 1.4rem;
+            }
+
+            .navbar-nav {
+                top: 55px;
+                height: calc(100vh - 55px);
+                padding: 30px 15px;
+            }
+
+            .main-content {
+                padding: 12px;
+            }
+
+            .container {
+                padding: 22px 16px;
+            }
+
+            .form-title {
+                font-size: 1.2rem;
+            }
+
+            .page-header .header-icon {
+                font-size: 2rem;
+            }
+
+            .page-header p {
+                font-size: 0.88rem;
+            }
+
+            .custom-select-trigger {
+                padding: 13px 14px;
+                font-size: 0.9rem;
+            }
+
+            .custom-select-option {
+                padding: 11px 14px;
+                font-size: 0.9rem;
+            }
+
+            .form-group button {
+                padding: 13px;
+                font-size: 0.95rem;
+            }
+
+            .project-item {
+                padding: 10px 12px;
+            }
+
+            .project-item label {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* 375px */
+        @media (max-width: 375px) {
             .navbar-brand {
                 font-size: 1rem;
             }
 
             .container {
-                margin: 8px 1vw 0 1vw;
-                padding: 8px 1vw 10px 1vw;
+                padding: 18px 14px;
+            }
+
+            .form-title {
+                font-size: 1.1rem;
+            }
+
+            .custom-select-trigger {
+                padding: 12px 12px;
+                font-size: 0.88rem;
+            }
+
+            .custom-select-option {
+                padding: 10px 12px;
+                font-size: 0.88rem;
+            }
+
+            .form-group button {
+                padding: 12px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* 320px */
+        @media (max-width: 320px) {
+            body {
+                padding-top: 50px;
+            }
+
+            .navbar {
+                height: 50px;
+            }
+
+            .navbar-container {
+                height: 50px;
+                padding: 0 6px;
+            }
+
+            .navbar-brand {
+                font-size: 0.95rem;
+                gap: 7px;
+            }
+
+            .navbar-brand i {
+                font-size: 1.3rem;
+            }
+
+            .navbar-nav {
+                top: 50px;
+                height: calc(100vh - 50px);
+                padding: 24px 10px;
+            }
+
+            .main-content {
+                padding: 10px 8px;
+            }
+
+            .container {
+                padding: 16px 12px;
             }
 
             .form-title {
                 font-size: 1rem;
             }
 
-            .dashboard-link {
-                font-size: 0.92rem;
-            }
-        }
-
-        @media (max-width: 400px) {
-            .container {
-                padding: 4px 1vw 6px 1vw;
+            .page-header .header-icon {
+                font-size: 1.8rem;
             }
 
-            .form-title {
-                font-size: 0.95rem;
+            .custom-select-trigger {
+                padding: 11px 10px;
+                font-size: 0.85rem;
+            }
+
+            .custom-select-option {
+                padding: 9px 10px;
+                font-size: 0.85rem;
+            }
+
+            .form-group button {
+                padding: 11px;
+                font-size: 0.88rem;
+            }
+
+            .project-item {
+                padding: 9px 10px;
+            }
+
+            .project-item label {
+                font-size: 0.85rem;
             }
         }
     </style>
 </head>
 
 <body>
-    {# Dummy user for template testing, remove in production #}
     {% if current_user is not defined %}
     {% set current_user = {'role': 'admin'} %}
     {% endif %}
-    <!-- Navbar -->
+
     <nav class="navbar">
         <div class="navbar-container">
             <a href="{% if current_user.role == 'admin' %}{{ url_for('assign_accountant') }}{% else %}{{ url_for('site_engineer_dashboard') }}{% endif %}"
@@ -545,136 +980,261 @@
         </div>
     </nav>
 
-    <div class="container">
-        <h2 class="form-title"><i class="fas fa-calculator" style="color:#3498db"></i> Assign Projects to Accountant
-        </h2>
+    <div class="main-content">
+        <div class="container-wrapper">
+            <div class="container-accent"></div>
+            <div class="container">
 
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        <div class="success-message" id="flashMessage">
-            <i class="fas fa-check-circle"></i>
-            {{ messages[0] }}
-        </div>
-        {% endif %}
-        {% endwith %}
+                <div class="page-header">
+                    <i class="fas fa-calculator header-icon"></i>
+                    <h2 class="form-title">Assign Projects to Accountant</h2>
+                    <p>Select an accountant and assign the relevant projects</p>
+                </div>
 
-        <form method="POST" action="{{ url_for('assign_accountant') }}" id="assignForm" style="width:100%;">
-            <input type="hidden" name="accountant_id" value="{{ selected_accountant_id }}">
-            <div class="form-group">
-                <label for="accountant_id"><i class="fas fa-user-tie" style="color:#3498db"></i> Select
-                    Accountant:</label>
-                <select name="accountant_id" id="accountant_id" required>
-                    <option value="">-- Select an Accountant --</option>
-                    {% for accountant in accountants %}
-                    <option value="{{ accountant.id }}" {% if selected_accountant_id==accountant.id|string %}selected{%
-                        endif %}>
-                        {{ accountant.name }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                <div class="success-message" id="flashMessage">
+                    <i class="fas fa-check-circle"></i>
+                    {{ messages[0] }}
+                </div>
+                {% endif %}
+                {% endwith %}
 
-            <div class="loading-spinner" id="loadingSpinner">
-                <i class="fas fa-spinner fa-spin"></i>
-                Loading projects...
-            </div>
+                <form method="POST" action="{{ url_for('assign_accountant') }}" id="assignForm" style="width:100%;">
+                    <input type="hidden" name="accountant_id" value="{{ selected_accountant_id }}">
 
-            <div class="projects-section" id="projectsSection">
-                <div class="projects-card">
-                    <h3><i class="fas fa-project-diagram" style="color:#3498db"></i> Assign Projects</h3>
-                    <div id="projectsList">
-                        {% if selected_accountant_id %}
-                        {% for project in projects %}
-                        <div class="project-item">
-                            <input class="form-check-input" type="checkbox" name="project_ids" value="{{ project.id }}"
-                                id="project_{{ project.id }}" {% if project.id in
-                                assignments.get(selected_accountant_id|int, []) %}checked{% endif %}>
-                            <label for="project_{{ project.id }}">
-                                {{ project.project_name }}
-                            </label>
+                    <div class="form-group">
+                        <label for="accountant_id">
+                            <i class="fas fa-user-tie"></i> Select Accountant:
+                        </label>
+
+                        <!-- Hidden real select — form logic unchanged -->
+                        <select name="accountant_id" id="accountant_id" class="hidden-select" required>
+                            <option value="">-- Select an Accountant --</option>
+                            {% for accountant in accountants %}
+                            <option value="{{ accountant.id }}" {% if selected_accountant_id==accountant.id|string
+                                %}selected{% endif %}>
+                                {{ accountant.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+
+                        <!-- Custom visual dropdown -->
+                        <div class="custom-select-wrapper" id="customSelectWrapper">
+                            <div class="custom-select-trigger" id="customSelectTrigger">
+                                <span class="placeholder" id="customSelectText">-- Select an Accountant --</span>
+                                <i class="fas fa-chevron-down arrow"></i>
+                            </div>
+                            <div class="custom-select-options" id="customSelectOptions">
+                                <div class="custom-select-option placeholder-opt" data-value="">-- Select an Accountant
+                                    --</div>
+                                {% for accountant in accountants %}
+                                <div class="custom-select-option{% if selected_accountant_id == accountant.id|string %} selected{% endif %}"
+                                    data-value="{{ accountant.id }}">{{ accountant.name }}</div>
+                                {% endfor %}
+                            </div>
                         </div>
-                        {% endfor %}
-                        {% endif %}
                     </div>
-                </div>
-                <div class="form-group">
-                    <button type="submit" id="saveBtn">
-                        <i class="fas fa-save"></i> Save Assignments
-                    </button>
-                </div>
-            </div>
-        </form>
 
-        <!-- <a href="{{ url_for('admin_dashboard') }}" class="dashboard-link">
-            <i class="fas fa-arrow-left"></i> Back to Dashboard
-        </a> -->
+                    <div class="loading-spinner" id="loadingSpinner">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        Loading projects...
+                    </div>
+
+                    <div class="projects-section" id="projectsSection">
+                        <div class="projects-card">
+                            <h3><i class="fas fa-project-diagram"></i> Assign Projects</h3>
+                            <div id="projectsList">
+                                {% if selected_accountant_id %}
+                                {% for project in projects %}
+                                <div class="project-item">
+                                    <input class="form-check-input" type="checkbox" name="project_ids"
+                                        value="{{ project.id }}" id="project_{{ project.id }}" {% if project.id in
+                                        assignments.get(selected_accountant_id|int, []) %}checked{% endif %}>
+                                    <label for="project_{{ project.id }}">{{ project.project_name }}</label>
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" id="saveBtn">
+                                <i class="fas fa-save"></i> Save Assignments
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
     </div>
 
     <script>
-        // Mobile menu toggle
-        document.getElementById('mobileMenuToggle').addEventListener('click', function () {
-            const navbarNav = document.getElementById('navbarNav');
-            const icon = this.querySelector('i');
-            navbarNav.classList.toggle('active');
-            if (navbarNav.classList.contains('active')) {
-                icon.classList.remove('fa-bars');
-                icon.classList.add('fa-times');
-            } else {
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
-            }
-        });
+        document.addEventListener('DOMContentLoaded', function () {
 
-        // Close mobile menu when clicking on a link
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', function () {
-                const navbarNav = document.getElementById('navbarNav');
-                const mobileToggle = document.getElementById('mobileMenuToggle');
-                const icon = mobileToggle.querySelector('i');
-                navbarNav.classList.remove('active');
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
+            /* ── Custom dropdown ─────────────────────────────── */
+            const trigger = document.getElementById('customSelectTrigger');
+            const optionsList = document.getElementById('customSelectOptions');
+            const hiddenSelect = document.getElementById('accountant_id');
+            const displayText = document.getElementById('customSelectText');
+
+            /**
+             * positionDropdown — recalculates on every open, resize, scroll.
+             * Uses getBoundingClientRect (viewport-relative) + position:fixed
+             * so the panel always aligns with the trigger regardless of
+             * parent overflow, transform, or scroll position.
+             */
+            function positionDropdown() {
+                var rect = trigger.getBoundingClientRect();
+                var panelH = Math.min(220, window.innerHeight * 0.4);
+                var spaceBelow = window.innerHeight - rect.bottom - 8;
+                var spaceAbove = rect.top - 8;
+
+                // Flip upward when there's more space above than below
+                if (spaceBelow < panelH && spaceAbove > spaceBelow) {
+                    optionsList.style.top = (rect.top - panelH - 4) + 'px';
+                    optionsList.style.maxHeight = Math.min(panelH, spaceAbove) + 'px';
+                } else {
+                    optionsList.style.top = (rect.bottom + 4) + 'px';
+                    optionsList.style.maxHeight = Math.min(panelH, spaceBelow) + 'px';
+                }
+
+                // Clamp left so panel never overflows viewport edges
+                var left = rect.left;
+                var right = left + rect.width;
+                if (right > window.innerWidth - 8) left = window.innerWidth - rect.width - 8;
+                if (left < 8) left = 8;
+
+                optionsList.style.left = left + 'px';
+                optionsList.style.width = rect.width + 'px';
+            }
+
+            function openDropdown() {
+                positionDropdown();
+                optionsList.classList.add('open');
+                trigger.classList.add('open');
+            }
+
+            function closeDropdown() {
+                optionsList.classList.remove('open');
+                trigger.classList.remove('open');
+            }
+
+            // Restore pre-selected value on page reload
+            var preSelected = optionsList.querySelector('.custom-select-option.selected');
+            if (preSelected && preSelected.getAttribute('data-value') !== '') {
+                displayText.textContent = preSelected.textContent.trim();
+                displayText.className = '';
+                trigger.style.borderColor = '#27ae60';
+            }
+
+            trigger.addEventListener('click', function (e) {
+                e.stopPropagation();
+                optionsList.classList.contains('open') ? closeDropdown() : openDropdown();
             });
-        });
 
-        // Handle accountant selection
-        const accountantSelect = document.getElementById('accountant_id');
-        const projectsSection = document.getElementById('projectsSection');
-        const loadingSpinner = document.getElementById('loadingSpinner');
+            optionsList.querySelectorAll('.custom-select-option').forEach(function (option) {
+                option.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    var value = this.getAttribute('data-value');
+                    var text = this.textContent.trim();
+                    hiddenSelect.value = value;
 
-        accountantSelect.addEventListener('change', function () {
-            if (this.value) {
-                loadingSpinner.style.display = 'block';
-                projectsSection.classList.remove('active');
-                setTimeout(() => {
-                    window.location.href = "{{ url_for('assign_accountant') }}?accountant_id=" + this.value;
-                }, 500);
-            } else {
-                projectsSection.classList.remove('active');
-                loadingSpinner.style.display = 'none';
+                    if (value === '') {
+                        displayText.textContent = '-- Select an Accountant --';
+                        displayText.className = 'placeholder';
+                        trigger.style.borderColor = '';
+                    } else {
+                        displayText.textContent = text;
+                        displayText.className = '';
+                        trigger.style.borderColor = '#27ae60';
+                    }
+
+                    optionsList.querySelectorAll('.custom-select-option')
+                        .forEach(function (o) { o.classList.remove('selected'); });
+                    this.classList.add('selected');
+                    closeDropdown();
+
+                    // Fire change so existing accountant logic runs — unchanged
+                    hiddenSelect.dispatchEvent(new Event('change'));
+                });
+            });
+
+            // Close on outside click or touch
+            document.addEventListener('click', closeDropdown);
+            document.addEventListener('touchstart', function (e) {
+                if (!e.target.closest('#customSelectWrapper') &&
+                    !e.target.closest('#customSelectOptions')) closeDropdown();
+            }, { passive: true });
+
+            // Reposition on scroll / resize while open
+            window.addEventListener('resize', function () {
+                if (optionsList.classList.contains('open')) positionDropdown();
+            });
+            window.addEventListener('scroll', function () {
+                if (optionsList.classList.contains('open')) positionDropdown();
+            }, { passive: true, capture: true });
+
+            /* ── Mobile menu ─────────────────────────────────── */
+            document.getElementById('mobileMenuToggle').addEventListener('click', function () {
+                const nav = document.getElementById('navbarNav');
+                const icon = this.querySelector('i');
+                nav.classList.toggle('active');
+                icon.classList.toggle('fa-bars');
+                icon.classList.toggle('fa-times');
+            });
+
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function () {
+                    const nav = document.getElementById('navbarNav');
+                    const icon = document.getElementById('mobileMenuToggle').querySelector('i');
+                    nav.classList.remove('active');
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                });
+            });
+
+            /* ── Accountant change logic — unchanged ─────────── */
+            const accountantSelect = document.getElementById('accountant_id');
+            const projectsSection = document.getElementById('projectsSection');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+
+            accountantSelect.addEventListener('change', function () {
+                if (this.value) {
+                    loadingSpinner.style.display = 'block';
+                    projectsSection.classList.remove('active');
+                    setTimeout(() => {
+                        window.location.href = "{{ url_for('assign_accountant') }}?accountant_id=" + this.value;
+                    }, 500);
+                } else {
+                    projectsSection.classList.remove('active');
+                    loadingSpinner.style.display = 'none';
+                }
+            });
+
+            if (accountantSelect.value && "{{ selected_accountant_id }}") {
+                projectsSection.classList.add('active');
             }
-        });
 
-        // Show projects section if accountant is already selected
-        if (accountantSelect.value && "{{ selected_accountant_id }}") {
-            projectsSection.classList.add('active');
-        }
-        const flashMsg = document.getElementById('flashMessage');
-        if (flashMsg) {
-            setTimeout(function () {
-                flashMsg.style.transition = 'opacity 0.5s';
-                flashMsg.style.opacity = '0';
-                setTimeout(() => flashMsg.remove(), 500);
-            }, 2000);
-        }
+            /* ── Flash dismiss — unchanged ───────────────────── */
+            const flashMsg = document.getElementById('flashMessage');
+            if (flashMsg) {
+                setTimeout(function () {
+                    flashMsg.style.transition = 'opacity 0.5s';
+                    flashMsg.style.opacity = '0';
+                    setTimeout(() => flashMsg.remove(), 500);
+                }, 2000);
+            }
 
-        // Button loading animation on submit
-        document.getElementById('assignForm').addEventListener('submit', function (e) {
-            if (document.getElementById('saveBtn') && e.submitter === document.getElementById('saveBtn')) {
+            /* ── Submit spinner — unchanged ──────────────────── */
+            document.getElementById('assignForm').addEventListener('submit', function (e) {
                 const btn = document.getElementById('saveBtn');
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-                btn.disabled = true;
-            }
+                if (btn && e.submitter === btn) {
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                    btn.disabled = true;
+                }
+            });
+
         });
     </script>
 </body>

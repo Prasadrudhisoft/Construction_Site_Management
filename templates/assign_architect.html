@@ -4,7 +4,8 @@
 <head>
     <title>Assign Architect to Project</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -17,18 +18,16 @@
         html,
         body {
             height: 100%;
+            background: #f4f6f8;
         }
 
         body {
+            background: #f4f6f8;
             min-height: 100vh;
-            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            padding-top: 80px;
-            /* Account for fixed navbar */
+            padding-top: 70px;
         }
 
-        /* Navbar Styles */
+        /* ── Navbar ── */
         .navbar {
             position: fixed;
             top: 0;
@@ -37,23 +36,16 @@
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 15px 0;
             z-index: 1000;
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-            animation: slideDown 0.7s cubic-bezier(.77, 0, .18, 1) 0s 1;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            padding: 0;
+            animation: slideDown 0.7s cubic-bezier(.77, 0, .18, 1);
         }
 
-        @keyframes slideDown {
-            from {
-                transform: translateY(-100%);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
+     
 
         .navbar-container {
             max-width: 100%;
@@ -61,8 +53,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 20px;
+            width: 100%;
             padding: 0 40px;
+            height: 70px;
         }
 
         .navbar-brand {
@@ -74,6 +67,7 @@
             font-weight: 700;
             font-size: 1.4rem;
             transition: color 0.2s;
+            flex-shrink: 0;
         }
 
         .navbar-brand:hover {
@@ -95,6 +89,7 @@
             list-style: none;
             gap: 30px;
             align-items: center;
+            margin: 0;
         }
 
         .nav-link {
@@ -109,6 +104,7 @@
             gap: 8px;
             position: relative;
             overflow: hidden;
+            white-space: nowrap;
         }
 
         .nav-link::after {
@@ -156,38 +152,99 @@
             font-size: 1.5rem;
             color: #2c3e50;
             cursor: pointer;
-            transition: color 0.2s;
+            padding: 5px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
         }
 
         .mobile-menu-toggle:hover {
+            background: rgba(52, 152, 219, 0.1);
             color: #3498db;
         }
 
-        /* Make the form bigger and centered */
-        .container {
-            max-width: 700px;
+        /* ── Main content ── */
+        .main-content {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            min-height: calc(100vh - 70px);
+            padding: 30px 20px;
+        }
+
+        /* ── Wrapper clips accent bar, container allows dropdowns ── */
+        .container-wrapper {
+            max-width: 1100px;
             width: 100%;
-            margin: 60px auto 0 auto;
-            background: #fff;
+            margin: 0 auto;
             border-radius: 22px;
             box-shadow: 0 8px 32px rgba(52, 152, 219, 0.13);
-            padding: 60px 50px 40px 50px;
-            animation: fadeIn 0.7s cubic-bezier(.77, 0, .18, 1);
+            overflow: hidden;
+        }
+
+        .container-accent {
+            height: 5px;
+            background: linear-gradient(90deg, #3498db, #2c3e50);
+        }
+
+        .container {
+            max-width: 100%;
+            width: 100%;
+            margin: 0;
+            background: #fff;
+            border-radius: 0 0 22px 22px;
+            padding: 40px 50px;
+            position: relative;
+            overflow: visible;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
+      
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        /* ── Page header — centred ── */
+        .page-header {
+            text-align: center;
+            margin-bottom: 35px;
+            width: 100%;
+        }
+
+        .page-header .header-icon {
+            font-size: 3rem;
+            color: #3498db;
+            margin-bottom: 14px;
+            display: block;
+        }
+
+        .form-title {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .page-header p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        /* ── Flash message ── */
+        .success-message {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            text-align: center;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            animation: fadeIn 0.5s;
+            font-size: 0.95rem;
+            width: 100%;
         }
 
         .success-message.fade-out {
@@ -204,94 +261,31 @@
             }
         }
 
-        .form-title {
-            color: #2c3e50;
-            margin-bottom: 35px;
-            font-size: 2.1rem;
-            font-weight: 700;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 14px;
-            display: inline-block;
-            letter-spacing: 1px;
-        }
-
+        /* ── Form groups ── */
         .form-group {
-            margin-bottom: 28px;
+            margin-bottom: 24px;
             position: relative;
             width: 100%;
         }
 
         .form-group label {
-            display: block;
-            margin-bottom: 10px;
-            color: #34495e;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-            font-size: 1.08rem;
-        }
-
-        .form-group select,
-        .form-group button {
-            width: 100%;
-            padding: 18px 18px;
-            border: 1.5px solid #ddd;
-            border-radius: 12px;
-            font-size: 1.08rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
             color: #2c3e50;
-            background-color: #f8fafd;
-            transition: all 0.3s;
-        }
-
-        .form-group select:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.13);
-            background: #fff;
-        }
-
-        .form-group button {
-            background: linear-gradient(90deg, #3498db 60%, #6dd5fa 100%);
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            margin-top: 10px;
-            transition: background 0.2s, transform 0.2s;
-            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.10);
-            font-size: 1.12rem;
-        }
-
-        .form-group button:hover {
-            background: linear-gradient(90deg, #2980b9 60%, #3498db 100%);
-            transform: translateY(-2px) scale(1.03);
-        }
-
-        .view-link {
-            display: inline-block;
-            margin-top: 22px;
-            background: linear-gradient(90deg, #2ecc71 60%, #27ae60 100%);
-            color: #fff !important;
-            padding: 14px 32px;
-            border-radius: 12px;
             font-weight: 500;
-            text-decoration: none;
-            transition: background 0.2s, transform 0.2s;
-            box-shadow: 0 2px 8px rgba(46, 204, 113, 0.10);
-            font-size: 1.08rem;
+            font-size: 0.95rem;
         }
 
-        .view-link:hover {
-            background: linear-gradient(90deg, #27ae60 60%, #2ecc71 100%);
-            transform: translateY(-2px) scale(1.03);
+        .form-group label i {
+            color: #3498db;
+            width: 16px;
+            text-align: center;
         }
 
-        .form-group select:disabled {
-            background: #eaeaea;
-            color: #aaa;
-        }
-
-        /* Hide real selects */
-        .form-group select.hidden-select {
+        /* ── Hidden real selects ── */
+        .hidden-select {
             position: absolute;
             opacity: 0;
             pointer-events: none;
@@ -299,7 +293,7 @@
             height: 0;
         }
 
-        /* Custom dropdown */
+        /* ── Custom dropdown trigger ── */
         .custom-select-wrapper {
             position: relative;
             width: 100%;
@@ -307,22 +301,23 @@
 
         .custom-select-trigger {
             width: 100%;
-            padding: 18px 18px;
-            border: 1.5px solid #ddd;
+            padding: 14px 16px;
+            border: 2px solid #e1e8ed;
             border-radius: 12px;
-            font-size: 1.08rem;
+            font-size: 0.95rem;
+            background: #f8f9fa;
             color: #2c3e50;
-            background-color: #f8fafd;
+            font-family: 'Poppins', sans-serif;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             user-select: none;
         }
 
         .custom-select-trigger.disabled {
-            background: #eaeaea;
+            background: #f0f0f0;
             color: #aaa;
             cursor: not-allowed;
             pointer-events: none;
@@ -331,14 +326,14 @@
         .custom-select-trigger:hover:not(.disabled),
         .custom-select-trigger.open {
             border-color: #3498db;
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.13);
             background: #fff;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
 
         .custom-select-trigger .arrow {
             transition: transform 0.3s;
             color: #3498db;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
         }
 
         .custom-select-trigger.open .arrow {
@@ -349,13 +344,11 @@
             color: #999;
         }
 
+        /* position:fixed — escapes all overflow constraints ── */
         .custom-select-options {
-            position: absolute;
-            top: calc(100% + 4px);
-            left: 0;
-            right: 0;
+            position: fixed;
             background: #fff;
-            border: 1.5px solid #3498db;
+            border: 2px solid #3498db;
             border-radius: 12px;
             box-shadow: 0 8px 32px rgba(52, 152, 219, 0.18);
             z-index: 99999;
@@ -382,9 +375,9 @@
         }
 
         .custom-select-option {
-            padding: 12px 16px;
+            padding: 12px 18px;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.95rem;
             color: #2c3e50;
             transition: background 0.15s;
             border-bottom: 1px solid #f0f4f8;
@@ -409,6 +402,21 @@
             font-style: italic;
         }
 
+        .custom-select-option.already-assigned {
+            color: #27ae60;
+            font-weight: 600;
+        }
+
+        .custom-select-option.already-assigned::after {
+            content: ' ✓ Assigned';
+            font-size: 0.82rem;
+            color: #27ae60;
+            margin-left: 8px;
+            background: #eafaf1;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
         .custom-select-options::-webkit-scrollbar {
             width: 6px;
         }
@@ -423,81 +431,133 @@
             border-radius: 10px;
         }
 
-        .success-message {
-            background: linear-gradient(90deg, #27ae60 60%, #2ecc71 100%);
+        /* ── Submit / assign button ── */
+        .form-group button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
             color: white;
-            padding: 14px;
-            border-radius: 10px;
-            margin-bottom: 22px;
-            text-align: center;
-            font-weight: 500;
-            animation: fadeIn 0.5s;
-            font-size: 1.08rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: 'Poppins', sans-serif;
+            box-shadow: 0 4px 14px rgba(52, 152, 219, 0.3);
         }
 
-        /* Responsive Styles */
-        @media (max-width: 1100px) {
-            .container {
-                max-width: 95vw;
-                padding: 40px 5vw 30px 5vw;
+        .form-group button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(52, 152, 219, 0.4);
+        }
+
+        .form-group button:active {
+            transform: translateY(0);
+        }
+
+        .form-group button:disabled {
+            background: linear-gradient(135deg, #bdc3c7, #95a5a6);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* ── View assigned link ── */
+        .view-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 22px;
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            padding: 13px 28px;
+            border-radius: 12px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.25);
+            font-size: 0.95rem;
+        }
+
+        .view-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(39, 174, 96, 0.35);
+            color: white;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 1024px) {
+            .navbar-nav {
+                gap: 20px;
             }
 
-            .navbar-container {
-                max-width: 98vw;
-                padding: 0 10px;
+            .nav-link {
+                padding: 8px 12px;
+                font-size: 0.95rem;
+            }
+
+            .navbar-brand {
+                font-size: 1.3rem;
+            }
+
+            .navbar-brand i {
+                font-size: 1.7rem;
             }
         }
 
         @media (max-width: 900px) {
+            .navbar-container {
+                padding: 0 20px;
+            }
+
             .container {
-                max-width: 98vw;
-                padding: 30px 2vw 25px 2vw;
+                padding: 35px 28px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-top: 60px;
+            }
+
+            .navbar {
+                height: 60px;
             }
 
             .navbar-container {
-                max-width: 100vw;
-                padding: 0 8px;
-            }
-        }
-
-        @media (max-width: 700px) {
-            .container {
-                padding: 18px 2vw 18px 2vw;
-                margin: 18px 2vw 0 2vw;
+                height: 60px;
+                padding: 0 15px;
             }
 
-            .form-title {
-                font-size: 1.3rem;
-                padding-bottom: 8px;
+            .navbar-brand {
+                font-size: 1.2rem;
             }
 
-            .form-group select,
-            .form-group button {
-                font-size: 1rem;
-                padding: 13px 10px;
+            .navbar-brand i {
+                font-size: 1.5rem;
             }
 
-            .view-link {
-                padding: 10px 10px;
-                font-size: 1rem;
-            }
-        }
-
-        @media (max-width: 600px) {
             .navbar-nav {
-                flex-direction: column;
                 position: fixed;
-                top: 80px;
+                top: 60px;
                 left: -100%;
-                width: 100vw;
-                height: calc(100vh - 80px);
+                width: 100%;
+                height: calc(100vh - 60px);
                 background: rgba(255, 255, 255, 0.98);
                 backdrop-filter: blur(20px);
+                flex-direction: column;
                 justify-content: flex-start;
                 align-items: center;
                 padding: 40px 20px;
                 transition: left 0.3s cubic-bezier(.77, 0, .18, 1);
                 gap: 20px;
+                z-index: 2000;
             }
 
             .navbar-nav.active {
@@ -516,80 +576,131 @@
                 font-size: 1.1rem;
             }
 
+            .main-content {
+                padding: 15px;
+            }
+
+            .container-wrapper {
+                width: 100%;
+            }
+
             .container {
-                padding: 10px 2vw 10px 2vw;
-                margin: 10px 2vw 0 2vw;
+                padding: 30px 24px;
             }
 
             .form-title {
-                font-size: 1.1rem;
-                padding-bottom: 7px;
+                font-size: 1.5rem;
             }
 
-            .form-group select,
-            .form-group button {
-                font-size: 0.98rem;
-                padding: 11px 10px;
+            .page-header .header-icon {
+                font-size: 2.5rem;
             }
+        }
 
-            .view-link {
-                padding: 10px 10px;
-                font-size: 0.98rem;
+        @media (max-width: 600px) {
+            .navbar-nav {
+                top: 60px;
+                height: calc(100vh - 60px);
             }
         }
 
         @media (max-width: 480px) {
+            .navbar {
+                height: 55px;
+            }
+
             .navbar-container {
-                padding: 0 2vw;
+                height: 55px;
+                padding: 0 10px;
+            }
+
+            .navbar-brand {
+                font-size: 1.1rem;
+                gap: 8px;
+            }
+
+            .navbar-brand i {
+                font-size: 1.4rem;
+            }
+
+            .navbar-nav {
+                top: 55px;
+                height: calc(100vh - 55px);
+                padding: 30px 15px;
+            }
+
+            body {
+                padding-top: 55px;
+            }
+
+            .main-content {
+                padding: 12px;
+            }
+
+            .container {
+                padding: 24px 16px;
+            }
+
+            .form-title {
+                font-size: 1.3rem;
+            }
+
+            .page-header .header-icon {
+                font-size: 2rem;
+            }
+
+            .custom-select-trigger {
+                padding: 12px 14px;
+                font-size: 0.9rem;
+            }
+
+            .form-group button {
+                padding: 12px;
+                font-size: 0.95rem;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .navbar {
+                height: 50px;
+            }
+
+            .navbar-container {
+                height: 50px;
+                padding: 0 5px;
             }
 
             .navbar-brand {
                 font-size: 1rem;
             }
 
+            .navbar-brand i {
+                font-size: 1.3rem;
+            }
+
+            .navbar-nav {
+                top: 50px;
+                height: calc(100vh - 50px);
+                padding: 25px 10px;
+            }
+
+            body {
+                padding-top: 50px;
+            }
+
             .container {
-                margin: 8px 1vw 0 1vw;
-                padding: 8px 1vw 10px 1vw;
+                padding: 20px 12px;
             }
 
             .form-title {
-                font-size: 1rem;
+                font-size: 1.1rem;
             }
-
-            .view-link {
-                font-size: 0.92rem;
-            }
-        }
-
-        @media (max-width: 400px) {
-            .container {
-                padding: 4px 1vw 6px 1vw;
-            }
-
-            .form-title {
-                font-size: 0.95rem;
-            }
-        }
-
-        .custom-select-option.already-assigned {
-            color: #27ae60;
-            font-weight: 600;
-        }
-
-        .custom-select-option.already-assigned::after {
-            content: ' ✓ Assigned';
-            font-size: 0.85rem;
-            color: #27ae60;
-            margin-left: 8px;
-            background: #eafaf1;
-            padding: 2px 8px;
-            border-radius: 10px;
         }
     </style>
 </head>
 
 <body>
-    <!-- Navbar -->
+    <!-- Navbar — logic unchanged -->
     <nav class="navbar">
         <div class="navbar-container">
             <a href="{% if session.role == 'admin' %}{{ url_for('assign_architect') }}{% else %}{{ url_for('site_engineer_dashboard') }}{% endif %}"
@@ -629,59 +740,82 @@
             </button>
         </div>
     </nav>
-    <div class="container">
-        <h2 class="form-title"><i class="fas fa-user-plus" style="color:#3498db"></i> Assign Architect to Project</h2>
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        <div class="success-message" id="flashMessage">
-            <i class="fas fa-check-circle"></i>
-            {{ messages[0] }}
+
+    <div class="main-content">
+        <div class="container-wrapper">
+            <div class="container-accent"></div>
+            <div class="container">
+
+                <!-- Header — centred, matching design system -->
+                <div class="page-header">
+                    <i class="fas fa-user-plus header-icon"></i>
+                    <h2 class="form-title">Assign Architect to Project</h2>
+                    <p>Select an architect and assign them to a site project</p>
+                </div>
+
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                <div class="success-message" id="flashMessage">
+                    <i class="fas fa-check-circle"></i>
+                    {{ messages[0] }}
+                </div>
+                {% endif %}
+                {% endwith %}
+
+                <form method="POST" id="assignForm" style="width:100%;">
+
+                    <!-- Architect select -->
+                    <div class="form-group">
+                        <label for="architect_id">
+                            <i class="fas fa-user-tie"></i> Select Architect:
+                        </label>
+                        <select name="architect_id" id="architect_id" class="hidden-select" required>
+                            <option value="">Select an architect...</option>
+                            {% for architect in architects %}
+                            <option value="{{ architect.id }}">{{ architect.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="custom-select-wrapper">
+                            <div class="custom-select-trigger" id="architectTrigger">
+                                <span class="placeholder" id="architectText">Choose an architect...</span>
+                                <i class="fas fa-chevron-down arrow"></i>
+                            </div>
+                            <div class="custom-select-options" id="architectOptions"></div>
+                        </div>
+                    </div>
+
+                    <!-- Site select (disabled until architect selected) -->
+                    <div class="form-group">
+                        <label for="project_id">
+                            <i class="fas fa-building"></i> Select Site (as Project):
+                        </label>
+                        <select name="project_id" id="project_id" class="hidden-select" required>
+                            <option value="">Select an architect first</option>
+                        </select>
+                        <div class="custom-select-wrapper">
+                            <div class="custom-select-trigger disabled" id="projectTrigger">
+                                <span class="placeholder" id="projectText">Select an architect first</span>
+                                <i class="fas fa-chevron-down arrow"></i>
+                            </div>
+                            <div class="custom-select-options" id="projectOptions"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" id="assignBtn">
+                            <i class="fas fa-paper-plane"></i> Assign
+                        </button>
+                    </div>
+                </form>
+
+                <!-- <a href="{{ url_for('view_assigned_architects') }}" class="view-link">
+                    <i class="fas fa-users"></i> View Assigned Architects
+                </a> -->
+
+            </div>
         </div>
-        {% endif %}
-        {% endwith %}
-        <form method="POST" id="assignForm" style="width:100%;">
-            <div class="form-group">
-                <label for="architect_id"><i class="fas fa-user-tie" style="color:#3498db"></i> Select
-                    Architect:</label>
-                <select name="architect_id" id="architect_id" class="hidden-select" required>
-                    <option value="">Select an architect...</option>
-                    {% for architect in architects %}
-                    <option value="{{ architect.id }}">{{ architect.name }}</option>
-                    {% endfor %}
-                </select>
-                <div class="custom-select-wrapper">
-                    <div class="custom-select-trigger" id="architectTrigger">
-                        <span class="placeholder" id="architectText">Choose an architect...</span>
-                        <i class="fas fa-chevron-down arrow"></i>
-                    </div>
-                    <div class="custom-select-options" id="architectOptions"></div>
-                </div>
-            </div>
-            <!-- Select Site SECOND (disabled until architect selected) -->
-            <div class="form-group">
-                <label for="project_id"><i class="fas fa-building" style="color:#3498db"></i> Select Site (as
-                    Project):</label>
-                <select name="project_id" id="project_id" class="hidden-select" required>
-                    <option value="">Select an architect first</option>
-                </select>
-                <div class="custom-select-wrapper">
-                    <div class="custom-select-trigger disabled" id="projectTrigger">
-                        <span class="placeholder" id="projectText">Select an architect first</span>
-                        <i class="fas fa-chevron-down arrow"></i>
-                    </div>
-                    <div class="custom-select-options" id="projectOptions"></div>
-                </div>
-            </div>
-            <div class="form-group">
-                <button type="submit" id="assignBtn">
-                    <i class="fas fa-paper-plane"></i> Assign
-                </button>
-            </div>
-        </form>
-        <a href="{{ url_for('view_assigned_architects') }}" class="view-link">
-            <i class="fas fa-users"></i> View Assigned Architects
-        </a>
     </div>
+
     <script>
         // Mobile menu toggle
         document.getElementById('mobileMenuToggle').addEventListener('click', function () {
@@ -715,12 +849,19 @@
                 div.className = 'custom-select-option';
                 div.dataset.value = item[valueKey];
                 div.textContent = item[textKey];
-                // ✅ Mark already assigned sites
                 if (assignedIds.includes(String(item[valueKey]))) {
                     div.classList.add('already-assigned');
                 }
                 containerEl.appendChild(div);
             });
+        }
+
+        // ===== position:fixed dropdown positioning =====
+        function positionDropdown(trigger, optionsEl) {
+            var rect = trigger.getBoundingClientRect();
+            optionsEl.style.top = (rect.bottom + 4) + 'px';
+            optionsEl.style.left = rect.left + 'px';
+            optionsEl.style.width = rect.width + 'px';
         }
 
         function setupDropdown(triggerId, optionsId, hiddenSelectId, onSelect) {
@@ -734,6 +875,7 @@
                 const isOpen = optionsEl.classList.contains('open');
                 closeAllDropdowns();
                 if (!isOpen) {
+                    positionDropdown(trigger, optionsEl);
                     optionsEl.classList.add('open');
                     trigger.classList.add('open');
                 }
@@ -752,6 +894,13 @@
                 closeAllDropdowns();
                 if (onSelect) onSelect(value);
             });
+
+            window.addEventListener('resize', function () {
+                if (optionsEl.classList.contains('open')) positionDropdown(trigger, optionsEl);
+            });
+            window.addEventListener('scroll', function () {
+                if (optionsEl.classList.contains('open')) positionDropdown(trigger, optionsEl);
+            }, true);
         }
 
         function closeAllDropdowns() {
@@ -770,7 +919,7 @@
         });
         buildOptions(architectOptionsEl, archItems, 'id', 'name', 'Choose an architect...');
 
-        // ===== WHEN ARCHITECT IS SELECTED, LOAD THEIR ASSIGNED SITES =====
+        // ===== WHEN ARCHITECT SELECTED, LOAD THEIR ASSIGNED SITES =====
         setupDropdown('architectTrigger', 'architectOptions', 'architect_id', async function (architectId) {
             const projectTrigger = document.getElementById('projectTrigger');
             const projectText = document.getElementById('projectText');
@@ -785,13 +934,11 @@
                 return;
             }
 
-            // Show loading
             projectTrigger.classList.remove('disabled');
             projectText.textContent = 'Loading sites...';
             projectSelect.disabled = false;
 
             try {
-                // Load all sites and assigned sites in parallel
                 const [sitesRes, assignedRes] = await Promise.all([
                     fetch("/select_project_by_org"),
                     fetch(`/get_assigned_sites_by_architect?architect_id=${architectId}`)
@@ -801,17 +948,13 @@
                 const assignedData = await assignedRes.json();
 
                 const assignedIds = assignedData.status === 'success'
-                    ? assignedData.assigned_site_ids.map(String)
-                    : [];
+                    ? assignedData.assigned_site_ids.map(String) : [];
 
                 if (sitesData.status === "success") {
-                    // Build site options with assigned markers
                     buildOptions(projectOptions, sitesData.projects, 'site_id', 'site_name', 'Choose a site...', assignedIds);
-
                     projectText.textContent = 'Choose a site...';
                     projectText.className = 'placeholder';
 
-                    // Update hidden select
                     projectSelect.innerHTML = '<option value="">Choose a site...</option>';
                     sitesData.projects.forEach(p => {
                         const opt = document.createElement('option');
@@ -830,7 +973,7 @@
 
         setupDropdown('projectTrigger', 'projectOptions', 'project_id', null);
 
-        // Loading animation on submit
+        // Loading animation on submit — logic unchanged
         document.getElementById('assignForm').addEventListener('submit', function (e) {
             const btn = document.getElementById('assignBtn');
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Assigning...';
@@ -838,7 +981,7 @@
         });
 
         document.addEventListener('DOMContentLoaded', function () {
-            // Flash message auto-dismiss
+            // Flash message auto-dismiss — logic unchanged
             const flashMsg = document.getElementById('flashMessage');
             if (flashMsg) {
                 setTimeout(function () {

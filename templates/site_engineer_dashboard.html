@@ -4,20 +4,24 @@
 <head>
     <title>Site Engineer Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Italianno&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        .welcome-back {
+            font-family: 'Italianno', cursive;
+            font-size: 30px;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            /* font-family: 'Poppins', sans-serif; */
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f4f6f8;
+            font-family: 'DM Sans', sans-serif;
+            background-color: #f0f4f8;
             min-height: 100vh;
         }
 
@@ -34,24 +38,25 @@
             top: 20px;
             left: 20px;
             z-index: 1100;
-            background: #2c3e50;
+            background: #1e3a5f;
             color: white;
             border: none;
             padding: 12px;
             border-radius: 8px;
             cursor: pointer;
             font-size: 18px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             transition: opacity 0.3s ease;
         }
 
         .mobile-menu-toggle:hover {
-            background: #34495e;
+            background: #2d5a8e;
         }
 
         /* Sidebar Styles */
         .sidebar {
             width: 280px;
-            background: #2c3e50;
+            background: linear-gradient(180deg, #1e3a5f 0%, #2d5a8e 100%);
             color: white;
             padding: 20px;
             position: fixed;
@@ -67,13 +72,14 @@
         .sidebar-header {
             padding: 20px 0;
             text-align: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
             margin-bottom: 20px;
         }
 
         .sidebar-header h2 {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: 600;
+            letter-spacing: 0.02em;
         }
 
         .nav-menu {
@@ -82,23 +88,23 @@
 
         .nav-item {
             position: relative;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
         }
 
         .nav-link {
             display: flex;
             align-items: center;
-            padding: 12px 15px;
-            color: #ecf0f1;
+            padding: 11px 14px;
+            color: rgba(255, 255, 255, 0.85);
             text-decoration: none;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            position: relative;
-            white-space: nowrap;
+            border-radius: 9px;
+            transition: all 0.2s ease;
+            white-space: normal;
+            font-size: 14px;
         }
 
         .nav-link:hover {
-            background: #34495e;
+            background: rgba(255, 255, 255, 0.15);
             color: #fff;
         }
 
@@ -107,13 +113,24 @@
             width: 20px;
             text-align: center;
             flex-shrink: 0;
+            font-size: 14px;
         }
 
         .nav-link span {
-            white-space: nowrap;
+            white-space: normal;
         }
 
-        /* Notification Badge Styles */
+        .nav-section-label {
+            padding: 8px 14px;
+            color: rgba(255, 255, 255, 0.45);
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 14px;
+        }
+
+       
         .notification-badge {
             position: absolute;
             top: 6px;
@@ -137,6 +154,29 @@
             margin-left: -30px;
         }
 
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e3a5f;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3a7bd5;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2d5a8e;
+        }
+
+      
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #3a7bd5 #1e3a5f;
+        }
+
         @keyframes pulse {
 
             0%,
@@ -151,7 +191,6 @@
             }
         }
 
-        /* Badge color variations */
         .notification-badge.high {
             background: linear-gradient(135deg, #e74c3c, #c0392b);
             margin-left: -30px;
@@ -171,84 +210,167 @@
         .main-content {
             flex: 1;
             margin-left: 280px;
-            padding: 30px;
-            transition: margin-left 0.3s ease;
+            padding: 0;
+            width: calc(100% - 280px);
+            transition: margin-left 0.3s ease, width 0.3s ease;
         }
 
+        /* Welcome / Header Banner */
         .welcome-section {
-            background: linear-gradient(135deg, #3498db, #2c3e50);
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8e 60%, #3a7bd5 100%);
             color: white;
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: clamp(1.5rem, 3vw, 2.2rem) clamp(1.2rem, 4vw, 2.5rem);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
         }
 
         .welcome-section h1 {
-            font-size: 2rem;
-            margin-bottom: 10px;
+            font-size: clamp(20px, 3.5vw, 28px);
+            font-weight: 600;
+            margin: 0 0 6px;
+            text-transform: uppercase;
+            font-family: 'playfair display', serif;
+
         }
 
-        .welcome-section h2 {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
+        .welcome-section p {
+            color: rgba(255, 255, 255, 0.65);
+            font-size: clamp(12px, 1.8vw, 14px);
+            margin: 0;
+        }
+
+        .welcome-clock {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 0.7rem 1.2rem;
+            text-align: right;
+            min-width: 110px;
+            flex-shrink: 0;
+        }
+
+        .welcome-clock .clock-date {
+            color: rgba(255, 255, 255, 0.65);
+            font-size: 12px;
+            margin: 0 0 2px;
+        }
+
+        .welcome-clock .clock-time {
+            color: #fff;
+            font-size: clamp(20px, 3vw, 26px);
+            font-weight: 600;
+            margin: 0;
+            letter-spacing: 1px;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-body {
+            padding: clamp(1rem, 3vw, 1.75rem) clamp(0.75rem, 3vw, 1.75rem);
+        }
+
+        .section-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #8a9ab0;
+            margin: 0 0 1rem;
         }
 
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+            gap: clamp(10px, 2vw, 16px);
         }
 
+        /* Cards */
         .dashboard-card {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease;
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid rgba(0, 0, 0, 0.07);
+            padding: clamp(1rem, 2.5vw, 1.4rem);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: box-shadow 0.2s, transform 0.2s;
         }
 
         .dashboard-card:hover {
-            transform: translateY(-5px);
+            box-shadow: 0 6px 24px rgba(30, 58, 95, 0.10);
+            transform: translateY(-2px);
         }
 
-        .card-header {
+        .card-icon-row {
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
+            gap: 10px;
         }
 
-        .card-header i {
-            font-size: 24px;
-            margin-right: 15px;
-            color: #3498db;
+        .card-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
             flex-shrink: 0;
         }
 
-        .card-header h3 {
-            font-size: 1.2rem;
-            color: #2c3e50;
+        .card-title {
+            font-size: clamp(14px, 2vw, 15px);
+            font-weight: 600;
+            color: #1e3a5f;
+            margin: 0;
         }
 
-        .card-content {
-            color: #666;
-            line-height: 1.6;
+        .card-desc {
+            font-size: clamp(12px, 1.6vw, 13px);
+            color: #6b7a8d;
+            margin: 0;
+            line-height: 1.55;
+            flex: 1;
         }
 
+        /* Buttons — full width */
         .card-link {
-            display: inline-block;
-            margin-top: 15px;
-            padding: 8px 15px;
-            background: #3498db;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            width: 100%;
+            padding: clamp(8px, 1.5vw, 10px) clamp(14px, 2vw, 20px);
+            border-radius: 8px;
+            font-size: clamp(12px, 1.6vw, 13px);
+            font-weight: 500;
+            font-family: inherit;
             color: white;
+            background: #3a7bd5e3;
             text-decoration: none;
-            border-radius: 6px;
-            transition: background 0.3s ease;
+            transition: background 0.2s ease, transform 0.18s ease;
+            box-sizing: border-box;
         }
 
         .card-link:hover {
-            background: #2980b9;
+            background: #1e3a5f;
+            color: white;
+            transform: scale(0.98);
+        }
+
+        .card-link:active {
+            transform: scale(0.96);
+        }
+
+        .card-link .arrow {
+            transition: transform 0.18s;
+            font-size: 13px;
+        }
+
+        .card-link:hover .arrow {
+            transform: translateX(3px);
         }
 
         /* Overlay for mobile */
@@ -261,38 +383,25 @@
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
             z-index: 999;
+            backdrop-filter: blur(1px);
+            -webkit-backdrop-filter: blur(1px);
         }
 
-        /* Tablet Styles */
-        @media screen and (max-width: 1024px) {
+        /* Tablet */
+        @media screen and (max-width: 1200px) {
             .dashboard-grid {
                 grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-                gap: 15px;
-            }
-
-            .main-content {
-                padding: 20px;
-            }
-
-            .welcome-section {
-                padding: 25px;
-            }
-
-            .welcome-section h1 {
-                font-size: 1.8rem;
-            }
-
-            .dashboard-card {
-                padding: 20px;
             }
         }
 
-        /* Mobile Styles */
-        @media screen and (max-width: 768px) {
-            .sidebar-header {
-                padding: 15px;
+        @media screen and (max-width: 1024px) {
+            .main-content {
+                padding: 0;
             }
+        }
 
+        /* Mobile */
+        @media screen and (max-width: 768px) {
             .mobile-menu-toggle {
                 display: block;
             }
@@ -302,6 +411,7 @@
                 top: 0;
                 left: 0;
                 height: 100vh;
+                padding: 15px;
             }
 
             .sidebar.active {
@@ -314,82 +424,31 @@
 
             .main-content {
                 margin-left: 0;
-                padding: 80px 15px 20px 15px;
-            }
-
-            .notification-badge {
-                position: absolute;
-                top: 6px;
-                left: 32px;
-                transform: translateY(-50%);
-                background: linear-gradient(135deg, #3498db, #2980b9);
-                color: white;
-                border-radius: 12px;
-                padding: 3px 8px;
-                font-size: 11px;
-                font-weight: 700;
-                min-width: 20px;
-                text-align: center;
-                display: none;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-                z-index: 10;
+                width: 100%;
             }
 
             .welcome-section {
-                padding: 20px;
-                text-align: center;
+                padding: 70px 18px 24px;
             }
 
-            .welcome-section h1 {
-                font-size: 1.5rem;
-                margin-bottom: 8px;
+            .welcome-clock {
+                display: none;
             }
 
-            .welcome-section h2 {
-                font-size: 1.2rem;
-                margin-bottom: 8px;
-            }
-
-            .welcome-section p {
-                font-size: 14px;
+            .dashboard-body {
+                padding: 1rem;
             }
 
             .dashboard-grid {
                 grid-template-columns: 1fr;
-                gap: 15px;
-                margin-top: 20px;
+                gap: 12px;
             }
 
-            .dashboard-card {
-                padding: 18px;
-            }
-
-            .card-header {
-                margin-bottom: 12px;
-            }
-
-            .card-header i {
-                font-size: 20px;
-                margin-right: 12px;
-            }
-
-            .card-header h3 {
-                font-size: 1.1rem;
-            }
-
-            .card-content {
+            .nav-link {
+                padding: 14px 12px;
                 font-size: 14px;
             }
 
-            .card-link {
-                padding: 8px 12px;
-                font-size: 14px;
-                margin-top: 12px;
-            }
-        }
-
-        /* Small Mobile Styles */
-        @media screen and (max-width: 480px) {
             .notification-badge {
                 position: absolute;
                 top: 6px;
@@ -407,9 +466,16 @@
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
                 z-index: 10;
             }
+        }
 
-            .main-content {
-                padding: 70px 10px 15px 10px;
+        @media screen and (max-width: 480px) {
+            .sidebar {
+                width: 260px;
+                padding: 15px;
+            }
+
+            .welcome-section {
+                padding: 70px 14px 20px;
             }
 
             .mobile-menu-toggle {
@@ -419,68 +485,51 @@
                 font-size: 16px;
             }
 
+            .notification-badge {
+                position: absolute;
+                top: 6px;
+                left: 32px;
+                transform: translateY(-50%);
+                background: linear-gradient(135deg, #3498db, #2980b9);
+                color: white;
+                border-radius: 12px;
+                padding: 3px 8px;
+                font-size: 11px;
+                font-weight: 700;
+                min-width: 20px;
+                text-align: center;
+                display: none;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                z-index: 10;
+            }
+        }
+
+        @media screen and (max-width: 320px) {
             .sidebar {
-                width: 280px;
-                padding: 15px;
+                width: 240px;
             }
+        }
 
-            .sidebar-header {
-                padding: 15px 0;
-            }
-
-            .sidebar-header h2 {
-                font-size: 1.3rem;
-            }
-
-            .nav-link {
-                padding: 10px 12px;
-                font-size: 14px;
-            }
-
-            .nav-link i {
-                margin-right: 8px;
-                width: 18px;
-            }
-
+        @media (max-width: 768px) and (orientation: landscape) {
             .welcome-section {
-                padding: 15px;
-                border-radius: 10px;
+                padding: 60px 18px 18px;
             }
+        }
 
-            .welcome-section h1 {
-                font-size: 1.3rem;
-            }
-
-            .welcome-section h2 {
-                font-size: 1.1rem;
-            }
-
-            .welcome-section p {
-                font-size: 13px;
-            }
-
-            .dashboard-card {
-                padding: 15px;
-                border-radius: 8px;
-            }
-
-            .card-header i {
-                font-size: 18px;
-                margin-right: 10px;
-            }
-
-            .card-header h3 {
-                font-size: 1rem;
-            }
-
-            .card-content {
-                font-size: 13px;
+        @media (hover: none) and (pointer: coarse) {
+            .nav-link {
+                padding: 15px 12px;
+                min-height: 48px;
+                align-items: center;
             }
 
             .card-link {
-                padding: 6px 10px;
-                font-size: 13px;
-                margin-top: 10px;
+                min-height: 44px;
+            }
+
+            .mobile-menu-toggle {
+                min-height: 44px;
+                min-width: 44px;
             }
         }
     </style>
@@ -496,17 +545,14 @@
         <!-- Sidebar Overlay -->
         <div class="sidebar-overlay" onclick="closeSidebar()"></div>
 
-        <!-- Sidebar -->
+        <!-- Sidebar — ALL LOGIC UNCHANGED -->
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <h2>Project Manager</h2>
             </div>
             <ul class="nav-menu">
-                <li class="nav-item" style="margin-top: 10px;">
-                    <div
-                        style="padding: 8px 15px; color: #95a5a6; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
-                        Projects
-                    </div>
+                <li class="nav-item">
+                    <div class="nav-section-label">Projects</div>
                 </li>
                 <li class="nav-item">
                     <a href="{{ url_for('view_assigned_sites') }}" class="nav-link">
@@ -515,14 +561,12 @@
                         <span class="notification-badge" id="badge-projects"></span>
                     </a>
                 </li>
-
                 <li class="nav-item">
                     <a href="{{ url_for('upload_progress') }}" class="nav-link">
                         <i class="fas fa-upload"></i>
                         <span>Upload Progress Report</span>
                     </a>
                 </li>
-
                 <li class="nav-item">
                     <a href="{{ url_for('view_project_details') }}" class="nav-link">
                         <i class="fas fa-eye"></i>
@@ -538,13 +582,9 @@
                     </a>
                 </li>
 
-                <li class="nav-item" style="margin-top: 20px;">
-                    <div
-                        style="padding: 8px 15px; color: #95a5a6; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
-                        People
-                    </div>
+                <li class="nav-item">
+                    <div class="nav-section-label">People</div>
                 </li>
-
                 <li class="nav-item">
                     <a href="{{ url_for('submit_worker_report') }}" class="nav-link">
                         <i class="fas fa-users"></i>
@@ -552,28 +592,21 @@
                     </a>
                 </li>
 
-                <li class="nav-item" style="margin-top: 20px;">
-                    <div
-                        style="padding: 8px 15px; color: #95a5a6; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
-                        Inventory
-                    </div>
+                <li class="nav-item">
+                    <div class="nav-section-label">Inventory</div>
                 </li>
-
                 <li class="nav-item">
                     <a href="{{ url_for('add_inventory') }}" class="nav-link">
                         <i class="fas fa-boxes"></i>
                         <span>Add Inventory</span>
                     </a>
                 </li>
-
                 <li class="nav-item">
                     <a href="{{ url_for('add_vendor_inventory') }}" class="nav-link">
                         <i class="fas fa-truck"></i>
                         <span>Add Vendor Inventory</span>
                     </a>
                 </li>
-
-
                 <li class="nav-item">
                     <a href="{{ url_for('site_engineer_approved_vendor_quotations') }}" class="nav-link">
                         <i class="fas fa-check-circle"></i>
@@ -582,20 +615,15 @@
                     </a>
                 </li>
 
-                <li class="nav-item" style="margin-top: 20px;">
-                    <div
-                        style="padding: 8px 15px; color: #95a5a6; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
-                        Finance
-                    </div>
+                <li class="nav-item">
+                    <div class="nav-section-label">Finance</div>
                 </li>
-
                 <li class="nav-item">
                     <a href="{{ url_for('generate_invoice') }}" class="nav-link">
                         <i class="fas fa-file-invoice-dollar"></i>
                         <span>Generate Invoice</span>
                     </a>
                 </li>
-
                 <li class="nav-item">
                     <a href="{{ url_for('site_engineer_invoices') }}" class="nav-link">
                         <i class="fas fa-file-invoice"></i>
@@ -603,15 +631,6 @@
                         <span class="notification-badge" id="badge-invoices"></span>
                     </a>
                 </li>
-
-                <!-- <li class="nav-item">
-                    <a href="{{ url_for('site_engineer_expenses') }}" class="nav-link">
-                        <i class="fas fa-rupee-sign"></i>
-                        <span>Daily Expenses</span>
-                        <span class="notification-badge" id="badge-expenses"></span>
-                    </a>
-                </li> -->
-                <!-- Add this new menu item in the sidebar after the Daily Expenses link -->
                 <li class="nav-item">
                     <a href="{{ url_for('site_engineer_expenses') }}?view=status" class="nav-link">
                         <i class="fas fa-bell"></i>
@@ -620,29 +639,9 @@
                     </a>
                 </li>
 
-
-
-
-
-
-
-
-
-
-                <!-- <li class="nav-item">
-                    <a href="{{ url_for('add_enquiry') }}" class="nav-link">
-                        <i class="fas fa-user-plus"></i>
-                        <span>Visitor Enquiry</span>
-                    </a>
-                </li> -->
-
-                <li class="nav-item" style="margin-top: 20px;">
-                    <div
-                        style="padding: 8px 15px; color: #95a5a6; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
-                        Others
-                    </div>
+                <li class="nav-item">
+                    <div class="nav-section-label">Others</div>
                 </li>
-
                 <li class="nav-item">
                     <a href="{{ url_for('communication') }}" class="nav-link">
                         <i class="fas fa-comments"></i>
@@ -650,8 +649,6 @@
                         <span class="notification-badge" id="badge-communication"></span>
                     </a>
                 </li>
-
-
                 <li class="nav-item">
                     <a href="{{ url_for('logout') }}" class="nav-link">
                         <i class="fas fa-sign-out-alt"></i>
@@ -663,95 +660,132 @@
 
         <!-- Main Content -->
         <div class="main-content">
+
+            <!-- Welcome Section -->
             <div class="welcome-section">
-                <h2>Welcome, {{ engineer.name }}</h2>
-                <h1>Project Manager!</h1>
-                <p>Manage your construction site efficiently with our comprehensive tools.</p>
+                <div>
+                    <p class="welcome-back" style="color:rgba(255,255,255,0.65);margin:0 0 4px; font-size:30px;">Welcome
+                        back,</p>
+                    <h1>{{ engineer.name }}</h1>
+                    <p>Build safe, build smart, we finish what we start!</p>
+                </div>
+                <div class="welcome-clock">
+                    <p class="clock-date" id="clock-date"></p>
+                    <p class="clock-time" id="clock-time"></p>
+                </div>
             </div>
 
-            <div class="dashboard-grid">
-                <div class="dashboard-card">
-                    <div class="card-header">
-                        <i class="fas fa-map-marked-alt"></i>
-                        <h3>Project Management</h3>
-                    </div>
-                    <div class="card-content">
-                        <p>View assigned sites and upload progress reports.</p>
-                        <a href="{{ url_for('view_assigned_sites') }}" class="card-link">View Sites</a>
-                    </div>
-                </div>
+            <!-- Quick Access Cards -->
+            <div class="dashboard-body">
+                <p class="section-label">Quick Access</p>
+                <div class="dashboard-grid">
 
-                <div class="dashboard-card">
-                    <div class="card-header">
-                        <i class="fas fa-file-invoice"></i>
-                        <h3>Financial Management</h3>
+                    <!-- Project Management -->
+                    <div class="dashboard-card">
+                        <div class="card-icon-row">
+                            <div class="card-icon" style="background:#f3e8fd; color:#2563eb;">
+                                <i class="fas fa-map-marked-alt"></i>
+                            </div>
+                            <p class="card-title">Project Management</p>
+                        </div>
+                        <p class="card-desc">View assigned sites and upload progress reports for your active projects.
+                        </p>
+                        <a href="{{ url_for('view_assigned_sites') }}" class="card-link">
+                            View Sites <span class="arrow">→</span>
+                        </a>
                     </div>
-                    <div class="card-content">
-                        <p>Generate and manage invoices for your projects.</p>
-                        <a href="{{ url_for('generate_invoice') }}" class="card-link">Generate Invoice</a>
-                    </div>
-                </div>
 
-                <div class="dashboard-card">
-                    <div class="card-header">
-                        <i class="fas fa-rupee-sign"></i>
-                        <h3>Daily Expenses</h3>
+                    <!-- Financial Management -->
+                    <div class="dashboard-card">
+                        <div class="card-icon-row">
+                            <div class="card-icon" style="background:#f3e8fd; color:#9333ea;">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                            </div>
+                            <p class="card-title">Financial Management</p>
+                        </div>
+                        <p class="card-desc">Generate and manage invoices for your projects with ease.</p>
+                        <a href="{{ url_for('generate_invoice') }}" class="card-link">
+                            Generate Invoice <span class="arrow">→</span>
+                        </a>
                     </div>
-                    <div class="card-content">
-                        <p>Submit and track daily expenses for your project work.</p>
-                        <a href="{{ url_for('site_engineer_expenses') }}" class="card-link">Submit Expenses</a>
 
+                    <!-- Daily Expenses -->
+                    <div class="dashboard-card">
+                        <div class="card-icon-row">
+                            <div class="card-icon" style="background:#f3e8fd; color:#9333ea;">
+                                <i class="fas fa-rupee-sign"></i>
+                            </div>
+                            <p class="card-title">Daily Expenses</p>
+                        </div>
+                        <p class="card-desc">Submit and track daily expenses for your project site work.</p>
+                        <a href="{{ url_for('site_engineer_expenses') }}" class="card-link">
+                            Submit Expenses <span class="arrow">→</span>
+                        </a>
                     </div>
-                </div>
 
-                <div class="dashboard-card">
-                    <div class="card-header">
-                        <i class="fas fa-chart-line"></i>
-                        <h3>Expense Status</h3>
+                    <!-- Expense Status -->
+                    <div class="dashboard-card">
+                        <div class="card-icon-row">
+                            <div class="card-icon" style="background:#f3e8fd; color:#2563eb;">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <p class="card-title">Expense Status</p>
+                        </div>
+                        <p class="card-desc">View and track approved or rejected expense reports.</p>
+                        <a href="{{ url_for('site_engineer_expenses_view') }}" class="card-link">
+                            View Status <span class="arrow">→</span>
+                        </a>
                     </div>
-                    <div class="card-content">
-                        <p>View and track approved/rejected expense reports.</p>
-                        <a href="{{ url_for('site_engineer_expenses_view') }}" class="card-link">View Status</a>
-                    </div>
-                </div>
 
-                <div class="dashboard-card">
-                    <div class="card-header">
-                        <i class="fas fa-users"></i>
-                        <h3>Worker Report</h3>
+                    <!-- Worker Report -->
+                    <div class="dashboard-card">
+                        <div class="card-icon-row">
+                            <div class="card-icon" style="background:#f3e8fd; color:#9333ea;">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <p class="card-title">Worker Report</p>
+                        </div>
+                        <p class="card-desc">Submit daily worker count for your assigned project sites.</p>
+                        <a href="{{ url_for('submit_worker_report') }}" class="card-link">
+                            Submit Report <span class="arrow">→</span>
+                        </a>
                     </div>
-                    <div class="card-content">
-                        <p>Submit daily worker count for your assigned projects.</p>
-                        <a href="{{ url_for('submit_worker_report') }}" class="card-link">Submit Worker Report</a>
-                    </div>
-                </div>
 
-                <div class="dashboard-card">
-                    <div class="card-header">
-                        <i class="fas fa-boxes"></i>
-                        <h3>Inventory Management</h3>
+                    <!-- Inventory Management -->
+                    <div class="dashboard-card">
+                        <div class="card-icon-row">
+                            <div class="card-icon" style="background:#f3e8fd; color:#2563eb;">
+                                <i class="fas fa-boxes"></i>
+                            </div>
+                            <p class="card-title">Inventory Management</p>
+                        </div>
+                        <p class="card-desc">Track and manage site inventory and vendor supplies.</p>
+                        <a href="{{ url_for('add_inventory') }}" class="card-link">
+                            Manage Inventory <span class="arrow">→</span>
+                        </a>
                     </div>
-                    <div class="card-content">
-                        <p>Track and manage site inventory and vendor supplies.</p>
-                        <a href="{{ url_for('add_inventory') }}" class="card-link">Manage Inventory</a>
-                    </div>
-                </div>
 
-                <div class="dashboard-card">
-                    <div class="card-header">
-                        <i class="fas fa-user-plus"></i>
-                        <h3>Visitor Enquiry</h3>
+                    <!-- Visitor Enquiry -->
+                    <div class="dashboard-card">
+                        <div class="card-icon-row">
+                            <div class="card-icon" style="background:#f3e8fd; color:#9333ea;">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <p class="card-title">Visitor Enquiry</p>
+                        </div>
+                        <p class="card-desc">Submit a visitor enquiry and manage site visitor records.</p>
+                        <a href="{{ url_for('add_enquiry') }}" class="card-link">
+                            Submit Enquiry <span class="arrow">→</span>
+                        </a>
                     </div>
-                    <div class="card-content">
-                        <p>Submit a visitor enquiry for your site.</p>
-                        <a href="{{ url_for('add_enquiry') }}" class="card-link">Submit Visitor Enquiry</a>
-                    </div>
+
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        /* ── Sidebar — ALL LOGIC UNCHANGED ── */
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.querySelector('.sidebar-overlay');
@@ -778,7 +812,6 @@
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
             toggle.style.pointerEvents = 'auto';
-
         }
 
         document.querySelectorAll('.nav-link').forEach(link => {
@@ -795,22 +828,37 @@
             }
         });
 
-        // ----------------- Site Engineer Dashboard Notification System -----------------
+        /* ── Live Clock — ALL LOGIC UNCHANGED ── */
+        function updateClock() {
+            const now = new Date();
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const dateStr = days[now.getDay()] + ', ' + now.getDate() + ' ' + months[now.getMonth()];
+            let h = now.getHours();
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const ampm = h >= 12 ? 'pm' : 'am';
+            h = h % 12 || 12;
+            const timeStr = String(h).padStart(2, '0') + ':' + m + ' ' + ampm;
+            document.getElementById('clock-date').textContent = dateStr;
+            document.getElementById('clock-time').textContent = timeStr;
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        /* ── Notification System — ALL LOGIC UNCHANGED ── */
         function updateNotificationBadges() {
             fetch('/api/notifications/count')
                 .then(response => response.json())
                 .then(data => {
                     console.log('✅ Notification data received:', data);
-
                     updateBadge('badge-projects', data.projects || 0);
                     updateBadge('badge-invoices', data.invoices || 0);
-                    // updateBadge('badge-expenses', data.expenses || 0);
                     updateBadge('badge-expense-status', data.expenses || 0);
                     updateBadge('badge-vendor-inventory', data.vendor_inventory || 0);
                     updateBadge('badge-legal', data.legal || 0);
                     updateBadge('badge-communication', data.communication || 0);
                     updateBadge('badge-project-updates', data.project_updates || 0);
-
                 })
                 .catch(error => console.error('❌ Error:', error));
         }
@@ -818,12 +866,10 @@
         function updateBadge(badgeId, count) {
             const badge = document.getElementById(badgeId);
             if (!badge) {
-                console.warn(`⚠️ Badge not found: ${badgeId}`);
+                console.warn('⚠️ Badge not found: ' + badgeId);
                 return;
             }
-
-            console.log(`🔔 Updating ${badgeId}: ${count}`);
-
+            console.log('🔔 Updating ' + badgeId + ': ' + count);
             if (count > 0) {
                 badge.textContent = count > 99 ? '99+' : count;
                 badge.classList.add('show');
@@ -833,8 +879,7 @@
         }
 
         function markAsReadOnClick(notificationType) {
-            console.log(`📖 Marking as read: ${notificationType}`);
-
+            console.log('📖 Marking as read: ' + notificationType);
             fetch('/api/notifications/mark-read', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -851,13 +896,9 @@
         document.addEventListener('DOMContentLoaded', function () {
             console.log('🚀 Notification system initialized');
 
-            // Initial load
             updateNotificationBadges();
-
-            // Refresh every 30 seconds (backup)
             setInterval(updateNotificationBadges, 30000);
 
-            // ✅ ENHANCEMENT 1: BroadcastChannel listener (instant cross-tab updates)
             try {
                 const commChannel = new BroadcastChannel('comm_badge_update');
                 commChannel.onmessage = function (event) {
@@ -868,7 +909,6 @@
                 console.log('BroadcastChannel not supported:', e);
             }
 
-            // ✅ ENHANCEMENT 2: localStorage listener (works across tabs instantly)
             window.addEventListener('storage', function (e) {
                 if (e.key === 'comm_badge_last_update') {
                     console.log('📢 localStorage: Updating badges instantly');
@@ -876,7 +916,6 @@
                 }
             });
 
-            // ✅ ENHANCEMENT 3: Page visibility change (updates when switching tabs)
             document.addEventListener('visibilitychange', function () {
                 if (!document.hidden) {
                     console.log('📢 Tab visible: Updating badges');
@@ -885,13 +924,10 @@
             });
 
             let lastScrollY = 0;
-
             window.addEventListener('scroll', function () {
                 const toggle = document.querySelector('.mobile-menu-toggle');
                 const sidebar = document.getElementById('sidebar');
-
                 if (sidebar.classList.contains('active')) return;
-
                 if (window.innerWidth <= 768) {
                     if (window.scrollY > lastScrollY && window.scrollY > 50) {
                         toggle.style.opacity = '0';
@@ -900,18 +936,14 @@
                         toggle.style.opacity = '1';
                         toggle.style.pointerEvents = 'auto';
                     }
-
                     if (window.scrollY === 0) {
                         toggle.style.opacity = '1';
                         toggle.style.pointerEvents = 'auto';
                     }
                 }
-
                 lastScrollY = window.scrollY;
             }, { passive: true });
 
-            // ✅ KEEP YOUR EXISTING NAVIGATION MARK-AS-READ CODE
-            // Site Engineer example:
             const navLinks = {
                 'view_assigned_sites': 'project_assigned',
                 'invoices': 'invoice_rejected',
@@ -925,13 +957,11 @@
                     const href = this.getAttribute('href');
                     if (!href) return;
 
-                    // Special handling for expense status
                     if (href.includes('site_engineer_expenses') && href.includes('view=status')) {
                         markAsReadOnClick('expense_status');
                         return;
                     }
 
-                    // Special handling for vendor inventory
                     const routeName = href.split('/').pop().split('?')[0];
                     if (routeName === 'site_engineer_approved_vendor_quotations') {
                         console.log('🔔 Marking vendor notifications as read...');
@@ -947,8 +977,6 @@
                 });
             });
         });
-
-
     </script>
 </body>
 

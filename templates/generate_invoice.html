@@ -5,66 +5,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generate Invoice</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
+        /* ── Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
         body {
+            background: #f4f6f8;
+            font-family: 'Poppins', sans-serif;
             padding-top: 80px;
         }
 
-        .invoice-form {
-            background: #fff;
-            padding: 4rem;
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .section-header {
-            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
-            color: white;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 2rem;
-        }
-
-        .btn-add-item {
-            background: #28a745;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn-remove-item {
-            background: #dc3545;
-            border: none;
-            border-radius: 50%;
-            width: 35px;
-            height: 35px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .line-item-row {
-            background: #f8f9fa;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            border: 1px solid #dee2e6;
-        }
-
-        .total-section {
-            background: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: 8px;
-            border: 2px solid #ffffff;
-        }
-
-        /* Navbar Styles */
+        /* ── Navbar ── */
         .navbar {
             position: fixed;
             top: 0;
@@ -87,7 +46,6 @@
             justify-content: space-between;
             align-items: center;
             width: 100%;
-            padding: 0 20px;
             padding: 0 40px;
             height: 70px;
         }
@@ -100,11 +58,22 @@
             color: #2c3e50;
             font-weight: 700;
             font-size: 1.4rem;
+            transition: color 0.2s;
+            flex-shrink: 0;
+        }
+
+        .navbar-brand:hover {
+            color: #3498db;
         }
 
         .navbar-brand i {
             color: #3498db;
             font-size: 1.8rem;
+            transition: transform 0.2s;
+        }
+
+        .navbar-brand:hover i {
+            transform: rotate(-15deg) scale(1.1);
         }
 
         .navbar-menu {
@@ -113,6 +82,7 @@
             gap: 30px;
             align-items: center;
             margin: 0;
+            padding: 0;
         }
 
         .navbar-link {
@@ -125,6 +95,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            white-space: nowrap;
         }
 
         .navbar-link:hover {
@@ -155,21 +126,295 @@
             font-size: 1.5rem;
             color: #2c3e50;
             cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
         }
 
+        .navbar-toggle:hover {
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+        }
+
+        /* ── Main card ── */
+        .invoice-form {
+            background: #fff;
+            padding: 0;
+            border-radius: 22px;
+            box-shadow: 0 8px 32px rgba(52, 152, 219, 0.13);
+            position: relative;
+            overflow: hidden;
+            /* animation: fadeIn 0.3s ease-out; */
+            font-family: 'Poppins', sans-serif;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0.7;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Accent bar */
+        .invoice-form::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #3498db, #2c3e50);
+            z-index: 1;
+        }
+
+
+        .container-fluid.mt-4 {
+            padding-top: 0 !important;
+            margin-top: 30px !important;
+        }
+
+        /* give the inner .invoice-form content breathing room */
+        .invoice-form .section-header,
+        .invoice-form form,
+        .invoice-form .alert {
+            padding-left: 50px;
+            padding-right: 50px;
+        }
+
+        .invoice-form .section-header {
+            padding-top: 40px;
+        }
+
+        .invoice-form form {
+            padding-bottom: 40px;
+        }
+
+        /* ── Page header — centred icon + title ── */
+        .section-header {
+            background: none !important;
+            color: #2c3e50 !important;
+            padding-bottom: 10px !important;
+            border-radius: 0 !important;
+            margin-bottom: 30px !important;
+            text-align: center;
+        }
+
+        .section-header .header-icon i {
+            font-size: 3rem !important;
+            color: #3498db;
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        .section-header h2 {
+            color: #2c3e50 !important;
+            font-size: 1.8rem !important;
+            font-weight: 600 !important;
+        }
+
+        /* ── Section sub-titles ── */
+        h5.text-dark {
+            color: #2c3e50 !important;
+            font-size: 1rem;
+            font-weight: 600;
+            padding-left: 12px;
+            border-left: 4px solid #3498db;
+        }
+
+        h5.text-dark i {
+            color: #3498db;
+        }
+
+        /* ── Divider between sections ── */
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, #3498db, #2c3e50);
+            border-radius: 2px;
+            margin: 28px 0;
+            border: none;
+            opacity: 1;
+        }
+
+        /* ── Form labels ── */
+        .form-label {
+            font-weight: 500;
+            color: #2c3e50;
+            font-size: 0.95rem;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* ── Inputs, selects, textareas ── */
+        .form-control,
+        .form-select {
+            padding: 12px 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            background: #f8f9fa;
+            color: #2c3e50;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #3498db;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .form-control[readonly] {
+            background: #f0f4f8;
+            color: #7f8c8d;
+            cursor: not-allowed;
+        }
+
+        .text-muted {
+            font-size: 0.8rem !important;
+            color: #7f8c8d !important;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* ── Flash alerts ── */
+        .alert {
+            border-radius: 12px !important;
+            font-weight: 500;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* ── Line item rows ── */
+        .line-item-row {
+            background: #f8f9fa;
+            padding: 18px 20px;
+            border-radius: 14px;
+            margin-bottom: 14px;
+            border: 1px solid #e1e8ed;
+            transition: border-color 0.2s;
+        }
+
+        .line-item-row:hover {
+            border-color: #3498db;
+        }
+
+        /* ── Add / remove buttons ── */
+        .btn-add-item {
+            background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
+            border: none !important;
+            border-radius: 50% !important;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-add-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(39, 174, 96, 0.4);
+        }
+
+        .btn-remove-item {
+            background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+            border: none !important;
+            border-radius: 50% !important;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.25);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-remove-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(231, 76, 60, 0.35);
+        }
+
+        /* ── Totals section ── */
+        .total-section {
+            background: #f8f9fa;
+            padding: 24px 28px;
+            border-radius: 14px;
+            border: 1px solid #e1e8ed;
+        }
+
+        #grandTotalDisplay {
+            color: #27ae60;
+        }
+
+        /* ── Submit / back buttons ── */
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2980b9) !important;
+            border: none !important;
+            border-radius: 12px !important;
+            font-family: 'Poppins', sans-serif !important;
+            font-weight: 600 !important;
+            box-shadow: 0 4px 14px rgba(52, 152, 219, 0.3) !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 22px rgba(52, 152, 219, 0.4) !important;
+        }
+
+        .btn-primary:active {
+            transform: translateY(0) !important;
+        }
+
+        .btn-primary:disabled {
+            background: linear-gradient(135deg, #bdc3c7, #95a5a6) !important;
+            cursor: not-allowed !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #2c3e50, #34495e) !important;
+            border: none !important;
+            border-radius: 12px !important;
+            font-family: 'Poppins', sans-serif !important;
+            font-weight: 600 !important;
+            color: white !important;
+            box-shadow: 0 4px 14px rgba(44, 62, 80, 0.2) !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 22px rgba(44, 62, 80, 0.3) !important;
+            color: white !important;
+        }
+
+        /* ── Responsive ── */
         @media (max-width: 900px) {
             .navbar-container {
-                padding: 0 10px;
+                padding: 0 20px;
+            }
+
+            .invoice-form .section-header,
+            .invoice-form form,
+            .invoice-form .alert {
+                padding-left: 28px;
+                padding-right: 28px;
             }
         }
 
         @media (max-width: 768px) {
-
             body {
                 padding-top: 70px !important;
             }
 
-            /* Navbar */
             .navbar {
                 height: 60px;
             }
@@ -177,6 +422,14 @@
             .navbar-container {
                 height: 60px;
                 padding: 0 15px;
+            }
+
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+
+            .navbar-brand i {
+                font-size: 1.5rem;
             }
 
             .navbar-menu {
@@ -193,6 +446,7 @@
                 padding: 30px 20px;
                 transition: left 0.3s ease;
                 gap: 20px;
+                z-index: 2000;
             }
 
             .navbar-menu.active {
@@ -211,12 +465,29 @@
                 font-size: 1.05rem;
             }
 
-            /* Fix form spacing */
-            .invoice-form {
-                padding: 20px;
+            .invoice-form .section-header,
+            .invoice-form form,
+            .invoice-form .alert {
+                padding-left: 18px;
+                padding-right: 18px;
             }
 
-            /* Fix line item layout */
+            .invoice-form .section-header {
+                padding-top: 24px;
+            }
+
+            .invoice-form form {
+                padding-bottom: 24px;
+            }
+
+            .section-header h2 {
+                font-size: 1.5rem !important;
+            }
+
+            .section-header .header-icon i {
+                font-size: 2.5rem !important;
+            }
+
             .line-item-row .row {
                 row-gap: 10px;
             }
@@ -224,12 +495,105 @@
             .text-center .btn {
                 width: 100%;
                 font-size: 14px;
-                padding: 10px 12px;
+                padding: 12px !important;
                 margin-bottom: 10px;
                 white-space: nowrap;
-                /* keeps text in one line */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar {
+                height: 55px;
             }
 
+            .navbar-container {
+                height: 55px;
+                padding: 0 10px;
+            }
+
+            .navbar-brand {
+                font-size: 1.1rem;
+                gap: 8px;
+            }
+
+            .navbar-brand i {
+                font-size: 1.4rem;
+            }
+
+            .navbar-menu {
+                top: 55px;
+                height: calc(100vh - 55px);
+                padding: 30px 15px;
+            }
+
+            body {
+                padding-top: 55px !important;
+            }
+
+            .invoice-form .section-header,
+            .invoice-form form,
+            .invoice-form .alert {
+                padding-left: 14px;
+                padding-right: 14px;
+            }
+
+            .section-header h2 {
+                font-size: 1.3rem !important;
+            }
+
+            .section-header .header-icon i {
+                font-size: 2rem !important;
+            }
+
+            .form-control,
+            .form-select {
+                padding: 10px 12px;
+                font-size: 0.9rem;
+            }
+
+            .total-section {
+                padding: 16px;
+            }
+        }
+
+        @media (max-width: 320px) {
+            .navbar {
+                height: 50px;
+            }
+
+            .navbar-container {
+                height: 50px;
+                padding: 0 5px;
+            }
+
+            .navbar-brand {
+                font-size: 1rem;
+            }
+
+            .navbar-brand i {
+                font-size: 1.3rem;
+            }
+
+            .navbar-menu {
+                top: 50px;
+                height: calc(100vh - 50px);
+                padding: 25px 10px;
+            }
+
+            body {
+                padding-top: 50px !important;
+            }
+
+            .invoice-form .section-header,
+            .invoice-form form,
+            .invoice-form .alert {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+
+            .section-header h2 {
+                font-size: 1.1rem !important;
+            }
         }
     </style>
 </head>
@@ -466,7 +830,7 @@
                             </div>
                         </div>
                         <!-- NEW: Invoice Image Upload -->
-                        <div class="mb-4">
+                        <div class="mb-4 mt-4">
                             <label for="invoice_image" class="form-label">
                                 <i class="fas fa-image me-2"></i>Upload Invoice Image (optional)
                             </label>
@@ -482,13 +846,14 @@
 
 
                         <!-- Submit Button -->
-                        <div class="text-center mt-4">
+                        <div
+                            class="d-flex flex-column flex-sm-row justify-content-center align-items-center gap-3 mt-4">
                             <button type="button" class="btn btn-primary btn-lg px-5" id="generateBtn"
                                 onclick="submitInvoiceForm()">
                                 <i class="fas fa-save me-2"></i>Generate Invoice
                             </button>
                             <a href="{{ url_for('admin_dashboard') if user_role == 'admin' else url_for('site_engineer_dashboard') }}"
-                                class="btn btn-secondary btn-lg px-5 ms-3">
+                                class="btn btn-secondary btn-lg px-5">
                                 <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
                             </a>
                         </div>
@@ -738,7 +1103,7 @@
             const toast = document.getElementById('successToast');
             document.getElementById('successToastMsg').textContent = message;
             toast.style.display = 'flex';
-            setTimeout(function() { toast.style.display = 'none'; }, 3000);
+            setTimeout(function () { toast.style.display = 'none'; }, 3000);
         }
 
         function pollPdfStatus(invoiceId, redirectUrl, attempts) {
@@ -746,22 +1111,22 @@
             // Max 30 attempts (~60 seconds), then redirect anyway
             if (attempts > 30) {
                 showSuccessToast('Invoice created! PDF is being generated in background.');
-                setTimeout(function() { window.location.href = redirectUrl; }, 2500);
+                setTimeout(function () { window.location.href = redirectUrl; }, 2500);
                 return;
             }
             fetch('/api/invoice_pdf_status/' + invoiceId)
-                .then(function(res) { return res.json(); })
-                .then(function(data) {
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
                     if (data.status === 'ready') {
                         showSuccessToast('Invoice PDF generated successfully!');
-                        setTimeout(function() { window.location.href = redirectUrl; }, 2500);
+                        setTimeout(function () { window.location.href = redirectUrl; }, 2500);
                     } else {
-                        setTimeout(function() {
+                        setTimeout(function () {
                             pollPdfStatus(invoiceId, redirectUrl, attempts + 1);
                         }, 2000);
                     }
                 })
-                .catch(function() {
+                .catch(function () {
                     window.location.href = redirectUrl;
                 });
         }
@@ -813,59 +1178,59 @@
                 method: 'POST',
                 body: formData
             })
-            .then(function(response) {
-                const contentType = response.headers.get('Content-Type') || '';
+                .then(function (response) {
+                    const contentType = response.headers.get('Content-Type') || '';
 
-                if (contentType.includes('text/html')) {
-                    return response.text().then(function() {
-                        const finalUrl = response.url || '';
+                    if (contentType.includes('text/html')) {
+                        return response.text().then(function () {
+                            const finalUrl = response.url || '';
 
-                        if (finalUrl && finalUrl !== window.location.href) {
-                            try {
-                                const urlParams = new URLSearchParams(new URL(finalUrl).search);
-                                const invoiceId = urlParams.get('new_invoice_id');
-                                if (invoiceId) {
-                                    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Waiting for PDF...';
-                                    pollPdfStatus(invoiceId, finalUrl, 0);
-                                    return;
-                                }
-                            } catch(e) {}
-                            // No invoice_id param — redirect directly
-                            window.location.href = finalUrl;
-                        } else {
-                            btn.innerHTML = '<i class="fas fa-save me-2"></i>Generate Invoice';
-                            btn.disabled = false;
-                            window.location.reload();
-                        }
-                    });
-                }
+                            if (finalUrl && finalUrl !== window.location.href) {
+                                try {
+                                    const urlParams = new URLSearchParams(new URL(finalUrl).search);
+                                    const invoiceId = urlParams.get('new_invoice_id');
+                                    if (invoiceId) {
+                                        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Waiting for PDF...';
+                                        pollPdfStatus(invoiceId, finalUrl, 0);
+                                        return;
+                                    }
+                                } catch (e) { }
+                                // No invoice_id param — redirect directly
+                                window.location.href = finalUrl;
+                            } else {
+                                btn.innerHTML = '<i class="fas fa-save me-2"></i>Generate Invoice';
+                                btn.disabled = false;
+                                window.location.reload();
+                            }
+                        });
+                    }
 
-                if (!response.ok) throw new Error('Generation failed with status: ' + response.status);
-                const disposition = response.headers.get('Content-Disposition');
-                let filename = 'invoice.pdf';
-                if (disposition && disposition.includes('filename=')) {
-                    filename = disposition.split('filename=')[1].replace(/"/g, '').trim();
-                }
-                return response.blob().then(function(blob) { return { blob: blob, filename: filename }; });
-            })
-            .then(function(result) {
-                if (!result || !result.blob) return;
-                const blobUrl = URL.createObjectURL(result.blob);
-                const a = document.createElement('a');
-                a.href = blobUrl;
-                a.download = result.filename;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(blobUrl);
-                btn.innerHTML = '<i class="fas fa-save me-2"></i>Generate Invoice';
-                btn.disabled = false;
-            })
-            .catch(function(err) {
-                alert('Error: ' + err.message);
-                btn.innerHTML = '<i class="fas fa-save me-2"></i>Generate Invoice';
-                btn.disabled = false;
-            });
+                    if (!response.ok) throw new Error('Generation failed with status: ' + response.status);
+                    const disposition = response.headers.get('Content-Disposition');
+                    let filename = 'invoice.pdf';
+                    if (disposition && disposition.includes('filename=')) {
+                        filename = disposition.split('filename=')[1].replace(/"/g, '').trim();
+                    }
+                    return response.blob().then(function (blob) { return { blob: blob, filename: filename }; });
+                })
+                .then(function (result) {
+                    if (!result || !result.blob) return;
+                    const blobUrl = URL.createObjectURL(result.blob);
+                    const a = document.createElement('a');
+                    a.href = blobUrl;
+                    a.download = result.filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(blobUrl);
+                    btn.innerHTML = '<i class="fas fa-save me-2"></i>Generate Invoice';
+                    btn.disabled = false;
+                })
+                .catch(function (err) {
+                    alert('Error: ' + err.message);
+                    btn.innerHTML = '<i class="fas fa-save me-2"></i>Generate Invoice';
+                    btn.disabled = false;
+                });
         }
     </script>
     <script src="{{ url_for('static', filename='js/background_download.js') }}"></script>

@@ -4,7 +4,7 @@
 <head>
     <title>Upload Progress Report - Site Engineer Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -14,19 +14,13 @@
             font-family: 'Poppins', sans-serif;
         }
 
-        html,
         body {
-            height: 100%;
-        }
-
-        body {
-            min-height: 100vh;
             background: #f4f6f8;
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
+            min-height: 100vh;
+            padding-top: 70px;
         }
 
-        /* Navbar Styles */
+        /* Navbar — identical to Submit Worker Report */
         .navbar {
             position: fixed;
             top: 0;
@@ -35,22 +29,11 @@
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 15px 0;
             z-index: 1000;
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-            animation: slideDown 0.7s cubic-bezier(.77, 0, .18, 1) 0s 1;
-        }
-
-        @keyframes slideDown {
-            from {
-                transform: translateY(-100%);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+            height: 70px;
+            display: flex;
+            align-items: center;
         }
 
         .navbar-container {
@@ -59,8 +42,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 20px;
+            width: 100%;
             padding: 0 40px;
+            height: 70px;
         }
 
         .navbar-brand {
@@ -72,11 +56,10 @@
             font-weight: 700;
             font-size: 1.4rem;
             transition: color 0.2s;
+            flex-shrink: 0;
         }
 
-        .navbar-brand:hover {
-            color: #3498db;
-        }
+        .navbar-brand:hover { color: #3498db; }
 
         .navbar-brand i {
             color: #3498db;
@@ -84,147 +67,218 @@
             transition: transform 0.2s;
         }
 
-        .navbar-brand:hover i {
-            transform: rotate(-15deg) scale(1.1);
-        }
+        .navbar-brand:hover i { transform: rotate(-15deg) scale(1.1); }
 
-        .navbar-nav {
+        .navbar-menu {
             display: flex;
             list-style: none;
             gap: 30px;
             align-items: center;
+            margin: 0;
         }
 
-        .nav-link {
+        .navbar-link {
             text-decoration: none;
             color: #2c3e50;
             font-weight: 500;
             padding: 10px 15px;
             border-radius: 8px;
-            transition: all 0.3s cubic-bezier(.77, 0, .18, 1);
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             gap: 8px;
-            position: relative;
-            overflow: hidden;
+            white-space: nowrap;
         }
 
-        .nav-link::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            width: 0;
-            height: 3px;
-            background: #3498db;
-            transition: width 0.3s cubic-bezier(.77, 0, .18, 1);
-        }
-
-        .nav-link:hover::after,
-        .nav-link.active::after {
-            width: 100%;
-        }
-
-        .nav-link:hover {
-            background: rgba(52, 152, 219, 0.12);
+        .navbar-link:hover {
+            background: rgba(52, 152, 219, 0.1);
             color: #3498db;
-            transform: translateY(-2px) scale(1.04);
+            transform: translateY(-2px);
         }
 
-        .nav-link.active {
+        .navbar-link.active {
             background: #3498db;
             color: white;
-            box-shadow: 0 4px 16px rgba(52, 152, 219, 0.08);
         }
 
-        .nav-link.logout {
+        .navbar-link.logout {
             background: #e74c3c;
             color: white;
         }
 
-        .nav-link.logout:hover {
+        .navbar-link.logout:hover {
             background: #c0392b;
-            transform: translateY(-2px) scale(1.04);
+            transform: translateY(-2px);
         }
 
-        .mobile-menu-toggle {
+        .navbar-toggle {
             display: none;
             background: none;
             border: none;
             font-size: 1.5rem;
             color: #2c3e50;
             cursor: pointer;
-            transition: color 0.2s;
+            padding: 5px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
         }
 
-        .mobile-menu-toggle:hover {
+        .navbar-toggle:hover {
+            background: rgba(52, 152, 219, 0.1);
             color: #3498db;
         }
 
-        .container {
+        /* Main Content — flex centering, same as Submit Worker Report */
+        .main-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 70px);
+            padding: 20px;
+        }
+
+        /* Card */
+        .form-container {
             max-width: 1100px;
             width: 95%;
-            margin: 120px auto 40px auto;
+            margin: 0 auto;
             background: #fff;
             border-radius: 22px;
             box-shadow: 0 8px 32px rgba(52, 152, 219, 0.13);
-            padding: 50px 60px;
-            animation: fadeIn 0.7s cubic-bezier(.77, 0, .18, 1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        .form-title {
-            color: #2c3e50;
-            margin-bottom: 30px;
-            font-size: 2rem;
-            font-weight: 700;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 12px;
-            display: inline-block;
-            letter-spacing: 1px;
-        }
-
-        .form-group {
-            margin-bottom: 22px;
+            padding: 40px 60px;
+            /* animation: fadeIn 0.3s ease-out; */
             position: relative;
-            width: 100%;
+            overflow: hidden;
+        }
+/* 
+        @keyframes fadeIn {
+            from { opacity: 0.7; transform: translateY(10px); }
+            to   { opacity: 1;   transform: translateY(0); }
+        } */
+
+        .form-container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #3498db, #2c3e50);
+        }
+
+        /* Header — centered, icon + title + subtitle */
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-header i {
+            font-size: 3rem;
+            color: #3498db;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .form-header h2 {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .form-header p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        /* Flash messages */
+        .flash-message {
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        .flash-message.success { background: #27ae60; color: #fff; }
+        .flash-message.danger  { background: #e74c3c; color: #fff; }
+
+        /* @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        } */
+
+        /* Form groups */
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
         }
 
         .form-group label {
-            display: block;
+            display: flex;
+            align-items: center;
+            gap: 8px;
             margin-bottom: 8px;
-            color: #34495e;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-            font-size: 1.08rem;
-        }
-
-        .form-group input[type="text"],
-        .form-group input[type="number"] {
-            width: 100%;
-            padding: 14px 15px;
-            border: 1.5px solid #ddd;
-            border-radius: 10px;
-            font-size: 1.08rem;
             color: #2c3e50;
-            background-color: #f8fafd;
-            transition: all 0.3s;
+            font-weight: 500;
+            font-size: 1rem;
         }
 
-        /* Hide the real select but keep it in DOM for form submission */
-        .form-group select.hidden-select {
+        .form-group label i {
+            color: #3498db;
+            font-size: 1rem;
+            width: 16px;
+            text-align: center;
+        }
+
+        /* Inputs */
+        .form-control {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            color: #2c3e50;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #3498db;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        /* Form row — two-column grid */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* Progress % suffix */
+        .progress-input-group { position: relative; }
+
+        .progress-input-group .form-control { padding-right: 45px; }
+
+        .progress-input-group::after {
+            content: '%';
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+            font-weight: 500;
+            pointer-events: none;
+        }
+
+        /* Hidden real select */
+        .hidden-select {
             position: absolute;
             opacity: 0;
             pointer-events: none;
@@ -232,33 +286,31 @@
             height: 0;
         }
 
-        /* ===== CUSTOM DROPDOWN ===== */
-        .custom-select-wrapper {
-            position: relative;
-            width: 100%;
-        }
+        /* Custom dropdown */
+        .custom-select-wrapper { position: relative; width: 100%; }
 
         .custom-select-trigger {
             width: 100%;
-            padding: 14px 40px 14px 15px;
-            border: 1.5px solid #ddd;
-            border-radius: 10px;
-            font-size: 1.08rem;
+            padding: 15px 20px;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: #f8f9fa;
             color: #2c3e50;
-            background-color: #f8fafd;
+            font-family: 'Poppins', sans-serif;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             user-select: none;
         }
 
         .custom-select-trigger:hover,
         .custom-select-trigger.open {
             border-color: #3498db;
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.13);
-            background: #fff;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
 
         .custom-select-trigger .arrow {
@@ -267,24 +319,17 @@
             font-size: 0.9rem;
         }
 
-        .custom-select-trigger.open .arrow {
-            transform: rotate(180deg);
-        }
+        .custom-select-trigger.open .arrow { transform: rotate(180deg); }
 
-        .custom-select-trigger .placeholder {
-            color: #999;
-        }
+        .custom-select-trigger .placeholder { color: #999; }
 
-        /* Dropdown list - ALWAYS opens downward */
         .custom-select-options {
             position: absolute;
             top: calc(100% + 4px);
-            /* Always below the trigger */
-            left: 0;
-            right: 0;
+            left: 0; right: 0;
             background: #fff;
-            border: 1.5px solid #3498db;
-            border-radius: 10px;
+            border: 2px solid #3498db;
+            border-radius: 12px;
             box-shadow: 0 8px 32px rgba(52, 152, 219, 0.18);
             z-index: 99999;
             max-height: 220px;
@@ -293,24 +338,15 @@
             animation: dropDown 0.2s ease;
         }
 
-        @keyframes dropDown {
-            from {
-                opacity: 0;
-                transform: translateY(-8px);
-            }
+        /* @keyframes dropDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        } */
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .custom-select-options.open {
-            display: block;
-        }
+        .custom-select-options.open { display: block; }
 
         .custom-select-option {
-            padding: 12px 16px;
+            padding: 12px 20px;
             cursor: pointer;
             font-size: 1rem;
             color: #2c3e50;
@@ -318,159 +354,42 @@
             border-bottom: 1px solid #f0f4f8;
         }
 
-        .custom-select-option:last-child {
-            border-bottom: none;
-        }
+        .custom-select-option:last-child { border-bottom: none; }
+        .custom-select-option:hover { background: #ebf5fb; color: #3498db; }
+        .custom-select-option.selected { background: #3498db; color: #fff; }
+        .custom-select-option.placeholder-option { color: #aaa; font-style: italic; }
 
-        .custom-select-option:hover {
-            background: #ebf5fb;
-            color: #3498db;
-        }
+        .custom-select-options::-webkit-scrollbar { width: 6px; }
+        .custom-select-options::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .custom-select-options::-webkit-scrollbar-thumb { background: #3498db; border-radius: 10px; }
 
-        .custom-select-option.selected {
-            background: #3498db;
-            color: #fff;
-        }
-
-        .custom-select-option.placeholder-option {
-            color: #aaa;
-            font-style: italic;
-        }
-
-        /* Scrollbar styling for dropdown */
-        .custom-select-options::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .custom-select-options::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-
-        .custom-select-options::-webkit-scrollbar-thumb {
-            background: #3498db;
-            border-radius: 10px;
-        }
-
-        /* ===== END CUSTOM DROPDOWN ===== */
-
-        .form-group input[type="file"] {
-            width: 100%;
-            padding: 10px 0;
-            border: none;
-            background: none;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.13);
-            background: #fff;
-        }
-
-        .form-group button,
-        .submit-btn {
-            background: linear-gradient(90deg, #3498db 60%, #6dd5fa 100%);
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            margin-top: 10px;
-            transition: background 0.2s, transform 0.2s;
-            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.10);
-            font-size: 1.12rem;
-            border-radius: 10px;
-            padding: 15px 0;
-            width: 100%;
-        }
-
-        .form-group button:hover,
-        .submit-btn:hover {
-            background: linear-gradient(90deg, #2980b9 60%, #3498db 100%);
-            transform: translateY(-2px) scale(1.03);
-        }
-
-        .alert {
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            width: 100%;
-        }
-
-        .alert i {
-            font-size: 1.2rem;
-        }
-
-        .alert.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .alert.danger {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            width: 100%;
-        }
-
-        .progress-input-group {
-            position: relative;
-        }
-
-        .progress-input-group input[type="number"] {
-            padding-right: 40px;
-        }
-
-        .progress-input-group::after {
-            content: '%';
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #666;
-            font-weight: 500;
-        }
-
+        /* File input */
         .file-input-wrapper {
             position: relative;
-            display: inline-block;
             width: 100%;
         }
 
         .file-input {
             width: 100%;
-            padding: 12px 15px;
-            border: 2px dashed #bdc3c7;
-            border-radius: 8px;
-            background-color: #f8f9fa;
+            padding: 20px 15px;
+            border: 2px dashed #e1e8ed;
+            border-radius: 12px;
+            background: #f8f9fa;
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: center;
-            color: #666;
+            position: relative;
         }
 
         .file-input:hover {
             border-color: #3498db;
-            background-color: #ebf3fd;
+            background: #ebf3fd;
         }
 
         .file-input input[type="file"] {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             opacity: 0;
             cursor: pointer;
             z-index: 2;
@@ -482,282 +401,306 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
+            color: #666;
+            font-size: 0.95rem;
         }
 
         .file-input-text i {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             color: #3498db;
         }
 
+        .file-note {
+            color: #7f8c8d;
+            font-size: 0.82rem;
+            margin-top: 6px;
+            display: block;
+        }
+
+        /* Submit button */
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3);
+        }
+
+        .submit-btn:active { transform: translateY(0); }
+
+        .submit-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 1024px) {
+            .navbar-menu { gap: 20px; }
+            .navbar-link { padding: 8px 12px; font-size: 0.95rem; }
+            .navbar-brand { font-size: 1.3rem; }
+            .navbar-brand i { font-size: 1.7rem; }
+        }
+
         @media (max-width: 900px) {
-            .container {
-                max-width: 99vw;
-                padding: 30px 2vw 20px 2vw;
-            }
+            .navbar-container { padding: 0 20px; }
+            .form-container { max-width: 99vw; padding: 30px 3vw 20px 3vw; }
         }
 
-        @media (max-width: 700px) {
-            .container {
-                padding: 10px 0 10px 0;
-            }
+        @media (max-width: 768px) {
+            body { padding-top: 60px; }
+            .navbar { height: 60px; }
+            .navbar-container { height: 60px; padding: 0 15px; }
+            .navbar-brand { font-size: 1.2rem; }
+            .navbar-brand i { font-size: 1.5rem; }
 
-            .form-title {
-                font-size: 1.2rem;
-                padding-bottom: 7px;
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .navbar-nav {
-                flex-direction: column;
+            .navbar-menu {
                 position: fixed;
-                top: 80px;
-                left: -100%;
-                width: 100vw;
-                height: calc(100vh - 80px);
+                top: 60px; left: -100%; width: 100%;
+                height: calc(100vh - 60px);
                 background: rgba(255, 255, 255, 0.98);
                 backdrop-filter: blur(20px);
-                justify-content: flex-start;
-                align-items: center;
+                flex-direction: column;
+                justify-content: flex-start; align-items: center;
                 padding: 40px 20px;
-                transition: left 0.3s cubic-bezier(.77, 0, .18, 1);
-                gap: 20px;
+                transition: left 0.3s ease; gap: 20px; z-index: 2000;
             }
 
-            .navbar-nav.active {
-                left: 0;
+            .navbar-menu.active { left: 0; }
+            .navbar-toggle { display: block; }
+
+            .navbar-link {
+                width: 100%; max-width: 300px;
+                justify-content: center; padding: 15px 20px; font-size: 1.1rem;
             }
 
-            .mobile-menu-toggle {
-                display: block;
-            }
-
-            .nav-link {
-                width: 100%;
-                max-width: 300px;
-                justify-content: center;
-                padding: 15px 20px;
-                font-size: 1.1rem;
-            }
-
-            .container {
-                padding: 10px 2vw 10px 2vw;
-                margin: 10px 2vw 0 2vw;
-            }
-
-            .form-title {
-                font-size: 1.1rem;
-                padding-bottom: 7px;
-            }
+            .main-content { min-height: calc(100vh - 60px); padding: 15px; }
+            .form-container { margin: 20px auto 30px auto; padding: 30px 24px; }
+            .form-header h2 { font-size: 1.5rem; }
+            .form-header i { font-size: 2.5rem; }
+            .form-row { grid-template-columns: 1fr; }
         }
 
         @media (max-width: 480px) {
-            .navbar-container {
-                padding: 0 2vw;
-            }
-
-            .navbar-brand {
-                font-size: 1rem;
-            }
-
-            .container {
-                margin: 8px 1vw 0 1vw;
-                padding: 8px 1vw 10px 1vw;
-            }
-
-            .form-title {
-                font-size: 1rem;
-            }
+            .navbar { height: 55px; }
+            .navbar-container { height: 55px; padding: 0 10px; }
+            .navbar-brand { font-size: 1.1rem; gap: 8px; }
+            .navbar-brand i { font-size: 1.4rem; }
+            .navbar-menu { top: 55px; height: calc(100vh - 55px); padding: 30px 15px; }
+            body { padding-top: 55px; }
+            .form-container { padding: 25px 16px; margin: 10px auto 20px auto; }
+            .form-header h2 { font-size: 1.3rem; }
+            .form-header i { font-size: 2rem; }
+            .form-control { padding: 12px 15px; font-size: 0.9rem; }
+            .submit-btn { padding: 12px; font-size: 1rem; }
         }
 
-        @media (max-width: 400px) {
-            .container {
-                padding: 4px 1vw 6px 1vw;
-            }
-
-            .form-title {
-                font-size: 0.95rem;
-            }
+        @media (max-width: 320px) {
+            .navbar { height: 50px; }
+            .navbar-container { height: 50px; padding: 0 5px; }
+            .navbar-brand { font-size: 1rem; }
+            .navbar-brand i { font-size: 1.3rem; }
+            .navbar-menu { top: 50px; height: calc(100vh - 50px); padding: 25px 10px; }
+            body { padding-top: 50px; }
+            .form-container { padding: 20px 10px; }
+            .form-header h2 { font-size: 1.2rem; }
         }
     </style>
 </head>
 
 <body>
-    <!-- Navbar -->
     <nav class="navbar">
         <div class="navbar-container">
             <a href="{{ url_for('upload_progress') }}" class="navbar-brand">
                 <i class="fas fa-hard-hat"></i>
                 Upload Progress Report
             </a>
-            <ul class="navbar-nav" id="navbarNav">
+
+            <ul class="navbar-menu" id="navbarNav">
                 <li>
-                    <a href="{{ url_for('site_engineer_dashboard') }}" class="nav-link">
+                    <a href="{{ url_for('site_engineer_dashboard') }}" class="navbar-link">
                         <i class="fas fa-tachometer-alt"></i>
                         Dashboard
                     </a>
                 </li>
                 <li>
-                    <a href="{{ url_for('upload_progress') }}" class="nav-link active">
+                    <a href="{{ url_for('upload_progress') }}" class="navbar-link active">
                         <i class="fas fa-upload"></i>
                         Upload Progress
                     </a>
                 </li>
                 <li>
-                    <a href="{{ url_for('logout') }}" class="nav-link logout">
+                    <a href="{{ url_for('logout') }}" class="navbar-link logout">
                         <i class="fas fa-sign-out-alt"></i>
                         Logout
                     </a>
                 </li>
             </ul>
-            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+
+            <button class="navbar-toggle" id="mobileMenuToggle">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
     </nav>
 
-    <div class="container">
-        <h2 class="form-title"><i class="fas fa-upload" style="color:#3498db"></i> Upload Progress Report</h2>
+    <div class="main-content">
+        <div class="form-container">
 
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        {% for category, message in messages %}
-        <div class="alert {{ 'success' if category == 'success' else 'danger' }}">
-            <i class="fas {{ 'fa-check-circle' if category == 'success' else 'fa-exclamation-triangle' }}"></i>
-            {{ message }}
-        </div>
-        {% endfor %}
-        {% endif %}
-        {% endwith %}
+            <div class="form-header">
+                <i class="fas fa-upload"></i>
+                <h2>Upload Progress Report</h2>
+                <p>Submit site progress updates with images and PDF reports</p>
+            </div>
 
-        <form method="POST" enctype="multipart/form-data" style="width:100%">
-            <div class="form-group">
-                <label for="site_id">
-                    <i class="fas fa-map-marker-alt" style="margin-right: 8px; color: #3498db;"></i>
-                    Select Site *
-                </label>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="flash-message {{ 'success' if category == 'success' else 'danger' }}">
+                <i class="fas {{ 'fa-check-circle' if category == 'success' else 'fa-exclamation-triangle' }}"></i>
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
 
-                <!-- Hidden real select for form submission -->
-                <select name="site_id" id="site_id" class="hidden-select" required>
-                    <option value="">Choose a site...</option>
-                    {% for site in sites %}
-                    <option value="{{ site.site_id }}">{{ site.site_name }}</option>
-                    {% endfor %}
-                </select>
+            <form method="POST" enctype="multipart/form-data">
 
-                <!-- Custom visual dropdown - always opens DOWNWARD -->
-                <div class="custom-select-wrapper" id="customSelectWrapper">
-                    <div class="custom-select-trigger" id="customSelectTrigger">
-                        <span class="placeholder" id="customSelectText">Choose a site...</span>
-                        <i class="fas fa-chevron-down arrow"></i>
-                    </div>
-                    <div class="custom-select-options" id="customSelectOptions">
-                        <div class="custom-select-option placeholder-option" data-value="">Choose a site...</div>
+                <div class="form-group">
+                    <label for="site_id">
+                        <i class="fas fa-map-marker-alt"></i>
+                        Select Site
+                    </label>
+
+                    <!-- Hidden real select for form submission -->
+                    <select name="site_id" id="site_id" class="hidden-select" required>
+                        <option value="">Choose a site...</option>
                         {% for site in sites %}
-                        <div class="custom-select-option" data-value="{{ site.site_id }}">{{ site.site_name }}</div>
+                        <option value="{{ site.site_id }}">{{ site.site_name }}</option>
                         {% endfor %}
-                    </div>
-                </div>
-            </div>
+                    </select>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="progress">
-                        <i class="fas fa-chart-line" style="margin-right: 8px; color: #3498db;"></i>
-                        Progress Percentage *
-                    </label>
-                    <div class="progress-input-group">
-                        <input type="number" name="progress" id="progress" min="0" max="100"
-                            placeholder="Enter progress percentage" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="remark">
-                        <i class="fas fa-comment-alt" style="margin-right: 8px; color: #3498db;"></i>
-                        Remark
-                    </label>
-                    <input type="text" name="remark" id="remark" placeholder="e.g. Work 50% completed">
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="image">
-                        <i class="fas fa-camera" style="margin-right: 8px; color: #3498db;"></i>
-                        Upload Progress Image
-                    </label>
-                    <div class="file-input-wrapper">
-                        <div class="file-input">
-                            <input type="file" name="image" id="image" accept="image/*">
-                            <div class="file-input-text">
-                                <i class="fas fa-cloud-upload-alt"></i>
-                                <span>Click to upload image or drag and drop</span>
-                            </div>
+                    <!-- Custom visual dropdown -->
+                    <div class="custom-select-wrapper" id="customSelectWrapper">
+                        <div class="custom-select-trigger" id="customSelectTrigger">
+                            <span class="placeholder" id="customSelectText">Choose a site...</span>
+                            <i class="fas fa-chevron-down arrow"></i>
                         </div>
-                        <small style="color:#7f8c8d;font-size:0.85rem;margin-top:6px;display:block;">Maximum file size:
-                            4MB</small>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="pdf">
-                        <i class="fas fa-file-pdf" style="margin-right: 8px; color: #3498db;"></i>
-                        Upload PDF Report
-                    </label>
-                    <div class="file-input-wrapper">
-                        <div class="file-input">
-                            <input type="file" name="pdf" id="pdf" accept=".pdf">
-                            <div class="file-input-text">
-                                <i class="fas fa-file-upload"></i>
-                                <span>Click to upload PDF or drag and drop</span>
-                            </div>
+                        <div class="custom-select-options" id="customSelectOptions">
+                            <div class="custom-select-option placeholder-option" data-value="">Choose a site...</div>
+                            {% for site in sites %}
+                            <div class="custom-select-option" data-value="{{ site.site_id }}">{{ site.site_name }}</div>
+                            {% endfor %}
                         </div>
-                        <small style="color:#7f8c8d;font-size:0.85rem;margin-top:6px;display:block;">Maximum file size:
-                            4MB</small>
                     </div>
                 </div>
-            </div>
 
-            <button type="submit" class="submit-btn">
-                <i class="fas fa-paper-plane" style="margin-right: 10px;"></i>
-                Submit Progress Report
-            </button>
-        </form>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="progress">
+                            <i class="fas fa-chart-line"></i>
+                            Progress Percentage
+                        </label>
+                        <div class="progress-input-group">
+                            <input type="number" name="progress" id="progress"
+                                class="form-control" min="0" max="100"
+                                placeholder="Enter progress percentage" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="remark">
+                            <i class="fas fa-comment-alt"></i>
+                            Remark
+                        </label>
+                        <input type="text" name="remark" id="remark"
+                            class="form-control" placeholder="e.g. Work 50% completed">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="image">
+                            <i class="fas fa-camera"></i>
+                            Upload Progress Image
+                        </label>
+                        <div class="file-input-wrapper">
+                            <div class="file-input" id="imageDropzone">
+                                <input type="file" name="image" id="image" accept="image/*">
+                                <div class="file-input-text">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <span>Click to upload image or drag and drop</span>
+                                </div>
+                            </div>
+                            <small class="file-note">Maximum file size: 4MB</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pdf">
+                            <i class="fas fa-file-pdf"></i>
+                            Upload PDF Report
+                        </label>
+                        <div class="file-input-wrapper">
+                            <div class="file-input" id="pdfDropzone">
+                                <input type="file" name="pdf" id="pdf" accept=".pdf">
+                                <div class="file-input-text">
+                                    <i class="fas fa-file-upload"></i>
+                                    <span>Click to upload PDF or drag and drop</span>
+                                </div>
+                            </div>
+                            <small class="file-note">Maximum file size: 4MB</small>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <i class="fas fa-paper-plane"></i>
+                    Submit Progress Report
+                </button>
+
+            </form>
+        </div>
     </div>
 
     <script>
-        // ===== CUSTOM DROPDOWN LOGIC =====
+        // Custom dropdown
         const trigger = document.getElementById('customSelectTrigger');
-        const options = document.getElementById('customSelectOptions');
+        const optionsList = document.getElementById('customSelectOptions');
         const hiddenSelect = document.getElementById('site_id');
         const displayText = document.getElementById('customSelectText');
 
-        // Open/close dropdown
         trigger.addEventListener('click', function (e) {
             e.stopPropagation();
-            const isOpen = options.classList.contains('open');
-            // Close all dropdowns first
+            const isOpen = optionsList.classList.contains('open');
             closeAllDropdowns();
             if (!isOpen) {
-                options.classList.add('open');
+                optionsList.classList.add('open');
                 trigger.classList.add('open');
             }
         });
 
-        // Option selection
-        options.querySelectorAll('.custom-select-option').forEach(function (option) {
+        optionsList.querySelectorAll('.custom-select-option').forEach(function (option) {
             option.addEventListener('click', function () {
                 const value = this.getAttribute('data-value');
                 const text = this.textContent;
-
-                // Update hidden select
                 hiddenSelect.value = value;
-
-                // Update display
                 if (value === '') {
                     displayText.textContent = 'Choose a site...';
                     displayText.className = 'placeholder';
@@ -766,63 +709,53 @@
                     displayText.className = '';
                     trigger.style.borderColor = '#27ae60';
                 }
-
-                // Mark selected
-                options.querySelectorAll('.custom-select-option').forEach(o => o.classList.remove('selected'));
+                optionsList.querySelectorAll('.custom-select-option').forEach(o => o.classList.remove('selected'));
                 this.classList.add('selected');
-
-                // Close dropdown
                 closeAllDropdowns();
             });
         });
 
-        // Close when clicking outside
-        document.addEventListener('click', function () {
-            closeAllDropdowns();
-        });
+        document.addEventListener('click', closeAllDropdowns);
 
         function closeAllDropdowns() {
-            options.classList.remove('open');
+            optionsList.classList.remove('open');
             trigger.classList.remove('open');
         }
 
-        // ===== FLASH MESSAGE AUTO-DISMISS =====
+        // Flash message auto-dismiss
         document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('.alert').forEach(function (alert) {
+            document.querySelectorAll('.flash-message').forEach(function (msg) {
                 setTimeout(function () {
-                    alert.style.transition = 'opacity 0.5s';
-                    alert.style.opacity = '0';
-                    setTimeout(() => alert.remove(), 500);
+                    msg.style.transition = 'opacity 0.5s, transform 0.5s';
+                    msg.style.opacity = '0';
+                    msg.style.transform = 'translateY(-20px)';
+                    setTimeout(() => msg.style.display = 'none', 500);
                 }, 2000);
             });
         });
 
-        // ===== MOBILE MENU =====
+        // Mobile nav
         document.getElementById('mobileMenuToggle').addEventListener('click', function () {
             const navbarNav = document.getElementById('navbarNav');
             const icon = this.querySelector('i');
             navbarNav.classList.toggle('active');
             if (navbarNav.classList.contains('active')) {
-                icon.classList.remove('fa-bars');
-                icon.classList.add('fa-times');
+                icon.classList.remove('fa-bars'); icon.classList.add('fa-times');
             } else {
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
+                icon.classList.remove('fa-times'); icon.classList.add('fa-bars');
             }
         });
 
-        document.querySelectorAll('.nav-link').forEach(link => {
+        document.querySelectorAll('.navbar-link').forEach(link => {
             link.addEventListener('click', function () {
                 const navbarNav = document.getElementById('navbarNav');
-                const mobileToggle = document.getElementById('mobileMenuToggle');
-                const icon = mobileToggle.querySelector('i');
+                const icon = document.getElementById('mobileMenuToggle').querySelector('i');
                 navbarNav.classList.remove('active');
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
+                icon.classList.remove('fa-times'); icon.classList.add('fa-bars');
             });
         });
 
-        // ===== FILE INPUT =====
+        // File input feedback
         document.querySelectorAll('input[type="file"]').forEach(input => {
             input.addEventListener('change', function () {
                 const wrapper = this.closest('.file-input');
@@ -832,8 +765,8 @@
                 if (this.files.length > 0) {
                     const file = this.files[0];
                     if (file.size > maxSize) {
-                        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
-                        alert('❌ File size exceeds 4MB!\n\nFile: ' + file.name + '\nSize: ' + fileSizeMB + 'MB\nMaximum allowed: 4MB\n\nPlease upload a smaller file.');
+                        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                        alert('❌ File size exceeds 4MB!\n\nFile: ' + file.name + '\nSize: ' + sizeMB + 'MB\nMaximum allowed: 4MB\n\nPlease upload a smaller file.');
                         this.value = '';
                         textElement.textContent = this.accept.includes('image') ? 'Click to upload image or drag and drop' : 'Click to upload PDF or drag and drop';
                         wrapper.style.borderColor = '#e74c3c';
@@ -845,25 +778,26 @@
                     wrapper.style.backgroundColor = '#d4edda';
                 } else {
                     textElement.textContent = this.accept.includes('image') ? 'Click to upload image or drag and drop' : 'Click to upload PDF or drag and drop';
-                    wrapper.style.borderColor = '#bdc3c7';
+                    wrapper.style.borderColor = '#e1e8ed';
                     wrapper.style.backgroundColor = '#f8f9fa';
                 }
             });
         });
 
-        // ===== FORM VALIDATION =====
+        // Form validation + submit spinner
         document.querySelector('form').addEventListener('submit', function (e) {
             const siteSelect = document.getElementById('site_id');
             const progressInput = document.getElementById('progress');
-            const maxSize = 10 * 1024 * 1024;
+            const maxSize = 4 * 1024 * 1024;
 
             if (!siteSelect.value) {
                 e.preventDefault();
                 trigger.style.borderColor = '#e74c3c';
-                trigger.style.boxShadow = '0 0 0 2px rgba(231,76,60,0.2)';
+                trigger.style.boxShadow = '0 0 0 3px rgba(231,76,60,0.15)';
                 trigger.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
             }
+
             if (!progressInput.value) {
                 e.preventDefault();
                 progressInput.focus();
@@ -873,26 +807,26 @@
 
             const fileInputs = document.querySelectorAll('input[type="file"]');
             for (let input of fileInputs) {
-                if (input.files.length > 0) {
-                    const file = input.files[0];
-                    if (file.size > maxSize) {
-                        e.preventDefault();
-                        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
-                        const fileType = input.accept.includes('image') ? 'Image' : 'PDF';
-                        alert('❌ ' + fileType + ' file size exceeds 4MB!\n\nFile: ' + file.name + '\nSize: ' + fileSizeMB + 'MB\nMaximum allowed: 4MB');
-                        input.focus();
-                        return;
-                    }
+                if (input.files.length > 0 && input.files[0].size > maxSize) {
+                    e.preventDefault();
+                    const sizeMB = (input.files[0].size / (1024 * 1024)).toFixed(2);
+                    const fileType = input.accept.includes('image') ? 'Image' : 'PDF';
+                    alert('❌ ' + fileType + ' file size exceeds 4MB!\n\nFile: ' + input.files[0].name + '\nSize: ' + sizeMB + 'MB\nMaximum allowed: 4MB');
+                    input.focus();
+                    return;
                 }
             }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+            submitBtn.disabled = true;
         });
 
-        // ===== PROGRESS VALIDATION =====
+        // Progress range clamp
         document.getElementById('progress').addEventListener('input', function () {
-            const value = parseInt(this.value);
-            if (value < 0) this.value = 0;
-            if (value > 100) this.value = 100;
-            if (this.value) { this.style.borderColor = '#27ae60'; }
+            if (parseInt(this.value) < 0) this.value = 0;
+            if (parseInt(this.value) > 100) this.value = 100;
+            if (this.value) this.style.borderColor = '#27ae60';
         });
     </script>
 </body>

@@ -42,7 +42,6 @@
             justify-content: space-between;
             align-items: center;
             width: 100%;
-            padding: 0 20px;
             padding: 0 40px;
             height: 70px;
         }
@@ -59,9 +58,7 @@
             flex-shrink: 0;
         }
 
-        .navbar-brand:hover {
-            color: #3498db;
-        }
+        .navbar-brand:hover { color: #3498db; }
 
         .navbar-brand i {
             color: #3498db;
@@ -69,9 +66,7 @@
             transition: transform 0.2s;
         }
 
-        .navbar-brand:hover i {
-            transform: rotate(-15deg) scale(1.1);
-        }
+        .navbar-brand:hover i { transform: rotate(-15deg) scale(1.1); }
 
         .navbar-menu {
             display: flex;
@@ -132,24 +127,31 @@
             color: #3498db;
         }
 
-        /* Main Content */
+        /* ── Main Content — wide container, no scroll ── */
         .main-content {
             display: flex;
             align-items: center;
             justify-content: center;
             min-height: calc(100vh - 70px);
-            padding: 30px 20px;
+            padding: 20px;
         }
 
         .form-container {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 500px;
+            max-width: 1100px;
+            width: 95%;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 22px;
+            box-shadow: 0 8px 32px rgba(52, 152, 219, 0.13);
+            padding: 40px 60px;
+            animation: fadeIn 0.3s ease-out;
             position: relative;
             overflow: hidden;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0.7; transform: translateY(10px); }
+            to   { opacity: 1;   transform: translateY(0); }
         }
 
         .form-container::before {
@@ -250,30 +252,13 @@
             box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3);
         }
 
-        .submit-btn:active {
-            transform: translateY(0);
-        }
+        .submit-btn:active { transform: translateY(0); }
 
         .submit-btn:disabled {
             background: #bdc3c7;
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
-        }
-
-        .success-message {
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
-            color: white;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            text-align: center;
-            font-weight: 500;
-            animation: slideIn 0.5s ease-out;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
         }
 
         .flash-message {
@@ -291,17 +276,9 @@
             animation: slideIn 0.5s ease-out;
         }
 
-        .flash-message.success {
-            background: #27ae60;
-        }
-
-        .flash-message.error {
-            background: #e74c3c;
-        }
-
-        .flash-message.info {
-            background: #3498db;
-        }
+        .flash-message.success { background: #27ae60; }
+        .flash-message.error   { background: #e74c3c; }
+        .flash-message.info    { background: #3498db; }
 
         .action-links {
             display: flex;
@@ -325,242 +302,91 @@
             gap: 8px;
         }
 
-        .primary-link {
-            background: #3498db;
-            color: white;
-        }
-
-        .primary-link:hover {
-            background: #2980b9;
-            transform: translateY(-2px);
-        }
-
-        .secondary-link {
-            background: #95a5a6;
-            color: white;
-        }
-
-        .secondary-link:hover {
-            background: #7f8c8d;
-            transform: translateY(-2px);
-        }
+        .primary-link   { background: #3498db; color: white; }
+        .primary-link:hover { background: #2980b9; transform: translateY(-2px); }
+        .secondary-link { background: #95a5a6; color: white; }
+        .secondary-link:hover { background: #7f8c8d; transform: translateY(-2px); }
 
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-20px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
-        /* Responsive Design */
+        /* ── Responsive ── */
         @media (max-width: 1024px) {
-            .navbar-menu {
-                gap: 20px;
-            }
-            .navbar-link {
-                padding: 8px 12px;
-                font-size: 0.95rem;
-            }
-            .navbar-brand {
-                font-size: 1.3rem;
-            }
-            .navbar-brand i {
-                font-size: 1.7rem;
-            }
+            .navbar-menu { gap: 20px; }
+            .navbar-link { padding: 8px 12px; font-size: 0.95rem; }
+            .navbar-brand { font-size: 1.3rem; }
+            .navbar-brand i { font-size: 1.7rem; }
         }
 
         @media (max-width: 900px) {
-            .navbar-container {
-                padding: 0 20px;
-            }
-            .main-content {
-                padding: 20px 15px;
-            }
+            .navbar-container { padding: 0 20px; }
+            .form-container { max-width: 99vw; padding: 30px 3vw 20px 3vw; }
         }
 
         @media (max-width: 768px) {
-            body {
-                padding-top: 60px;
-            }
-
-            .navbar {
-                height: 60px;
-            }
-
-            .navbar-container {
-                height: 60px;
-                padding: 0 15px;
-            }
-
-            .navbar-brand {
-                font-size: 1.2rem;
-            }
-
-            .navbar-brand i {
-                font-size: 1.5rem;
-            }
+            body { padding-top: 60px; }
+            .navbar { height: 60px; }
+            .navbar-container { height: 60px; padding: 0 15px; }
+            .navbar-brand { font-size: 1.2rem; }
+            .navbar-brand i { font-size: 1.5rem; }
 
             .navbar-menu {
                 position: fixed;
-                top: 60px;
-                left: -100%;
-                width: 100%;
+                top: 60px; left: -100%; width: 100%;
                 height: calc(100vh - 60px);
                 background: rgba(255, 255, 255, 0.98);
                 backdrop-filter: blur(20px);
                 flex-direction: column;
-                justify-content: flex-start;
-                align-items: center;
+                justify-content: flex-start; align-items: center;
                 padding: 40px 20px;
-                transition: left 0.3s ease;
-                gap: 20px;
-                z-index: 2000;
+                transition: left 0.3s ease; gap: 20px; z-index: 2000;
             }
 
-            .navbar-menu.active {
-                left: 0;
-            }
-
-            .navbar-toggle {
-                display: block;
-            }
+            .navbar-menu.active { left: 0; }
+            .navbar-toggle { display: block; }
 
             .navbar-link {
-                width: 100%;
-                max-width: 300px;
-                justify-content: center;
-                padding: 15px 20px;
-                font-size: 1.1rem;
+                width: 100%; max-width: 300px;
+                justify-content: center; padding: 15px 20px; font-size: 1.1rem;
             }
 
-            .main-content {
-                min-height: calc(100vh - 60px);
-                padding: 20px 15px;
-            }
-
-            .form-container {
-                padding: 30px 20px;
-                margin: 10px;
-            }
-
-            .form-header h2 {
-                font-size: 1.5rem;
-            }
-
-            .form-header i {
-                font-size: 2.5rem;
-            }
-
-            .action-links {
-                flex-direction: column;
-            }
-
-            .action-link {
-                min-width: auto;
-            }
+            .main-content { min-height: calc(100vh - 60px); padding: 15px; }
+            .form-container { margin: 20px auto 30px auto; padding: 30px 24px; }
+            .form-header h2 { font-size: 1.5rem; }
+            .form-header i { font-size: 2.5rem; }
+            .action-links { flex-direction: column; }
+            .action-link { min-width: auto; }
         }
 
         @media (max-width: 480px) {
-            .navbar {
-                height: 55px;
-            }
-
-            .navbar-container {
-                height: 55px;
-                padding: 0 10px;
-            }
-
-            .navbar-brand {
-                font-size: 1.1rem;
-                gap: 8px;
-            }
-
-            .navbar-brand i {
-                font-size: 1.4rem;
-            }
-
-            .navbar-menu {
-                top: 55px;
-                height: calc(100vh - 55px);
-                padding: 30px 15px;
-            }
-
-            body {
-                padding-top: 55px;
-            }
-
-            .main-content {
-                min-height: calc(100vh - 55px);
-            }
-
-            .form-container {
-                padding: 25px 15px;
-                margin: 5px;
-            }
-
-            .form-header h2 {
-                font-size: 1.3rem;
-            }
-
-            .form-header i {
-                font-size: 2rem;
-            }
-
-            .form-control {
-                padding: 12px 15px;
-                font-size: 0.9rem;
-            }
-
-            .submit-btn {
-                padding: 12px;
-                font-size: 1rem;
-            }
+            .navbar { height: 55px; }
+            .navbar-container { height: 55px; padding: 0 10px; }
+            .navbar-brand { font-size: 1.1rem; gap: 8px; }
+            .navbar-brand i { font-size: 1.4rem; }
+            .navbar-menu { top: 55px; height: calc(100vh - 55px); padding: 30px 15px; }
+            body { padding-top: 55px; }
+            .form-container { padding: 25px 16px; margin: 10px auto 20px auto; }
+            .form-header h2 { font-size: 1.3rem; }
+            .form-header i { font-size: 2rem; }
+            .form-control { padding: 12px 15px; font-size: 0.9rem; }
+            .submit-btn { padding: 12px; font-size: 1rem; }
         }
 
         @media (max-width: 320px) {
-            .navbar {
-                height: 50px;
-            }
-
-            .navbar-container {
-                height: 50px;
-                padding: 0 5px;
-            }
-
-            .navbar-brand {
-                font-size: 1rem;
-            }
-
-            .navbar-brand i {
-                font-size: 1.3rem;
-            }
-
-            .navbar-menu {
-                top: 50px;
-                height: calc(100vh - 50px);
-                padding: 25px 10px;
-            }
-
-            body {
-                padding-top: 50px;
-            }
-
-            .form-container {
-                padding: 20px 10px;
-            }
-
-            .form-header h2 {
-                font-size: 1.2rem;
-            }
+            .navbar { height: 50px; }
+            .navbar-container { height: 50px; padding: 0 5px; }
+            .navbar-brand { font-size: 1rem; }
+            .navbar-brand i { font-size: 1.3rem; }
+            .navbar-menu { top: 50px; height: calc(100vh - 50px); padding: 25px 10px; }
+            body { padding-top: 50px; }
+            .form-container { padding: 20px 10px; }
+            .form-header h2 { font-size: 1.2rem; }
         }
     </style>
 </head>
 <body>
-    <!-- Navbar -->
     <nav class="navbar">
         <div class="navbar-container">
             <a href="{{ url_for('submit_worker_report') }}" class="navbar-brand">
@@ -601,7 +427,6 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
     <div class="main-content">
         <div class="form-container">
             <div class="form-header">
@@ -663,32 +488,18 @@
                     Submit Report
                 </button>
             </form>
-
-            <!-- <div class="action-links">
-                <a href="{{ url_for('view_worker_reports') }}" class="action-link primary-link">
-                    <i class="fas fa-chart-line"></i>
-                    View Reports
-                </a>
-                <a href="{{ url_for('logout') }}" class="action-link secondary-link">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Logout
-                </a>
-            </div> -->
         </div>
     </div>
 
     <script>
-        // Set today's date as default
         document.getElementById('report_date').valueAsDate = new Date();
         
-        // Add form validation feedback
         document.querySelector('form').addEventListener('submit', function(e) {
             const submitBtn = document.querySelector('.submit-btn');
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
             submitBtn.disabled = true;
         });
 
-        // Mobile menu toggle
         document.addEventListener('DOMContentLoaded', function() {
             const mobileMenuToggle = document.getElementById('mobileMenuToggle');
             const navbarNav = document.getElementById('navbarNav');
@@ -697,7 +508,6 @@
                 mobileMenuToggle.addEventListener('click', function() {
                     const icon = this.querySelector('i');
                     navbarNav.classList.toggle('active');
-                    
                     if (navbarNav.classList.contains('active')) {
                         icon.classList.remove('fa-bars');
                         icon.classList.add('fa-times');
@@ -707,7 +517,6 @@
                     }
                 });
 
-                // Close mobile menu when clicking on a link
                 document.querySelectorAll('.navbar-link').forEach(link => {
                     link.addEventListener('click', function() {
                         navbarNav.classList.remove('active');
@@ -719,15 +528,12 @@
             }
         });
 
-        // Auto-hide flash messages after 5 seconds
         const flashMessages = document.querySelectorAll('.flash-message');
         flashMessages.forEach(function(message) {
             setTimeout(function() {
                 message.style.opacity = '0';
                 message.style.transform = 'translateY(-20px)';
-                setTimeout(function() {
-                    message.style.display = 'none';
-                }, 300);
+                setTimeout(function() { message.style.display = 'none'; }, 300);
             }, 2000);
         });
     </script>
