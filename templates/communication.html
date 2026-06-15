@@ -885,7 +885,7 @@
             if (!lastSeen) return false;
             const date = new Date(lastSeen);
             if (isNaN(date.getTime())) return false;
-            return (new Date() - date) <  45000;
+            return (new Date() - date) < 45000;
         }
 
         // ✅ Generate a consistent color per user based on their name/id
@@ -1255,7 +1255,12 @@
                             const messageElement = document.createElement('div');
                             messageElement.className = `message ${msg.sender_id === currentUserId ? 'sent' : 'received'}`;
 
-                            const messageDate = new Date(msg.timestamp);
+                            // AFTER - treat timestamp as UTC
+                            const rawTs = msg.timestamp;
+                            const utcTs = (typeof rawTs === 'string' && !rawTs.endsWith('Z') && !rawTs.includes('+'))
+                                ? rawTs.replace(' ', 'T') + 'Z'
+                                : rawTs;
+                            const messageDate = new Date(utcTs);
                             const now = new Date();
                             let timeDisplay;
                             const isToday = messageDate.toDateString() === now.toDateString();

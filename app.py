@@ -6324,7 +6324,7 @@ def get_messages(receiver_id):
         for message in messages:
             if 'timestamp' in message and message['timestamp']:
                 if isinstance(message['timestamp'], (datetime, date)):
-                    message['timestamp'] = message['timestamp'].isoformat()
+                   message['timestamp'] = message['timestamp'].strftime('%Y-%m-%dT%H:%M:%S+05:30')
         
         return jsonify({
             'messages': messages,
@@ -6360,8 +6360,8 @@ def send_message():
         cursor = conn.cursor()
         # Don't specify timestamp - let DEFAULT CURRENT_TIMESTAMP handle it
         cursor.execute("""
-            INSERT INTO messages (sender_id, receiver_id, message, org_id)
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO messages (sender_id, receiver_id, message, org_id,timestamp)
+            VALUES (%s, %s, %s, %s, convert_TZ(NOW(), '+00:00', '+05:30'))
         """, (sender_id, receiver_id, message, org_id))
         conn.commit()
         cursor.close()
