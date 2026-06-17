@@ -1368,6 +1368,10 @@ def update_user_last_seen():
         session['_last_seen_update_ts'] = now_ts
     except Exception as e:
         print(f"[last_seen] update failed: {e}")
+
+
+
+
 ZEPTOMAIL_API_URL = "https://api.zeptomail.in/v1.1/email"
 ZEPTOMAIL_API_TOKEN = os.environ.get("ZEPTO_TOKEN")
 ZEPTOMAIL_FROM_EMAIL = "contact@rudhisoft.com"
@@ -1735,12 +1739,12 @@ def verify_reset_otp():
         otp_input = request.form.get('otp', '').strip()
         
         if 'reset_otp' not in session or 'reset_email' not in session:
-            flash("Session expired. Please try again.")
+            flash("Session expired. Please try again.", "error")
             return redirect(url_for('forgot_password'))
 
         # Check if OTP has expired
         if time.time() > session.get('reset_otp_expiry', 0):
-            flash("OTP expired. Please request a new one.")
+            flash("OTP expired. Please request a new one.", "error")
             session.pop('reset_email', None)
             session.pop('reset_otp', None)
             session.pop('reset_otp_expiry', None)
@@ -1748,7 +1752,7 @@ def verify_reset_otp():
 
         # Verify OTP
         if otp_input == session['reset_otp']:
-            flash("OTP verified successfully. Please set a new password.")
+            flash("OTP verified successfully. Please set a new password.", "success")
             return redirect(url_for('reset_password'))
         else:
             flash("Invalid OTP. Please try again.")
@@ -1760,7 +1764,7 @@ def verify_reset_otp():
 def reset_password():
     # Ensure user has verified OTP first
     if 'reset_email' not in session:
-        flash("Unauthorized access. Please start the password reset process again.")
+        flash("Unauthorized access. Please start the password reset process again.", "error")
         return redirect(url_for('forgot_password'))
     
     if request.method == 'POST':
@@ -1768,7 +1772,7 @@ def reset_password():
         confirm_password = request.form['confirm_password']
 
         if new_password != confirm_password:
-            flash("Passwords do not match.")
+            flash("Passwords do not match.", "error")
             return redirect(url_for('reset_password'))
 
         hashed_pw = generate_password_hash(new_password)
@@ -1788,7 +1792,7 @@ def reset_password():
         session.pop('reset_otp', None)
         session.pop('reset_otp_expiry', None)
 
-        flash("Password reset successful. You can now login with your new password.")
+        flash("Password reset successful. You can now login with your new password.", "success")
         return redirect(url_for('login'))
 
     return render_template('reset_password.html')

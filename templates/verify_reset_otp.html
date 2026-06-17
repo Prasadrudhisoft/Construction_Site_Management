@@ -1,5 +1,6 @@
 <!doctype html>
 <html>
+
 <head>
     <title>Verify OTP - Construction Management</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,7 +18,7 @@
             justify-content: center;
             align-items: center;
             background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
-                        url(/static/images/construction.jpg);
+                url(/static/images/construction.jpg);
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -171,9 +172,26 @@
             font-size: 14px;
         }
 
+        .success-message {
+            color: #155724;
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            background-color: rgba(21, 87, 36, 0.1);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* Tablet Styles */
@@ -489,6 +507,7 @@
 
         /* Reduced motion support */
         @media (prefers-reduced-motion: reduce) {
+
             .back-to-home,
             .otp-container {
                 transition: none;
@@ -504,34 +523,60 @@
         }
     </style>
 </head>
+
 <body>
 
-<!-- Back to Home Button -->
-<a href="/" class="back-to-home">Home</a>
+    <!-- Back to Home Button -->
+    <a href="/" class="back-to-home">Home</a>
 
-<div class="otp-container">
-    <div class="logo">
-        <img src="/static/images/engineers.png" alt="Civil Engineer Logo">
-    </div>
+    <div class="otp-container">
+        <div class="logo">
+            <img src="/static/images/engineers.png" alt="Civil Engineer Logo">
+        </div>
 
-    <h2>Verify OTP</h2>
-    <p class="subtitle">Please enter the 6-digit verification code sent to your email address.</p>
-    
-    <form method="POST">
-        <input type="text" name="otp" placeholder="Enter OTP" required>
-        <button type="submit">Verify OTP</button>
-    </form>
+        <h2>Verify OTP</h2>
+        <p class="subtitle">Please enter the 6-digit verification code sent to your email address.</p>
 
-    <div class="back-to-login">
-        Remember your password? <a href="{{ url_for('login') }}">Back to Login</a>
-    </div>
+        <form method="POST">
+            <input type="text" name="otp" placeholder="Enter OTP" required>
+            <button type="submit">Verify OTP</button>
+        </form>
 
-    {% with messages = get_flashed_messages() %}
+        <div class="back-to-login">
+            Remember your password? <a href="{{ url_for('login') }}">Back to Login</a>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <p class="error-message">{{ messages[0] }}</p>
+        {% for category, message in messages %}
+        <p class="{{ 'success-message' if category == 'success' else 'error-message' }}">{{ message }}</p>
+        {% endfor %}
         {% endif %}
-    {% endwith %}
-</div>
+        {% endwith %}
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const successMsg = document.querySelector('.success-message');
+            const errorMsg = document.querySelector('.error-message');
+
+            if (successMsg) {
+                setTimeout(function () {
+                    successMsg.style.transition = 'opacity 0.5s';
+                    successMsg.style.opacity = '0';
+                    setTimeout(() => successMsg.remove(), 500);
+                }, 4000);
+            }
+
+            if (errorMsg) {
+                setTimeout(function () {
+                    errorMsg.style.transition = 'opacity 0.5s';
+                    errorMsg.style.opacity = '0';
+                    setTimeout(() => errorMsg.remove(), 500);
+                }, 6000);
+            }
+        });
+    </script>
 
 </body>
+
 </html>
