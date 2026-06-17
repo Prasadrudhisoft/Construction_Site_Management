@@ -4,7 +4,8 @@
 <head>
     <title>Upload Progress Report - Site Engineer Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -59,7 +60,9 @@
             flex-shrink: 0;
         }
 
-        .navbar-brand:hover { color: #3498db; }
+        .navbar-brand:hover {
+            color: #3498db;
+        }
 
         .navbar-brand i {
             color: #3498db;
@@ -67,7 +70,9 @@
             transition: transform 0.2s;
         }
 
-        .navbar-brand:hover i { transform: rotate(-15deg) scale(1.1); }
+        .navbar-brand:hover i {
+            transform: rotate(-15deg) scale(1.1);
+        }
 
         .navbar-menu {
             display: flex;
@@ -146,20 +151,17 @@
             border-radius: 22px;
             box-shadow: 0 8px 32px rgba(52, 152, 219, 0.13);
             padding: 40px 60px;
-            /* animation: fadeIn 0.3s ease-out; */
             position: relative;
             overflow: hidden;
         }
-/* 
-        @keyframes fadeIn {
-            from { opacity: 0.7; transform: translateY(10px); }
-            to   { opacity: 1;   transform: translateY(0); }
-        } */
+
 
         .form-container::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 0;
+            right: 0;
             height: 5px;
             background: linear-gradient(90deg, #3498db, #2c3e50);
         }
@@ -200,16 +202,18 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            animation: slideDown 0.5s ease-out;
+
         }
 
-        .flash-message.success { background: #27ae60; color: #fff; }
-        .flash-message.danger  { background: #e74c3c; color: #fff; }
+        .flash-message.success {
+            background: #27ae60;
+            color: #fff;
+        }
 
-        /* @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to   { opacity: 1; transform: translateY(0); }
-        } */
+        .flash-message.danger {
+            background: #e74c3c;
+            color: #fff;
+        }
 
         /* Form groups */
         .form-group {
@@ -262,9 +266,13 @@
         }
 
         /* Progress % suffix */
-        .progress-input-group { position: relative; }
+        .progress-input-group {
+            position: relative;
+        }
 
-        .progress-input-group .form-control { padding-right: 45px; }
+        .progress-input-group .form-control {
+            padding-right: 45px;
+        }
 
         .progress-input-group::after {
             content: '%';
@@ -287,7 +295,10 @@
         }
 
         /* Custom dropdown */
-        .custom-select-wrapper { position: relative; width: 100%; }
+        .custom-select-wrapper {
+            position: relative;
+            width: 100%;
+        }
 
         .custom-select-trigger {
             width: 100%;
@@ -319,14 +330,19 @@
             font-size: 0.9rem;
         }
 
-        .custom-select-trigger.open .arrow { transform: rotate(180deg); }
+        .custom-select-trigger.open .arrow {
+            transform: rotate(180deg);
+        }
 
-        .custom-select-trigger .placeholder { color: #999; }
+        .custom-select-trigger .placeholder {
+            color: #999;
+        }
 
         .custom-select-options {
             position: absolute;
             top: calc(100% + 4px);
-            left: 0; right: 0;
+            left: 0;
+            right: 0;
             background: #fff;
             border: 2px solid #3498db;
             border-radius: 12px;
@@ -338,12 +354,11 @@
             animation: dropDown 0.2s ease;
         }
 
-        /* @keyframes dropDown {
-            from { opacity: 0; transform: translateY(-8px); }
-            to   { opacity: 1; transform: translateY(0); }
-        } */
 
-        .custom-select-options.open { display: block; }
+
+        .custom-select-options.open {
+            display: block;
+        }
 
         .custom-select-option {
             padding: 12px 20px;
@@ -354,14 +369,38 @@
             border-bottom: 1px solid #f0f4f8;
         }
 
-        .custom-select-option:last-child { border-bottom: none; }
-        .custom-select-option:hover { background: #ebf5fb; color: #3498db; }
-        .custom-select-option.selected { background: #3498db; color: #fff; }
-        .custom-select-option.placeholder-option { color: #aaa; font-style: italic; }
+        .custom-select-option:last-child {
+            border-bottom: none;
+        }
 
-        .custom-select-options::-webkit-scrollbar { width: 6px; }
-        .custom-select-options::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-        .custom-select-options::-webkit-scrollbar-thumb { background: #3498db; border-radius: 10px; }
+        .custom-select-option:hover {
+            background: #ebf5fb;
+            color: #3498db;
+        }
+
+        .custom-select-option.selected {
+            background: #3498db;
+            color: #fff;
+        }
+
+        .custom-select-option.placeholder-option {
+            color: #aaa;
+            font-style: italic;
+        }
+
+        .custom-select-options::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-select-options::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .custom-select-options::-webkit-scrollbar-thumb {
+            background: #3498db;
+            border-radius: 10px;
+        }
 
         /* File input */
         .file-input-wrapper {
@@ -388,8 +427,10 @@
 
         .file-input input[type="file"] {
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             opacity: 0;
             cursor: pointer;
             z-index: 2;
@@ -442,7 +483,9 @@
             box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3);
         }
 
-        .submit-btn:active { transform: translateY(0); }
+        .submit-btn:active {
+            transform: translateY(0);
+        }
 
         .submit-btn:disabled {
             background: #bdc3c7;
@@ -453,74 +496,201 @@
 
         /* ── Responsive ── */
         @media (max-width: 1024px) {
-            .navbar-menu { gap: 20px; }
-            .navbar-link { padding: 8px 12px; font-size: 0.95rem; }
-            .navbar-brand { font-size: 1.3rem; }
-            .navbar-brand i { font-size: 1.7rem; }
+            .navbar-menu {
+                gap: 20px;
+            }
+
+            .navbar-link {
+                padding: 8px 12px;
+                font-size: 0.95rem;
+            }
+
+            .navbar-brand {
+                font-size: 1.3rem;
+            }
+
+            .navbar-brand i {
+                font-size: 1.7rem;
+            }
         }
 
         @media (max-width: 900px) {
-            .navbar-container { padding: 0 20px; }
-            .form-container { max-width: 99vw; padding: 30px 3vw 20px 3vw; }
+            .navbar-container {
+                padding: 0 20px;
+            }
+
+            .form-container {
+                max-width: 99vw;
+                padding: 30px 3vw 20px 3vw;
+            }
         }
 
         @media (max-width: 768px) {
-            body { padding-top: 60px; }
-            .navbar { height: 60px; }
-            .navbar-container { height: 60px; padding: 0 15px; }
-            .navbar-brand { font-size: 1.2rem; }
-            .navbar-brand i { font-size: 1.5rem; }
+            body {
+                padding-top: 60px;
+            }
+
+            .navbar {
+                height: 60px;
+            }
+
+            .navbar-container {
+                height: 60px;
+                padding: 0 15px;
+            }
+
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+
+            .navbar-brand i {
+                font-size: 1.5rem;
+            }
 
             .navbar-menu {
                 position: fixed;
-                top: 60px; left: -100%; width: 100%;
+                top: 60px;
+                left: -100%;
+                width: 100%;
                 height: calc(100vh - 60px);
                 background: rgba(255, 255, 255, 0.98);
                 backdrop-filter: blur(20px);
                 flex-direction: column;
-                justify-content: flex-start; align-items: center;
+                justify-content: flex-start;
+                align-items: center;
                 padding: 40px 20px;
-                transition: left 0.3s ease; gap: 20px; z-index: 2000;
+                transition: left 0.3s ease;
+                gap: 20px;
+                z-index: 2000;
             }
 
-            .navbar-menu.active { left: 0; }
-            .navbar-toggle { display: block; }
+            .navbar-menu.active {
+                left: 0;
+            }
+
+            .navbar-toggle {
+                display: block;
+            }
 
             .navbar-link {
-                width: 100%; max-width: 300px;
-                justify-content: center; padding: 15px 20px; font-size: 1.1rem;
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+                padding: 15px 20px;
+                font-size: 1.1rem;
             }
 
-            .main-content { min-height: calc(100vh - 60px); padding: 15px; }
-            .form-container { margin: 20px auto 30px auto; padding: 30px 24px; }
-            .form-header h2 { font-size: 1.5rem; }
-            .form-header i { font-size: 2.5rem; }
-            .form-row { grid-template-columns: 1fr; }
+            .main-content {
+                min-height: calc(100vh - 60px);
+                padding: 15px;
+            }
+
+            .form-container {
+                margin: 20px auto 30px auto;
+                padding: 30px 24px;
+            }
+
+            .form-header h2 {
+                font-size: 1.5rem;
+            }
+
+            .form-header i {
+                font-size: 2.5rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media (max-width: 480px) {
-            .navbar { height: 55px; }
-            .navbar-container { height: 55px; padding: 0 10px; }
-            .navbar-brand { font-size: 1.1rem; gap: 8px; }
-            .navbar-brand i { font-size: 1.4rem; }
-            .navbar-menu { top: 55px; height: calc(100vh - 55px); padding: 30px 15px; }
-            body { padding-top: 55px; }
-            .form-container { padding: 25px 16px; margin: 10px auto 20px auto; }
-            .form-header h2 { font-size: 1.3rem; }
-            .form-header i { font-size: 2rem; }
-            .form-control { padding: 12px 15px; font-size: 0.9rem; }
-            .submit-btn { padding: 12px; font-size: 1rem; }
+            .navbar {
+                height: 55px;
+            }
+
+            .navbar-container {
+                height: 55px;
+                padding: 0 10px;
+            }
+
+            .navbar-brand {
+                font-size: 1.1rem;
+                gap: 8px;
+            }
+
+            .navbar-brand i {
+                font-size: 1.4rem;
+            }
+
+            .navbar-menu {
+                top: 55px;
+                height: calc(100vh - 55px);
+                padding: 30px 15px;
+            }
+
+            body {
+                padding-top: 55px;
+            }
+
+            .form-container {
+                padding: 25px 16px;
+                margin: 10px auto 20px auto;
+            }
+
+            .form-header h2 {
+                font-size: 1.3rem;
+            }
+
+            .form-header i {
+                font-size: 2rem;
+            }
+
+            .form-control {
+                padding: 12px 15px;
+                font-size: 0.9rem;
+            }
+
+            .submit-btn {
+                padding: 12px;
+                font-size: 1rem;
+            }
         }
 
         @media (max-width: 320px) {
-            .navbar { height: 50px; }
-            .navbar-container { height: 50px; padding: 0 5px; }
-            .navbar-brand { font-size: 1rem; }
-            .navbar-brand i { font-size: 1.3rem; }
-            .navbar-menu { top: 50px; height: calc(100vh - 50px); padding: 25px 10px; }
-            body { padding-top: 50px; }
-            .form-container { padding: 20px 10px; }
-            .form-header h2 { font-size: 1.2rem; }
+            .navbar {
+                height: 50px;
+            }
+
+            .navbar-container {
+                height: 50px;
+                padding: 0 5px;
+            }
+
+            .navbar-brand {
+                font-size: 1rem;
+            }
+
+            .navbar-brand i {
+                font-size: 1.3rem;
+            }
+
+            .navbar-menu {
+                top: 50px;
+                height: calc(100vh - 50px);
+                padding: 25px 10px;
+            }
+
+            body {
+                padding-top: 50px;
+            }
+
+            .form-container {
+                padding: 20px 10px;
+            }
+
+            .form-header h2 {
+                font-size: 1.2rem;
+            }
         }
     </style>
 </head>
@@ -528,7 +698,7 @@
 <body>
     <nav class="navbar">
         <div class="navbar-container">
-            <a href="{{ url_for('upload_progress') }}" class="navbar-brand">
+            <a href="#" class="navbar-brand">
                 <i class="fas fa-hard-hat"></i>
                 Upload Progress Report
             </a>
@@ -540,12 +710,7 @@
                         Dashboard
                     </a>
                 </li>
-                <li>
-                    <a href="{{ url_for('upload_progress') }}" class="navbar-link active">
-                        <i class="fas fa-upload"></i>
-                        Upload Progress
-                    </a>
-                </li>
+
                 <li>
                     <a href="{{ url_for('logout') }}" class="navbar-link logout">
                         <i class="fas fa-sign-out-alt"></i>
@@ -618,8 +783,7 @@
                             Progress Percentage
                         </label>
                         <div class="progress-input-group">
-                            <input type="number" name="progress" id="progress"
-                                class="form-control" min="0" max="100"
+                            <input type="number" name="progress" id="progress" class="form-control" min="0" max="100"
                                 placeholder="Enter progress percentage" required>
                         </div>
                     </div>
@@ -629,8 +793,8 @@
                             <i class="fas fa-comment-alt"></i>
                             Remark
                         </label>
-                        <input type="text" name="remark" id="remark"
-                            class="form-control" placeholder="e.g. Work 50% completed">
+                        <input type="text" name="remark" id="remark" class="form-control"
+                            placeholder="e.g. Work 50% completed">
                     </div>
                 </div>
 

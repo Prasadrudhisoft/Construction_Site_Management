@@ -66,15 +66,9 @@
             background: #fff; border-radius: 22px;
             box-shadow: 0 8px 32px rgba(52,152,219,0.13);
             padding: 40px 60px;
-            animation: fadeIn 0.3s ease-out;
             position: relative;
-            overflow: hidden;       /* clips ::before accent bar to rounded corners */
+            overflow: hidden;       
         }
-        @keyframes fadeIn {
-            from { opacity: 0.7; transform: translateY(10px); }
-            to   { opacity: 1;   transform: translateY(0); }
-        }
-        /* Accent bar — clipped cleanly by overflow:hidden on .form-container */
         .form-container::before {
             content: '';
             position: absolute; top: 0; left: 0; right: 0;
@@ -151,12 +145,9 @@
             max-height: 220px;
             overflow-y: auto;
             display: none;
-            animation: dropDown 0.2s ease;
+            /* animation: dropDown 0.2s ease; */
         }
-        @keyframes dropDown {
-            from { opacity: 0; transform: translateY(-8px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
+     
         .custom-select-options.open { display: block; }
 
         .custom-select-option {
@@ -309,11 +300,7 @@
                         <i class="fas fa-tachometer-alt"></i> Dashboard
                     </a>
                 </li>
-                <li>
-                    <a href="{{ url_for('legal_compliances_dashboard') }}" class="navbar-link active">
-                        <i class="fas fa-search"></i> Legal & Compliances Viewer
-                    </a>
-                </li>
+            
                 <li>
                     <a href="{{ url_for('logout') }}" class="navbar-link logout">
                         <i class="fas fa-sign-out-alt"></i> Logout
