@@ -19,6 +19,7 @@
             background: #f4f6f8;
             min-height: 100vh;
             padding-top: 90px;
+            overflow-x: hidden;
         }
 
         /* ── Navbar ── */
@@ -124,12 +125,17 @@
         }
 
         .navbar-link.logout {
-            background: #e74c3c;
-            color: white;
+            background: transparent;
+            color: #2c3e50;
+            border: 1.5px solid #ced4da;
+            border-radius: 8px;
+            padding: 8px 16px;
         }
 
         .navbar-link.logout:hover {
-            background: #c0392b;
+            background: #f8f9fa;
+            border-color: #adb5bd;
+            color: #2c3e50;
             transform: translateY(-2px) scale(1.04);
         }
 
@@ -162,10 +168,9 @@
             padding: 40px 40px 32px;
             margin-bottom: 28px;
             position: relative;
-            /* NO overflow:hidden — keep for page-header since it has no dropdowns */
             overflow: hidden;
             text-align: center;
-            animation: fadeIn 0.7s cubic-bezier(.77, 0, .18, 1);
+
         }
 
         .page-header::before {
@@ -207,15 +212,14 @@
         }
 
 
-      
+
         .container {
             background: #fff;
             border-radius: 22px;
             box-shadow: 0 8px 32px rgba(52, 152, 219, 0.13);
             padding: 40px 50px 36px;
             position: relative;
-             overflow: hidden; 
-            /* animation: fadeIn 0.7s cubic-bezier(.77, 0, .18, 1); */
+            overflow: hidden;
         }
 
         .container::before {
@@ -887,6 +891,7 @@
     <nav class="navbar">
         <div class="navbar-container">
             <a href="#" class="navbar-brand">
+                <i class="fas fa-gavel header-icon"></i>
                 Legal & Compliances
             </a>
             <ul class="navbar-menu" id="navbarNav">
@@ -896,12 +901,7 @@
                         Dashboard
                     </a>
                 </li>
-                <li>
-                    <a href="{{ url_for('submit_legal_compliances') }}" class="navbar-link active">
-                        <i class="fas fa-gavel"></i>
-                        Legal & Compliances
-                    </a>
-                </li>
+
                 <li>
                     <a href="{{ url_for('logout') }}" class="navbar-link logout">
                         <i class="fas fa-sign-out-alt"></i>

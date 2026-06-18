@@ -42,10 +42,10 @@
             display: flex;
             align-items: center;
             padding: 0;
-            animation: slideDown 0.7s cubic-bezier(.77, 0, .18, 1);
+            
         }
 
-     
+
 
         .navbar-container {
             max-width: 100%;
@@ -136,12 +136,17 @@
         }
 
         .nav-link.logout {
-            background: #e74c3c;
-            color: white;
+            background: transparent;
+            color: #2c3e50;
+            border: 1.5px solid #ced4da;
+            border-radius: 8px;
+            padding: 8px 16px;
         }
 
         .nav-link.logout:hover {
-            background: #c0392b;
+            background: #f8f9fa;
+            border-color: #adb5bd;
+            color: #2c3e50;
             transform: translateY(-2px) scale(1.04);
         }
 
@@ -200,7 +205,7 @@
             align-items: center;
         }
 
-      
+
 
         /* ── Page header — centred ── */
         .page-header {
@@ -716,12 +721,7 @@
                         Dashboard
                     </a>
                 </li>
-                <li>
-                    <a href="{{ url_for('assign_architect') }}" class="nav-link active">
-                        <i class="fas fa-user-plus"></i>
-                        Assign Architect
-                    </a>
-                </li>
+            
                 <li>
                     <a href="{{ url_for('view_assigned_architects') }}" class="nav-link">
                         <i class="fas fa-users"></i>
