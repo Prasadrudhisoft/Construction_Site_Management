@@ -158,11 +158,11 @@
             border-radius: 22px;
             box-shadow: 0 8px 32px rgba(52, 152, 219, 0.13);
             padding: 30px 60px;
-            animation: fadeIn 0.3s ease-out;
+            /* animation: fadeIn 0.3s ease-out; */
             position: relative;
             overflow: hidden;
         }
-
+/* 
         @keyframes fadeIn {
             from {
                 opacity: 0.7;
@@ -173,7 +173,7 @@
                 opacity: 1;
                 transform: translateY(0);
             }
-        }
+        } */
 
         .form-container::before {
             content: '';
@@ -544,7 +544,7 @@
 <body>
     <nav class="navbar">
         <div class="navbar-container">
-            <a href="{{ url_for('site_engineer_expenses') }}" class="navbar-brand">
+            <a href="#" class="navbar-brand">
                 <i class="fas fa-receipt"></i>
                 Daily Expenses
             </a>
@@ -556,12 +556,12 @@
                         Dashboard
                     </a>
                 </li>
-                <li>
-                    <a href="{{ url_for('site_engineer_expenses') }}" class="navbar-link active">
+                <!-- <li>
+                    <a href="#" class="navbar-link active">
                         <i class="fas fa-receipt"></i>
                         Daily Expense
                     </a>
-                </li>
+                </li> -->
                 <li>
                     <a href="{{ url_for('site_engineer_expenses_view') }}" class="navbar-link">
                         <i class="fas fa-list"></i>

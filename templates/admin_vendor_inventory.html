@@ -19,6 +19,7 @@
             background: #f4f6f8;
             min-height: 100vh;
             padding-top: 90px;
+            overflow-x: hidden;
         }
 
         /* ── Navbar ── */
@@ -127,12 +128,17 @@
         }
 
         .navbar-link.logout {
-            background: #e74c3c;
-            color: white;
+            background: transparent;
+            color: #2c3e50;
+            border: 1.5px solid #ced4da;
+            border-radius: 8px;
+            padding: 8px 16px;
         }
 
         .navbar-link.logout:hover {
-            background: #c0392b;
+            background: #f8f9fa;
+            border-color: #adb5bd;
+            color: #2c3e50;
             transform: translateY(-2px) scale(1.04);
         }
 
@@ -209,7 +215,7 @@
             font-size: 0.95rem;
         }
 
-     
+
 
         /* ── Main container ── */
         .container {
@@ -219,7 +225,7 @@
             padding: 40px 50px 36px;
             position: relative;
             overflow: hidden;
-          
+
         }
 
         .container::before {
@@ -869,6 +875,7 @@
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
             width: 100%;
+            max-width: 100%;
         }
     </style>
 </head>
@@ -887,12 +894,12 @@
                         Dashboard
                     </a>
                 </li>
-                <li>
+                <!-- <li>
                     <a href="{{ url_for('admin_vendor_inventory') }}" class="navbar-link active">
                         <i class="fas fa-truck"></i>
                         Vendor Inventory Approval
                     </a>
-                </li>
+                </li> -->
                 <li>
                     <a href="{{ url_for('logout') }}" class="navbar-link logout">
                         <i class="fas fa-sign-out-alt"></i>

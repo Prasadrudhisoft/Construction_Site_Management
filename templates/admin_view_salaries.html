@@ -7,10 +7,14 @@
     <title>All Salary Entries - Admin</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
         body {
-            padding-top: 80px;
+            padding-top: 90px;
             background-color: #f4f6f8;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
         /* ── Navbar (identical to Bills & Payments) ── */
@@ -70,11 +74,30 @@
             font-weight: 500;
             padding: 10px 15px;
             border-radius: 8px;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(.77, 0, .18, 1);
             display: flex;
             align-items: center;
             gap: 8px;
+            position: relative;
+            overflow: hidden;
         }
+
+        .navbar-link::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 0;
+            height: 3px;
+            background: #3498db;
+            transition: width 0.3s cubic-bezier(.77, 0, .18, 1);
+        }
+
+        .navbar-link:hover::after {
+            width: 100%;
+        }
+
+     
 
         .navbar-link:hover {
             background: rgba(52, 152, 219, 0.1);
@@ -88,13 +111,19 @@
         }
 
         .navbar-link.logout {
-            background: #e74c3c;
-            color: white;
+            background: transparent;
+            color: #2c3e50 !important;
+            border: 1.5px solid #ced4da;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 500;
         }
 
         .navbar-link.logout:hover {
-            background: #c0392b;
-            transform: translateY(-2px);
+            background: #f8f9fa;
+            border-color: #adb5bd;
+            color: #2c3e50;
+            transform: translateY(-2px) scale(1.04);
         }
 
         .navbar-toggle {
@@ -114,7 +143,7 @@
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
         }
 
-     
+
         .page-header {
             background: #fff;
             border-radius: 22px;
@@ -124,7 +153,7 @@
             position: relative;
             overflow: hidden;
             text-align: center;
-            
+
         }
 
         .page-header::before {
@@ -214,6 +243,7 @@
             color: #2980b9;
             font-weight: 600;
         }
+
         .summary-card .s-label i {
             margin-right: 6px;
         }
@@ -435,18 +465,7 @@
             border-left: 4px solid #dc3545;
         }
 
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
+      
         /* ── Modal ── */
         .modal-overlay {
             display: none;
@@ -685,6 +704,8 @@
             .table-wrapper {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
+                width: 100%;
+                max-width: 100%;
             }
 
 
@@ -940,12 +961,7 @@
                         Dashboard
                     </a>
                 </li>
-                <li>
-                    <a href="{{ url_for('admin_view_salaries') }}" class="navbar-link active">
-                        <i class="fas fa-eye"></i>
-                        View All Salaries
-                    </a>
-                </li>
+         
                 <li>
                     <a href="{{ url_for('logout') }}" class="navbar-link logout">
                         <i class="fas fa-sign-out-alt"></i>
@@ -1017,7 +1033,7 @@
                             <div class="s-value">{{ salaries|length }}</div>
                         </div>
 
-  
+
 
                         <div class="summary-card salary">
                             <div class="s-label"><i class="fas fa-money-check me-1"></i>Salary Payments</div>

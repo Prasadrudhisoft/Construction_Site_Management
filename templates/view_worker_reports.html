@@ -19,6 +19,7 @@
             background: #f4f6f8;
             min-height: 100vh;
             padding-top: 90px;
+            overflow-x: hidden;
         }
 
         /* ── Navbar ── */
@@ -87,12 +88,30 @@
             font-weight: 500;
             padding: 10px 15px;
             border-radius: 8px;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(.77, 0, .18, 1);
             display: flex;
             align-items: center;
             gap: 8px;
             white-space: nowrap;
+            position: relative;
+            overflow: hidden;
         }
+
+        .navbar-menu a::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 0;
+            height: 3px;
+            background: #3498db;
+            transition: width 0.3s cubic-bezier(.77, 0, .18, 1);
+        }
+
+        .navbar-menu a:hover::after {
+            width: 100%;
+        }
+
 
         .navbar-menu a:hover {
             background: rgba(52, 152, 219, 0.1);
@@ -106,12 +125,17 @@
         }
 
         .navbar-menu a.logout-link {
-            background: #e74c3c;
-            color: white;
+            background: transparent;
+            color: #2c3e50;
+            border: 1.5px solid #ced4da;
+            border-radius: 8px;
+            padding: 8px 16px;
         }
 
         .navbar-menu a.logout-link:hover {
-            background: #c0392b;
+            background: #f8f9fa;
+            border-color: #adb5bd;
+            color: #2c3e50;
             transform: translateY(-2px);
         }
 
@@ -161,7 +185,6 @@
             position: relative;
             overflow: hidden;
             text-align: center;
-            /* animation: fadeIn 0.3s ease-out; */
         }
 
         .header-section::before {
@@ -389,6 +412,8 @@
         .table-wrapper {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
+            width: 100%;
+            max-width: 100%;
         }
 
         table {
@@ -860,8 +885,7 @@
             </div>
             <ul class="navbar-menu" id="navbar-menu">
                 <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                <li><a href="{{ url_for('view_worker_reports') }}" class="active"><i class="fas fa-users"></i> View
-                        Reports</a></li>
+            
                 <li><a href="{{ url_for('logout') }}" class="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
                 </li>
             </ul>
@@ -959,18 +983,7 @@
         </div>
 
         <div class="navigation-links">
-            <!-- <a href="{{ url_for('site_engineer_dashboard') }}" class="nav-link back-link">
-                <i class="fas fa-arrow-left"></i>
-                Back to Dashboard
-            </a> -->
-            <!-- <a href="{{ url_for('submit_worker_report') }}" class="nav-link primary-link">
-                <i class="fas fa-plus"></i>
-                Add New Report
-            </a> -->
-            <!-- <a href="{{ url_for('logout') }}" class="nav-link secondary-link">
-                <i class="fas fa-sign-out-alt"></i>
-                Logout
-            </a> -->
+       
         </div>
     </div>
 
