@@ -1370,7 +1370,20 @@ def update_user_last_seen():
         print(f"[last_seen] update failed: {e}")
 
 
+#### cache control prevent browser caching of authenticated pages ####
 
+
+@app.after_request
+def add_no_cache_headers(response):
+    if request.endpoint == 'static':
+        return response
+
+    if session.get('user_id'):
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+
+    return response
 
 ZEPTOMAIL_API_URL = "https://api.zeptomail.in/v1.1/email"
 ZEPTOMAIL_API_TOKEN = os.environ.get("ZEPTO_TOKEN")
@@ -5678,13 +5691,6 @@ def admin_generate_invoice():
                     )
                 conn.commit()
 
-                # Start background PDF generation (reuse existing function)
-                # thread = threading.Thread(
-                #     target=generate_invoice_pdf_async,
-                #     args=(invoice_id, org_id, invoice_number, project_name, grand_total, session.get('name'))
-                # )
-                # thread.daemon = True
-                # thread.start()
                 generate_invoice_pdf_task.delay(invoice_id, org_id, invoice_number, project_name, float(grand_total), session.get('name') or '')
 
                 flash(f'Admin invoice #{invoice_number} generated. PDF is being generated in the background.', 'success')
