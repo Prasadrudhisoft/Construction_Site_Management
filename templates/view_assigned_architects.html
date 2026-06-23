@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>View Assigned Architects</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -12,17 +14,14 @@
             box-sizing: border-box;
             font-family: 'Poppins', sans-serif;
         }
-        html, body {
-            height: 100%;
-        }
+
         body {
+            background: #f4f6f8;
             min-height: 100vh;
-           background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            padding-top: 80px;
+            padding-top: 70px;
         }
-        /* Navbar Styles */
+
+        /* ── Navbar ── */
         .navbar {
             position: fixed;
             top: 0;
@@ -31,23 +30,24 @@
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 15px 0;
             z-index: 1000;
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-            animation: slideDown 0.7s cubic-bezier(.77,0,.18,1) 0s 1;
+            height: 70px;
+            display: flex;
+            align-items: center;
         }
-        @keyframes slideDown {
-            from { transform: translateY(-100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
+
         .navbar-container {
-            max-width: 1200px;
+            max-width: 100%;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 20px;
+            width: 100%;
+            padding: 0 40px;
+            height: 70px;
         }
+
         .navbar-brand {
             display: flex;
             align-items: center;
@@ -57,325 +57,865 @@
             font-weight: 700;
             font-size: 1.4rem;
             transition: color 0.2s;
+            flex-shrink: 0;
         }
+
         .navbar-brand:hover {
             color: #3498db;
         }
+
         .navbar-brand i {
             color: #3498db;
             font-size: 1.8rem;
             transition: transform 0.2s;
         }
+
         .navbar-brand:hover i {
             transform: rotate(-15deg) scale(1.1);
         }
-        .navbar-nav {
+
+        .navbar-menu {
             display: flex;
             list-style: none;
             gap: 30px;
             align-items: center;
+            margin: 0;
         }
-        .nav-link {
+
+        .navbar-link {
             text-decoration: none;
             color: #2c3e50;
             font-weight: 500;
             padding: 10px 15px;
             border-radius: 8px;
-            transition: all 0.3s cubic-bezier(.77,0,.18,1);
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             gap: 8px;
-            position: relative;
-            overflow: hidden;
+            white-space: nowrap;
         }
-        .nav-link::after {
-            content: "";
-            position: absolute;
-            left: 0; bottom: 0;
-            width: 0;
-            height: 3px;
-            background: #3498db;
-            transition: width 0.3s cubic-bezier(.77,0,.18,1);
-        }
-        .nav-link:hover::after, .nav-link.active::after {
-            width: 100%;
-        }
-        .nav-link:hover {
-            background: rgba(52, 152, 219, 0.12);
+
+        .navbar-link:hover {
+            background: rgba(52, 152, 219, 0.1);
             color: #3498db;
-            transform: translateY(-2px) scale(1.04);
+            transform: translateY(-2px);
         }
-        .nav-link.active {
+
+        .navbar-link.active {
             background: #3498db;
             color: white;
-            box-shadow: 0 4px 16px rgba(52,152,219,0.08);
         }
-        .nav-link.logout {
+
+        .navbar-link.logout {
             background: #e74c3c;
             color: white;
         }
-        .nav-link.logout:hover {
+
+        .navbar-link.logout:hover {
             background: #c0392b;
-            transform: translateY(-2px) scale(1.04);
+            transform: translateY(-2px);
         }
-        .mobile-menu-toggle {
+
+        .navbar-toggle {
             display: none;
             background: none;
             border: none;
             font-size: 1.5rem;
             color: #2c3e50;
             cursor: pointer;
-            transition: color 0.2s;
+            padding: 5px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
         }
-        .mobile-menu-toggle:hover {
+
+        .navbar-toggle:hover {
+            background: rgba(52, 152, 219, 0.1);
             color: #3498db;
         }
-        .container {
+
+        /* ── Main Content ── */
+        .main-content {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            min-height: calc(100vh - 70px);
+            padding: 30px 20px;
+        }
+
+        /* ── Card Container ── */
+        .card-container {
             max-width: 1100px;
-            width: 98vw;
-            margin: 60px auto 0 auto;
+            width: 95%;
+            margin: 0 auto;
             background: #fff;
             border-radius: 22px;
-            box-shadow: 0 8px 32px rgba(52,152,219,0.13);
-            padding: 40px 30px 30px 30px;
-            animation: fadeIn 0.7s cubic-bezier(.77,0,.18,1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            box-shadow: 0 8px 32px rgba(52, 152, 219, 0.13);
+            padding: 40px 60px;
+            position: relative;
+            overflow: hidden;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(30px);}
-            to { opacity: 1; transform: translateY(0);}
+
+        .card-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #3498db, #2c3e50);
         }
-        .table-title {
-            color: #2c3e50;
+
+        .form-header {
+            text-align: center;
             margin-bottom: 30px;
-            font-size: 2rem;
-            font-weight: 700;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 12px;
-            display: inline-block;
-            letter-spacing: 1px;
         }
-        table {
+
+        .form-header i {
+            font-size: 3rem;
+            color: #3498db;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .form-header h2 {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .form-header p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        /* ── Section Label ── */
+        .section-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 16px;
+            color: #2c3e50;
+            font-weight: 500;
+            font-size: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .section-label .label-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-label i {
+            color: #3498db;
+            font-size: 1rem;
+        }
+
+        .count-badge {
+            background: rgba(52, 152, 219, 0.12);
+            color: #3498db;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* ── Table ── */
+        .table-wrapper {
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            overflow: hidden;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .styled-table {
             width: 100%;
             border-collapse: collapse;
-            background: #fff;
-            box-shadow: 0 2px 8px #0001;
-            margin-bottom: 20px;
+            background: white;
+            min-width: 620px;
         }
-        th, td {
-            padding: 16px 12px;
-            border-bottom: 1px solid #eaeaea;
-            text-align: left;
-            font-size: 1.08rem;
-        }
-        th {
-            background: #3498db;
-            color: #fff;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-        tr:nth-child(even) {
+
+        .styled-table thead {
             background: #f8f9fa;
         }
+
+        .styled-table th {
+            color: #495057;
+            font-weight: 600;
+            padding: 15px 12px;
+            text-align: left;
+            border-bottom: 2px solid #dee2e6;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .styled-table th i {
+            color: #3498db;
+            margin-right: 6px;
+            font-size: 0.88rem;
+        }
+
+        .styled-table td {
+            padding: 13px 18px;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
+            color: #4a5568;
+            font-size: 0.88rem;
+            word-wrap: break-word;
+        }
+
+        .styled-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .styled-table tbody tr {
+            transition: background 0.2s ease;
+        }
+
+        .styled-table tbody tr:hover {
+            background-color: #f0f7ff;
+        }
+
+        /* ── Text styles ── */
+        .site-name {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
         .not-assigned {
             color: #e74c3c;
             font-style: italic;
+            font-size: 0.88rem;
         }
-        /* Responsive Styles */
-        @media (max-width: 1100px) {
-            .container {
-                max-width: 99vw;
-                padding: 30px 2vw 20px 2vw;
+
+        /* ── Empty state ── */
+        .no-data {
+            text-align: center;
+            padding: 50px 20px;
+            color: #666;
+        }
+
+        .no-data i {
+            font-size: 3rem;
+            color: #bdc3c7;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .no-data h3 {
+            font-size: 1.2rem;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .no-data p {
+            font-size: 0.95rem;
+        }
+
+        /* ════════════════════════════════
+           RESPONSIVE BREAKPOINTS
+        ════════════════════════════════ */
+
+        @media (min-width: 1400px) {
+            .card-container {
+                max-width: 1300px;
             }
         }
-        @media (max-width: 900px) {
-            .container {
-                max-width: 100vw;
-                padding: 20px 1vw 10px 1vw;
-            }
-            th, td {
-                font-size: 1rem;
-                padding: 12px 6px;
+
+        @media (max-width: 1200px) {
+            .card-container {
+                padding: 36px 48px;
             }
         }
-        @media (max-width: 700px) {
-            .container {
-                padding: 10px 0 10px 0;
+
+        @media (max-width: 1024px) {
+            .navbar-menu {
+                gap: 20px;
             }
-            .table-title {
-                font-size: 1.2rem;
-                padding-bottom: 7px;
-            }
-            table, thead, tbody, th, td, tr {
-                display: block;
-                width: 100%;
-            }
-            thead {
-                display: none;
-            }
-            tr {
-                margin-bottom: 15px;
-                background: #fff;
-                border-radius: 8px;
-                box-shadow: 0 2px 8px #0001;
-            }
-            td {
-                padding: 12px 8px;
-                text-align: right;
-                position: relative;
-                border: none;
-                border-bottom: 1px solid #eaeaea;
-                font-size: 0.98rem;
-            }
-            td:before {
-                content: attr(data-label);
-                float: left;
-                font-weight: 600;
-                color: #3498db;
+
+            .navbar-link {
+                padding: 8px 12px;
                 font-size: 0.95rem;
             }
+
+            .navbar-brand {
+                font-size: 1.3rem;
+            }
+
+            .navbar-brand i {
+                font-size: 1.7rem;
+            }
+
+            .card-container {
+                padding: 32px 36px;
+            }
         }
-        @media (max-width: 600px) {
-            .navbar-nav {
-                flex-direction: column;
+
+        @media (max-width: 900px) {
+            .navbar-container {
+                padding: 0 20px;
+            }
+
+            .card-container {
+                padding: 28px 24px;
+                width: 98%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-top: 60px;
+            }
+
+            .navbar {
+                height: 60px;
+            }
+
+            .navbar-container {
+                height: 60px;
+                padding: 0 15px;
+            }
+
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+
+            .navbar-brand i {
+                font-size: 1.5rem;
+            }
+
+            .navbar-menu {
                 position: fixed;
-                top: 80px;
+                top: 60px;
                 left: -100%;
-                width: 100vw;
-                height: calc(100vh - 80px);
+                width: 100%;
+                height: calc(100vh - 60px);
                 background: rgba(255, 255, 255, 0.98);
                 backdrop-filter: blur(20px);
+                flex-direction: column;
                 justify-content: flex-start;
                 align-items: center;
                 padding: 40px 20px;
-                transition: left 0.3s cubic-bezier(.77,0,.18,1);
+                transition: left 0.3s ease;
                 gap: 20px;
+                z-index: 2000;
             }
-            .navbar-nav.active {
+
+            .navbar-menu.active {
                 left: 0;
             }
-            .mobile-menu-toggle {
+
+            .navbar-toggle {
                 display: block;
             }
-            .nav-link {
+
+            .navbar-link {
                 width: 100%;
                 max-width: 300px;
                 justify-content: center;
                 padding: 15px 20px;
                 font-size: 1.1rem;
             }
-            .container {
-                padding: 10px 2vw 10px 2vw;
-                margin: 10px 2vw 0 2vw;
+
+            .main-content {
+                min-height: calc(100vh - 60px);
+                padding: 16px;
             }
-            .table-title {
-                font-size: 1.1rem;
-                padding-bottom: 7px;
+
+            .card-container {
+                padding: 28px 20px;
+                border-radius: 16px;
+            }
+
+            .form-header i {
+                font-size: 2.5rem;
+            }
+
+            .form-header h2 {
+                font-size: 1.5rem;
+            }
+
+            .form-header p {
+                font-size: 0.9rem;
+            }
+
+            .styled-table {
+                min-width: 520px;
             }
         }
+
         @media (max-width: 480px) {
-            .navbar-container {
-                padding: 0 2vw;
+            body {
+                padding-top: 55px;
             }
+
+            .navbar {
+                height: 55px;
+            }
+
+            .navbar-container {
+                height: 55px;
+                padding: 0 12px;
+            }
+
+            .navbar-brand {
+                font-size: 1.05rem;
+                gap: 8px;
+            }
+
+            .navbar-brand i {
+                font-size: 1.35rem;
+            }
+
+            .navbar-menu {
+                top: 55px;
+                height: calc(100vh - 55px);
+                padding: 30px 15px;
+            }
+
+            .main-content {
+                padding: 12px;
+            }
+
+            .card-container {
+                padding: 22px 14px;
+                border-radius: 14px;
+            }
+
+            .form-header {
+                margin-bottom: 20px;
+            }
+
+            .form-header i {
+                font-size: 2rem;
+                margin-bottom: 10px;
+            }
+
+            .form-header h2 {
+                font-size: 1.25rem;
+            }
+
+            .form-header p {
+                font-size: 0.85rem;
+            }
+
+            .section-label {
+                font-size: 0.88rem;
+            }
+
+            .count-badge {
+                font-size: 0.78rem;
+                padding: 3px 10px;
+            }
+
+            /* ── Card-based table layout ── */
+            .table-wrapper {
+                border: none;
+                border-radius: 0;
+                overflow: visible;
+            }
+
+            .styled-table {
+                display: block;
+                min-width: unset;
+                overflow-x: visible;
+            }
+
+            .styled-table thead {
+                display: none;
+            }
+
+            .styled-table tbody {
+                display: block;
+            }
+
+            .styled-table tr {
+                display: block;
+                border: 1px solid #e1e8ed;
+                margin-bottom: 14px;
+                border-radius: 10px;
+                padding: 14px;
+                background: #f8fafd;
+                box-shadow: 0 2px 8px rgba(52, 152, 219, 0.07);
+            }
+
+            .styled-table td {
+                display: flex;
+                align-items: center;
+                border: none;
+                border-bottom: 1px solid #e9ecef;
+                padding: 8px 0;
+                padding-left: 120px;
+                font-size: 0.82rem;
+                position: relative;
+                min-height: 36px;
+                word-break: break-word;
+            }
+
+            .styled-table td:last-child {
+                border-bottom: none;
+            }
+
+            .styled-table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 0;
+                width: 110px;
+                padding-right: 10px;
+                font-weight: 600;
+                color: #2c3e50;
+                font-size: 0.75rem;
+                white-space: nowrap;
+            }
+
+            .site-name {
+                max-width: 100%;
+                white-space: normal;
+            }
+        }
+
+        @media (max-width: 375px) {
+            body {
+                padding-top: 52px;
+            }
+
+            .navbar {
+                height: 52px;
+            }
+
+            .navbar-container {
+                height: 52px;
+                padding: 0 10px;
+            }
+
+            .navbar-brand {
+                font-size: 0.95rem;
+            }
+
+            .navbar-brand i {
+                font-size: 1.2rem;
+            }
+
+            .navbar-menu {
+                top: 52px;
+                height: calc(100vh - 52px);
+            }
+
+            .main-content {
+                padding: 10px;
+            }
+
+            .card-container {
+                padding: 18px 10px;
+                border-radius: 12px;
+            }
+
+            .form-header h2 {
+                font-size: 1.1rem;
+            }
+
+            .form-header i {
+                font-size: 1.8rem;
+            }
+        }
+
+        @media (max-width: 360px) {
+            body {
+                padding-top: 48px;
+            }
+
+            .navbar {
+                height: 48px;
+            }
+
+            .navbar-container {
+                height: 48px;
+                padding: 0 6px;
+            }
+
+            .navbar-brand {
+                font-size: 0.85rem;
+                gap: 6px;
+            }
+
+            .navbar-brand i {
+                font-size: 1.1rem;
+            }
+
+            .navbar-menu {
+                top: 48px;
+                height: calc(100vh - 48px);
+                padding: 20px 10px;
+            }
+
+            .main-content {
+                padding: 8px;
+            }
+
+            .card-container {
+                padding: 14px 8px;
+            }
+
+            .form-header h2 {
+                font-size: 1rem;
+            }
+
+            .form-header i {
+                font-size: 1.6rem;
+            }
+
+            .styled-table tr {
+                padding: 12px;
+                margin-bottom: 12px;
+            }
+
+            .styled-table td {
+                padding: 6px 0;
+                padding-left: 100px;
+                font-size: 0.78rem;
+            }
+
+            .styled-table td::before {
+                width: 90px;
+                font-size: 0.72rem;
+            }
+        }
+
+        @media (max-width: 320px) {
+            body {
+                padding-top: 46px;
+            }
+
+            .navbar {
+                height: 46px;
+            }
+
+            .navbar-container {
+                height: 46px;
+                padding: 0 5px;
+            }
+
+            .navbar-brand {
+                font-size: 0.8rem;
+            }
+
+            .navbar-brand i {
+                font-size: 1rem;
+            }
+
+            .navbar-menu {
+                top: 46px;
+                height: calc(100vh - 46px);
+                padding: 16px 8px;
+            }
+
+            .main-content {
+                padding: 6px;
+            }
+
+            .card-container {
+                padding: 12px 6px;
+            }
+
+            .form-header h2 {
+                font-size: 0.95rem;
+            }
+
+            .form-header i {
+                font-size: 1.5rem;
+            }
+
+            .styled-table tr {
+                padding: 10px;
+            }
+
+            .styled-table td {
+                padding: 5px 0;
+                padding-left: 90px;
+                font-size: 0.72rem;
+            }
+
+            .styled-table td::before {
+                width: 82px;
+                font-size: 0.68rem;
+            }
+        }
+
+        @media (max-width: 768px) and (orientation: landscape) {
+            body {
+                padding-top: 50px;
+            }
+
+            .navbar {
+                height: 50px;
+            }
+
+            .navbar-container {
+                height: 50px;
+            }
+
             .navbar-brand {
                 font-size: 1rem;
             }
-            .container {
-                margin: 8px 1vw 0 1vw;
-                padding: 8px 1vw 10px 1vw;
+
+            .navbar-menu {
+                top: 50px;
+                height: calc(100vh - 50px);
+                padding: 20px;
             }
-            .table-title {
-                font-size: 1rem;
+
+            .main-content {
+                padding: 10px 14px;
+            }
+
+            .card-container {
+                padding: 16px 20px;
+            }
+
+            .form-header {
+                margin-bottom: 14px;
+            }
+
+            .form-header i {
+                font-size: 1.8rem;
+                margin-bottom: 6px;
+            }
+
+            .form-header h2 {
+                font-size: 1.2rem;
             }
         }
-        @media (max-width: 400px) {
-            .container {
-                padding: 4px 1vw 6px 1vw;
+
+        @media print {
+            .navbar {
+                display: none;
             }
-            .table-title {
-                font-size: 0.95rem;
+
+            body {
+                padding-top: 0;
+                background: white;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .card-container {
+                box-shadow: none;
+                border: 1px solid #ddd;
             }
         }
     </style>
 </head>
+
 <body>
     {% if current_user is not defined %}
-        {% set current_user = {'role': 'admin'} %}
+    {% set current_user = {'role': 'admin'} %}
     {% endif %}
-    <!-- Navbar -->
+
     <nav class="navbar">
         <div class="navbar-container">
-            <a href="{% if current_user.role == 'admin' %}{{ url_for('view_assigned_architects') }}{% else %}{{ url_for('site_engineer_dashboard') }}{% endif %}" class="navbar-brand">
+            <a href="{% if current_user.role == 'admin' %}{{ url_for('view_assigned_architects') }}{% else %}{{ url_for('site_engineer_dashboard') }}{% endif %}"
+                class="navbar-brand">
                 <i class="fas fa-hard-hat"></i>
                 Assigned Architects
             </a>
-            <ul class="navbar-nav" id="navbarNav">
+
+            <ul class="navbar-menu" id="navbarNav">
                 <li>
-                    <a href="{% if current_user.role == 'admin' %}{{ url_for('admin_dashboard') }}{% else %}{{ url_for('site_engineer_dashboard') }}{% endif %}" class="nav-link">
+                    <a href="{% if current_user.role == 'admin' %}{{ url_for('admin_dashboard') }}{% else %}{{ url_for('site_engineer_dashboard') }}{% endif %}"
+                        class="navbar-link">
                         <i class="fas fa-tachometer-alt"></i>
                         Dashboard
                     </a>
                 </li>
                 <li>
-                    <a href="{{ url_for('view_assigned_architects') }}" class="nav-link active">
-                        <i class="fas fa-users"></i>
-                        View Assigned
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ url_for('logout') }}" class="nav-link logout">
+                    <a href="{{ url_for('logout') }}" class="navbar-link logout">
                         <i class="fas fa-sign-out-alt"></i>
                         Logout
                     </a>
                 </li>
             </ul>
-            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+
+            <button class="navbar-toggle" id="mobileMenuToggle" aria-label="Toggle navigation">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
     </nav>
-    <div class="container">
-        <h2 class="table-title"><i class="fas fa-users" style="color:#3498db"></i> Assigned Architects</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Site ID</th>
-                    <th>Site Name</th>
-                    <th>Project ID</th>
-                    <th>Architect Name</th>
-                    <th>Architect Email</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for site in sites %}
-                <tr>
-                    <td data-label="Site ID">{{ site.site_id }}</td>
-                    <td data-label="Site Name">{{ site.site_name }}</td>
-                    <td data-label="Project ID">{{ site.project_id or 'Not Assigned' }}</td>
-                    <td data-label="Architect Name">
-                        {% if site.architect_name %}
-                            {{ site.architect_name }}
-                        {% else %}
-                            <span class="not-assigned">Not Assigned</span>
-                        {% endif %}
-                    </td>
-                    <td data-label="Architect Email">
-                        {% if site.architect_email %}
-                            {{ site.architect_email }}
-                        {% else %}
-                            <span class="not-assigned">-</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+
+    <div class="main-content">
+        <div class="card-container">
+
+            <div class="form-header">
+                <i class="fas fa-hard-hat"></i>
+                <h2>Assigned Architects</h2>
+                <p>View all sites and their assigned architect details.</p>
+            </div>
+
+            <div class="section-label">
+                <div class="label-left">
+                    <i class="fas fa-list"></i>
+                    Sites Overview
+                </div>
+                <span class="count-badge">
+                    <i class="fas fa-hashtag"></i>
+                    {{ sites|length if sites else 0 }} Sites
+                </span>
+            </div>
+
+            <div class="table-wrapper">
+                {% if sites %}
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-id-badge"></i> Site ID</th>
+                            <th><i class="fas fa-map-marker-alt"></i> Site Name</th>
+                            <th><i class="fas fa-project-diagram"></i> Project ID</th>
+                            <th><i class="fas fa-user-tie"></i> Architect Name</th>
+                            <th><i class="fas fa-envelope"></i> Architect Email</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for site in sites %}
+                        <tr>
+                            <td data-label="Site ID">{{ site.site_id }}</td>
+                            <td data-label="Site Name"><span class="site-name">{{ site.site_name }}</span></td>
+                            <td data-label="Project ID">{{ site.project_id or 'Not Assigned' }}</td>
+                            <td data-label="Architect Name">
+                                {% if site.architect_name %}
+                                {{ site.architect_name }}
+                                {% else %}
+                                <span class="not-assigned">Not Assigned</span>
+                                {% endif %}
+                            </td>
+                            <td data-label="Architect Email">
+                                {% if site.architect_email %}
+                                {{ site.architect_email }}
+                                {% else %}
+                                <span class="not-assigned">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="no-data">
+                    <i class="fas fa-inbox"></i>
+                    <h3>No Assigned Architects Found</h3>
+                    <p>There are currently no sites with assigned architects.</p>
+                </div>
+                {% endif %}
+            </div>
+
+        </div>
     </div>
+
     <script>
-        // Mobile menu toggle
-        document.getElementById('mobileMenuToggle').addEventListener('click', function() {
+        document.getElementById('mobileMenuToggle').addEventListener('click', function () {
             const navbarNav = document.getElementById('navbarNav');
             const icon = this.querySelector('i');
             navbarNav.classList.toggle('active');
@@ -387,9 +927,9 @@
                 icon.classList.add('fa-bars');
             }
         });
-        // Close mobile menu when clicking on a link
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', function() {
+
+        document.querySelectorAll('.navbar-link').forEach(link => {
+            link.addEventListener('click', function () {
                 const navbarNav = document.getElementById('navbarNav');
                 const mobileToggle = document.getElementById('mobileMenuToggle');
                 const icon = mobileToggle.querySelector('i');
@@ -400,3 +940,5 @@
         });
     </script>
 </body>
+
+</html>
