@@ -401,6 +401,7 @@
             color: #1e3a5f;
             transition: border-color 0.2s;
             width: 100%;
+            max-width: 100%;
         }
 
         .section-block select:focus,
@@ -428,6 +429,7 @@
             justify-content: center;
             gap: 7px;
             width: 100%;
+            max-width: 100%;
             min-height: unset;
         }
 
@@ -477,19 +479,19 @@
         }
 
         .tab-link:hover {
-            background: rgba(30, 58, 95, 0.08);
+            background: rgba(30, 58, 95, 0.15);
             color: #1e3a5f;
             transform: none;
         }
 
         .tab-link.active {
-            background: #3a7bd5;
+            background: #1e3a5f;
             color: white;
             box-shadow: 0 2px 8px rgba(58, 123, 213, 0.3);
         }
 
         .tab-link.active:hover {
-            background: #3a7bd5;
+            background: #1e3a5f;
             transform: none;
         }
 
@@ -709,6 +711,64 @@
                 white-space: nowrap;
             }
 
+            /* ── Drawings table card layout on mobile ── */
+            .section-block table {
+                display: block;
+                overflow-x: visible;
+                white-space: normal;
+            }
+
+            .section-block table thead {
+                display: none;
+            }
+
+            .section-block table tbody {
+                display: block;
+            }
+
+            .section-block table tr {
+                display: block;
+                border: 1px solid #e1e8ed;
+                border-radius: 10px;
+                margin-bottom: 14px;
+                padding: 12px;
+                background: #f8fafc;
+                box-shadow: 0 2px 8px rgba(30, 58, 95, 0.06);
+            }
+
+            .section-block table td {
+                display: flex;
+                flex-direction: column;
+                border: none;
+                border-bottom: 1px solid #e9ecef;
+                padding: 8px 0;
+                font-size: 0.82rem;
+                white-space: normal;
+                word-break: break-word;
+            }
+
+            .section-block table td:last-child {
+                border-bottom: none;
+            }
+
+            .section-block table td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: #1e3a5f;
+                font-size: 0.75rem;
+                margin-bottom: 4px;
+            }
+
+            .section-block table td input[type="text"],
+            .section-block table td input[type="file"] {
+                width: 100%;
+            }
+
+            .section-block table td button {
+                width: 100%;
+                margin-top: 6px;
+            }
+
             .flash-messages {
                 top: 70px;
                 right: 10px;
@@ -772,8 +832,8 @@
             }
 
             .tab-link {
-                min-height: 44px;
-                padding: 12px 15px;
+                min-height: unset;
+                padding: 8px 12px;
             }
         }
 
@@ -804,6 +864,199 @@
             .content-body {
                 padding: 2rem 2.5rem;
             }
+        }
+
+        /* ── Enhanced Tab Form Styling ── */
+        .section-block {
+            background: #fff;
+            border-radius: 16px;
+            border: none;
+            padding: 0;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(30, 58, 95, 0.10);
+            overflow: hidden;
+        }
+
+        .section-block h2 {
+            background: linear-gradient(135deg, #1e3a5f, #2d5a8e);
+            color: white !important;
+            padding: 16px 22px;
+            margin-bottom: 0 !important;
+            font-size: 14px !important;
+            border-bottom: none !important;
+        }
+
+        .section-block h2 i {
+            color: rgba(255, 255, 255, 0.85) !important;
+        }
+
+        .section-block form {
+            padding: 22px;
+            background: #fff;
+        }
+
+        .section-block h2 {
+            font-size: clamp(14px, 2vw, 15px);
+            font-weight: 600;
+            color: #1e3a5f;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e8eef6;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-block label {
+            font-weight: 600;
+            color: #1e3a5f;
+            margin-bottom: 6px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: block;
+        }
+
+        .section-block select,
+        .section-block input[type="text"],
+        .section-block input[type="number"],
+        .section-block textarea,
+        .section-block input[type="file"] {
+            padding: 11px 14px;
+            border: 1.5px solid rgba(30, 58, 95, 0.12);
+            border-radius: 10px;
+            font-size: 13px;
+            font-family: inherit;
+            background: #f8fafc;
+            color: #1e3a5f;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .section-block select:focus,
+        .section-block input:focus,
+        .section-block textarea:focus {
+            outline: none;
+            border-color: #3a7bd5;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(58, 123, 213, 0.1);
+        }
+
+        .section-block textarea {
+            resize: vertical;
+            min-height: 90px;
+            line-height: 1.6;
+        }
+
+        .section-block button {
+            background: linear-gradient(135deg, #3a7bd5, #2d5a8e);
+            color: white;
+            padding: 11px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            width: auto;
+            max-width: 480px;
+            min-width: 160px;
+            box-shadow: 0 4px 12px rgba(58, 123, 213, 0.25);
+        }
+
+        .section-block button:hover {
+            background: linear-gradient(135deg, #2d5a8e, #1e3a5f);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(58, 123, 213, 0.35);
+        }
+
+        .section-block button:active {
+            transform: scale(0.98) translateY(0);
+            box-shadow: 0 2px 8px rgba(58, 123, 213, 0.2);
+        }
+
+        .section-block form {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        /* ── Tab styling upgrade ── */
+        .tabs {
+            background: #e8eef6;
+            border-radius: 12px;
+            padding: 5px;
+            gap: 3px;
+        }
+
+        .tab-link {
+            border-radius: 9px;
+            padding: 9px 14px;
+            font-size: 12.5px;
+            font-weight: 500;
+            gap: 6px;
+        }
+
+        .tab-link.active {
+            background: #1e3a5f;
+            color: white;
+            box-shadow: 0 3px 10px rgba(58, 123, 213, 0.3);
+        }
+
+        /* ── Dashboard card upgrade ── */
+        .dashboard-card {
+            border-radius: 16px;
+            border: 1px solid rgba(30, 58, 95, 0.08);
+            box-shadow: 0 2px 12px rgba(30, 58, 95, 0.06);
+        }
+
+        .dashboard-card .card-content p {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(30, 58, 95, 0.05);
+            margin-bottom: 0;
+            display: flex;
+            gap: 8px;
+        }
+
+        .dashboard-card .card-content p:last-child {
+            border-bottom: none;
+        }
+
+        /* ── Select Project section ── */
+        .section-block select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%233a7bd5' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 36px;
+        }
+
+        /* ── File input styling ── */
+        .section-block input[type="file"] {
+            padding: 9px 12px;
+            cursor: pointer;
+            background: #f0f4f8;
+            border-style: dashed;
+        }
+
+        .section-block input[type="file"]::-webkit-file-upload-button {
+            background: #3a7bd5;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 500;
+            margin-right: 10px;
         }
     </style>
 </head>
@@ -1112,10 +1365,10 @@
                                         <input type="hidden" name="layout_type" value="{{ doc.layout_type }}">
                                         <input type="hidden" name="active_tab" value="drawings">
                                         <tr>
-                                            <td>{{ doc.layout_type }}</td>
-                                            <td><input type="text" name="document_title"
+                                            <td data-label="Layout Type">{{ doc.layout_type }}</td>
+                                            <td data-label="Document Title"><input type="text" name="document_title"
                                                     value="{{ doc.document_title }}" required></td>
-                                            <td>
+                                            <td data-label="File">
                                                 {% if doc.file_path %}
                                                 <a href="{{ url_for('static', filename=doc.file_path) }}"
                                                     target="_blank" class="file-view-link">
@@ -1130,7 +1383,8 @@
                                                     style="color:#8a9ab0;font-size:11px;margin-top:2px;display:block;">Max:
                                                     4MB</small>
                                             </td>
-                                            <td><button type="submit"><i class="fas fa-save"></i> Update</button></td>
+                                            <td data-label="Update"><button type="submit"><i class="fas fa-save"></i>
+                                                    Update</button></td>
                                         </tr>
                                     </form>
                                     {% endfor %}
