@@ -7,6 +7,8 @@
     <title>Bills & Payments</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
         /* (your existing CSS - unchanged) */
         body {
@@ -30,7 +32,6 @@
             position: relative;
             overflow: hidden;
             text-align: center;
-            /* animation: fadeIn 0.3s ease-out; */
         }
 
         .page-header::before {
@@ -74,7 +75,7 @@
 
 
         /* Navbar Styles */
-        .navbar {
+        .top-navbar {
             position: fixed;
             top: 0;
             left: 0;
@@ -89,7 +90,7 @@
             align-items: center;
         }
 
-        .navbar-container {
+        .top-navbar-container {
             max-width: 100%;
             margin: 0 auto;
             display: flex;
@@ -101,7 +102,7 @@
             height: 70px;
         }
 
-        .navbar-brand {
+        .top-navbar-brand {
             display: flex;
             align-items: center;
             gap: 12px;
@@ -111,12 +112,12 @@
             font-size: 1.4rem;
         }
 
-        .navbar-brand i {
+        .top-navbar-brand i {
             color: #3498db;
             font-size: 1.8rem;
         }
 
-        .navbar-menu {
+        .top-navbar-menu {
             display: flex;
             list-style: none;
             gap: 30px;
@@ -124,40 +125,64 @@
             margin: 0;
         }
 
-        .navbar-link {
+        .top-navbar-link {
             text-decoration: none;
             color: #2c3e50;
             font-weight: 500;
             padding: 10px 15px;
             border-radius: 8px;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(.77, 0, .18, 1);
             display: flex;
             align-items: center;
             gap: 8px;
+            position: relative;
+            overflow: hidden;
         }
 
-        .navbar-link:hover {
+        .top-navbar-link::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 0;
+            height: 3px;
+            background: #3498db;
+            transition: width 0.3s cubic-bezier(.77, 0, .18, 1);
+        }
+
+        .top-navbar-link:hover::after {
+            width: 100%;
+        }
+
+
+        .top-navbar-link:hover {
             background: rgba(52, 152, 219, 0.1);
             color: #3498db;
             transform: translateY(-2px);
         }
 
-        .navbar-link.active {
+        .top-navbar-link.active {
             background: #3498db;
             color: white;
         }
 
-        .navbar-link.logout {
-            background: #e74c3c;
-            color: white;
+        .top-navbar-link.logout {
+            background: transparent;
+            color: #2c3e50 !important;
+            border: 1.5px solid #ced4da;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 500;
         }
 
-        .navbar-link.logout:hover {
-            background: #c0392b;
-            transform: translateY(-2px);
+        .top-navbar-link.logout:hover {
+            background: #f8f9fa;
+            border-color: #adb5bd;
+            color: #2c3e50;
+            transform: translateY(-2px) scale(1.04);
         }
 
-        .navbar-toggle {
+        .top-navbar-toggle {
             display: none;
             background: none;
             border: none;
@@ -537,7 +562,7 @@
         }
 
         @media (max-width: 900px) {
-            .navbar-container {
+            .top-navbar-container {
                 padding: 0 10px;
             }
         }
@@ -547,11 +572,11 @@
                 padding-top: 70px !important;
             }
 
-            .navbar {
+            .top-navbar {
                 height: 60px;
             }
 
-            .navbar-container {
+            .top-navbar-container {
                 height: 60px;
                 padding: 0 15px;
             }
@@ -569,7 +594,7 @@
                 font-size: 2.5rem;
             }
 
-            .navbar-menu {
+            .top-navbar-menu {
                 position: fixed;
                 top: 60px;
                 left: -100%;
@@ -585,15 +610,15 @@
                 gap: 20px;
             }
 
-            .navbar-menu.active {
+            .top-navbar-menu.active {
                 left: 0;
             }
 
-            .navbar-toggle {
+            .top-navbar-toggle {
                 display: block;
             }
 
-            .navbar-link {
+            .top-navbar-link {
                 width: 100%;
                 max-width: 300px;
                 justify-content: center;
@@ -640,24 +665,24 @@
                 padding-top: 60px !important;
             }
 
-            .navbar {
+            .top-navbar {
                 height: 55px;
             }
 
-            .navbar-container {
+            .top-navbar-container {
                 height: 55px;
                 padding: 0 10px;
             }
 
-            .navbar-brand {
+            .top-navbar-brand {
                 font-size: 1.1rem;
             }
 
-            .navbar-brand i {
+            .top-navbar-brand i {
                 font-size: 1.4rem;
             }
 
-            .navbar-menu {
+            .top-navbar-menu {
                 top: 55px;
                 height: calc(100vh - 55px);
             }
@@ -731,24 +756,24 @@
                 padding-top: 55px !important;
             }
 
-            .navbar {
+            .top-navbar {
                 height: 50px;
             }
 
-            .navbar-container {
+            .top-navbar-container {
                 height: 50px;
                 padding: 0 8px;
             }
 
-            .navbar-brand {
+            .top-navbar-brand {
                 font-size: 0.95rem;
             }
 
-            .navbar-brand i {
+            .top-navbar-brand i {
                 font-size: 1.2rem;
             }
 
-            .navbar-menu {
+            .top-navbar-menu {
                 top: 50px;
                 height: calc(100vh - 50px);
             }
@@ -798,20 +823,20 @@
                 padding-top: 50px !important;
             }
 
-            .navbar {
+            .top-navbar {
                 height: 48px;
             }
 
-            .navbar-container {
+            .top-navbar-container {
                 height: 48px;
                 padding: 0 6px;
             }
 
-            .navbar-brand {
+            .top-navbar-brand {
                 font-size: 0.88rem;
             }
 
-            .navbar-menu {
+            .top-navbar-menu {
                 top: 48px;
                 height: calc(100vh - 48px);
             }
@@ -850,15 +875,15 @@
                 padding-top: 50px !important;
             }
 
-            .navbar {
+            .top-navbar {
                 height: 50px;
             }
 
-            .navbar-container {
+            .top-navbar-container {
                 height: 50px;
             }
 
-            .navbar-menu {
+            .top-navbar-menu {
                 top: 50px;
                 height: calc(100vh - 50px);
                 padding: 15px 20px;
@@ -888,28 +913,28 @@
 <body>
 
     <!-- Navbar -->
-    <nav class="navbar">
-        <div class="navbar-container">
-            <a href="{{ url_for('bills_and_payments') }}" class="navbar-brand">
+    <nav class="top-navbar">
+        <div class="top-navbar-container">
+            <a href="{{ url_for('bills_and_payments') }}" class="top-navbar-brand">
                 <i class="fas fa-hard-hat"></i>
                 Bills & Payments
             </a>
-            <ul class="navbar-menu" id="navbarNav">
+            <ul class="top-navbar-menu" id="topNavbarNav">
                 <li>
                     <a href="{{ url_for('admin_dashboard') if session.role == 'admin' else url_for('accountant_dashboard') }}"
-                        class="navbar-link">
+                        class="top-navbar-link">
                         <i class="fas fa-tachometer-alt"></i>
                         Dashboard
                     </a>
                 </li>
                 <li>
-                    <a href="{{ url_for('logout') }}" class="navbar-link logout">
+                    <a href="{{ url_for('logout') }}" class="top-navbar-link logout">
                         <i class="fas fa-sign-out-alt"></i>
                         Logout
                     </a>
                 </li>
             </ul>
-            <button class="navbar-toggle" id="mobileMenuToggle">
+            <button class="top-navbar-toggle" id="mobileMenuToggle">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
@@ -1408,7 +1433,7 @@
 
         // Mobile menu toggle
         document.getElementById('mobileMenuToggle').addEventListener('click', function () {
-            const navbarNav = document.getElementById('navbarNav');
+            const navbarNav = document.getElementById('topNavbarNav');
             const icon = this.querySelector('i');
             navbarNav.classList.toggle('active');
             if (navbarNav.classList.contains('active')) {
@@ -1420,9 +1445,9 @@
             }
         });
 
-        document.querySelectorAll('.navbar-link').forEach(link => {
+        document.querySelectorAll('.top-navbar-link').forEach(link => {
             link.addEventListener('click', function () {
-                const navbarNav = document.getElementById('navbarNav');
+                const navbarNav = document.getElementById('topNavbarNav');
                 const mobileToggle = document.getElementById('mobileMenuToggle');
                 const icon = mobileToggle.querySelector('i');
                 navbarNav.classList.remove('active');
