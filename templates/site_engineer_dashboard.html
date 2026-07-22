@@ -130,7 +130,7 @@
             margin-top: 14px;
         }
 
-       
+
         .notification-badge {
             position: absolute;
             top: 6px;
@@ -171,7 +171,7 @@
             background: #2d5a8e;
         }
 
-      
+
         * {
             scrollbar-width: thin;
             scrollbar-color: #3a7bd5 #1e3a5f;
@@ -664,7 +664,7 @@
             <!-- Welcome Section -->
             <div class="welcome-section">
                 <div>
-                    <p class="welcome-back" style="color:rgba(255,255,255,0.65);margin:0 0 4px; font-size:30px;">Welcome
+                    <p class="welcome-back" style="color:rgba(255,255,255,0.65);margin:0 0 4px; font-size:45px;">Welcome
                         back,</p>
                     <h1>{{ engineer.name }}</h1>
                     <p>Build safe, build smart, we finish what we start!</p>
@@ -923,26 +923,23 @@
                 }
             });
 
-            let lastScrollY = 0;
             window.addEventListener('scroll', function () {
                 const toggle = document.querySelector('.mobile-menu-toggle');
                 const sidebar = document.getElementById('sidebar');
                 if (sidebar.classList.contains('active')) return;
+                toggle.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
                 if (window.innerWidth <= 768) {
-                    if (window.scrollY > lastScrollY && window.scrollY > 50) {
+                    if (window.scrollY > 50) {
                         toggle.style.opacity = '0';
                         toggle.style.pointerEvents = 'none';
+                        toggle.style.transform = 'translateY(-10px)';
                     } else {
                         toggle.style.opacity = '1';
                         toggle.style.pointerEvents = 'auto';
-                    }
-                    if (window.scrollY === 0) {
-                        toggle.style.opacity = '1';
-                        toggle.style.pointerEvents = 'auto';
+                        toggle.style.transform = 'translateY(0)';
                     }
                 }
-                lastScrollY = window.scrollY;
-            }, { passive: true });
+            });
 
             const navLinks = {
                 'view_assigned_sites': 'project_assigned',
