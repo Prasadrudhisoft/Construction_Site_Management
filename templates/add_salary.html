@@ -23,8 +23,7 @@
             padding-top: 90px;
         }
 
-        /* ── NAVBAR (identical to advance page) ── */
-        .navbar {
+        .top-navbar {
             position: fixed;
             top: 0;
             left: 0;
@@ -39,7 +38,7 @@
             align-items: center;
         }
 
-        .navbar-container {
+        .top-navbar-container {
             max-width: 100%;
             margin: 0 auto;
             display: flex;
@@ -51,7 +50,7 @@
             height: 70px;
         }
 
-        .navbar-brand {
+        .top-navbar-brand {
             display: flex;
             align-items: center;
             gap: 12px;
@@ -62,21 +61,21 @@
             transition: color 0.2s;
         }
 
-        .navbar-brand:hover {
+        .top-navbar-brand:hover {
             color: #3498db;
         }
 
-        .navbar-brand i {
+        .top-navbar-brand i {
             color: #3498db;
             font-size: 1.8rem;
             transition: transform 0.2s;
         }
 
-        .navbar-brand:hover i {
+        .top-navbar-brand:hover i {
             transform: rotate(-15deg) scale(1.1);
         }
 
-        .navbar-menu {
+        .top-navbar-menu {
             display: flex;
             list-style: none;
             gap: 15px;
@@ -85,7 +84,7 @@
             padding: 0;
         }
 
-        .navbar-link {
+        .top-navbar-link {
             text-decoration: none;
             color: #2c3e50;
             font-weight: 500;
@@ -101,7 +100,7 @@
             white-space: nowrap;
         }
 
-        .navbar-link::after {
+        .top-navbar-link::after {
             content: "";
             position: absolute;
             left: 0;
@@ -112,34 +111,41 @@
             transition: width 0.3s cubic-bezier(.77, 0, .18, 1);
         }
 
-        .navbar-link:hover::after,
-        .navbar-link.active::after {
+        .top-navbar-link:hover::after,
+        .top-navbar-link.active::after {
             width: 100%;
         }
 
-        .navbar-link:hover {
+        .top-navbar-link:hover {
             background: rgba(52, 152, 219, 0.12);
             color: #3498db;
-            /* transform: translateY(-2px) scale(1.04); */
+
         }
 
-        .navbar-link.active {
+        .top-navbar-link.active {
             background: #3498db;
             color: white;
             box-shadow: 0 4px 16px rgba(52, 152, 219, 0.3);
         }
 
-        .navbar-link.logout {
-            background: #e74c3c;
-            color: white;
+        .top-navbar-link.logout {
+            background: transparent;
+            color: #2c3e50 !important;
+            border: 1.5px solid #ced4da;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 500;
         }
 
-        .navbar-link.logout:hover {
-            background: #c0392b;
+        .top-navbar-link.logout:hover {
+            background: rgba(52, 152, 219, 0.08);
+            border-color: #ced4da;
+            color: #3498db !important;
             transform: translateY(-2px) scale(1.04);
+
         }
 
-        .navbar-toggle {
+        .top-navbar-toggle {
             display: none;
             background: none;
             border: none;
@@ -150,7 +156,7 @@
             padding: 5px;
         }
 
-        .navbar-toggle:hover {
+        .top-navbar-toggle:hover {
             color: #3498db;
         }
 
@@ -172,7 +178,7 @@
             position: relative;
             overflow: hidden;
             text-align: center;
-            /* animation: fadeIn 0.3s ease-out; */
+
         }
 
         .page-header::before {
@@ -214,17 +220,7 @@
             margin: 0;
         }
 
-        /* @keyframes fadeIn {
-            from {
-                opacity: 0.7;
-                transform: translateY(10px);
-            }
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        } */
 
         .form-section {
             background: #f8f9fa;
@@ -330,15 +326,15 @@
 
         /* ── RESPONSIVE ── */
         @media (max-width: 1100px) {
-            .navbar-container {
+            .top-navbar-container {
                 padding: 0 15px;
             }
 
-            .navbar-menu {
+            .top-navbar-menu {
                 gap: 10px;
             }
 
-            .navbar-link {
+            .top-navbar-link {
                 padding: 8px 10px;
                 font-size: 0.88rem;
             }
@@ -349,15 +345,15 @@
         }
 
         @media (max-width: 900px) {
-            .navbar-container {
+            .top-navbar-container {
                 padding: 0 10px;
             }
 
-            .navbar-menu {
+            .top-navbar-menu {
                 gap: 8px;
             }
 
-            .navbar-link {
+            .top-navbar-link {
                 padding: 7px 9px;
                 font-size: 0.85rem;
             }
@@ -368,24 +364,24 @@
                 padding-top: 80px;
             }
 
-            .navbar {
+            .top-navbar {
                 height: 60px;
             }
 
-            .navbar-container {
+            .top-navbar-container {
                 height: 60px;
                 padding: 0 15px;
             }
 
-            .navbar-brand {
+            .top-navbar-brand {
                 font-size: 1.1rem;
             }
 
-            .navbar-brand i {
+            .top-navbar-brand i {
                 font-size: 1.4rem;
             }
 
-            .navbar-menu {
+            .top-navbar-menu {
                 position: fixed;
                 top: 60px;
                 left: -100%;
@@ -403,15 +399,15 @@
                 overflow-y: auto;
             }
 
-            .navbar-menu.active {
+            .top-navbar-menu.active {
                 left: 0;
             }
 
-            .navbar-toggle {
+            .top-navbar-toggle {
                 display: block;
             }
 
-            .navbar-link {
+            .top-navbar-link {
                 width: 100%;
                 max-width: 300px;
                 justify-content: center;
@@ -456,24 +452,24 @@
                 padding-top: 75px;
             }
 
-            .navbar {
+            .top-navbar {
                 height: 55px;
             }
 
-            .navbar-container {
+            .top-navbar-container {
                 height: 55px;
                 padding: 0 10px;
             }
 
-            .navbar-brand {
+            .top-navbar-brand {
                 font-size: 1rem;
             }
 
-            .navbar-brand i {
+            .top-navbar-brand i {
                 font-size: 1.2rem;
             }
 
-            .navbar-menu {
+            .top-navbar-menu {
                 top: 55px;
                 height: calc(100vh - 55px);
             }
@@ -513,24 +509,24 @@
                 padding-top: 70px;
             }
 
-            .navbar {
+            .top-navbar {
                 height: 50px;
             }
 
-            .navbar-container {
+            .top-navbar-container {
                 height: 50px;
                 padding: 0 8px;
             }
 
-            .navbar-brand {
+            .top-navbar-brand {
                 font-size: 0.95rem;
             }
 
-            .navbar-brand i {
+            .top-navbar-brand i {
                 font-size: 1.1rem;
             }
 
-            .navbar-menu {
+            .top-navbar-menu {
                 top: 50px;
                 height: calc(100vh - 50px);
             }
@@ -563,20 +559,20 @@
                 padding-top: 65px;
             }
 
-            .navbar {
+            .top-navbar {
                 height: 48px;
             }
 
-            .navbar-container {
+            .top-navbar-container {
                 height: 48px;
                 padding: 0 6px;
             }
 
-            .navbar-brand {
+            .top-navbar-brand {
                 font-size: 0.88rem;
             }
 
-            .navbar-menu {
+            .top-navbar-menu {
                 top: 48px;
                 height: calc(100vh - 48px);
             }
@@ -609,15 +605,15 @@
                 padding-top: 70px;
             }
 
-            .navbar {
+            .top-navbar {
                 height: 50px;
             }
 
-            .navbar-container {
+            .top-navbar-container {
                 height: 50px;
             }
 
-            .navbar-menu {
+            .top-navbar-menu {
                 top: 50px;
                 height: calc(100vh - 50px);
                 padding: 20px;
@@ -656,256 +652,238 @@
 </head>
 
 <body>
-    <nav class="navbar">
-        <div class="navbar-container">
-            <a href="{{ url_for('add_salary') }}" class="navbar-brand">
+    <nav class="top-navbar">
+        <div class="top-navbar-container">
+            <a href="{{ url_for('add_salary') }}" class="top-navbar-brand">
                 <i class="fas fa-calculator"></i>
                 Salary Management
             </a>
-            <ul class="navbar-menu" id="navbarNav">
+            <ul class="top-navbar-menu" id="topNavbarNav">
                 <li>
-                    <a href="{{ url_for('accountant_dashboard') }}" class="navbar-link">
+                    <a href="{{ url_for('accountant_dashboard') }}" class="top-navbar-link">
                         <i class="fas fa-tachometer-alt"></i>
                         Dashboard
                     </a>
                 </li>
+
                 <li>
-                    <a href="{{ url_for('add_salary') }}" class="navbar-link active">
-                        <i class="fas fa-plus-circle"></i>
-                        Add Salary
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ url_for('view_salaries') }}" class="navbar-link">
+                    <a href="{{ url_for('view_salaries') }}" class="top-navbar-link">
                         <i class="fas fa-eye"></i>
                         View Salaries
                     </a>
                 </li>
                 <li>
-                    <a href="{{ url_for('advance_management') }}" class="navbar-link">
+                    <a href="{{ url_for('advance_management') }}" class="top-navbar-link">
                         <i class="fas fa-hand-holding-usd"></i>
                         Advances
                     </a>
                 </li>
                 <li>
-                    <a href="{{ url_for('logout') }}" class="navbar-link logout">
+                    <a href="{{ url_for('logout') }}" class="top-navbar-link logout">
                         <i class="fas fa-sign-out-alt"></i>
                         Logout
                     </a>
                 </li>
             </ul>
-            <button class="navbar-toggle" id="mobileMenuToggle">
+            <button class="top-navbar-toggle" id="mobileMenuToggle">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
     </nav>
 
     <div class="container-fluid px-3 px-md-4">
-        <div class="row justify-content-center">
-            <div class="col-12 col-sm-11 col-md-10 col-lg-8">
-
-                <div class="page-header">
-                    <i class="fas fa-money-check-alt header-icon"></i>
-                    <h1>Add Salary Entry</h1>
-                    <p>Fill in the details below to add a new salary entry.</p>
-                </div>
-
-                <!-- Flash Messages -->
-                {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                <div class="alert alert-success alert-dismissible fade show">
-                    <i class="fas fa-check-circle me-2"></i>{{ messages[0] }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                {% endif %}
-                {% endwith %}
-
-                <form method="POST" id="salaryForm">
-                    <!-- Project and User Selection -->
-                    <div class="form-section">
-                        <h5 class="text-dark mb-3"><i class="fas fa-users me-2"></i>Employee & Project Details</h5>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="project_id" class="form-label">Project *</label>
-                                    <select name="project_id" id="project_id" class="form-select" required
-                                        onchange="filterUsersByProject()">
-                                        <option value="">Select Project</option>
-                                        {% for project in projects %}
-                                        <option value="{{ project.id }}">{{ project.project_name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="user_id" class="form-label">User *</label>
-                                    <select name="user_id" id="user_id" class="form-select" required
-                                        onchange="loadUserAdvance()">
-                                        <option value="">Select User</option>
-                                        {% for user in users %}
-                                        <option value="{{ user.id }}">{{ user.name }} ({{ user.role }})</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="role" class="form-label">Role *</label>
-                                    <input type="text" name="role" id="role" class="form-control" required>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="month_year" class="form-label">Month-Year *</label>
-                                    <input type="month" name="month_year" id="month_year" class="form-control" required>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Salary Details -->
-                    <div class="form-section">
-                        <h5 class="text-dark mb-3"><i class="fas fa-rupee-sign me-2"></i>Salary Details</h5>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="base_salary" class="form-label">Base Salary *</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">₹</span>
-                                        <input type="number" step="0.01" name="base_salary" id="base_salary"
-                                            class="form-control" required oninput="calculateNetSalary()"
-                                            onchange="calculateNetSalary()">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="allowance" class="form-label">Allowance (Misc)</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">₹</span>
-                                        <input type="number" step="0.01" name="allowance" id="allowance"
-                                            class="form-control" oninput="calculateNetSalary()"
-                                            onchange="calculateNetSalary()">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-3">
-                                <div class="mb-3">
-                                    <label for="pf" class="form-label">PF Deduction</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">₹</span>
-                                        <input type="number" step="0.01" name="pf" id="pf" class="form-control"
-                                            oninput="calculateNetSalary()" onchange="calculateNetSalary()">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="mb-3">
-                                    <label for="other_deductions" class="form-label">Other Deductions</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">₹</span>
-                                        <input type="number" step="0.01" name="other_deductions" id="other_deductions"
-                                            class="form-control" oninput="calculateNetSalary()"
-                                            onchange="calculateNetSalary()">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="mb-3">
-                                    <label for="advance" class="form-label">Advance Deduction</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">₹</span>
-                                        <input type="number" step="0.01" name="advance" id="advance"
-                                            class="form-control" oninput="calculateNetSalary()"
-                                            onchange="calculateNetSalary()" max="0">
-                                    </div>
-                                    <small class="text-muted">Available: ₹<span
-                                            id="availableAdvance">0.00</span></small>
-                                    <div id="advanceManageLink" class="mt-1" style="display: none;">
-                                        <a href="{{ url_for('advance_management') }}"
-                                            class="btn btn-sm btn-outline-success">
-                                            <i class="fas fa-plus-circle me-1"></i>Manage Advances
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="mb-3">
-                                    <label for="description" class="form-label">Description</label>
-                                    <input type="text" name="description" id="description" class="form-control"
-                                        placeholder="e.g. Fuel, Food">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Salary Calculation Summary -->
-                        <div class="salary-summary">
-                            <h6 class="mb-3"><i class="fas fa-calculator me-2"></i>Salary Calculation</h6>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="calculation-display">
-                                        <span class="text-success">Gross Salary: ₹<span
-                                                id="grossSalary">0.00</span></span>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="calculation-display">
-                                        <span class="text-primary">Total Deductions: ₹<span
-                                                id="totalDeductions">0.00</span></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <hr>
-                            <div class="calculation-display text-center">
-                                <span class="text-dark"><strong>Net Salary: ₹<span
-                                            id="netSalary">0.00</span></strong></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Payment Details -->
-                    <div class="form-section">
-                        <h5 class="text-dark mb-3"><i class="fas fa-credit-card me-2"></i>Payment Details</h5>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="payment_mode" class="form-label">Payment Mode *</label>
-                                    <select name="payment_mode" id="payment_mode" class="form-select"
-                                        onchange="toggleChequeNumber()" required>
-                                        <option value="">Select Payment Mode</option>
-                                        <option value="cash">Cash</option>
-                                        <option value="cheque">Cheque</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div id="cheque_div" class="hidden">
-                                    <div class="mb-3">
-                                        <label for="cheque_number" class="form-label">Cheque Number *</label>
-                                        <input type="text" name="cheque_number" id="cheque_number" class="form-control">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="btn-group-actions mt-4">
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="fas fa-plus me-2"></i>Add Salary Entry
-                        </button>
-                        <a href="{{ url_for('accountant_dashboard') }}" class="btn btn-secondary btn-lg">
-                            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
-                        </a>
-                    </div>
-                </form>
-            </div>
+        <div class="page-header">
+            <i class="fas fa-money-check-alt header-icon"></i>
+            <h1>Add Salary Entry</h1>
+            <p>Fill in the details below to add a new salary entry.</p>
         </div>
-    </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle me-2"></i>{{ messages[0] }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <form method="POST" id="salaryForm">
+            <!-- Project and User Selection -->
+            <div class="form-section">
+                <h5 class="text-dark mb-3"><i class="fas fa-users me-2"></i>Employee & Project Details</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="project_id" class="form-label">Project *</label>
+                            <select name="project_id" id="project_id" class="form-select" required
+                                onchange="filterUsersByProject()">
+                                <option value="">Select Project</option>
+                                {% for project in projects %}
+                                <option value="{{ project.id }}">{{ project.project_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="user_id" class="form-label">User *</label>
+                            <select name="user_id" id="user_id" class="form-select" required
+                                onchange="loadUserAdvance()">
+                                <option value="">Select User</option>
+                                {% for user in users %}
+                                <option value="{{ user.id }}">{{ user.name }} ({{ user.role }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="role" class="form-label">Role *</label>
+                            <input type="text" name="role" id="role" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="month_year" class="form-label">Month-Year *</label>
+                            <input type="month" name="month_year" id="month_year" class="form-control" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Salary Details -->
+            <div class="form-section">
+                <h5 class="text-dark mb-3"><i class="fas fa-rupee-sign me-2"></i>Salary Details</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="base_salary" class="form-label">Base Salary *</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" step="0.01" name="base_salary" id="base_salary"
+                                    class="form-control" required oninput="calculateNetSalary()"
+                                    onchange="calculateNetSalary()">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="allowance" class="form-label">Allowance (Misc)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" step="0.01" name="allowance" id="allowance" class="form-control"
+                                    oninput="calculateNetSalary()" onchange="calculateNetSalary()">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="mb-3">
+                            <label for="pf" class="form-label">PF Deduction</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" step="0.01" name="pf" id="pf" class="form-control"
+                                    oninput="calculateNetSalary()" onchange="calculateNetSalary()">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="mb-3">
+                            <label for="other_deductions" class="form-label">Other Deductions</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" step="0.01" name="other_deductions" id="other_deductions"
+                                    class="form-control" oninput="calculateNetSalary()" onchange="calculateNetSalary()">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="mb-3">
+                            <label for="advance" class="form-label">Advance Deduction</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" step="0.01" name="advance" id="advance" class="form-control"
+                                    oninput="calculateNetSalary()" onchange="calculateNetSalary()" max="0">
+                            </div>
+                            <small class="text-muted">Available: ₹<span id="availableAdvance">0.00</span></small>
+                            <div id="advanceManageLink" class="mt-1" style="display: none;">
+                                <a href="{{ url_for('advance_management') }}" class="btn btn-sm btn-outline-success">
+                                    <i class="fas fa-plus-circle me-1"></i>Manage Advances
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <input type="text" name="description" id="description" class="form-control"
+                                placeholder="e.g. Fuel, Food">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Salary Calculation Summary -->
+                <div class="salary-summary">
+                    <h6 class="mb-3"><i class="fas fa-calculator me-2"></i>Salary Calculation</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="calculation-display">
+                                <span class="text-success">Gross Salary: ₹<span id="grossSalary">0.00</span></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="calculation-display">
+                                <span class="text-primary">Total Deductions: ₹<span
+                                        id="totalDeductions">0.00</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="calculation-display text-center">
+                        <span class="text-dark"><strong>Net Salary: ₹<span id="netSalary">0.00</span></strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Details -->
+            <div class="form-section">
+                <h5 class="text-dark mb-3"><i class="fas fa-credit-card me-2"></i>Payment Details</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="payment_mode" class="form-label">Payment Mode *</label>
+                            <select name="payment_mode" id="payment_mode" class="form-select"
+                                onchange="toggleChequeNumber()" required>
+                                <option value="">Select Payment Mode</option>
+                                <option value="cash">Cash</option>
+                                <option value="cheque">Cheque</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div id="cheque_div" class="hidden">
+                            <div class="mb-3">
+                                <label for="cheque_number" class="form-label">Cheque Number *</label>
+                                <input type="text" name="cheque_number" id="cheque_number" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-group-actions mt-4">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus me-2"></i>Add Salary Entry
+                </button>
+                <a href="{{ url_for('accountant_dashboard') }}" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </form>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
@@ -1036,7 +1014,7 @@
 
         // Mobile menu toggle
         document.getElementById('mobileMenuToggle').addEventListener('click', function () {
-            const navbarNav = document.getElementById('navbarNav');
+            const navbarNav = document.getElementById('topNavbarNav');
             const icon = this.querySelector('i');
             navbarNav.classList.toggle('active');
             if (navbarNav.classList.contains('active')) {
@@ -1049,9 +1027,9 @@
         });
 
         // Close mobile menu when clicking on a link
-        document.querySelectorAll('.navbar-link').forEach(link => {
+        document.querySelectorAll('.top-navbar-link').forEach(link => {
             link.addEventListener('click', function () {
-                const navbarNav = document.getElementById('navbarNav');
+                const navbarNav = document.getElementById('topNavbarNav');
                 const mobileToggle = document.getElementById('mobileMenuToggle');
                 const icon = mobileToggle.querySelector('i');
                 navbarNav.classList.remove('active');

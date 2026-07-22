@@ -88,11 +88,24 @@
             font-weight: 500;
             padding: 10px 15px;
             border-radius: 8px;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(.77, 0, .18, 1);
             display: flex;
             align-items: center;
             gap: 8px;
             white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .navbar-link::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 0;
+            height: 3px;
+            background: #3498db;
+            transition: width 0.3s cubic-bezier(.77, 0, .18, 1);
         }
 
         .navbar-link:hover {
@@ -107,13 +120,19 @@
         }
 
         .navbar-link.logout {
-            background: #e74c3c;
-            color: white;
+            background: transparent;
+            color: #2c3e50 !important;
+            border: 1.5px solid #ced4da;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 500;
         }
 
         .navbar-link.logout:hover {
-            background: #c0392b;
-            transform: translateY(-2px);
+            background: rgba(52, 152, 219, 0.08);
+            border-color: #ced4da;
+            color: #3498db !important;
+            transform: translateY(-2px) scale(1.04);
         }
 
         .navbar-toggle {
@@ -144,8 +163,8 @@
 
         /* ── Card Container ── */
         .card-container {
-            max-width: 1100px;
-            width: 95%;
+            max-width: 100%;
+            width: 100%;
             margin: 0 auto;
             background: #fff;
             border-radius: 22px;
@@ -156,17 +175,6 @@
             overflow: hidden;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(16px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
 
         .card-container::before {
             content: '';
@@ -365,16 +373,7 @@
             font-size: 0.95rem;
         }
 
-        /* ════════════════════════════════
-           RESPONSIVE BREAKPOINTS
-        ════════════════════════════════ */
-
-        @media (min-width: 1400px) {
-            .card-container {
-                max-width: 1300px;
-            }
-        }
-
+   
         @media (max-width: 1200px) {
             .card-container {
                 padding: 36px 48px;
@@ -785,12 +784,7 @@
                         Dashboard
                     </a>
                 </li>
-                <li>
-                    <a href="{{ url_for('accountant_view_expenses') }}" class="navbar-link active">
-                        <i class="fas fa-check-circle"></i>
-                        Approved Expenses
-                    </a>
-                </li>
+              
                 <li>
                     <a href="{{ url_for('logout') }}" class="navbar-link logout">
                         <i class="fas fa-sign-out-alt"></i>

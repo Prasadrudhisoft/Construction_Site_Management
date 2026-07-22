@@ -24,7 +24,7 @@
         }
 
         /* ===== NAVBAR STYLES ===== */
-        .navbar {
+        .top-navbar {
             position: fixed;
             top: 0;
             left: 0;
@@ -39,7 +39,7 @@
             align-items: center;
         }
 
-        .navbar-container {
+        .top-navbar-container {
             max-width: 100%;
             margin: 0 auto;
             display: flex;
@@ -51,7 +51,7 @@
             height: 70px;
         }
 
-        .navbar-brand {
+        .top-navbar-brand {
             display: flex;
             align-items: center;
             gap: 12px;
@@ -62,21 +62,21 @@
             transition: color 0.2s;
         }
 
-        .navbar-brand:hover {
+        .top-navbar-brand:hover {
             color: #3498db;
         }
 
-        .navbar-brand i {
+        .top-navbar-brand i {
             color: #3498db;
             font-size: 1.8rem;
             transition: transform 0.2s;
         }
 
-        .navbar-brand:hover i {
+        .top-navbar-brand:hover i {
             transform: rotate(-15deg) scale(1.1);
         }
 
-        .navbar-menu {
+        .top-navbar-menu {
             display: flex;
             list-style: none;
             gap: 15px;
@@ -84,7 +84,7 @@
             margin: 0;
         }
 
-        .navbar-link {
+        .top-navbar-link {
             text-decoration: none;
             color: #2c3e50;
             font-weight: 500;
@@ -99,7 +99,7 @@
             overflow: hidden;
         }
 
-        .navbar-link::after {
+        .top-navbar-link::after {
             content: "";
             position: absolute;
             left: 0;
@@ -109,33 +109,40 @@
             background: #3498db;
         }
 
-        .navbar-link:hover::after,
-        .navbar-link.active::after {
+        .top-navbar-link:hover::after,
+        .top-navbar-link.active::after {
             width: 100%;
         }
 
-        .navbar-link:hover {
+        .top-navbar-link:hover {
             background: rgba(52, 152, 219, 0.12);
             color: #3498db;
         }
 
-        .navbar-link.active {
+        .top-navbar-link.active {
             background: #3498db;
             color: white;
             box-shadow: 0 4px 16px rgba(52, 152, 219, 0.3);
         }
 
-        .navbar-link.logout {
-            background: #e74c3c;
-            color: white;
+        .top-navbar-link.logout {
+            background: transparent;
+            color: #2c3e50 !important;
+            border: 1.5px solid #ced4da;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 500;
         }
 
-        .navbar-link.logout:hover {
-            background: #c0392b;
+        .top-navbar-link.logout:hover {
+            background: #f8f9fa;
+            border-color: #adb5bd;
+            color: #2c3e50;
             transform: translateY(-2px) scale(1.04);
         }
 
-        .navbar-toggle {
+    
+        .top-navbar-toggle {
             display: none;
             background: none;
             border: none;
@@ -145,13 +152,13 @@
             transition: color 0.2s;
         }
 
-        .navbar-toggle:hover {
+        .top-navbar-toggle:hover {
             color: #3498db;
         }
 
         /* ===== CONTAINER ===== */
         .container {
-            max-width: 1400px;
+            max-width: 100%;
             margin: 0 auto;
             padding: 30px 20px 20px;
         }
@@ -257,7 +264,7 @@
         }
 
         .btn-update {
-            background: linear-gradient(135deg, #28a745, #20c997);
+            background: linear-gradient(135deg, #3498db, #2c3e50);
             border: none;
             color: white;
             padding: 8px 20px;
@@ -365,16 +372,16 @@
                 padding: 30px 15px 20px;
             }
 
-            .navbar-container {
+            .top-navbar-container {
                 padding: 0 10px;
             }
 
-            .navbar-link {
+            .top-navbar-link {
                 padding: 8px 10px;
                 font-size: 0.88rem;
             }
 
-            .navbar-menu {
+            .top-navbar-menu {
                 gap: 10px;
             }
         }
@@ -385,16 +392,16 @@
                 padding: 25px 10px 20px;
             }
 
-            .navbar-container {
+            .top-navbar-container {
                 padding: 0 8px;
             }
 
-            .navbar-link {
+            .top-navbar-link {
                 padding: 7px 9px;
                 font-size: 0.85rem;
             }
 
-            .navbar-menu {
+            .top-navbar-menu {
                 gap: 8px;
             }
         }
@@ -404,24 +411,24 @@
                 padding-top: 80px;
             }
 
-            .navbar {
+            .top-navbar {
                 height: 60px;
             }
 
-            .navbar-container {
+            .top-navbar-container {
                 height: 60px;
                 padding: 0 15px;
             }
 
-            .navbar-brand {
+            .top-navbar-brand {
                 font-size: 1.1rem;
             }
 
-            .navbar-brand i {
+            .top-navbar-brand i {
                 font-size: 1.4rem;
             }
 
-            .navbar-menu {
+            .top-navbar-menu {
                 position: fixed;
                 top: 60px;
                 left: -100%;
@@ -438,15 +445,15 @@
                 z-index: 2000;
             }
 
-            .navbar-menu.active {
+            .top-navbar-menu.active {
                 left: 0;
             }
 
-            .navbar-toggle {
+            .top-navbar-toggle {
                 display: block;
             }
 
-            .navbar-link {
+            .top-navbar-link {
                 width: 100%;
                 max-width: 300px;
                 justify-content: center;
@@ -515,24 +522,24 @@
                 padding-top: 75px;
             }
 
-            .navbar {
+            .top-navbar {
                 height: 55px;
             }
 
-            .navbar-container {
+            .top-navbar-container {
                 height: 55px;
                 padding: 0 8px;
             }
 
-            .navbar-brand {
+            .top-navbar-brand {
                 font-size: 1rem;
             }
 
-            .navbar-brand i {
+            .top-navbar-brand i {
                 font-size: 1.2rem;
             }
 
-            .navbar-menu {
+            .top-navbar-menu {
                 top: 55px;
                 height: calc(100vh - 55px);
                 padding: 30px 15px;
@@ -632,24 +639,24 @@
                 padding-top: 70px;
             }
 
-            .navbar {
+            .top-navbar {
                 height: 50px;
             }
 
-            .navbar-container {
+            .top-navbar-container {
                 height: 50px;
                 padding: 0 6px;
             }
 
-            .navbar-brand {
+            .top-navbar-brand {
                 font-size: 0.9rem;
             }
 
-            .navbar-brand i {
+            .top-navbar-brand i {
                 font-size: 1.1rem;
             }
 
-            .navbar-menu {
+            .top-navbar-menu {
                 top: 50px;
                 height: calc(100vh - 50px);
                 padding: 24px 10px;
@@ -701,24 +708,24 @@
                 padding-top: 65px;
             }
 
-            .navbar {
+            .top-navbar {
                 height: 48px;
             }
 
-            .navbar-container {
+            .top-navbar-container {
                 height: 48px;
                 padding: 0 5px;
             }
 
-            .navbar-brand {
+            .top-navbar-brand {
                 font-size: 0.85rem;
             }
 
-            .navbar-brand i {
+            .top-navbar-brand i {
                 font-size: 1rem;
             }
 
-            .navbar-menu {
+            .top-navbar-menu {
                 top: 48px;
                 height: calc(100vh - 48px);
                 padding: 20px 8px;
@@ -768,15 +775,15 @@
                 padding-top: 70px;
             }
 
-            .navbar {
+            .top-navbar {
                 height: 50px;
             }
 
-            .navbar-container {
+            .top-navbar-container {
                 height: 50px;
             }
 
-            .navbar-menu {
+            .top-navbar-menu {
                 top: 50px;
                 height: calc(100vh - 50px);
                 padding: 20px;
@@ -805,45 +812,40 @@
 
 <body>
     <!-- Navigation -->
-    <nav class="navbar">
-        <div class="navbar-container">
-            <a href="{{ url_for('base_salary_management') }}" class="navbar-brand">
+    <nav class="top-navbar">
+        <div class="top-navbar-container">
+            <a href="{{ url_for('base_salary_management') }}" class="top-navbar-brand">
                 <i class="fas fa-calculator"></i>
                 Salary Management
             </a>
-            <ul class="navbar-menu" id="navbarNav">
+            <ul class="top-navbar-menu" id="topNavbarNav">
                 <li>
-                    <a href="{{ url_for('accountant_dashboard') }}" class="navbar-link">
+                    <a href="{{ url_for('accountant_dashboard') }}" class="top-navbar-link">
                         <i class="fas fa-tachometer-alt"></i>
                         Dashboard
                     </a>
                 </li>
+
                 <li>
-                    <a href="{{ url_for('base_salary_management') }}" class="navbar-link active">
-                        <i class="fas fa-money-bill-wave"></i>
-                        Base Salary
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ url_for('add_salary') }}" class="navbar-link">
+                    <a href="{{ url_for('add_salary') }}" class="top-navbar-link">
                         <i class="fas fa-plus-circle"></i>
                         Add Salary
                     </a>
                 </li>
                 <li>
-                    <a href="{{ url_for('view_salaries') }}" class="navbar-link">
+                    <a href="{{ url_for('view_salaries') }}" class="top-navbar-link">
                         <i class="fas fa-eye"></i>
                         View Salaries
                     </a>
                 </li>
                 <li>
-                    <a href="{{ url_for('logout') }}" class="navbar-link logout">
+                    <a href="{{ url_for('logout') }}" class="top-navbar-link logout">
                         <i class="fas fa-sign-out-alt"></i>
                         Logout
                     </a>
                 </li>
             </ul>
-            <button class="navbar-toggle" id="mobileMenuToggle">
+            <button class="top-navbar-toggle" id="mobileMenuToggle">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
@@ -1014,7 +1016,7 @@
 
             // Mobile menu toggle
             const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-            const navbarNav = document.getElementById('navbarNav');
+            const navbarNav = document.getElementById('topNavbarNav');
 
             if (mobileMenuToggle && navbarNav) {
                 mobileMenuToggle.addEventListener('click', function () {
@@ -1031,7 +1033,7 @@
                 });
 
                 // Close menu when clicking on a link
-                document.querySelectorAll('.navbar-link').forEach(link => {
+                document.querySelectorAll('.top-navbar-link').forEach(link => {
                     link.addEventListener('click', function () {
                         navbarNav.classList.remove('active');
                         const icon = mobileMenuToggle.querySelector('i');
