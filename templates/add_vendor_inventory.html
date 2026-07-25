@@ -1,14 +1,24 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Add Vendor Inventory (Multi-Item)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
 
-        html, body { height: 100%; }
+        html,
+        body {
+            height: 100%;
+        }
 
         body {
             background: #f4f6f8;
@@ -16,10 +26,12 @@
             padding-top: 70px;
         }
 
-        /* ── Navbar — identical to upload_progress ── */
+       
         .navbar {
             position: fixed;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 0;
+            right: 0;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
@@ -31,42 +43,126 @@
         }
 
         .navbar-container {
-            max-width: 100%; margin: 0 auto;
-            display: flex; justify-content: space-between; align-items: center;
-            width: 100%; padding: 0 40px; height: 70px;
+            max-width: 100%;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 0 40px;
+            height: 70px;
         }
 
         .navbar-brand {
-            display: flex; align-items: center; gap: 12px;
-            text-decoration: none; color: #2c3e50;
-            font-weight: 700; font-size: 1.4rem;
-            transition: color 0.2s; flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: 1.4rem;
+            transition: color 0.2s;
+            flex-shrink: 0;
         }
-        .navbar-brand:hover { color: #3498db; }
-        .navbar-brand i { color: #3498db; font-size: 1.8rem; transition: transform 0.2s; }
-        .navbar-brand:hover i { transform: rotate(-15deg) scale(1.1); }
 
-        .navbar-menu { display: flex; list-style: none; gap: 30px; align-items: center; margin: 0; }
+        .navbar-brand:hover {
+            color: #3498db;
+        }
+
+        .navbar-brand i {
+            color: #3498db;
+            font-size: 1.8rem;
+            transition: transform 0.2s;
+        }
+
+        .navbar-brand:hover i {
+            transform: rotate(-15deg) scale(1.1);
+        }
+
+        .navbar-menu {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+            align-items: center;
+            margin: 0;
+        }
 
         .navbar-link {
-            text-decoration: none; color: #2c3e50; font-weight: 500;
-            padding: 10px 15px; border-radius: 8px;
-            transition: all 0.3s ease; display: flex; align-items: center;
-            gap: 8px; white-space: nowrap;
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 500;
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(.77, 0, .18, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
         }
-        .navbar-link:hover { background: rgba(52, 152, 219, 0.1); color: #3498db; transform: translateY(-2px); }
-        .navbar-link.active { background: #3498db; color: white; }
-        .navbar-link.logout { background: #e74c3c; color: white; }
-        .navbar-link.logout:hover { background: #c0392b; transform: translateY(-2px); }
+
+        .navbar-link::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 0;
+            height: 3px;
+            background: #3498db;
+            transition: width 0.3s cubic-bezier(.77, 0, .18, 1);
+        }
+
+        .navbar-link:hover::after {
+            width: 100%;
+        }
+
+
+        .navbar-link:hover {
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+            transform: translateY(-2px);
+        }
+
+        .navbar-link.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .navbar-link.logout {
+            background: transparent;
+            color: #2c3e50 !important;
+            border: 1.5px solid #ced4da;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 500;
+        }
+
+        .navbar-link.logout:hover {
+            background: #f8f9fa;
+            border-color: #adb5bd;
+            color: #2c3e50;
+            transform: translateY(-2px) scale(1.04);
+        }
 
         .navbar-toggle {
-            display: none; background: none; border: none;
-            font-size: 1.5rem; color: #2c3e50; cursor: pointer;
-            padding: 5px; border-radius: 4px; transition: all 0.3s ease;
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #2c3e50;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
         }
-        .navbar-toggle:hover { background: rgba(52, 152, 219, 0.1); color: #3498db; }
 
-        /* ── Main Content — identical to upload_progress ── */
+        .navbar-toggle:hover {
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+        }
+
+      
         .main-content {
             display: flex;
             align-items: center;
@@ -75,7 +171,7 @@
             padding: 20px;
         }
 
-        /* ── Card — identical to upload_progress ── */
+        
         .form-container {
             max-width: 1100px;
             width: 95%;
@@ -84,50 +180,62 @@
             border-radius: 22px;
             box-shadow: 0 8px 32px rgba(52, 152, 219, 0.13);
             padding: 40px 60px;
-            animation: fadeIn 0.3s ease-out;
             position: relative;
             overflow: hidden;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0.7; transform: translateY(10px); }
-            to   { opacity: 1;   transform: translateY(0); }
-        }
 
         .form-container::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 0;
+            right: 0;
             height: 5px;
             background: linear-gradient(90deg, #3498db, #2c3e50);
         }
 
-        /* ── Header — identical to upload_progress ── */
+        
         .form-header {
             text-align: center;
             margin-bottom: 30px;
         }
-        .form-header i {
-            font-size: 3rem; color: #3498db;
-            margin-bottom: 15px; display: block;
-        }
-        .form-header h2 {
-            color: #2c3e50; font-size: 1.8rem;
-            font-weight: 600; margin-bottom: 8px;
-        }
-        .form-header p { color: #666; font-size: 0.95rem; }
 
-        /* ── Flash message (unchanged) ── */
+        .form-header i {
+            font-size: 3rem;
+            color: #3498db;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .form-header h2 {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .form-header p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+     
         .success-message {
-            background: #27ae60; color: white;
-            padding: 15px; border-radius: 12px;
-            margin-bottom: 20px; text-align: center;
-            display: flex; align-items: center;
-            justify-content: center; gap: 10px;
+            background: #27ae60;
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
             font-weight: 500;
         }
 
-        /* ── Item block — styled like upload_progress sections ── */
+        
         .item-block {
             border: 2px solid #e1e8ed;
             border-radius: 12px;
@@ -150,24 +258,36 @@
         .item-block h4::before {
             content: '';
             display: inline-block;
-            width: 4px; height: 18px;
+            width: 4px;
+            height: 18px;
             background: #3498db;
             border-radius: 2px;
         }
 
         .remove-btn {
             position: absolute;
-            right: 15px; top: 15px;
-            background: #e74c3c; color: white;
-            border: none; border-radius: 50%;
-            width: 32px; height: 32px;
-            font-size: 1rem; cursor: pointer; line-height: 1;
+            right: 15px;
+            top: 15px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-size: 1rem;
+            cursor: pointer;
+            line-height: 1;
             transition: background 0.2s;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .remove-btn:hover { background: #c0392b; }
 
-        /* ── Form groups — identical to upload_progress ── */
+        .remove-btn:hover {
+            background: #c0392b;
+        }
+
+       
         .form-group {
             margin-bottom: 25px;
             position: relative;
@@ -182,150 +302,359 @@
             font-weight: 500;
             font-size: 1rem;
         }
+
         .form-group label i {
-            color: #3498db; font-size: 1rem;
-            width: 16px; text-align: center;
+            color: #3498db;
+            font-size: 1rem;
+            width: 16px;
+            text-align: center;
         }
 
-        /* ── Inputs — identical to upload_progress ── */
+       
         .form-control {
-            width: 100%; padding: 15px 20px;
-            border: 2px solid #e1e8ed; border-radius: 12px;
-            font-size: 1rem; transition: all 0.3s ease;
-            background: #f8f9fa; color: #2c3e50;
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            color: #2c3e50;
             font-family: 'Poppins', sans-serif;
         }
+
         .form-control:focus {
-            outline: none; border-color: #3498db;
-            background: white; box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+            outline: none;
+            border-color: #3498db;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
 
-        /* ── Two-col grid — identical to upload_progress form-row ── */
+        
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
 
-        /* ── File input — identical to upload_progress ── */
-        .file-input-wrapper { position: relative; width: 100%; }
+      
+        .file-input-wrapper {
+            position: relative;
+            width: 100%;
+        }
 
         .file-input {
-            width: 100%; padding: 20px 15px;
-            border: 2px dashed #e1e8ed; border-radius: 12px;
-            background: #f8f9fa; cursor: pointer;
-            transition: all 0.3s ease; text-align: center; position: relative;
+            width: 100%;
+            padding: 20px 15px;
+            border: 2px dashed #e1e8ed;
+            border-radius: 12px;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
         }
-        .file-input:hover { border-color: #3498db; background: #ebf3fd; }
+
+        .file-input:hover {
+            border-color: #3498db;
+            background: #ebf3fd;
+        }
 
         .file-input input[type="file"] {
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 2;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 2;
         }
 
         .file-input-text {
-            pointer-events: none; display: flex;
-            align-items: center; justify-content: center;
-            gap: 10px; color: #666; font-size: 0.95rem;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #666;
+            font-size: 0.95rem;
         }
-        .file-input-text i { font-size: 1.3rem; color: #3498db; }
-        .file-note { color: #7f8c8d; font-size: 0.82rem; margin-top: 6px; display: block; }
+
+        .file-input-text i {
+            font-size: 1.3rem;
+            color: #3498db;
+        }
+
+        .file-note {
+            color: #7f8c8d;
+            font-size: 0.82rem;
+            margin-top: 6px;
+            display: block;
+        }
 
         /* ── Buttons ── */
         .btn-row {
-            display: flex; gap: 15px;
-            flex-wrap: wrap; margin-top: 10px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 10px;
         }
 
         .btn-row button {
-            padding: 15px 28px; border: none;
-            border-radius: 12px; font-size: 1rem;
-            cursor: pointer; transition: all 0.3s ease;
-            display: flex; align-items: center; gap: 8px;
-            font-family: 'Poppins', sans-serif; font-weight: 600;
+            padding: 15px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            line-height: 1;
         }
 
         #addMoreBtn {
-            background: #3498db; color: white;
+            background: #3498db;
+            color: white;
         }
-        #addMoreBtn:hover { background: #2980b9; transform: translateY(-2px); }
+
+        #addMoreBtn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
 
         #submitBtn {
             flex: 1;
             background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white; justify-content: center;
-        }
-        #submitBtn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3); }
-        #submitBtn:active { transform: translateY(0); }
-        #submitBtn:disabled { background: #bdc3c7; cursor: not-allowed; transform: none; box-shadow: none; }
+            color: white;
 
-        /* ── Responsive — identical to upload_progress ── */
+        }
+
+        #submitBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3);
+        }
+
+        #submitBtn:active {
+            transform: translateY(0);
+        }
+
+        #submitBtn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+     
         @media (max-width: 1024px) {
-            .navbar-menu { gap: 20px; }
-            .navbar-link { padding: 8px 12px; font-size: 0.95rem; }
-            .navbar-brand { font-size: 1.3rem; }
-            .navbar-brand i { font-size: 1.7rem; }
+            .navbar-menu {
+                gap: 20px;
+            }
+
+            .navbar-link {
+                padding: 8px 12px;
+                font-size: 0.95rem;
+            }
+
+            .navbar-brand {
+                font-size: 1.3rem;
+            }
+
+            .navbar-brand i {
+                font-size: 1.7rem;
+            }
         }
 
         @media (max-width: 900px) {
-            .navbar-container { padding: 0 20px; }
-            .form-container { max-width: 99vw; padding: 30px 3vw 20px 3vw; }
+            .navbar-container {
+                padding: 0 20px;
+            }
+
+            .form-container {
+                max-width: 99vw;
+                padding: 30px 3vw 20px 3vw;
+            }
         }
 
         @media (max-width: 768px) {
-            body { padding-top: 60px; }
-            .navbar { height: 60px; }
-            .navbar-container { height: 60px; padding: 0 15px; }
-            .navbar-brand { font-size: 1.2rem; }
-            .navbar-brand i { font-size: 1.5rem; }
+            body {
+                padding-top: 60px;
+            }
+
+            .navbar {
+                height: 60px;
+            }
+
+            .navbar-container {
+                height: 60px;
+                padding: 0 15px;
+            }
+
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+
+            .navbar-brand i {
+                font-size: 1.5rem;
+            }
 
             .navbar-menu {
                 position: fixed;
-                top: 60px; left: -100%; width: 100%;
+                top: 60px;
+                left: -100%;
+                width: 100%;
                 height: calc(100vh - 60px);
                 background: rgba(255, 255, 255, 0.98);
                 backdrop-filter: blur(20px);
                 flex-direction: column;
-                justify-content: flex-start; align-items: center;
+                justify-content: flex-start;
+                align-items: center;
                 padding: 40px 20px;
-                transition: left 0.3s ease; gap: 20px; z-index: 2000;
+                transition: left 0.3s ease;
+                gap: 20px;
+                z-index: 2000;
             }
-            .navbar-menu.active { left: 0; }
-            .navbar-toggle { display: block; }
-            .navbar-link { width: 100%; max-width: 300px; justify-content: center; padding: 15px 20px; font-size: 1.1rem; }
 
-            .main-content { min-height: calc(100vh - 60px); padding: 15px; }
-            .form-container { margin: 20px auto 30px auto; padding: 30px 24px; }
-            .form-header h2 { font-size: 1.5rem; }
-            .form-header i { font-size: 2.5rem; }
-            .form-row { grid-template-columns: 1fr; }
-            .btn-row { flex-direction: column; }
-            #submitBtn { flex: none; }
+            .navbar-menu.active {
+                left: 0;
+            }
+
+            .navbar-toggle {
+                display: block;
+            }
+
+            .navbar-link {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+                padding: 15px 20px;
+                font-size: 1.1rem;
+            }
+
+            .main-content {
+                min-height: calc(100vh - 60px);
+                padding: 15px;
+            }
+
+            .form-container {
+                margin: 20px auto 30px auto;
+                padding: 30px 24px;
+            }
+
+            .form-header h2 {
+                font-size: 1.5rem;
+            }
+
+            .form-header i {
+                font-size: 2.5rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-row {
+                flex-direction: column;
+            }
+
+            #submitBtn {
+                flex: none;
+            }
         }
 
         @media (max-width: 480px) {
-            .navbar { height: 55px; }
-            .navbar-container { height: 55px; padding: 0 10px; }
-            .navbar-brand { font-size: 1.1rem; gap: 8px; }
-            .navbar-brand i { font-size: 1.4rem; }
-            .navbar-menu { top: 55px; height: calc(100vh - 55px); padding: 30px 15px; }
-            body { padding-top: 55px; }
-            .form-container { padding: 25px 16px; margin: 10px auto 20px auto; }
-            .form-header h2 { font-size: 1.3rem; }
-            .form-header i { font-size: 2rem; }
-            .form-control { padding: 12px 15px; font-size: 0.9rem; }
-            .btn-row button { padding: 12px; font-size: 1rem; }
+            .navbar {
+                height: 55px;
+            }
+
+            .navbar-container {
+                height: 55px;
+                padding: 0 10px;
+            }
+
+            .navbar-brand {
+                font-size: 1.1rem;
+                gap: 8px;
+            }
+
+            .navbar-brand i {
+                font-size: 1.4rem;
+            }
+
+            .navbar-menu {
+                top: 55px;
+                height: calc(100vh - 55px);
+                padding: 30px 15px;
+            }
+
+            body {
+                padding-top: 55px;
+            }
+
+            .form-container {
+                padding: 25px 16px;
+                margin: 10px auto 20px auto;
+            }
+
+            .form-header h2 {
+                font-size: 1.3rem;
+            }
+
+            .form-header i {
+                font-size: 2rem;
+            }
+
+            .form-control {
+                padding: 12px 15px;
+                font-size: 0.9rem;
+            }
+
+            .btn-row button {
+                padding: 12px;
+                font-size: 1rem;
+            }
         }
 
         @media (max-width: 320px) {
-            .navbar { height: 50px; }
-            .navbar-container { height: 50px; padding: 0 5px; }
-            .navbar-brand { font-size: 1rem; }
-            .navbar-brand i { font-size: 1.3rem; }
-            .navbar-menu { top: 50px; height: calc(100vh - 50px); padding: 25px 10px; }
-            body { padding-top: 50px; }
-            .form-container { padding: 20px 10px; }
-            .form-header h2 { font-size: 1.2rem; }
+            .navbar {
+                height: 50px;
+            }
+
+            .navbar-container {
+                height: 50px;
+                padding: 0 5px;
+            }
+
+            .navbar-brand {
+                font-size: 1rem;
+            }
+
+            .navbar-brand i {
+                font-size: 1.3rem;
+            }
+
+            .navbar-menu {
+                top: 50px;
+                height: calc(100vh - 50px);
+                padding: 25px 10px;
+            }
+
+            body {
+                padding-top: 50px;
+            }
+
+            .form-container {
+                padding: 20px 10px;
+            }
+
+            .form-header h2 {
+                font-size: 1.2rem;
+            }
         }
     </style>
 </head>
@@ -333,13 +662,14 @@
 <body>
     <nav class="navbar">
         <div class="navbar-container">
-            <a href="{{ url_for('add_vendor_inventory') }}" class="navbar-brand">
+            <a href="#" class="navbar-brand">
                 <i class="fas fa-hard-hat"></i> Add Vendor Inventory
             </a>
             <ul class="navbar-menu" id="navbarNav">
-                <li><a href="{{ url_for('dashboard') }}" class="navbar-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                <li><a href="{{ url_for('add_vendor_inventory') }}" class="navbar-link active"><i class="fas fa-truck"></i> Add Inventory</a></li>
-                <li><a href="{{ url_for('logout') }}" class="navbar-link logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                <li><a href="{{ url_for('dashboard') }}" class="navbar-link"><i class="fas fa-tachometer-alt"></i>
+                        Dashboard</a></li>
+                <li><a href="{{ url_for('logout') }}" class="navbar-link logout"><i class="fas fa-sign-out-alt"></i>
+                        Logout</a></li>
             </ul>
             <button class="navbar-toggle" id="mobileMenuToggle"><i class="fas fa-bars"></i></button>
         </div>
@@ -372,14 +702,18 @@
                         <h4>Item 1</h4>
 
                         <div class="form-group">
-                            <label><i class="fas fa-clipboard-list"></i> Material Description <span style="color:#e74c3c">*</span></label>
-                            <input type="text" name="material_description[]" class="form-control" required placeholder="e.g., Portland Cement">
+                            <label><i class="fas fa-clipboard-list"></i> Material Description <span
+                                    style="color:#e74c3c">*</span></label>
+                            <input type="text" name="material_description[]" class="form-control" required
+                                placeholder="e.g., Portland Cement">
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label><i class="fas fa-sort-numeric-up"></i> Quantity <span style="color:#e74c3c">*</span></label>
-                                <input type="number" name="quantity[]" min="1" class="form-control" required placeholder="Enter quantity">
+                                <label><i class="fas fa-sort-numeric-up"></i> Quantity <span
+                                        style="color:#e74c3c">*</span></label>
+                                <input type="number" name="quantity[]" min="1" class="form-control" required
+                                    placeholder="Enter quantity">
                             </div>
                             <div class="form-group">
                                 <label><i class="fas fa-flag"></i> Status <span style="color:#e74c3c">*</span></label>
@@ -395,7 +729,8 @@
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label><i class="fas fa-tools"></i> Vendor Type <span style="color:#e74c3c">*</span></label>
+                                <label><i class="fas fa-tools"></i> Vendor Type <span
+                                        style="color:#e74c3c">*</span></label>
                                 <select name="vendor_type[]" class="form-control" required>
                                     <option value="">Select</option>
                                     <option value="electrical">Electrical</option>
@@ -406,16 +741,20 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label><i class="fas fa-user-tie"></i> Vendor Name <span style="color:#e74c3c">*</span></label>
-                                <input type="text" name="vendor_name[]" class="form-control" required placeholder="Enter vendor name">
+                                <label><i class="fas fa-user-tie"></i> Vendor Name <span
+                                        style="color:#e74c3c">*</span></label>
+                                <input type="text" name="vendor_name[]" class="form-control" required
+                                    placeholder="Enter vendor name">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label><i class="fas fa-file-pdf"></i> Quotation PDF <span style="color:#e74c3c">*</span></label>
+                            <label><i class="fas fa-file-pdf"></i> Quotation PDF <span
+                                    style="color:#e74c3c">*</span></label>
                             <div class="file-input-wrapper">
                                 <div class="file-input">
-                                    <input type="file" name="quotation[]" accept=".pdf" required class="quotation-input">
+                                    <input type="file" name="quotation[]" accept=".pdf" required
+                                        class="quotation-input">
                                     <div class="file-input-text">
                                         <i class="fas fa-file-upload"></i>
                                         <span>Click to upload PDF or drag and drop</span>
@@ -543,4 +882,5 @@
         });
     </script>
 </body>
+
 </html>

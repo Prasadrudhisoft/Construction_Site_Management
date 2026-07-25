@@ -21,7 +21,7 @@
             padding-top: 70px;
         }
 
-        /* Navbar — identical to Submit Worker Report */
+   
         .navbar {
             position: fixed;
             top: 0;
@@ -88,12 +88,30 @@
             font-weight: 500;
             padding: 10px 15px;
             border-radius: 8px;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(.77, 0, .18, 1);
             display: flex;
             align-items: center;
             gap: 8px;
             white-space: nowrap;
+            position: relative;
+            overflow: hidden;
         }
+
+        .navbar-link::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 0;
+            height: 3px;
+            background: #3498db;
+            transition: width 0.3s cubic-bezier(.77, 0, .18, 1);
+        }
+
+        .navbar-link:hover::after {
+            width: 100%;
+        }
+
 
         .navbar-link:hover {
             background: rgba(52, 152, 219, 0.1);
@@ -107,13 +125,19 @@
         }
 
         .navbar-link.logout {
-            background: #e74c3c;
-            color: white;
+            background: transparent;
+            color: #2c3e50 !important;
+            border: 1.5px solid #ced4da;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 500;
         }
 
         .navbar-link.logout:hover {
-            background: #c0392b;
-            transform: translateY(-2px);
+            background: #f8f9fa;
+            border-color: #adb5bd;
+            color: #2c3e50;
+            transform: translateY(-2px) scale(1.04);
         }
 
         .navbar-toggle {
@@ -133,7 +157,7 @@
             color: #3498db;
         }
 
-        /* Main Content — flex centering, same as Submit Worker Report */
+        
         .main-content {
             display: flex;
             align-items: center;
@@ -166,7 +190,7 @@
             background: linear-gradient(90deg, #3498db, #2c3e50);
         }
 
-        /* Header — centered, icon + title + subtitle */
+       
         .form-header {
             text-align: center;
             margin-bottom: 30px;

@@ -88,12 +88,31 @@
             font-weight: 500;
             padding: 10px 15px;
             border-radius: 8px;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(.77, 0, .18, 1);
             display: flex;
             align-items: center;
             gap: 8px;
             white-space: nowrap;
+            position: relative;
+            overflow: hidden;
         }
+
+        .navbar-link::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 0;
+            height: 3px;
+            background: #3498db;
+            transition: width 0.3s cubic-bezier(.77, 0, .18, 1);
+        }
+
+        .navbar-link:hover::after {
+            width: 100%;
+        }
+
+
 
         .navbar-link:hover {
             background: rgba(52, 152, 219, 0.1);
@@ -107,13 +126,19 @@
         }
 
         .navbar-link.logout {
-            background: #e74c3c;
-            color: white;
+            background: transparent;
+            color: #2c3e50 !important;
+            border: 1.5px solid #ced4da;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 500;
         }
 
         .navbar-link.logout:hover {
-            background: #c0392b;
-            transform: translateY(-2px);
+            background: #f8f9fa;
+            border-color: #adb5bd;
+            color: #2c3e50;
+            transform: translateY(-2px) scale(1.04);
         }
 
         .navbar-toggle {
@@ -138,27 +163,15 @@
             padding: 30px 30px 40px 30px;
         }
 
-        /* ── Outer container — full width like original ── */
+     
         .page-container {
             max-width: 1400px;
             width: 100%;
             margin: 0 auto;
-            animation: fadeIn 0.3s ease-out;
+           
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0.7;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* ── Page header card — centred icon + title ── */
+  
         .page-header-card {
             background: #fff;
             border-radius: 22px;
@@ -215,17 +228,7 @@
             color: #fff;
         }
 
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
 
         /* ── Invoice grid ── */
         .invoice-grid {
@@ -834,16 +837,13 @@
     <!-- ── NAVBAR ── -->
     <nav class="navbar">
         <div class="navbar-container">
-            <a href="{{ url_for('site_engineer_invoices') }}" class="navbar-brand">
+            <a href="#" class="navbar-brand">
                 <i class="fas fa-file-invoice-dollar"></i>
                 My Invoices
             </a>
             <ul class="navbar-menu" id="navbarNav">
                 <li><a href="{{ url_for('site_engineer_dashboard') }}" class="navbar-link">
                         <i class="fas fa-tachometer-alt"></i> Dashboard
-                    </a></li>
-                <li><a href="{{ url_for('site_engineer_invoices') }}" class="navbar-link active">
-                        <i class="fas fa-file-invoice-dollar"></i> My Invoices
                     </a></li>
                 <li><a href="{{ url_for('logout') }}" class="navbar-link logout">
                         <i class="fas fa-sign-out-alt"></i> Logout

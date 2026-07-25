@@ -88,12 +88,31 @@
             font-weight: 500;
             padding: 10px 15px;
             border-radius: 8px;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(.77, 0, .18, 1);
             display: flex;
             align-items: center;
             gap: 8px;
             white-space: nowrap;
+            position: relative;
+            overflow: hidden;
         }
+
+        .navbar-link::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 0;
+            height: 3px;
+            background: #3498db;
+            transition: width 0.3s cubic-bezier(.77, 0, .18, 1);
+        }
+
+        .navbar-link:hover::after {
+            width: 100%;
+        }
+
+
 
         .navbar-link:hover {
             background: rgba(52, 152, 219, 0.1);
@@ -107,13 +126,19 @@
         }
 
         .navbar-link.logout {
-            background: #e74c3c;
-            color: white;
+            background: transparent;
+            color: #2c3e50 !important;
+            border: 1.5px solid #ced4da;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 500;
         }
 
         .navbar-link.logout:hover {
-            background: #c0392b;
-            transform: translateY(-2px);
+            background: #f8f9fa;
+            border-color: #adb5bd;
+            color: #2c3e50;
+            transform: translateY(-2px) scale(1.04);
         }
 
         .navbar-toggle {
@@ -151,22 +176,11 @@
             border-radius: 22px;
             box-shadow: 0 8px 32px rgba(52, 152, 219, 0.13);
             padding: 40px 60px;
-            animation: fadeIn 0.3s ease-out;
             position: relative;
             overflow: hidden;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0.7;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+ 
 
         .form-container::before {
             content: '';
@@ -219,17 +233,7 @@
             animation: slideDown 0.5s ease-out;
         }
 
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+ 
 
         /* Form groups */
         .form-group {
@@ -726,9 +730,9 @@
 <body>
     <nav class="navbar">
         <div class="navbar-container">
-            <a href="{{ url_for('add_inventory') }}" class="navbar-brand">
+            <a href="#" class="navbar-brand">
                 <i class="fas fa-hard-hat"></i>
-                Project Manager Portal
+                Add Inventory
             </a>
 
             <ul class="navbar-menu" id="navbarNav">
@@ -738,12 +742,7 @@
                         Dashboard
                     </a>
                 </li>
-                <li>
-                    <a href="{{ url_for('add_inventory') }}" class="navbar-link active">
-                        <i class="fas fa-plus-circle"></i>
-                        Add Inventory
-                    </a>
-                </li>
+            
                 <li>
                     <a href="{{ url_for('site_engineer_view_inventory') }}" class="navbar-link">
                         <i class="fas fa-boxes"></i>
@@ -767,7 +766,7 @@
     <div class="main-content">
         <div class="form-container">
 
-            <!-- Header — center-aligned, matching Submit Worker Report -->
+         
             <div class="form-header">
                 <i class="fas fa-boxes"></i>
                 <h2>Add Inventory</h2>
@@ -784,6 +783,7 @@
             {% endwith %}
 
             <form method="POST" action="{{ url_for('add_inventory') }}" id="inventoryForm">
+              
 
                 <!-- Materials section -->
                 <div class="materials-section">

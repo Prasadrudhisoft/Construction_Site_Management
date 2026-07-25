@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Submit Worker Report</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -58,7 +60,9 @@
             flex-shrink: 0;
         }
 
-        .navbar-brand:hover { color: #3498db; }
+        .navbar-brand:hover {
+            color: #3498db;
+        }
 
         .navbar-brand i {
             color: #3498db;
@@ -66,7 +70,9 @@
             transition: transform 0.2s;
         }
 
-        .navbar-brand:hover i { transform: rotate(-15deg) scale(1.1); }
+        .navbar-brand:hover i {
+            transform: rotate(-15deg) scale(1.1);
+        }
 
         .navbar-menu {
             display: flex;
@@ -82,12 +88,31 @@
             font-weight: 500;
             padding: 10px 15px;
             border-radius: 8px;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(.77, 0, .18, 1);
             display: flex;
             align-items: center;
             gap: 8px;
             white-space: nowrap;
+            position: relative;
+            overflow: hidden;
         }
+
+        .navbar-link::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 0;
+            height: 3px;
+            background: #3498db;
+            transition: width 0.3s cubic-bezier(.77, 0, .18, 1);
+        }
+
+        .navbar-link:hover::after {
+            width: 100%;
+        }
+
+
 
         .navbar-link:hover {
             background: rgba(52, 152, 219, 0.1);
@@ -101,13 +126,19 @@
         }
 
         .navbar-link.logout {
-            background: #e74c3c;
-            color: white;
+            background: transparent;
+            color: #2c3e50 !important;
+            border: 1.5px solid #ced4da;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 500;
         }
 
         .navbar-link.logout:hover {
-            background: #c0392b;
-            transform: translateY(-2px);
+            background: #f8f9fa;
+            border-color: #adb5bd;
+            color: #2c3e50;
+            transform: translateY(-2px) scale(1.04);
         }
 
         .navbar-toggle {
@@ -144,15 +175,11 @@
             border-radius: 22px;
             box-shadow: 0 8px 32px rgba(52, 152, 219, 0.13);
             padding: 40px 60px;
-            animation: fadeIn 0.3s ease-out;
             position: relative;
             overflow: hidden;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0.7; transform: translateY(10px); }
-            to   { opacity: 1;   transform: translateY(0); }
-        }
+
 
         .form-container::before {
             content: '';
@@ -252,7 +279,9 @@
             box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3);
         }
 
-        .submit-btn:active { transform: translateY(0); }
+        .submit-btn:active {
+            transform: translateY(0);
+        }
 
         .submit-btn:disabled {
             background: #bdc3c7;
@@ -276,9 +305,17 @@
             animation: slideIn 0.5s ease-out;
         }
 
-        .flash-message.success { background: #27ae60; }
-        .flash-message.error   { background: #e74c3c; }
-        .flash-message.info    { background: #3498db; }
+        .flash-message.success {
+            background: #27ae60;
+        }
+
+        .flash-message.error {
+            background: #e74c3c;
+        }
+
+        .flash-message.info {
+            background: #3498db;
+        }
 
         .action-links {
             display: flex;
@@ -302,109 +339,256 @@
             gap: 8px;
         }
 
-        .primary-link   { background: #3498db; color: white; }
-        .primary-link:hover { background: #2980b9; transform: translateY(-2px); }
-        .secondary-link { background: #95a5a6; color: white; }
-        .secondary-link:hover { background: #7f8c8d; transform: translateY(-2px); }
+        .primary-link {
+            background: #3498db;
+            color: white;
+        }
+
+        .primary-link:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .secondary-link {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .secondary-link:hover {
+            background: #7f8c8d;
+            transform: translateY(-2px);
+        }
 
         @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to   { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* ── Responsive ── */
         @media (max-width: 1024px) {
-            .navbar-menu { gap: 20px; }
-            .navbar-link { padding: 8px 12px; font-size: 0.95rem; }
-            .navbar-brand { font-size: 1.3rem; }
-            .navbar-brand i { font-size: 1.7rem; }
+            .navbar-menu {
+                gap: 20px;
+            }
+
+            .navbar-link {
+                padding: 8px 12px;
+                font-size: 0.95rem;
+            }
+
+            .navbar-brand {
+                font-size: 1.3rem;
+            }
+
+            .navbar-brand i {
+                font-size: 1.7rem;
+            }
         }
 
         @media (max-width: 900px) {
-            .navbar-container { padding: 0 20px; }
-            .form-container { max-width: 99vw; padding: 30px 3vw 20px 3vw; }
+            .navbar-container {
+                padding: 0 20px;
+            }
+
+            .form-container {
+                max-width: 99vw;
+                padding: 30px 3vw 20px 3vw;
+            }
         }
 
         @media (max-width: 768px) {
-            body { padding-top: 60px; }
-            .navbar { height: 60px; }
-            .navbar-container { height: 60px; padding: 0 15px; }
-            .navbar-brand { font-size: 1.2rem; }
-            .navbar-brand i { font-size: 1.5rem; }
+            body {
+                padding-top: 60px;
+            }
+
+            .navbar {
+                height: 60px;
+            }
+
+            .navbar-container {
+                height: 60px;
+                padding: 0 15px;
+            }
+
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+
+            .navbar-brand i {
+                font-size: 1.5rem;
+            }
 
             .navbar-menu {
                 position: fixed;
-                top: 60px; left: -100%; width: 100%;
+                top: 60px;
+                left: -100%;
+                width: 100%;
                 height: calc(100vh - 60px);
                 background: rgba(255, 255, 255, 0.98);
                 backdrop-filter: blur(20px);
                 flex-direction: column;
-                justify-content: flex-start; align-items: center;
+                justify-content: flex-start;
+                align-items: center;
                 padding: 40px 20px;
-                transition: left 0.3s ease; gap: 20px; z-index: 2000;
+                transition: left 0.3s ease;
+                gap: 20px;
+                z-index: 2000;
             }
 
-            .navbar-menu.active { left: 0; }
-            .navbar-toggle { display: block; }
+            .navbar-menu.active {
+                left: 0;
+            }
+
+            .navbar-toggle {
+                display: block;
+            }
 
             .navbar-link {
-                width: 100%; max-width: 300px;
-                justify-content: center; padding: 15px 20px; font-size: 1.1rem;
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+                padding: 15px 20px;
+                font-size: 1.1rem;
             }
 
-            .main-content { min-height: calc(100vh - 60px); padding: 15px; }
-            .form-container { margin: 20px auto 30px auto; padding: 30px 24px; }
-            .form-header h2 { font-size: 1.5rem; }
-            .form-header i { font-size: 2.5rem; }
-            .action-links { flex-direction: column; }
-            .action-link { min-width: auto; }
+            .main-content {
+                min-height: calc(100vh - 60px);
+                padding: 15px;
+            }
+
+            .form-container {
+                margin: 20px auto 30px auto;
+                padding: 30px 24px;
+            }
+
+            .form-header h2 {
+                font-size: 1.5rem;
+            }
+
+            .form-header i {
+                font-size: 2.5rem;
+            }
+
+            .action-links {
+                flex-direction: column;
+            }
+
+            .action-link {
+                min-width: auto;
+            }
         }
 
         @media (max-width: 480px) {
-            .navbar { height: 55px; }
-            .navbar-container { height: 55px; padding: 0 10px; }
-            .navbar-brand { font-size: 1.1rem; gap: 8px; }
-            .navbar-brand i { font-size: 1.4rem; }
-            .navbar-menu { top: 55px; height: calc(100vh - 55px); padding: 30px 15px; }
-            body { padding-top: 55px; }
-            .form-container { padding: 25px 16px; margin: 10px auto 20px auto; }
-            .form-header h2 { font-size: 1.3rem; }
-            .form-header i { font-size: 2rem; }
-            .form-control { padding: 12px 15px; font-size: 0.9rem; }
-            .submit-btn { padding: 12px; font-size: 1rem; }
+            .navbar {
+                height: 55px;
+            }
+
+            .navbar-container {
+                height: 55px;
+                padding: 0 10px;
+            }
+
+            .navbar-brand {
+                font-size: 1.1rem;
+                gap: 8px;
+            }
+
+            .navbar-brand i {
+                font-size: 1.4rem;
+            }
+
+            .navbar-menu {
+                top: 55px;
+                height: calc(100vh - 55px);
+                padding: 30px 15px;
+            }
+
+            body {
+                padding-top: 55px;
+            }
+
+            .form-container {
+                padding: 25px 16px;
+                margin: 10px auto 20px auto;
+            }
+
+            .form-header h2 {
+                font-size: 1.3rem;
+            }
+
+            .form-header i {
+                font-size: 2rem;
+            }
+
+            .form-control {
+                padding: 12px 15px;
+                font-size: 0.9rem;
+            }
+
+            .submit-btn {
+                padding: 12px;
+                font-size: 1rem;
+            }
         }
 
         @media (max-width: 320px) {
-            .navbar { height: 50px; }
-            .navbar-container { height: 50px; padding: 0 5px; }
-            .navbar-brand { font-size: 1rem; }
-            .navbar-brand i { font-size: 1.3rem; }
-            .navbar-menu { top: 50px; height: calc(100vh - 50px); padding: 25px 10px; }
-            body { padding-top: 50px; }
-            .form-container { padding: 20px 10px; }
-            .form-header h2 { font-size: 1.2rem; }
+            .navbar {
+                height: 50px;
+            }
+
+            .navbar-container {
+                height: 50px;
+                padding: 0 5px;
+            }
+
+            .navbar-brand {
+                font-size: 1rem;
+            }
+
+            .navbar-brand i {
+                font-size: 1.3rem;
+            }
+
+            .navbar-menu {
+                top: 50px;
+                height: calc(100vh - 50px);
+                padding: 25px 10px;
+            }
+
+            body {
+                padding-top: 50px;
+            }
+
+            .form-container {
+                padding: 20px 10px;
+            }
+
+            .form-header h2 {
+                font-size: 1.2rem;
+            }
         }
     </style>
 </head>
+
 <body>
     <nav class="navbar">
         <div class="navbar-container">
-            <a href="{{ url_for('submit_worker_report') }}" class="navbar-brand">
+            <a href="#" class="navbar-brand">
                 <i class="fas fa-hard-hat"></i>
                 Worker Report
             </a>
-            
+
             <ul class="navbar-menu" id="navbarNav">
                 <li>
                     <a href="{{ url_for('site_engineer_dashboard') }}" class="navbar-link">
                         <i class="fas fa-tachometer-alt"></i>
                         Dashboard
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ url_for('submit_worker_report') }}" class="navbar-link active">
-                        <i class="fas fa-plus-circle"></i>
-                        Submit Report
                     </a>
                 </li>
                 <li>
@@ -436,20 +620,20 @@
             </div>
 
             {% with messages = get_flashed_messages(with_categories=true) %}
-              {% if messages %}
-                {% for category, message in messages %}
-                    <div class="flash-message {{ category }}">
-                        {% if category == 'success' %}
-                            <i class="fas fa-check-circle"></i>
-                        {% elif category == 'error' %}
-                            <i class="fas fa-exclamation-circle"></i>
-                        {% else %}
-                            <i class="fas fa-info-circle"></i>
-                        {% endif %}
-                        {{ message }}
-                    </div>
-                {% endfor %}
-              {% endif %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="flash-message {{ category }}">
+                {% if category == 'success' %}
+                <i class="fas fa-check-circle"></i>
+                {% elif category == 'error' %}
+                <i class="fas fa-exclamation-circle"></i>
+                {% else %}
+                <i class="fas fa-info-circle"></i>
+                {% endif %}
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
             {% endwith %}
 
             <form method="POST">
@@ -471,8 +655,8 @@
                         <i class="fas fa-users"></i>
                         Worker Count
                     </label>
-                    <input type="number" name="worker_count" id="worker_count" class="form-control" 
-                           required min="1" placeholder="Enter number of workers">
+                    <input type="number" name="worker_count" id="worker_count" class="form-control" required min="1"
+                        placeholder="Enter number of workers">
                 </div>
 
                 <div class="form-group">
@@ -493,19 +677,19 @@
 
     <script>
         document.getElementById('report_date').valueAsDate = new Date();
-        
-        document.querySelector('form').addEventListener('submit', function(e) {
+
+        document.querySelector('form').addEventListener('submit', function (e) {
             const submitBtn = document.querySelector('.submit-btn');
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
             submitBtn.disabled = true;
         });
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const mobileMenuToggle = document.getElementById('mobileMenuToggle');
             const navbarNav = document.getElementById('navbarNav');
-            
+
             if (mobileMenuToggle && navbarNav) {
-                mobileMenuToggle.addEventListener('click', function() {
+                mobileMenuToggle.addEventListener('click', function () {
                     const icon = this.querySelector('i');
                     navbarNav.classList.toggle('active');
                     if (navbarNav.classList.contains('active')) {
@@ -518,7 +702,7 @@
                 });
 
                 document.querySelectorAll('.navbar-link').forEach(link => {
-                    link.addEventListener('click', function() {
+                    link.addEventListener('click', function () {
                         navbarNav.classList.remove('active');
                         const icon = mobileMenuToggle.querySelector('i');
                         icon.classList.remove('fa-times');
@@ -529,13 +713,14 @@
         });
 
         const flashMessages = document.querySelectorAll('.flash-message');
-        flashMessages.forEach(function(message) {
-            setTimeout(function() {
+        flashMessages.forEach(function (message) {
+            setTimeout(function () {
                 message.style.opacity = '0';
                 message.style.transform = 'translateY(-20px)';
-                setTimeout(function() { message.style.display = 'none'; }, 300);
+                setTimeout(function () { message.style.display = 'none'; }, 300);
             }, 2000);
         });
     </script>
 </body>
+
 </html>

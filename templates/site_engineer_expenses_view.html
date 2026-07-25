@@ -92,6 +92,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            white-space: nowrap;
             position: relative;
             overflow: hidden;
         }
@@ -107,6 +108,24 @@
             transition: width 0.3s cubic-bezier(.77, 0, .18, 1);
         }
 
+        .navbar-link:hover::after {
+            width: 100%;
+        }
+
+
+
+
+        .navbar-link::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 0;
+            height: 3px;
+            background: #3498db;
+
+        }
+
         .navbar-link:hover::after,
         .navbar-link.active::after {
             width: 100%;
@@ -115,7 +134,7 @@
         .navbar-link:hover {
             background: rgba(52, 152, 219, 0.12);
             color: #3498db;
-            transform: translateY(-2px) scale(1.04);
+
         }
 
         .navbar-link.active {
@@ -125,12 +144,18 @@
         }
 
         .navbar-link.logout {
-            background: #e74c3c;
-            color: white;
+            background: transparent;
+            color: #2c3e50 !important;
+            border: 1.5px solid #ced4da;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 500;
         }
 
         .navbar-link.logout:hover {
-            background: #c0392b;
+            background: #f8f9fa;
+            border-color: #adb5bd;
+            color: #2c3e50;
             transform: translateY(-2px) scale(1.04);
         }
 
@@ -155,7 +180,7 @@
             padding: 30px;
         }
 
-        /* ── Page header — centred, white card with accent bar ── */
+    
         .page-header {
             background: #fff;
             border-radius: 22px;
@@ -165,7 +190,7 @@
             position: relative;
             overflow: hidden;
             text-align: center;
-            animation: fadeIn 0.3s ease-out;
+           
         }
 
         .page-header::before {
@@ -1078,12 +1103,7 @@
                         Submit Expense
                     </a>
                 </li>
-                <li>
-                    <a href="#" class="navbar-link active">
-                        <i class="fas fa-list"></i>
-                        View Expenses
-                    </a>
-                </li>
+
                 <li>
                     <a href="{{ url_for('logout') }}" class="navbar-link logout">
                         <i class="fas fa-sign-out-alt"></i>

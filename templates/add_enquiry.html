@@ -88,13 +88,33 @@
             font-weight: 500;
             padding: 10px 15px;
             border-radius: 8px;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(.77, 0, .18, 1);
             display: flex;
             align-items: center;
             gap: 8px;
             white-space: nowrap;
+            position: relative;
+            overflow: hidden;
         }
 
+        .navbar-link::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 0;
+            height: 3px;
+            background: #3498db;
+            transition: width 0.3s cubic-bezier(.77, 0, .18, 1);
+        }
+
+        .navbar-link:hover::after {
+            width: 100%;
+        }
+
+        /* .navbar-link.logout::after {
+    display: none;
+} */
         .navbar-link:hover {
             background: rgba(52, 152, 219, 0.1);
             color: #3498db;
@@ -107,13 +127,19 @@
         }
 
         .navbar-link.logout {
-            background: #e74c3c;
-            color: white;
+            background: transparent;
+            color: #2c3e50 !important;
+            border: 1.5px solid #ced4da;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 500;
         }
 
         .navbar-link.logout:hover {
-            background: #c0392b;
-            transform: translateY(-2px);
+            background: #f8f9fa;
+            border-color: #adb5bd;
+            color: #2c3e50;
+            transform: translateY(-2px) scale(1.04);
         }
 
         .navbar-toggle {
@@ -139,7 +165,7 @@
             align-items: center;
             justify-content: center;
             min-height: calc(100vh - 70px);
-            padding:  20px;
+            padding: 20px;
         }
 
         /* ── Card — mirrors Add Inventory exactly ── */
@@ -601,12 +627,7 @@
                         Dashboard
                     </a>
                 </li>
-                <li>
-                    <a href="{{ url_for('add_enquiry') }}" class="navbar-link active">
-                        <i class="fas fa-question-circle"></i>
-                        Add Enquiry
-                    </a>
-                </li>
+              
                 <li>
                     <a href="{{ url_for('view_enquiries') }}" class="navbar-link">
                         <i class="fas fa-list"></i>
