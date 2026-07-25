@@ -10,6 +10,16 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        :root {
+            --ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+            --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(0, 0, 0, 0.06);
+            --shadow-gold: 0 8px 30px rgba(255, 190, 0, 0.25);
+            --gold-gradient: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -68,15 +78,18 @@
         }
 
         .btn-primary {
-            background: linear-gradient(45deg, #FFD700, #FFA500);
-            color: #222;
-            border: 2px solid #FFD700;
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+            background: var(--gold-gradient);
+            color: #1a1a1a;
+            border: none;
+            box-shadow: var(--shadow-gold), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            transition: all 0.4s var(--ease-premium);
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 40px rgba(255, 190, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.4);
         }
 
         .btn-secondary {
@@ -110,11 +123,12 @@
         .section-title:after {
             content: '';
             display: block;
-            width: 80px;
-            height: 4px;
-            background: linear-gradient(45deg, #FFD700, #FFA500);
-            margin: 15px auto;
+            width: 60px;
+            height: 3px;
+            background: var(--gold-gradient);
+            margin: 18px auto;
             border-radius: 2px;
+            box-shadow: 0 2px 8px rgba(255, 190, 0, 0.4);
         }
 
         .section-subtitle {
@@ -185,8 +199,9 @@
 
         /* HEADER */
         header {
-            background: rgba(34, 34, 34, 0.95);
-            backdrop-filter: blur(10px);
+            background: rgba(20, 20, 20, 0.75);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
             padding: 20px 0;
             position: fixed;
             width: 100%;
@@ -383,13 +398,14 @@
         }
 
         .feature-card {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            border-radius: 16px;
+            border-radius: 20px;
             padding: 40px 30px;
             text-align: center;
-            transition: all 0.4s ease;
-            border: 1px solid rgba(255, 215, 0, 0.1);
+            transition: all 0.45s var(--ease-premium);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            box-shadow: var(--shadow-sm);
             position: relative;
             overflow: hidden;
             opacity: 0;
@@ -432,8 +448,9 @@
         }
 
         .feature-card:hover {
-            transform: translateY(-15px);
-            box-shadow: 0 20px 40px rgba(255, 215, 0, 0.2);
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-lg);
+            border-color: rgba(255, 215, 0, 0.25);
         }
 
         .feature-image {
@@ -441,11 +458,12 @@
             height: 80px;
             border-radius: 50%;
             margin: 0 auto 20px;
-            background: linear-gradient(45deg, #FFD700, #FFA500);
+            background: var(--gold-gradient);
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.3s ease;
+            box-shadow: 0 8px 20px rgba(255, 190, 0, 0.35), 0 0 0 6px rgba(255, 215, 0, 0.08);
+            transition: all 0.4s var(--ease-premium);
         }
 
         .feature-card:hover .feature-image {
@@ -508,26 +526,17 @@
             animation: fadeInUp 0.6s ease 0.1s forwards;
         }
 
-        /* Horizontal scrolling card strip */
         .steps-wrapper {
             overflow-x: auto;
             padding-bottom: 20px;
-            scrollbar-width: thin;
-            scrollbar-color: #FFD700 #333;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+
         }
 
         .steps-wrapper::-webkit-scrollbar {
-            height: 6px;
-        }
+            display: none;
 
-        .steps-wrapper::-webkit-scrollbar-track {
-            background: #333;
-            border-radius: 3px;
-        }
-
-        .steps-wrapper::-webkit-scrollbar-thumb {
-            background: #FFD700;
-            border-radius: 3px;
         }
 
         .steps {
@@ -546,7 +555,7 @@
             text-align: center;
             width: 220px;
             flex-shrink: 0;
-            transition: all 0.35s ease;
+            transition: all 0.4s var(--ease-premium);
             position: relative;
             opacity: 0;
             transform: translateY(30px);
@@ -577,14 +586,13 @@
             background: rgba(255, 255, 255, 0.09);
             border-color: rgba(255, 215, 0, 0.5);
             transform: translateY(-8px);
-            box-shadow: 0 16px 40px rgba(255, 215, 0, 0.12);
+            box-shadow: 0 16px 40px rgba(255, 215, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.08);
         }
 
-        /* Active/featured card (3rd by default) */
-        .step.featured {
-            background: rgba(40, 40, 40, 0.95);
-            border-color: #FFD700;
-            box-shadow: 0 12px 35px rgba(255, 215, 0, 0.18);
+        .step.active {
+            background: rgba(40, 40, 40, 0.95) !important;
+            border-color: #FFD700 !important;
+            box-shadow: 0 12px 35px rgba(255, 215, 0, 0.18) !important;
         }
 
         .step-number {
@@ -620,7 +628,6 @@
             font-size: 14px;
         }
 
-        /* On larger screens show as a wrapping grid */
         @media (min-width: 1100px) {
             .steps-wrapper {
                 overflow-x: visible;
@@ -660,7 +667,6 @@
             }
         }
 
-        /* ===================== END HOW IT WORKS ===================== */
 
         /* ABOUT */
         .about-section {
@@ -896,14 +902,14 @@
             padding: 30px 20px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            transition: all 0.4s var(--ease-premium);
+            box-shadow: var(--shadow-sm);
             border: 1px solid rgba(255, 215, 0, 0.3);
         }
 
         .role-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 20px 35px rgba(255, 215, 0, 0.2);
+            box-shadow: var(--shadow-lg);
             border-color: #FFD700;
         }
 
@@ -956,8 +962,8 @@
             border-radius: 24px;
             overflow-y: auto;
             position: relative;
-            animation: fadeInUp 0.3s ease;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            animation: fadeInUp 0.3s var(--ease-premium);
+            box-shadow: var(--shadow-lg);
         }
 
         .modal-header {
@@ -1039,15 +1045,15 @@
             background: white;
             border-radius: 20px;
             padding: 25px 30px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.4s var(--ease-premium);
             border-left: 5px solid #FFD700;
             position: relative;
         }
 
         .flow-step:hover {
             transform: translateX(8px);
-            box-shadow: 0 12px 28px rgba(255, 215, 0, 0.15);
+            box-shadow: var(--shadow-md);
         }
 
         .flow-step.critical {
@@ -1314,8 +1320,14 @@
 
             .flow-step {
                 flex-direction: column;
+                align-items: center;
                 text-align: center;
                 padding: 20px
+            }
+
+            .flow-content {
+                text-align: center;
+                width: 100;
             }
 
             .flow-arrow {
@@ -1922,6 +1934,71 @@
             }
         };
 
+
+        (function () {
+            const steps = document.querySelectorAll('.how-it-works .step');
+            const wrapper = document.querySelector('.how-it-works .steps-wrapper');
+            let activeIndex = 0;
+            let isPaused = false;
+
+            function isScrollLayout() {
+                return window.innerWidth < 1100;
+            }
+
+            function setActive(index) {
+                steps.forEach(s => s.classList.remove('active'));
+                const activeStep = steps[index];
+                activeStep.classList.add('active');
+
+                if (isScrollLayout() && wrapper) {
+                    // Scroll only the strip horizontally — never the page vertically
+                    const targetLeft = activeStep.offsetLeft
+                        - (wrapper.clientWidth / 2)
+                        + (activeStep.clientWidth / 2);
+
+                    wrapper.scrollTo({
+                        left: targetLeft,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+
+            function nextStep() {
+                if (isPaused) return;
+                activeIndex = (activeIndex + 1) % steps.length;
+                setActive(activeIndex);
+            }
+
+            if (steps.length) {
+                setActive(activeIndex);
+                setInterval(nextStep, 1000);
+
+                steps.forEach((step, i) => {
+                    step.addEventListener('mouseenter', () => {
+                        isPaused = true;
+                        steps.forEach(s => s.classList.remove('active'));
+                        step.classList.add('active');
+                    });
+                    step.addEventListener('mouseleave', () => {
+                        isPaused = false;
+                    });
+                    step.addEventListener('click', () => {
+                        activeIndex = i;
+                        setActive(activeIndex);
+                    });
+                });
+
+                if (wrapper) {
+                    let scrollTimeout;
+                    wrapper.addEventListener('scroll', () => {
+                        if (!isScrollLayout()) return;
+                        isPaused = true;
+                        clearTimeout(scrollTimeout);
+                        scrollTimeout = setTimeout(() => { isPaused = false; }, 3000);
+                    });
+                }
+            }
+        })();
         document.querySelectorAll('.role-card').forEach(card => {
             card.addEventListener('click', () => {
                 const role = card.getAttribute('data-role');
