@@ -18,7 +18,7 @@
         }
 
         /* ── Navbar (identical to Bills & Payments) ── */
-        .navbar {
+        .top-navbar {
             position: fixed;
             top: 0;
             left: 0;
@@ -33,7 +33,7 @@
             align-items: center;
         }
 
-        .navbar-container {
+        .top-navbar-container {
             max-width: 100%;
             margin: 0 auto;
             display: flex;
@@ -45,7 +45,7 @@
             height: 70px;
         }
 
-        .navbar-brand {
+        .top-navbar-brand {
             display: flex;
             align-items: center;
             gap: 12px;
@@ -55,12 +55,12 @@
             font-size: 1.4rem;
         }
 
-        .navbar-brand i {
+        .top-navbar-brand i {
             color: #3498db;
             font-size: 1.8rem;
         }
 
-        .navbar-menu {
+        .top-navbar-menu {
             display: flex;
             list-style: none;
             gap: 30px;
@@ -68,7 +68,7 @@
             margin: 0;
         }
 
-        .navbar-link {
+        .top-navbar-link {
             text-decoration: none;
             color: #2c3e50;
             font-weight: 500;
@@ -82,7 +82,7 @@
             overflow: hidden;
         }
 
-        .navbar-link::after {
+        .top-navbar-link::after {
             content: "";
             position: absolute;
             left: 0;
@@ -93,24 +93,24 @@
             transition: width 0.3s cubic-bezier(.77, 0, .18, 1);
         }
 
-        .navbar-link:hover::after {
+        .top-navbar-link:hover::after {
             width: 100%;
         }
 
      
 
-        .navbar-link:hover {
+        .top-navbar-link:hover {
             background: rgba(52, 152, 219, 0.1);
             color: #3498db;
             transform: translateY(-2px);
         }
 
-        .navbar-link.active {
+        .top-navbar-link.active {
             background: #3498db;
             color: white;
         }
 
-        .navbar-link.logout {
+        .top-navbar-link.logout {
             background: transparent;
             color: #2c3e50 !important;
             border: 1.5px solid #ced4da;
@@ -119,14 +119,14 @@
             font-weight: 500;
         }
 
-        .navbar-link.logout:hover {
+        .top-navbar-link.logout:hover {
             background: #f8f9fa;
             border-color: #adb5bd;
             color: #2c3e50;
             transform: translateY(-2px) scale(1.04);
         }
 
-        .navbar-toggle {
+        .top-navbar-toggle {
             display: none;
             background: none;
             border: none;
@@ -594,7 +594,7 @@
 
         /* ── Responsive ── */
         @media (max-width: 900px) {
-            .navbar-container {
+            .top-navbar-container {
                 padding: 0 10px;
             }
         }
@@ -604,24 +604,24 @@
                 padding-top: 70px !important;
             }
 
-            .navbar {
+            .top-navbar {
                 height: 60px;
             }
 
-            .navbar-container {
+            .top-navbar-container {
                 height: 60px;
                 padding: 0 15px;
             }
 
-            .navbar-brand {
+            .top-navbar-brand {
                 font-size: 1.2rem;
             }
 
-            .navbar-brand i {
+            .top-navbar-brand i {
                 font-size: 1.5rem;
             }
 
-            .navbar-menu {
+            .top-navbar-menu {
                 position: fixed;
                 top: 60px;
                 left: -100%;
@@ -637,15 +637,15 @@
                 gap: 20px;
             }
 
-            .navbar-menu.active {
+            .top-navbar-menu.active {
                 left: 0;
             }
 
-            .navbar-toggle {
+            .top-navbar-toggle {
                 display: block;
             }
 
-            .navbar-link {
+            .top-navbar-link {
                 width: 100%;
                 max-width: 300px;
                 justify-content: center;
@@ -738,24 +738,24 @@
                 padding-top: 60px !important;
             }
 
-            .navbar {
+            .top-navbar {
                 height: 55px;
             }
 
-            .navbar-container {
+            .top-navbar-container {
                 height: 55px;
                 padding: 0 10px;
             }
 
-            .navbar-brand {
+            .top-navbar-brand {
                 font-size: 1.05rem;
             }
 
-            .navbar-brand i {
+            .top-navbar-brand i {
                 font-size: 1.3rem;
             }
 
-            .navbar-menu {
+            .top-navbar-menu {
                 top: 55px;
                 height: calc(100vh - 55px);
             }
@@ -815,24 +815,24 @@
                 padding-top: 55px !important;
             }
 
-            .navbar {
+            .top-navbar {
                 height: 50px;
             }
 
-            .navbar-container {
+            .top-navbar-container {
                 height: 50px;
                 padding: 0 8px;
             }
 
-            .navbar-brand {
+            .top-navbar-brand {
                 font-size: 0.95rem;
             }
 
-            .navbar-brand i {
+            .top-navbar-brand i {
                 font-size: 1.2rem;
             }
 
-            .navbar-menu {
+            .top-navbar-menu {
                 top: 50px;
                 height: calc(100vh - 50px);
             }
@@ -870,20 +870,20 @@
                 padding-top: 50px !important;
             }
 
-            .navbar {
+            .top-navbar {
                 height: 48px;
             }
 
-            .navbar-container {
+            .top-navbar-container {
                 height: 48px;
                 padding: 0 6px;
             }
 
-            .navbar-brand {
+            .top-navbar-brand {
                 font-size: 0.85rem;
             }
 
-            .navbar-menu {
+            .top-navbar-menu {
                 top: 48px;
                 height: calc(100vh - 48px);
             }
@@ -948,28 +948,28 @@
 <body>
 
     <!-- Navbar -->
-    <nav class="navbar">
-        <div class="navbar-container">
-            <a href="{{ url_for('admin_view_salaries') }}" class="navbar-brand">
+    <nav class="top-navbar">
+        <div class="top-navbar-container">
+            <a href="{{ url_for('admin_view_salaries') }}" class="top-navbar-brand">
                 <i class="fas fa-hard-hat"></i>
                 Salary Management
             </a>
-            <ul class="navbar-menu" id="navbarNav">
+            <ul class="top-navbar-menu" id="navbarNav">
                 <li>
-                    <a href="{{ url_for('admin_dashboard') }}" class="navbar-link">
+                    <a href="{{ url_for('admin_dashboard') }}" class="top-navbar-link">
                         <i class="fas fa-tachometer-alt"></i>
                         Dashboard
                     </a>
                 </li>
          
                 <li>
-                    <a href="{{ url_for('logout') }}" class="navbar-link logout">
+                    <a href="{{ url_for('logout') }}" class="top-navbar-link logout">
                         <i class="fas fa-sign-out-alt"></i>
                         Logout
                     </a>
                 </li>
             </ul>
-            <button class="navbar-toggle" id="mobileMenuToggle">
+            <button class="top-navbar-toggle" id="mobileMenuToggle">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
@@ -1222,7 +1222,7 @@
             }
         });
 
-        document.querySelectorAll('.navbar-link').forEach(link => {
+        document.querySelectorAll('.top-navbar-link').forEach(link => {
             link.addEventListener('click', function () {
                 const nav = document.getElementById('navbarNav');
                 const icon = document.getElementById('mobileMenuToggle').querySelector('i');
