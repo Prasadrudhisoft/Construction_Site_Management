@@ -120,7 +120,7 @@
             height: 70px;
         }
 
-        /* ── CHANGED: was <span>, now matches My Invoices <a> with hover styles ── */
+        
         .top-navbar-brand {
             display: flex;
             align-items: center;
@@ -604,7 +604,7 @@
 
     <nav class="top-navbar">
         <div class="top-navbar-container">
-            <!-- CHANGED: <span> → <a href="#"> to match My Invoices navbar brand style -->
+
             <a href="#" class="top-navbar-brand">
                 <i class="fas fa-hard-hat"></i>
                 Edit Invoice
@@ -656,8 +656,10 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Client Phone</label>
-                            <input type="text" class="form-control" name="bill_to_phone"
-                                value="{{ invoice.bill_to_phone or '' }}">
+                            <input type="text" class="form-control" name="bill_to_phone" id="bill_to_phone"
+                                value="{{ invoice.bill_to_phone or '' }}" inputmode="numeric" pattern="[0-9]{10}"
+                                maxlength="10" title="Enter a valid 10-digit phone number"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
                         </div>
                     </div>
 
