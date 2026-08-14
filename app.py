@@ -45,1279 +45,6 @@ from tasks import (
         generate_bill_pdf_task,
     )
 
-# def generate_invoice_pdf_async(invoice_id, org_id, invoice_number, project_name, grand_total, engineer_name):
-#     from config import get_connection
-#     from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-#     from reportlab.lib import colors
-#     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-#     from reportlab.lib.pagesizes import A4
-#     from io import BytesIO
-#     import os
-#     from datetime import datetime
-
-#     conn = get_connection()
-#     cur = conn.cursor(pymysql.cursors.DictCursor)
-#     try:
-#         cur.execute("""
-#             SELECT i.*, om.company_name, om.company_address, om.company_phone, om.company_email,
-#                    om.gst_number, om.bank_name, om.bank_account, om.ifsc_code, om.terms_conditions
-#             FROM invoices i
-#             LEFT JOIN organization_master om ON i.org_id = om.org_id
-#             WHERE i.id = %s AND i.org_id = %s
-#         """, (invoice_id, org_id))
-#         invoice = cur.fetchone()
-#         if not invoice:
-#             raise Exception("Invoice not found")
-
-#         cur.execute("SELECT * FROM invoice_items WHERE invoice_id = %s AND org_id = %s", (invoice_id, org_id))
-#         items = cur.fetchall()
-
-#         subtotal = float(invoice['subtotal'])
-#         gst_amount = float(invoice['gst_amount'])
-#         grand_total = float(invoice['total_amount'])
-#         gst_percentage = (gst_amount / subtotal * 100) if subtotal > 0 else 0
-
-#         if invoice['generated_on']:
-#             if isinstance(invoice['generated_on'], str):
-#                 try:
-#                     invoice_date = datetime.strptime(invoice['generated_on'], '%Y-%m-%d').strftime('%Y-%m-%d')
-#                 except:
-#                     invoice_date = invoice['generated_on'][:10] if len(invoice['generated_on']) >= 10 else invoice['generated_on']
-#             else:
-#                 invoice_date = invoice['generated_on'].strftime('%Y-%m-%d')
-#         else:
-#             invoice_date = ''
-
-#         # ========== PDF GENERATION ==========
-#         buffer = BytesIO()
-
-#         # A4 usable width = 595 - 50 - 50 = 495pt
-#         PAGE_W = 495  # single source of truth for all table widths
-
-#         doc = SimpleDocTemplate(
-#             buffer, pagesize=A4,
-#             leftMargin=50, rightMargin=50,
-#             topMargin=40, bottomMargin=40
-#         )
-#         styles = getSampleStyleSheet()
-
-#         # ── Monochrome palette ──
-#         black      = colors.HexColor('#000000')
-#         dark       = colors.HexColor('#222222')
-#         mid_gray   = colors.HexColor('#666666')
-#         light_gray = colors.HexColor('#f5f5f5')
-#         border     = colors.HexColor('#bbbbbb')
-#         white      = colors.white
-
-#         # ── Styles ──
-#         company_name_style = ParagraphStyle(
-#             'company_name', parent=styles['Normal'],
-#             fontSize=16, textColor=black,
-#             fontName='Helvetica-Bold', alignment=0, spaceAfter=3
-#         )
-#         company_info_style = ParagraphStyle(
-#             'company_info', parent=styles['Normal'],
-#             fontSize=9, textColor=mid_gray,
-#             fontName='Helvetica', alignment=0, spaceAfter=2
-#         )
-#         invoice_title_style = ParagraphStyle(
-#             'invoice_title', parent=styles['Normal'],
-#             fontSize=28, textColor=black,
-#             fontName='Helvetica-Bold', alignment=2
-#         )
-#         section_label_style = ParagraphStyle(
-#             'section_label', parent=styles['Normal'],
-#             fontSize=8, textColor=mid_gray,
-#             fontName='Helvetica-Bold', spaceBefore=14, spaceAfter=4
-#         )
-#         body_style = ParagraphStyle(
-#             'body', parent=styles['Normal'],
-#             fontSize=10, textColor=dark,
-#             fontName='Helvetica', spaceAfter=3
-#         )
-#         footer_style = ParagraphStyle(
-#             'footer', parent=styles['Normal'],
-#             fontSize=9, textColor=mid_gray,
-#             fontName='Helvetica-Oblique', alignment=1, spaceBefore=8
-#         )
-
-#         elements = []
-
-#         # ── 1. HEADER: Company left | INVOICE right ──
-#         # Both cells sit inside PAGE_W
-#         header_data = [[
-#             [
-#                 Paragraph(invoice['company_name'] or 'Company Name', company_name_style),
-#                 Paragraph(invoice['company_address'] or '', company_info_style),
-#                 Paragraph(f"Phone: {invoice['company_phone'] or 'N/A'}", company_info_style),
-#                 Paragraph(f"Email: {invoice['company_email'] or 'N/A'}", company_info_style),
-#                 Paragraph(f"GST: {invoice['gst_number'] or 'N/A'}", company_info_style),
-#             ],
-#             Paragraph("INVOICE", invoice_title_style)
-#         ]]
-#         header_table = Table(header_data, colWidths=[PAGE_W * 0.6, PAGE_W * 0.4])
-#         header_table.setStyle(TableStyle([
-#             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-#             ('LEFTPADDING', (0, 0), (-1, -1), 0),
-#             ('RIGHTPADDING', (0, 0), (-1, -1), 0),
-#             ('TOPPADDING', (0, 0), (-1, -1), 0),
-#             ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
-#         ]))
-#         elements.append(header_table)
-#         elements.append(Spacer(1, 10))
-
-#         # Divider rule
-#         rule = Table([['']], colWidths=[PAGE_W])
-#         rule.setStyle(TableStyle([
-#             ('LINEBELOW', (0, 0), (-1, -1), 0.75, black),
-#             ('TOPPADDING', (0, 0), (-1, -1), 0),
-#             ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
-#         ]))
-#         elements.append(rule)
-#         elements.append(Spacer(1, 12))
-
-#         # ── 2. INVOICE META ──
-#         # 4 equal columns, total = PAGE_W
-#         col = PAGE_W / 4
-#         meta_data = [['Invoice Number:', invoice['invoice_number'], 'Invoice Date:', invoice_date]]
-#         meta_table = Table(meta_data, colWidths=[col, col, col, col])
-#         meta_table.setStyle(TableStyle([
-#             ('BACKGROUND', (0, 0), (-1, -1), light_gray),
-#             ('BOX', (0, 0), (-1, -1), 0.5, border),
-#             ('INNERGRID', (0, 0), (-1, -1), 0.5, border),
-#             ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-#             ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),
-#             ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
-#             ('FONTNAME', (3, 0), (3, -1), 'Helvetica'),
-#             ('FONTSIZE', (0, 0), (-1, -1), 10),
-#             ('TEXTCOLOR', (0, 0), (-1, -1), dark),
-#             ('TOPPADDING', (0, 0), (-1, -1), 8),
-#             ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-#             ('LEFTPADDING', (0, 0), (-1, -1), 10),
-#             ('RIGHTPADDING', (0, 0), (-1, -1), 10),
-#             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-#         ]))
-#         elements.append(meta_table)
-#         elements.append(Spacer(1, 14))
-
-#         # ── 3. BILL TO ──
-#         elements.append(Paragraph("BILL TO", section_label_style))
-#         bill_to_data = [[
-#             [
-#                 Paragraph(f"<b>{invoice['bill_to_name']}</b>", body_style),
-#                 Paragraph(invoice['bill_to_address'] or '', body_style),
-#                 Paragraph(f"Phone: {invoice['bill_to_phone']}" if invoice['bill_to_phone'] else "", body_style),
-#             ]
-#         ]]
-#         bill_to_table = Table(bill_to_data, colWidths=[PAGE_W])
-#         bill_to_table.setStyle(TableStyle([
-#             ('BOX', (0, 0), (-1, -1), 0.5, border),
-#             ('LEFTPADDING', (0, 0), (-1, -1), 12),
-#             ('RIGHTPADDING', (0, 0), (-1, -1), 12),
-#             ('TOPPADDING', (0, 0), (-1, -1), 10),
-#             ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
-#             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-#         ]))
-#         elements.append(bill_to_table)
-#         elements.append(Spacer(1, 16))
-
-#         # ── 4. LINE ITEMS ──
-#         # colWidths must sum to PAGE_W = 495
-#         item_col_widths = [30, 235, 90, 50, 90]  # sum = 495
-#         item_data = [['#', 'Description', 'Rate', 'Qty', 'Amount']]
-#         for i, it in enumerate(items, start=1):
-#             item_data.append([
-#                 str(i),
-#                 it['description'],
-#                 f"Rs.{float(it['rate']):,.2f}",
-#                 str(it['quantity']),
-#                 f"Rs.{float(it['subtotal']):,.2f}"
-#             ])
-
-#         item_table = Table(item_data, colWidths=item_col_widths)
-#         item_table.setStyle(TableStyle([
-#             # Header row
-#             ('BACKGROUND', (0, 0), (-1, 0), black),
-#             ('TEXTCOLOR', (0, 0), (-1, 0), white),
-#             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-#             ('FONTSIZE', (0, 0), (-1, 0), 10),
-#             ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
-#             ('TOPPADDING', (0, 0), (-1, 0), 9),
-#             ('BOTTOMPADDING', (0, 0), (-1, 0), 9),
-#             # Data rows
-#             ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-#             ('FONTSIZE', (0, 1), (-1, -1), 10),
-#             ('TEXTCOLOR', (0, 1), (-1, -1), dark),
-#             ('ALIGN', (0, 1), (0, -1), 'CENTER'),
-#             ('ALIGN', (2, 1), (-1, -1), 'RIGHT'),
-#             ('ALIGN', (1, 1), (1, -1), 'LEFT'),
-#             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-#             ('ROWBACKGROUNDS', (0, 1), (-1, -1), [white, light_gray]),
-#             # Borders
-#             ('BOX', (0, 0), (-1, -1), 0.75, black),
-#             ('INNERGRID', (0, 0), (-1, -1), 0.4, border),
-#             # Padding
-#             ('TOPPADDING', (0, 1), (-1, -1), 7),
-#             ('BOTTOMPADDING', (0, 1), (-1, -1), 7),
-#             ('LEFTPADDING', (0, 0), (-1, -1), 8),
-#             ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-#         ]))
-#         elements.append(item_table)
-#         elements.append(Spacer(1, 14))
-
-#         # ── 5. TOTALS (right-aligned block, full width for alignment) ──
-#         totals_data = [['Subtotal', f'Rs.{subtotal:,.2f}']]
-#         if gst_amount > 0:
-#             sgst = gst_amount / 2
-#             cgst = gst_amount / 2
-#             totals_data.extend([
-#                 [f'GST ({gst_percentage:.2f}%)', f'Rs.{gst_amount:,.2f}'],
-#                 [f'SGST ({gst_percentage/2:.2f}%)', f'Rs.{sgst:,.2f}'],
-#                 [f'CGST ({gst_percentage/2:.2f}%)', f'Rs.{cgst:,.2f}'],
-#             ])
-#         totals_data.append(['TOTAL AMOUNT', f'Rs.{grand_total:,.2f}'])
-
-#         # Label col + amount col = PAGE_W
-#         totals_table = Table(totals_data, colWidths=[PAGE_W - 130, 130])
-#         totals_table.setStyle(TableStyle([
-#             ('ALIGN', (0, 0), (0, -1), 'LEFT'),
-#             ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
-#             ('FONTNAME', (0, 0), (-1, -2), 'Helvetica'),
-#             ('FONTSIZE', (0, 0), (-1, -2), 10),
-#             ('TEXTCOLOR', (0, 0), (-1, -2), dark),
-#             # Total row
-#             ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
-#             ('FONTSIZE', (0, -1), (-1, -1), 11),
-#             ('TEXTCOLOR', (0, -1), (-1, -1), white),
-#             ('BACKGROUND', (0, -1), (-1, -1), black),
-#             # Borders
-#             ('BOX', (0, 0), (-1, -1), 0.75, black),
-#             ('LINEABOVE', (0, -1), (-1, -1), 0.75, black),
-#             ('INNERGRID', (0, 0), (-1, -2), 0.4, border),
-#             # Padding
-#             ('TOPPADDING', (0, 0), (-1, -1), 7),
-#             ('BOTTOMPADDING', (0, 0), (-1, -1), 7),
-#             ('LEFTPADDING', (0, 0), (-1, -1), 10),
-#             ('RIGHTPADDING', (0, 0), (-1, -1), 10),
-#         ]))
-#         elements.append(totals_table)
-#         elements.append(Spacer(1, 20))
-
-#         # ── 6. BANK DETAILS ──
-#         elements.append(Paragraph("BANK ACCOUNT DETAILS", section_label_style))
-#         bank_text = (
-#             f"Account Holder: {invoice['company_name'] or ''}\n"
-#             f"Bank Name: {invoice['bank_name'] or 'N/A'}\n"
-#             f"Account Number: {invoice['bank_account'] or 'N/A'}\n"
-#             f"IFSC Code: {invoice['ifsc_code'] or 'N/A'}"
-#         )
-#         bank_table = Table([[bank_text]], colWidths=[PAGE_W])
-#         bank_table.setStyle(TableStyle([
-#             ('BACKGROUND', (0, 0), (-1, -1), light_gray),
-#             ('BOX', (0, 0), (-1, -1), 0.5, border),
-#             ('LEFTPADDING', (0, 0), (-1, -1), 12),
-#             ('RIGHTPADDING', (0, 0), (-1, -1), 12),
-#             ('TOPPADDING', (0, 0), (-1, -1), 10),
-#             ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
-#             ('FONTSIZE', (0, 0), (-1, -1), 10),
-#             ('TEXTCOLOR', (0, 0), (-1, -1), dark),
-#             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-#         ]))
-#         elements.append(bank_table)
-#         elements.append(Spacer(1, 16))
-
-#         # ── 7. TERMS & CONDITIONS ──
-#         # elements.append(Paragraph("TERMS & CONDITIONS", section_label_style))
-#         # if invoice['terms_conditions']:
-#         #     terms_text = invoice['terms_conditions'].replace('\n', '<br/>')
-#         # else:
-#         #     terms_text = "• Payment due within 14 days from invoice date<br/>• Late payments subject to 4% monthly interest<br/>• All disputes subject to local jurisdiction"
-
-#         # terms_table = Table([[Paragraph(terms_text, body_style)]], colWidths=[PAGE_W])
-#         # terms_table.setStyle(TableStyle([
-#         #     ('BOX', (0, 0), (-1, -1), 0.5, border),
-#         #     ('LEFTPADDING', (0, 0), (-1, -1), 12),
-#         #     ('RIGHTPADDING', (0, 0), (-1, -1), 12),
-#         #     ('TOPPADDING', (0, 0), (-1, -1), 10),
-#         #     ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
-#         # ]))
-#         # elements.append(terms_table)
-#         # elements.append(Spacer(1, 20))
-
-#         # ── 8. FOOTER ──
-#         footer_rule = Table([['']], colWidths=[PAGE_W])
-#         footer_rule.setStyle(TableStyle([
-#             ('LINEABOVE', (0, 0), (-1, -1), 0.5, border),
-#             ('TOPPADDING', (0, 0), (-1, -1), 0),
-#             ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
-#         ]))
-#         elements.append(footer_rule)
-#         elements.append(Paragraph(
-#             "Thank you for your business! We appreciate your trust in our services.",
-#             footer_style
-#         ))
-
-#         # ── Build PDF ──
-#         doc.build(elements)
-#         buffer.seek(0)
-
-#         pdf_filename = f"{invoice['invoice_number']}.pdf"
-#         pdf_dir = os.path.join(app.static_folder, 'invoice_pdfs')
-#         os.makedirs(pdf_dir, exist_ok=True)
-#         pdf_path = os.path.join(pdf_dir, pdf_filename)
-#         with open(pdf_path, 'wb') as f:
-#             f.write(buffer.getvalue())
-
-#         cur.execute("UPDATE invoices SET pdf_filename = %s WHERE id = %s", (pdf_filename, invoice_id))
-#         conn.commit()
-
-#         create_notification(
-#             user_id=invoice['site_engineer_id'],
-#             org_id=org_id,
-#             notification_type='invoice_ready',
-#             reference_id=invoice_id,
-#             message=f'Your invoice #{invoice["invoice_number"]} PDF is ready for download.'
-#         )
-
-#     except Exception as e:
-#         print(f"Background PDF generation failed for invoice {invoice_id}: {e}")
-#         import traceback
-#         traceback.print_exc()
-#         if conn:
-#             conn.rollback()
-#     finally:
-#         cur.close()
-#         conn.close()
-
-# def generate_cost_estimation_pdf_async(project_id, org_id):
-#     """
-#     Background task: generate cost estimation PDF and update cost_estimation table.
-#     Runs in a separate thread.
-#     """
-#     from config import get_connection
-#     from fpdf import FPDF
-#     from datetime import datetime
-#     import os
-#     import uuid
-
-#     conn = get_connection()
-#     cur = conn.cursor(pymysql.cursors.DictCursor)
-#     try:
-#         # Fetch cost estimation data
-#         cur.execute("""
-#             SELECT ce.*, p.project_name
-#             FROM cost_estimation ce
-#             JOIN projects p ON ce.project_id = p.id
-#             WHERE ce.project_id = %s AND ce.org_id = %s
-#         """, (project_id, org_id))
-#         cost_data = cur.fetchone()
-#         if not cost_data:
-#             raise Exception("Cost estimation not found")
-
-#         # Generate PDF using FPDF (same as original route)
-#         upload_folder = os.path.join('static', 'uploads')
-#         os.makedirs(upload_folder, exist_ok=True)
-
-#         filename = f"estimation_{uuid.uuid4().hex[:8]}.pdf"
-#         filepath = os.path.join(upload_folder, filename)
-#         relative_path = f"uploads/{filename}"
-
-#         pdf = FPDF()
-#         pdf.add_page()
-
-#         # Header
-#         pdf.set_fill_color(41, 128, 185)
-#         pdf.rect(0, 0, 210, 40, 'F')
-#         pdf.set_text_color(255, 255, 255)
-#         pdf.set_font("Arial", 'B', 24)
-#         pdf.ln(10)
-#         pdf.cell(0, 10, txt="COST ESTIMATION REPORT", ln=True, align="C")
-#         pdf.set_font("Arial", size=10)
-#         pdf.cell(0, 8, txt="A to Z Construction Cost Analysis", ln=True, align="C")
-#         pdf.set_text_color(0, 0, 0)
-#         pdf.ln(15)
-
-#         # Project Information
-#         pdf.set_font("Arial", 'B', 14)
-#         pdf.set_fill_color(236, 240, 241)
-#         pdf.cell(0, 10, txt="Project Information", ln=True, fill=True)
-#         pdf.ln(5)
-#         pdf.set_font("Arial", size=11)
-#         pdf.set_font("Arial", 'B', 11)
-#         pdf.cell(50, 8, txt="Project ID:", border=0)
-#         pdf.set_font("Arial", size=11)
-#         pdf.cell(90, 8, txt=str(project_id), border=0, ln=True)
-#         pdf.set_font("Arial", 'B', 11)
-#         pdf.cell(50, 8, txt="Project Name:", border=0)
-#         pdf.set_font("Arial", size=11)
-#         pdf.cell(90, 8, txt=cost_data['project_name'], border=0, ln=True)
-#         pdf.set_font("Arial", 'B', 11)
-#         pdf.cell(50, 8, txt="Generated On:", border=0)
-#         pdf.set_font("Arial", size=11)
-#         pdf.cell(90, 8, txt=datetime.now().strftime("%B %d, %Y"), border=0, ln=True)
-#         pdf.set_font("Arial", 'B', 11)
-#         pdf.cell(50, 8, txt="BOQ Reference:", border=0)
-#         pdf.set_font("Arial", size=11)
-#         pdf.cell(90, 8, txt=str(cost_data['boq_reference']), border=0, ln=True)
-#         pdf.ln(10)
-
-#         # Cost Breakdown
-#         pdf.set_font("Arial", 'B', 14)
-#         pdf.set_fill_color(236, 240, 241)
-#         pdf.cell(0, 10, txt="Cost Breakdown", ln=True, fill=True)
-#         pdf.ln(5)
-#         pdf.set_fill_color(52, 152, 219)
-#         pdf.set_text_color(255, 255, 255)
-#         pdf.set_font("Arial", 'B', 11)
-#         pdf.cell(120, 10, txt="Description", border=1, fill=True)
-#         pdf.cell(70, 10, txt="Amount (Rs.)", border=1, fill=True, align='R', ln=True)
-#         pdf.set_text_color(0, 0, 0)
-#         pdf.set_font("Arial", size=11)
-#         pdf.set_fill_color(245, 245, 245)
-#         pdf.cell(120, 10, txt="Architectural Design Cost", border=1, fill=True)
-#         pdf.cell(70, 10, txt=f"{float(cost_data['architectural_design_cost'] or 0):,.2f}", border=1, fill=True, align='R', ln=True)
-#         pdf.cell(120, 10, txt="Structural Design Cost", border=1)
-#         pdf.cell(70, 10, txt=f"{float(cost_data['structural_design_cost'] or 0):,.2f}", border=1, align='R', ln=True)
-#         pdf.set_fill_color(245, 245, 245)
-#         pdf.cell(120, 10, txt="Cost per Sq.ft", border=1, fill=True)
-#         pdf.cell(70, 10, txt=f"{float(cost_data['cost_per_sqft'] or 0):,.2f}", border=1, fill=True, align='R', ln=True)
-#         total_cost = float(cost_data['architectural_design_cost'] or 0) + float(cost_data['structural_design_cost'] or 0)
-#         pdf.set_fill_color(52, 152, 219)
-#         pdf.set_text_color(255, 255, 255)
-#         pdf.set_font("Arial", 'B', 12)
-#         pdf.cell(120, 12, txt="TOTAL ESTIMATED COST", border=1, fill=True)
-#         pdf.cell(70, 12, txt=f"{total_cost:,.2f}", border=1, fill=True, align='R', ln=True)
-#         pdf.set_text_color(0, 0, 0)
-#         pdf.ln(10)
-
-#         # Estimation Summary
-#         pdf.set_font("Arial", 'B', 14)
-#         pdf.set_fill_color(236, 240, 241)
-#         pdf.cell(0, 10, txt="Estimation Summary", ln=True, fill=True)
-#         pdf.ln(5)
-#         pdf.set_font("Arial", size=10)
-#         pdf.multi_cell(0, 7, txt=cost_data['estimation_summary'] or '', border=1, fill=False)
-#         pdf.ln(10)
-
-#         # Footer
-#         pdf.set_y(-30)
-#         pdf.set_font("Arial", 'I', 9)
-#         pdf.set_text_color(128, 128, 128)
-#         pdf.cell(0, 5, txt="This is a computer-generated document and does not require a signature.", ln=True, align="C")
-#         pdf.output(filepath)
-
-#         # Update cost_estimation table with PDF path
-#         cur.execute("""
-#             UPDATE cost_estimation 
-#             SET report_pdf_path = %s, generated_on = NOW()
-#             WHERE project_id = %s AND org_id = %s
-#         """, (relative_path, project_id, org_id))
-#         conn.commit()
-
-#         # Notify the architect (or user) that PDF is ready
-#         # Get architect ID from project
-#         cur.execute("SELECT architect_id FROM projects WHERE id = %s AND org_id = %s", (project_id, org_id))
-#         proj = cur.fetchone()
-#         if proj and proj['architect_id']:
-#             create_notification(
-#                 user_id=proj['architect_id'],
-#                 org_id=org_id,
-#                 notification_type='cost_estimation_ready',
-#                 reference_id=project_id,
-#                 message=f'Cost estimation PDF for project #{project_id} is ready for download.'
-#             )
-
-#     except Exception as e:
-#         print(f"Background cost estimation PDF failed for project {project_id}: {e}")
-#         if conn:
-#             conn.rollback()
-#     finally:
-#         cur.close()
-#         conn.close()
-
-
-# def generate_salary_slip_async(salary_id, org_id):
-#     """
-#     Background task: generate salary slip PDF and update salaries table.
-#     Runs in a separate thread.
-#     """
-#     from config import get_connection
-#     from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-#     from reportlab.lib import colors
-#     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-#     from reportlab.lib.pagesizes import A4
-#     from io import BytesIO
-#     import os
-#     from datetime import datetime
-
-#     conn = get_connection()
-#     cur = conn.cursor(pymysql.cursors.DictCursor)
-#     try:
-#         # Fetch salary details (same as original download_salary_slip)
-#         cur.execute("""
-#             SELECT s.*, 
-#                    p.project_name, 
-#                    r.name AS employee_name,
-#                    r.email AS employee_email,
-#                    r.contact_no AS employee_contact,
-#                    r.role AS employee_role,
-#                    om.company_name, om.company_address, om.company_phone, om.company_email, om.gst_number
-#             FROM salaries s
-#             JOIN projects p ON s.project_id = p.id
-#             JOIN register r ON s.user_id = r.id
-#             LEFT JOIN organization_master om ON s.org_id = om.org_id
-#             WHERE s.id = %s AND s.org_id = %s
-#         """, (salary_id, org_id))
-#         salary = cur.fetchone()
-#         if not salary:
-#             raise Exception("Salary record not found")
-
-#         # Generate PDF with optimized margins for single page
-#         buffer = BytesIO()
-#         doc = SimpleDocTemplate(buffer, pagesize=A4, leftMargin=20, rightMargin=20, topMargin=20, bottomMargin=20)
-#         styles = getSampleStyleSheet()
-
-#         # Professional Color Scheme
-#         primary_color = colors.HexColor('#1e3a8a')
-#         accent_color = colors.HexColor('#f59e0b')
-#         text_dark = colors.HexColor('#1f2937')
-#         text_light = colors.HexColor('#6b7280')
-#         bg_light = colors.HexColor('#f8fafc')
-
-#         # Compact styles (same as your original)
-#         company_name_style = ParagraphStyle(
-#             'company_name',
-#             parent=styles['Heading1'],
-#             fontSize=18,
-#             textColor=primary_color,
-#             fontName='Helvetica-Bold',
-#             alignment=1,
-#             spaceAfter=3
-#         )
-        
-#         title_style = ParagraphStyle(
-#             'title',
-#             parent=styles['Heading2'],
-#             fontSize=16,
-#             textColor=accent_color,
-#             fontName='Helvetica-Bold',
-#             alignment=1,
-#             spaceAfter=10
-#         )
-        
-#         section_header_style = ParagraphStyle(
-#             'section_header',
-#             parent=styles['Heading3'],
-#             fontSize=12,
-#             textColor=primary_color,
-#             fontName='Helvetica-Bold',
-#             spaceBefore=8,
-#             spaceAfter=5,
-#             backColor=bg_light,
-#             leftIndent=8,
-#             rightIndent=8,
-#             topPadding=5,
-#             bottomPadding=5
-#         )
-        
-#         normal_style = ParagraphStyle(
-#             'normal',
-#             parent=styles['Normal'],
-#             fontSize=9,
-#             textColor=text_dark,
-#             fontName='Helvetica',
-#             spaceAfter=2
-#         )
-
-#         elements = []
-
-#         # Header
-#         elements.append(Paragraph(salary['company_name'] or 'Company Name', company_name_style))
-#         elements.append(Paragraph(salary['company_address'] or '', normal_style))
-#         elements.append(Paragraph(f"Phone: {salary['company_phone'] or ''}", normal_style))
-#         elements.append(Paragraph(f"Email: {salary['company_email'] or ''}", normal_style))
-#         if salary.get('gst_number'):
-#             elements.append(Paragraph(f"GST: {salary['gst_number']}", normal_style))
-#         elements.append(Spacer(1, 10))
-
-#         # Title
-#         elements.append(Paragraph("SALARY SLIP", title_style))
-#         elements.append(Spacer(1, 5))
-
-#         # Salary Period
-#         month_year = salary['month_year']
-#         month_name = datetime.strptime(month_year, '%Y-%m').strftime('%B %Y')
-#         period_data = [[f'For the month of: {month_name}']]
-#         period_table = Table(period_data, colWidths=[515])
-#         period_table.setStyle(TableStyle([
-#             ('BACKGROUND', (0, 0), (-1, -1), bg_light),
-#             ('TEXTCOLOR', (0, 0), (-1, -1), primary_color),
-#             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-#             ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
-#             ('FONTSIZE', (0, 0), (-1, -1), 10),
-#             ('TOPPADDING', (0, 0), (-1, -1), 6),
-#             ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-#             ('BOX', (0, 0), (-1, -1), 1, primary_color),
-#         ]))
-#         elements.append(period_table)
-#         elements.append(Spacer(1, 10))
-
-#         # Employee Details
-#         elements.append(Paragraph("EMPLOYEE DETAILS", section_header_style))
-#         emp_data = [
-#             ['Employee Name:', salary['employee_name'], 'Employee ID:', str(salary['user_id'])],
-#             ['Role:', salary['employee_role'], 'Project:', salary['project_name']],
-#             ['Email:', salary['employee_email'] or 'N/A', 'Contact:', salary['employee_contact'] or 'N/A'],
-#             ['Payment Mode:', salary['payment_mode'].upper(), '', '']
-#         ]
-#         if salary['payment_mode'] == 'cheque' and salary['cheque_number']:
-#             emp_data.append(['Cheque Number:', salary['cheque_number'], '', ''])
-        
-#         emp_table = Table(emp_data, colWidths=[120, 150, 100, 145])
-#         emp_table.setStyle(TableStyle([
-#             ('BACKGROUND', (0, 0), (-1, -1), bg_light),
-#             ('TEXTCOLOR', (0, 0), (-1, -1), text_dark),
-#             ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-#             ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),
-#             ('FONTSIZE', (0, 0), (-1, -1), 9),
-#             ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e5e7eb')),
-#             ('BOX', (0, 0), (-1, -1), 2, primary_color),
-#             ('TOPPADDING', (0, 0), (-1, -1), 5),
-#             ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-#             ('LEFTPADDING', (0, 0), (-1, -1), 8),
-#         ]))
-#         elements.append(emp_table)
-#         elements.append(Spacer(1, 10))
-
-#         # Salary Breakdown
-#         elements.append(Paragraph("SALARY BREAKDOWN", section_header_style))
-#         earnings_data = [
-#             ['EARNINGS', 'AMOUNT (₹)'],
-#             ['Basic Salary', f"{float(salary['base_salary'] or 0):,.2f}"],
-#             ['Allowances', f"{float(salary['allowance'] or 0):,.2f}"],
-#         ]
-#         earnings_table = Table(earnings_data, colWidths=[385, 130])
-#         earnings_table.setStyle(TableStyle([
-#             ('BACKGROUND', (0, 0), (-1, 0), primary_color),
-#             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-#             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-#             ('FONTSIZE', (0, 0), (-1, 0), 10),
-#             ('ALIGN', (0, 0), (0, -1), 'LEFT'),
-#             ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
-#             ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-#             ('FONTSIZE', (0, 1), (-1, -1), 9),
-#             ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_light]),
-#             ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e5e7eb')),
-#             ('BOX', (0, 0), (-1, -1), 2, primary_color),
-#             ('TOPPADDING', (0, 0), (-1, -1), 5),
-#             ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-#             ('LEFTPADDING', (0, 0), (-1, -1), 8),
-#             ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-#         ]))
-#         elements.append(earnings_table)
-#         elements.append(Spacer(1, 8))
-
-#         deductions_data = [
-#             ['DEDUCTIONS', 'AMOUNT (₹)'],
-#             ['PF Deduction', f"{float(salary['pf'] or 0):,.2f}"],
-#             ['Advance Deduction', f"{float(salary['advance'] or 0):,.2f}"],
-#             ['Other Deductions', f"{float(salary['other_deductions'] or 0):,.2f}"],
-#         ]
-#         deductions_table = Table(deductions_data, colWidths=[385, 130])
-#         deductions_table.setStyle(TableStyle([
-#             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#dc3545')),
-#             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-#             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-#             ('FONTSIZE', (0, 0), (-1, 0), 10),
-#             ('ALIGN', (0, 0), (0, -1), 'LEFT'),
-#             ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
-#             ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-#             ('FONTSIZE', (0, 1), (-1, -1), 9),
-#             ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, bg_light]),
-#             ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e5e7eb')),
-#             ('BOX', (0, 0), (-1, -1), 2, colors.HexColor('#dc3545')),
-#             ('TOPPADDING', (0, 0), (-1, -1), 5),
-#             ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-#             ('LEFTPADDING', (0, 0), (-1, -1), 8),
-#             ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-#         ]))
-#         elements.append(deductions_table)
-#         elements.append(Spacer(1, 10))
-
-#         # Net Salary Summary
-#         gross_salary = float(salary['base_salary'] or 0) + float(salary['allowance'] or 0)
-#         total_deductions = float(salary['pf'] or 0) + float(salary['advance'] or 0) + float(salary['other_deductions'] or 0)
-#         net_salary = float(salary['net_salary'] or 0)
-#         summary_data = [
-#             ['Gross Salary', f'₹{gross_salary:,.2f}'],
-#             ['Total Deductions', f'₹{total_deductions:,.2f}'],
-#             ['NET SALARY', f'₹{net_salary:,.2f}']
-#         ]
-#         summary_table = Table(summary_data, colWidths=[385, 130])
-#         summary_table.setStyle(TableStyle([
-#             ('BACKGROUND', (0, 0), (-1, -2), bg_light),
-#             ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#059669')),
-#             ('TEXTCOLOR', (0, 0), (-1, -2), text_dark),
-#             ('TEXTCOLOR', (0, -1), (-1, -1), colors.white),
-#             ('FONTNAME', (0, 0), (-1, -2), 'Helvetica'),
-#             ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
-#             ('FONTSIZE', (0, 0), (-1, -2), 10),
-#             ('FONTSIZE', (0, -1), (-1, -1), 12),
-#             ('ALIGN', (0, 0), (0, -1), 'LEFT'),
-#             ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
-#             ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e5e7eb')),
-#             ('BOX', (0, 0), (-1, -1), 2, primary_color),
-#             ('TOPPADDING', (0, 0), (-1, -1), 8),
-#             ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-#             ('LEFTPADDING', (0, 0), (-1, -1), 8),
-#             ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-#         ]))
-#         elements.append(summary_table)
-
-#         # Build PDF
-#         doc.build(elements)
-#         buffer.seek(0)
-
-#         # Save PDF to static/salary_slips/
-#         pdf_dir = os.path.join(app.static_folder, 'salary_slips')
-#         os.makedirs(pdf_dir, exist_ok=True)
-#         pdf_filename = f"salary_slip_{salary_id}.pdf"
-#         pdf_path = os.path.join(pdf_dir, pdf_filename)
-#         with open(pdf_path, 'wb') as f:
-#             f.write(buffer.getvalue())
-
-#         # Update salaries table with pdf_filename
-#         cur.execute("UPDATE salaries SET pdf_filename = %s WHERE id = %s", (pdf_filename, salary_id))
-#         conn.commit()
-
-#     except Exception as e:
-#         print(f"Background salary slip generation failed for salary {salary_id}: {e}")
-#         if conn:
-#             conn.rollback()
-#     finally:
-#         cur.close()
-#         conn.close()
-
-
-# def generate_salary_report_async(task_id, month_year, org_id, user_id):
-#     """
-#     Background task: generate salary disbursement report PDF.
-#     """
-#     from config import get_connection
-#     from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-#     from reportlab.lib import colors
-#     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-#     from reportlab.lib.pagesizes import landscape, A4
-#     from io import BytesIO
-#     import os
-#     from datetime import datetime
-
-#     conn = get_connection()
-#     cur = conn.cursor(pymysql.cursors.DictCursor)
-#     try:
-#         # Update task status to processing
-#         cur.execute("UPDATE salary_report_tasks SET status = 'processing' WHERE id = %s", (task_id,))
-#         conn.commit()
-
-#         # Get organization details
-#         cur.execute("""
-#             SELECT company_name, company_address, company_phone, company_email, gst_number
-#             FROM organization_master 
-#             WHERE org_id = %s
-#         """, (org_id,))
-#         org = cur.fetchone()
-#         if not org:
-#             raise Exception("Organization not found")
-
-#         # Get all salaries for the month
-#         cur.execute("""
-#             SELECT s.*, 
-#                    p.project_name, 
-#                    r.name AS employee_name,
-#                    r.role AS employee_role
-#             FROM salaries s
-#             JOIN projects p ON s.project_id = p.id
-#             JOIN register r ON s.user_id = r.id
-#             WHERE s.month_year = %s AND s.org_id = %s AND s.base_salary > 0
-#             ORDER BY p.project_name, r.name
-#         """, (month_year, org_id))
-#         salaries = cur.fetchall()
-
-#         if not salaries:
-#             raise Exception("No salary records found for the selected month")
-
-#         # Generate PDF (same code as original download_salary_report)
-#         buffer = BytesIO()
-#         doc = SimpleDocTemplate(buffer, pagesize=landscape(A4), 
-#                                leftMargin=20, rightMargin=20, topMargin=20, bottomMargin=20)
-#         styles = getSampleStyleSheet()
-
-#         primary_color = colors.HexColor('#1e3a8a')
-#         accent_color = colors.HexColor('#f59e0b')
-#         text_dark = colors.HexColor('#1f2937')
-#         text_light = colors.HexColor('#6b7280')
-#         bg_light = colors.HexColor('#f8fafc')
-
-#         company_name_style = ParagraphStyle(
-#             'company_name', parent=styles['Heading1'], fontSize=22,
-#             textColor=primary_color, fontName='Helvetica-Bold', alignment=1, spaceAfter=5
-#         )
-#         title_style = ParagraphStyle(
-#             'title', parent=styles['Heading2'], fontSize=18,
-#             textColor=accent_color, fontName='Helvetica-Bold', alignment=1, spaceAfter=15
-#         )
-#         normal_style = ParagraphStyle(
-#             'normal', parent=styles['Normal'], fontSize=9,
-#             textColor=text_dark, fontName='Helvetica', spaceAfter=3
-#         )
-
-#         elements = []
-
-#         # Header
-#         elements.append(Paragraph(org['company_name'], company_name_style))
-#         elements.append(Paragraph(org['company_address'], normal_style))
-#         elements.append(Paragraph(f"Phone: {org['company_phone']} | Email: {org['company_email']}", normal_style))
-#         if org.get('gst_number'):
-#             elements.append(Paragraph(f"GST: {org['gst_number']}", normal_style))
-#         elements.append(Spacer(1, 15))
-
-#         # Title
-#         month_name = datetime.strptime(month_year, '%Y-%m').strftime('%B %Y')
-#         elements.append(Paragraph(f"SALARY DISBURSEMENT REPORT - {month_name.upper()}", title_style))
-#         elements.append(Spacer(1, 10))
-
-#         # Salary Table
-#         table_data = [
-#             ['S.No', 'Employee Name', 'Role', 'Project', 'Base Salary', 
-#              'Allowance', 'PF', 'Advance', 'Other Ded.', 'Net Salary', 'Payment Mode']
-#         ]
-
-#         total_base = 0
-#         total_allowance = 0
-#         total_pf = 0
-#         total_advance = 0
-#         total_other_ded = 0
-#         total_net = 0
-
-#         for idx, s in enumerate(salaries, 1):
-#             base_salary = float(s['base_salary'] or 0)
-#             allowance = float(s['allowance'] or 0)
-#             pf = float(s['pf'] or 0)
-#             advance = float(s['advance'] or 0)
-#             other_ded = float(s['other_deductions'] or 0)
-#             net_salary = float(s['net_salary'] or 0)
-
-#             total_base += base_salary
-#             total_allowance += allowance
-#             total_pf += pf
-#             total_advance += advance
-#             total_other_ded += other_ded
-#             total_net += net_salary
-
-#             table_data.append([
-#                 str(idx),
-#                 s['employee_name'][:20],
-#                 s['employee_role'][:15],
-#                 s['project_name'][:20],
-#                 f"₹{base_salary:,.2f}",
-#                 f"₹{allowance:,.2f}",
-#                 f"₹{pf:,.2f}",
-#                 f"₹{advance:,.2f}",
-#                 f"₹{other_ded:,.2f}",
-#                 f"₹{net_salary:,.2f}",
-#                 s['payment_mode'].upper()[:6]
-#             ])
-
-#         # Totals row
-#         table_data.append([
-#             '', '', '', 'TOTAL:',
-#             f"₹{total_base:,.2f}", f"₹{total_allowance:,.2f}", f"₹{total_pf:,.2f}",
-#             f"₹{total_advance:,.2f}", f"₹{total_other_ded:,.2f}", f"₹{total_net:,.2f}", ''
-#         ])
-
-#         col_widths = [30, 80, 60, 80, 70, 60, 50, 55, 55, 75, 55]
-#         salary_table = Table(table_data, colWidths=col_widths)
-
-#         table_style = TableStyle([
-#             ('BACKGROUND', (0,0), (-1,0), primary_color),
-#             ('TEXTCOLOR', (0,0), (-1,0), colors.white),
-#             ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-#             ('FONTSIZE', (0,0), (-1,0), 9),
-#             ('ALIGN', (0,0), (-1,0), 'CENTER'),
-#             ('FONTNAME', (0,1), (-1,-2), 'Helvetica'),
-#             ('FONTSIZE', (0,1), (-1,-2), 8),
-#             ('ALIGN', (0,1), (0,-1), 'CENTER'),
-#             ('ALIGN', (4,1), (-2,-1), 'RIGHT'),
-#             ('ALIGN', (-1,1), (-1,-1), 'CENTER'),
-#             ('BACKGROUND', (0,-1), (-1,-1), bg_light),
-#             ('FONTNAME', (0,-1), (-1,-1), 'Helvetica-Bold'),
-#             ('FONTSIZE', (0,-1), (-1,-1), 9),
-#             ('TEXTCOLOR', (0,-1), (-1,-1), primary_color),
-#             ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#e5e7eb')),
-#             ('BOX', (0,0), (-1,-1), 2, primary_color),
-#             ('TOPPADDING', (0,0), (-1,-1), 6),
-#             ('BOTTOMPADDING', (0,0), (-1,-1), 6),
-#             ('LEFTPADDING', (0,0), (-1,-1), 5),
-#             ('RIGHTPADDING', (0,0), (-1,-1), 5),
-#             ('ROWBACKGROUNDS', (0,1), (-1,-2), [colors.white, bg_light]),
-#         ])
-#         salary_table.setStyle(table_style)
-#         elements.append(salary_table)
-#         elements.append(Spacer(1, 20))
-
-#         # Summary
-#         summary_text = f"<b>Total Employees:</b> {len(salaries)} | <b>Total Disbursement:</b> ₹{total_net:,.2f}"
-#         summary_para = Paragraph(summary_text, ParagraphStyle(
-#             'summary', parent=styles['Normal'], fontSize=11,
-#             textColor=primary_color, fontName='Helvetica-Bold', alignment=1
-#         ))
-#         elements.append(summary_para)
-#         elements.append(Spacer(1, 15))
-
-#         # Footer
-#         footer_text = f"Generated on: {datetime.now().strftime('%d-%m-%Y %I:%M %p')}"
-#         footer_para = Paragraph(footer_text, ParagraphStyle(
-#             'footer', parent=styles['Normal'], fontSize=8,
-#             textColor=text_light, fontName='Helvetica-Oblique', alignment=1
-#         ))
-#         elements.append(footer_para)
-
-#         doc.build(elements)
-#         buffer.seek(0)
-
-#         # Save PDF to static/salary_reports/
-#         pdf_dir = os.path.join(app.static_folder, 'salary_reports')
-#         os.makedirs(pdf_dir, exist_ok=True)
-#         pdf_filename = f"salary_report_{month_year}_{task_id}.pdf"
-#         pdf_path = os.path.join(pdf_dir, pdf_filename)
-#         with open(pdf_path, 'wb') as f:
-#             f.write(buffer.getvalue())
-
-#         # Update task status
-#         cur.execute("""
-#             UPDATE salary_report_tasks 
-#             SET status = 'completed', pdf_filename = %s, completed_at = NOW() 
-#             WHERE id = %s
-#         """, (pdf_filename, task_id))
-#         conn.commit()
-
-#     except Exception as e:
-#         conn.rollback()
-#         cur.execute("""
-#             UPDATE salary_report_tasks 
-#             SET status = 'failed', error_message = %s 
-#             WHERE id = %s
-#         """, (str(e), task_id))
-#         conn.commit()
-#         print(f"Salary report generation failed for task {task_id}: {e}")
-#     finally:
-#         cur.close()
-#         conn.close()
-
-
-# def generate_bill_pdf_async(bill_id, org_id, app):
-#     """
-#     Background task: generate bill PDF and update bills_and_payments table.
-#     Runs inside Flask app context to access static_folder.
-#     """
-#     with app.app_context():
-#         from config import get_connection
-#         import pymysql
-#         from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-#         from reportlab.lib import colors
-#         from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-#         from reportlab.lib.pagesizes import A4
-#         from reportlab.lib.units import mm
-#         from io import BytesIO
-#         import os
-#         from datetime import datetime
-
-#         conn = get_connection()
-#         cur = conn.cursor(pymysql.cursors.DictCursor)
-#         try:
-#             # Fetch bill details with company info
-#             cur.execute("""
-#                 SELECT bp.*, r.name AS created_by_name,
-#                        om.company_name, om.company_address
-#                 FROM bills_and_payments bp
-#                 JOIN register r ON bp.created_by = r.id
-#                 LEFT JOIN organization_master om ON bp.org_id = om.org_id
-#                 WHERE bp.id = %s AND bp.org_id = %s
-#             """, (bill_id, org_id))
-#             bill = cur.fetchone()
-#             if not bill:
-#                 raise Exception("Bill not found")
-
-#             # Generate PDF (same logic as your original download)
-#             buffer = BytesIO()
-#             doc = SimpleDocTemplate(
-#                 buffer, pagesize=A4,
-#                 leftMargin=20*mm, rightMargin=20*mm,
-#                 topMargin=15*mm, bottomMargin=15*mm
-#             )
-#             styles = getSampleStyleSheet()
-#             W = 170 * mm
-
-#             # Color palette
-#             C_PRIMARY    = colors.HexColor('#1e3a8a')
-#             C_ROW_ALT    = colors.HexColor('#eef2ff')
-#             C_ROW_WHITE  = colors.white
-#             C_BORDER     = colors.HexColor('#c7d2fe')
-#             C_LABEL_BG   = colors.HexColor('#dbe4ff')
-#             C_TEXT       = colors.HexColor('#1e293b')
-#             C_GREY       = colors.HexColor('#64748b')
-#             C_GREEN      = colors.HexColor('#059669')
-#             C_RED        = colors.HexColor('#dc2626')
-#             C_SUBTOTAL   = colors.HexColor('#1e4d8c')
-
-#             BT_COLOR = {
-#                 'Advance Bill':        colors.HexColor('#1e3a8a'),
-#                 'Running Account Bill':colors.HexColor('#1d4ed8'),
-#                 'Final Bill':          colors.HexColor('#1e40af'),
-#             }.get(bill['bill_type'], C_PRIMARY)
-
-#             PAD = [
-#                 ('TOPPADDING',    (0,0),(-1,-1), 7),
-#                 ('BOTTOMPADDING', (0,0),(-1,-1), 7),
-#                 ('LEFTPADDING',   (0,0),(-1,-1), 9),
-#                 ('RIGHTPADDING',  (0,0),(-1,-1), 9),
-#             ]
-
-#             def sec_hdr(title):
-#                 t = Table([[title]], colWidths=[W])
-#                 t.setStyle(TableStyle([
-#                     ('BACKGROUND',    (0,0),(-1,-1), C_PRIMARY),
-#                     ('TEXTCOLOR',     (0,0),(-1,-1), colors.white),
-#                     ('FONTNAME',      (0,0),(-1,-1), 'Helvetica-Bold'),
-#                     ('FONTSIZE',      (0,0),(-1,-1), 10),
-#                     ('ALIGN',         (0,0),(-1,-1), 'LEFT'),
-#                     ('TOPPADDING',    (0,0),(-1,-1), 7),
-#                     ('BOTTOMPADDING', (0,0),(-1,-1), 7),
-#                     ('LEFTPADDING',   (0,0),(-1,-1), 10),
-#                 ]))
-#                 return t
-
-#             def kv_table(data, col_w):
-#                 t = Table(data, colWidths=col_w)
-#                 style = [
-#                     ('FONTNAME',      (0,0),(0,-1),  'Helvetica-Bold'),
-#                     ('FONTNAME',      (1,0),(1,-1),  'Helvetica'),
-#                     ('FONTSIZE',      (0,0),(-1,-1), 9),
-#                     ('TEXTCOLOR',     (0,0),(-1,-1), C_TEXT),
-#                     ('BACKGROUND',    (0,0),(0,-1),  C_LABEL_BG),
-#                     ('GRID',          (0,0),(-1,-1), 0.5, C_BORDER),
-#                     ('VALIGN',        (0,0),(-1,-1), 'MIDDLE'),
-#                 ] + PAD
-#                 for i in range(len(data)):
-#                     bg = C_ROW_WHITE if i % 2 == 0 else C_ROW_ALT
-#                     style.append(('BACKGROUND', (1,i),(1,i), bg))
-#                 t.setStyle(TableStyle(style))
-#                 return t
-
-#             def fin_table(data, col_w, subtotal_row=None):
-#                 t = Table(data, colWidths=col_w)
-#                 style = [
-#                     ('BACKGROUND',    (0,0),(-1,0),  C_PRIMARY),
-#                     ('TEXTCOLOR',     (0,0),(-1,0),  colors.white),
-#                     ('FONTNAME',      (0,0),(-1,0),  'Helvetica-Bold'),
-#                     ('FONTSIZE',      (0,0),(-1,0),  9),
-#                     ('FONTNAME',      (0,1),(-1,-1), 'Helvetica'),
-#                     ('FONTSIZE',      (0,1),(-1,-1), 9),
-#                     ('TEXTCOLOR',     (0,1),(-1,-1), C_TEXT),
-#                     ('ALIGN',         (1,0),(1,-1),  'RIGHT'),
-#                     ('GRID',          (0,0),(-1,-1), 0.5, C_BORDER),
-#                     ('VALIGN',        (0,0),(-1,-1), 'MIDDLE'),
-#                 ] + PAD
-#                 for i in range(1, len(data)):
-#                     bg = C_ROW_WHITE if i % 2 == 1 else C_ROW_ALT
-#                     style.append(('BACKGROUND', (0,i),(-1,i), bg))
-#                 if subtotal_row is not None:
-#                     style += [
-#                         ('BACKGROUND', (0,subtotal_row),(-1,subtotal_row), C_SUBTOTAL),
-#                         ('TEXTCOLOR',  (0,subtotal_row),(-1,subtotal_row), colors.white),
-#                         ('FONTNAME',   (0,subtotal_row),(-1,subtotal_row), 'Helvetica-Bold'),
-#                     ]
-#                 t.setStyle(TableStyle(style))
-#                 return t
-
-#             elems = []
-
-#             # Header
-#             company_name    = bill.get('company_name') or 'Company Name'
-#             company_address = bill.get('company_address') or ''
-#             s_name = ParagraphStyle('cn', parent=styles['Normal'],
-#                                      fontSize=22, textColor=C_PRIMARY,
-#                                      fontName='Helvetica-Bold', alignment=1,
-#                                      spaceBefore=0, spaceAfter=3)
-#             s_addr = ParagraphStyle('ca', parent=styles['Normal'],
-#                                      fontSize=9,  textColor=C_GREY,
-#                                      fontName='Helvetica', alignment=1,
-#                                      spaceBefore=0, spaceAfter=0)
-#             hdr_data = [[Paragraph(company_name, s_name)],
-#                         [Paragraph(company_address, s_addr)]]
-#             hdr_tbl  = Table(hdr_data, colWidths=[W])
-#             hdr_tbl.setStyle(TableStyle([
-#                 ('ALIGN',         (0,0),(-1,-1), 'CENTER'),
-#                 ('VALIGN',        (0,0),(-1,-1), 'MIDDLE'),
-#                 ('TOPPADDING',    (0,0),(-1,-1), 5),
-#                 ('BOTTOMPADDING', (0,0),(-1,-1), 5),
-#                 ('LINEBELOW',     (0,1),(-1,1),  1.5, C_PRIMARY),
-#             ]))
-#             elems.append(hdr_tbl)
-#             elems.append(Spacer(1, 5*mm))
-
-#             # Title
-#             title_tbl = Table([['BILL & PAYMENT DETAILS']], colWidths=[W])
-#             title_tbl.setStyle(TableStyle([
-#                 ('BACKGROUND',    (0,0),(-1,-1), C_PRIMARY),
-#                 ('TEXTCOLOR',     (0,0),(-1,-1), colors.white),
-#                 ('FONTNAME',      (0,0),(-1,-1), 'Helvetica-Bold'),
-#                 ('FONTSIZE',      (0,0),(-1,-1), 14),
-#                 ('ALIGN',         (0,0),(-1,-1), 'CENTER'),
-#                 ('TOPPADDING',    (0,0),(-1,-1), 11),
-#                 ('BOTTOMPADDING', (0,0),(-1,-1), 11),
-#             ]))
-#             elems.append(title_tbl)
-#             elems.append(Spacer(1, 2*mm))
-
-#             # Bill Type Banner
-#             bt_tbl = Table([[bill['bill_type']]], colWidths=[W])
-#             bt_tbl.setStyle(TableStyle([
-#                 ('BACKGROUND',    (0,0),(-1,-1), BT_COLOR),
-#                 ('TEXTCOLOR',     (0,0),(-1,-1), colors.white),
-#                 ('FONTNAME',      (0,0),(-1,-1), 'Helvetica-Bold'),
-#                 ('FONTSIZE',      (0,0),(-1,-1), 11),
-#                 ('ALIGN',         (0,0),(-1,-1), 'CENTER'),
-#                 ('TOPPADDING',    (0,0),(-1,-1), 7),
-#                 ('BOTTOMPADDING', (0,0),(-1,-1), 7),
-#             ]))
-#             elems.append(bt_tbl)
-#             elems.append(Spacer(1, 4*mm))
-
-#             # Bill & Work Order Info
-#             c1, c2, c3, c4 = W*0.22, W*0.28, W*0.22, W*0.28
-#             info_data = [
-#                 ['Bill No',       bill['bill_no'],
-#                  'Bill Date',     bill['bill_date'].strftime('%d-%m-%Y')],
-#                 ['Work Order No', bill['work_order_number'],
-#                  'Work Order Date', bill['work_order_date'].strftime('%d-%m-%Y')],
-#             ]
-#             info_tbl = Table(info_data, colWidths=[c1, c2, c3, c4])
-#             info_tbl.setStyle(TableStyle([
-#                 ('BACKGROUND',    (0,0),(0,-1),  C_LABEL_BG),
-#                 ('BACKGROUND',    (2,0),(2,-1),  C_LABEL_BG),
-#                 ('BACKGROUND',    (1,0),(1,-1),  C_ROW_WHITE),
-#                 ('BACKGROUND',    (3,0),(3,-1),  C_ROW_ALT),
-#                 ('FONTNAME',      (0,0),(0,-1),  'Helvetica-Bold'),
-#                 ('FONTNAME',      (2,0),(2,-1),  'Helvetica-Bold'),
-#                 ('FONTNAME',      (1,0),(1,-1),  'Helvetica'),
-#                 ('FONTNAME',      (3,0),(3,-1),  'Helvetica'),
-#                 ('FONTSIZE',      (0,0),(-1,-1), 9),
-#                 ('TEXTCOLOR',     (0,0),(-1,-1), C_TEXT),
-#                 ('GRID',          (0,0),(-1,-1), 0.5, C_BORDER),
-#                 ('VALIGN',        (0,0),(-1,-1), 'MIDDLE'),
-#             ] + PAD))
-#             elems.append(info_tbl)
-#             elems.append(Spacer(1, 2*mm))
-
-#             # Work Details
-#             work_data = [
-#                 ['Work Name',     bill['work_name']],
-#                 ['Tender Name',   bill.get('tender_name') or 'N/A'],
-#                 ['Tender Number', bill.get('tender_number') or 'N/A'],
-#             ]
-#             elems.append(kv_table(work_data, [W*0.30, W*0.70]))
-#             elems.append(Spacer(1, 4*mm))
-
-#             # Amount Details
-#             elems.append(sec_hdr('AMOUNT DETAILS'))
-#             elems.append(Spacer(1, 1*mm))
-#             amt_data = [
-#                 ['Description',           'Amount (₹)'],
-#                 ['Advance Amount',         f"₹{float(bill['advance_amount']):,.2f}"],
-#                 ['Running Account Amount', f"₹{float(bill['running_account_amount']):,.2f}"],
-#                 ['Final Amount',           f"₹{float(bill['final_amount']):,.2f}"],
-#             ]
-#             elems.append(fin_table(amt_data, [W*0.70, W*0.30]))
-#             elems.append(Spacer(1, 4*mm))
-
-#             # Financial Breakdown
-#             elems.append(sec_hdr('FINANCIAL BREAKDOWN'))
-#             elems.append(Spacer(1, 1*mm))
-#             subtotal = float(bill['gross_amount']) + float(bill['gst_amount'])
-#             fin_data = [
-#                 ['Description',                    'Amount (₹)'],
-#                 ['Gross Amount',                    f"₹{float(bill['gross_amount']):,.2f}"],
-#                 [f"(+) GST @ {float(bill['gst_percentage'])}%", f"₹{float(bill['gst_amount']):,.2f}"],
-#                 ['Sub Total',                       f"₹{subtotal:,.2f}"],
-#                 ['(−) Security Deposit',            f"₹{float(bill['security_deposit']):,.2f}"],
-#                 ['(−) Labour Charges (1.1%)',        f"₹{float(bill['labour_charges']):,.2f}"],
-#             ]
-#             elems.append(fin_table(fin_data, [W*0.70, W*0.30], subtotal_row=3))
-#             elems.append(Spacer(1, 2*mm))
-
-#             # Net Payable
-#             net_tbl = Table([['NET PAYABLE AMOUNT', f"₹{float(bill['net_amount']):,.2f}"]],
-#                              colWidths=[W*0.70, W*0.30])
-#             net_tbl.setStyle(TableStyle([
-#                 ('BACKGROUND',    (0,0),(-1,-1), C_GREEN),
-#                 ('TEXTCOLOR',     (0,0),(-1,-1), colors.white),
-#                 ('FONTNAME',      (0,0),(-1,-1), 'Helvetica-Bold'),
-#                 ('FONTSIZE',      (0,0),(-1,-1), 13),
-#                 ('ALIGN',         (1,0),(1,-1),  'RIGHT'),
-#                 ('TOPPADDING',    (0,0),(-1,-1), 11),
-#                 ('BOTTOMPADDING', (0,0),(-1,-1), 11),
-#                 ('LEFTPADDING',   (0,0),(-1,-1), 10),
-#                 ('RIGHTPADDING',  (0,0),(-1,-1), 10),
-#             ]))
-#             elems.append(net_tbl)
-#             elems.append(Spacer(1, 3*mm))
-
-#             # Payment Status Banner
-#             status_color = C_GREEN if bill['payment_status'] == 'Paid' else C_RED
-#             status_text  = 'PAID' if bill['payment_status'] == 'Paid' else 'UNPAID'
-#             st_tbl = Table([[f"Payment Status :  {status_text}"]], colWidths=[W])
-#             st_tbl.setStyle(TableStyle([
-#                 ('BACKGROUND',    (0,0),(-1,-1), status_color),
-#                 ('TEXTCOLOR',     (0,0),(-1,-1), colors.white),
-#                 ('FONTNAME',      (0,0),(-1,-1), 'Helvetica-Bold'),
-#                 ('FONTSIZE',      (0,0),(-1,-1), 11),
-#                 ('ALIGN',         (0,0),(-1,-1), 'CENTER'),
-#                 ('TOPPADDING',    (0,0),(-1,-1), 9),
-#                 ('BOTTOMPADDING', (0,0),(-1,-1), 9),
-#             ]))
-#             elems.append(st_tbl)
-#             elems.append(Spacer(1, 5*mm))
-
-#             # Footer
-#             footer_txt = (f"Created by: {bill['created_by_name']} ({bill['created_by_role'].title()})   |   "
-#                           f"Generated: {datetime.now().strftime('%d-%m-%Y %I:%M %p')}")
-#             elems.append(Paragraph(footer_txt,
-#                 ParagraphStyle('ft', parent=styles['Normal'],
-#                                fontSize=8, textColor=C_GREY, alignment=1)))
-
-#             doc.build(elems)
-#             buffer.seek(0)
-
-#             # Save PDF to static/bill_pdfs/
-#             pdf_dir = os.path.join(app.static_folder, 'bill_pdfs')
-#             os.makedirs(pdf_dir, exist_ok=True)
-#             pdf_filename = f"bill_{bill_id}.pdf"
-#             pdf_path = os.path.join(pdf_dir, pdf_filename)
-#             with open(pdf_path, 'wb') as f:
-#                 f.write(buffer.getvalue())
-
-#             # Update bill record
-#             cur.execute("UPDATE bills_and_payments SET pdf_filename = %s WHERE id = %s", (pdf_filename, bill_id))
-#             conn.commit()
-
-#         except Exception as e:
-#             print(f"Background bill PDF generation failed for bill {bill_id}: {e}")
-#             if conn:
-#                 conn.rollback()
-#         finally:
-#             cur.close()
-#             conn.close()
 
 
 load_dotenv()
@@ -1328,6 +55,37 @@ os.makedirs(UPLOAD_FOLDER_INVOICES, exist_ok=True)
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY')
 
+from functools import wraps
+
+def require_role(*roles):
+    def decorator(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            if 'user_id' not in session:
+                flash('Please login to continue.', 'warning')
+                return redirect(url_for('login'))
+            
+            if session.get('role') not in roles:
+                flash('You do not have permission to access this page.', 'danger')
+                return redirect(url_for('login'))
+            return f(*args, **kwargs)
+        return wrapper
+    return decorator
+
+
+def require_role_api(*roles):
+    def decorator(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            if 'user_id' not in session:
+                return jsonify({'success': False, 'error': 'Unauthorized'}), 401
+            if session.get('role') not in roles:
+                return jsonify({'success': False, 'error': 'Unauthorized'}), 403
+            return f(*args, **kwargs)
+        return wrapper
+    return decorator    
+            
+
 app.config['MAX_CONTENT_LENGTH'] = 4 * 1024 * 1024
 @app.errorhandler(413)
 def file_too_large(e):
@@ -1336,9 +94,7 @@ def file_too_large(e):
 
 moment = Moment(app)
 
-# ════════════════════════════════════════════════════════════
-# LAST SEEN HEARTBEAT — updates register.last_seen on every request
-# ════════════════════════════════════════════════════════════
+
 @app.before_request
 def update_user_last_seen():
     user_id = session.get('user_id')
@@ -1348,11 +104,11 @@ def update_user_last_seen():
     if request.endpoint == 'static':
         return
 
-    # ✅ Throttle: only update if last update was > 30 seconds ago
+    
     now_ts = time.time()
     last_update_ts = session.get('_last_seen_update_ts', 0)
     if (now_ts - last_update_ts) < 30:
-        return  # Skip — already updated recently
+        return 
 
     try:
         conn = get_connection()
@@ -1814,10 +570,9 @@ def reset_password():
 
 ######################################registration routes######################################
 @app.route('/register', methods=['GET', 'POST'])
+@require_role('admin')
 def register():
-    if 'role' not in session or session['role'] != 'admin':
-        flash("Only admin can register new users.")
-        return redirect(url_for('login'))
+
 
     if request.method == 'POST':
         name = request.form['name']
@@ -1929,55 +684,7 @@ def login():
 
     return render_template('login.html')
 
-##########################################verify OTP######################################
-# @app.route('/verify_otp', methods=['GET', 'POST'])
-# def verify_otp():
-#     if request.method == 'POST':
-#         user_otp = request.form.get('otp', '').strip()
-#         pending_user = session.get('pending_user')
 
-#         if not pending_user:
-#             flash("Session expired or invalid. Please login again.")
-#             return redirect(url_for('login'))
-
-#         # Check if OTP has expired
-#         if time.time() > pending_user['otp_expiry']:
-#             flash("OTP expired. Please login again.")
-#             session.pop('pending_user', None)
-#             return redirect(url_for('login'))
-
-#         # Verify OTP
-#         if user_otp == pending_user['otp']:
-#             # OTP correct: promote to logged-in user
-#             session['user_id'] = pending_user['id']
-#             session['role'] = pending_user['role']
-#             session['name'] = pending_user['name']
-#             session['org_id'] = pending_user['org_id']
-#             session.pop('pending_user', None)
-
-#             flash('Login successful!')
-            
-#             # Redirect based on role
-#             role = session['role']
-#             if role == 'admin':
-#                 response = redirect(url_for('admin_dashboard'))
-#             elif role == 'site_engineer':
-#                 response = redirect(url_for('site_engineer_dashboard'))
-#             elif role == 'architect':
-#                 response = redirect(url_for('architect_dashboard'))
-#             elif role == 'accountant':
-#                 response = redirect(url_for('accountant_dashboard'))
-#             else:
-#                 flash('Invalid user role.')
-#                 return redirect(url_for('login'))
-            
-#             # Clear flash messages before redirecting
-#             session.pop('_flashes', None)
-#             return response
-#         else:
-#             flash("Invalid OTP. Please try again.")
-            
-#     return render_template("verify.html")
 @app.route('/verify_registration_otp', methods=['GET', 'POST'])
 def verify_registration_otp():
     if 'role' not in session or session['role'] != 'admin':
@@ -2086,23 +793,19 @@ def verify_registration_otp():
     return render_template("verify_registration_otp.html", email=session.get('pending_registration', {}).get('email'))
 ########################################admin routes######################################
 @app.route('/admin1')
-
+@require_role('admin')
 def admin_dashboard():
-    if 'role' in session and session['role'] == 'admin':
-        # Clear any lingering flash messages
         session.pop('_flashes', None)
         admin_name = session.get('name')
         return render_template('admin_dashboard.html', admin_name=admin_name)
-    return redirect('/')
+    # return redirect('/')
 
 
 #########################################site engineer routes######################################
 
 @app.route('/siteengineer/dashboard')
-
+@require_role('site_engineer')
 def site_engineer_dashboard():
-    if session.get('role') != 'site_engineer':
-        return redirect(url_for('login'))
 
     site_engineer_id = session['user_id']
 
@@ -2130,10 +833,9 @@ def site_engineer_dashboard():
 ##########################################architect routes######################################
 
 @app.route('/architect_dashboard', methods=['GET', 'POST'])
+@require_role('architect')
 def architect_dashboard():
-    if 'role' not in session or session['role'] != 'architect':
-        return redirect(url_for('login'))
-
+ 
     user_id = session['user_id']
     conn = None
     cur = None
@@ -2314,10 +1016,9 @@ def cleanup_architects():
 
 ############################################## accountant routes ######################################
 @app.route('/accountant_dashboard')
-def accountant_dashboard():
-    if 'role' not in session or session['role'] != 'accountant':
-        return redirect(url_for('login'))
+@require_role('accountant')
 
+def accountant_dashboard():
     accountant_id = session['user_id']
     conn = get_connection()
     cur = conn.cursor(pymysql.cursors.DictCursor)
@@ -2373,10 +1074,9 @@ def accountant_dashboard():
         projects_with_invoices=projects_with_invoices
     )
 @app.route('/accountant/invoices')
+@require_role('accountant')
 def accountant_view_invoices():
-    if 'role' not in session or session['role'] != 'accountant':
-        return redirect(url_for('login'))
-    
+
     accountant_id = session['user_id']
     org_id = session['org_id']
     
@@ -2385,7 +1085,6 @@ def accountant_view_invoices():
     conn = get_connection()
     cur = conn.cursor(pymysql.cursors.DictCursor)
 
-    # ✅ FIXED: Only fetch invoices strictly linked to assigned projects
     cur.execute("""
         SELECT DISTINCT
             p.id AS project_id,
@@ -2436,8 +1135,9 @@ def accountant_view_invoices():
     )
 ############################### Architect Project Management Routes ######################################
 @app.route('/add_design_details', methods=['POST'])
+@require_role('architect')
 def add_design_details():
-    if 'role' in session and session['role'] == 'architect':
+
         project_id = request.form['project_id']
         building_usage = request.form['building_usage']
         num_floors = request.form['num_floors']
@@ -2494,13 +1194,14 @@ def add_design_details():
 
         return redirect(url_for('architect_dashboard', project_id=project_id))
 
-    return redirect(url_for('login'))
+   
 
 ########################################### Add Structural Details ######################################
 
 @app.route('/add_structural_details', methods=['POST'])
+@require_role('architect')
 def add_structural_details():
-    if 'role' in session and session['role'] == 'architect':
+    
         project_id = request.form['project_id']
         foundation_type = request.form['foundation_type']
         framing_system = request.form['framing_system']
@@ -2558,13 +1259,13 @@ def add_structural_details():
 
         return redirect(url_for('architect_dashboard', project_id=project_id))
 
-    return redirect(url_for('login'))
 
 ########################################## Add Material Specifications ######################################
 
 @app.route('/add_material_specification', methods=['POST'])
+@require_role('architect')
 def add_material_specification():
-    if 'role' in session and session['role'] == 'architect':
+   
         project_id = request.form['project_id']
         primary_material = request.form['primary_material']
         wall_material = request.form['wall_material']
@@ -2623,22 +1324,22 @@ def add_material_specification():
 
         return redirect(url_for('architect_dashboard', project_id=project_id))
 
-    return redirect(url_for('login'))
+
     
 import os
 from werkzeug.utils import secure_filename
 from flask import request, redirect, flash, url_for, session
 
-ALLOWED_EXTENSIONS = {'pdf'}
+ALLOWED_EXTENSIONS_PDF_ONLY = {'pdf'}
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+def allowed_PDF_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS_PDF_ONLY
 
 ############################### Upload Drawing Documents ######################################
 
 @app.route('/upload_layout', methods=['POST'])
+@require_role('architect')
 def upload_layout():
-    if 'role' in session and session['role'] == 'architect':
         file = request.files.get('layout_file')
         layout_type = request.form.get('layout_type')
         document_title = request.form.get('document_title')
@@ -2652,12 +1353,12 @@ def upload_layout():
             'Section/Structural', 'Electrical', 'Plumbing/Sanitation'
         ]
 
-        if layout_type in required_types and (not file or not allowed_file(file.filename)):
+        if layout_type in required_types and (not file or not allowed_PDF_file(file.filename)):
             flash("PDF file is required for selected layout type.")
             return redirect(url_for('architect_dashboard', project_id=project_id))
 
         file_path = ""
-        if file and allowed_file(file.filename):
+        if file and allowed_PDF_file(file.filename):
             file.seek(0, 2)
             file_size = file.tell()
             file.seek(0)
@@ -2723,13 +1424,11 @@ def upload_layout():
 
         return redirect(url_for('architect_dashboard', project_id=project_id))
 
-    flash("Unauthorized access.")
-    return redirect(url_for('login'))
 
 ################################# site conditions #######################################
 @app.route('/upload_site_conditions', methods=['POST'])
+@require_role('architect')
 def upload_site_conditions():
-    if 'role' in session and session['role'] == 'architect':
         soil_file = request.files.get('soil_report')
         topo_file = request.files.get('topo_map')
         water_table_level = request.form.get('water_table_level')
@@ -2740,7 +1439,7 @@ def upload_site_conditions():
         soil_path = ""
         topo_path = ""
 
-        if soil_file and allowed_file(soil_file.filename):
+        if soil_file and allowed_PDF_file(soil_file.filename):
 
 
             soil_file.seek(0, 2)
@@ -2757,7 +1456,7 @@ def upload_site_conditions():
             soil_file.save(soil_save_path)
             soil_path = os.path.join('uploads', soil_filename).replace("\\", "/")
 
-        if topo_file and allowed_file(topo_file.filename):
+        if topo_file and allowed_PDF_file(topo_file.filename):
 
             topo_file.seek(0, 2)
             topo_size = topo_file.tell()
@@ -2806,8 +1505,7 @@ def upload_site_conditions():
 
         return redirect(url_for('architect_dashboard', project_id=project_id))
 
-    flash("Unauthorized access.")
-    return redirect(url_for('login'))
+
 
 
 #############################################logout route######################################
@@ -2835,9 +1533,9 @@ def logout():
 
 ############################# Submit Worker Report ######################################
 @app.route('/submit_worker_report', methods=['GET', 'POST'])
+@require_role('site_engineer')
 def submit_worker_report():
-    if 'role' not in session or session['role'] != 'site_engineer':
-        return redirect(url_for('login'))
+
 
     site_engineer_id = session['user_id']
     org_id = session['org_id']
@@ -2883,20 +1581,20 @@ def submit_worker_report():
                     cur=cur
                 )
             conn.commit()
-            # ========================================
+        
             
-            flash('Worker report submitted successfully.')
+            flash('Worker report submitted successfully.', 'success')
             
         except Exception as e:
             conn.rollback()
-            flash(f'Error submitting report: {str(e)}')
+            flash(f'Error submitting report: {str(e)}', 'error')
         finally:
             cur.close()
             conn.close()
             
         return redirect(url_for('submit_worker_report'))
 
-    # Fetch only projects assigned to this site engineer (by admin)
+   
     cur.execute("""
         SELECT p.*
         FROM projects p
@@ -2912,9 +1610,9 @@ def submit_worker_report():
 
 ########################################## View Worker Reports ######################################
 @app.route('/view_worker_reports')
+@require_role('admin', 'site_engineer')
 def view_worker_reports():
-    if 'role' not in session or session['role'] not in ['admin', 'site_engineer']:
-        return redirect(url_for('login'))
+   
 
     user_id = session.get('user_id')
     org_id = session.get('org_id')
@@ -2982,9 +1680,9 @@ def view_worker_reports():
 
 ########################################## Add Inventory ######################################
 @app.route('/add_inventory', methods=['GET', 'POST'])
+@require_role('site_engineer')
 def add_inventory():
-    if 'role' not in session or session['role'] != 'site_engineer':
-        return redirect(url_for('login'))
+
 
     if 'org_id' not in session or 'user_id' not in session:
         flash("Unauthorized access", "danger")
@@ -3113,10 +1811,9 @@ def add_inventory():
 ######################################## View Inventory ######################################
 
 @app.route('/view_inventory')
+@require_role('admin', 'site_engineer')
 def view_inventory():
-    if 'org_id' not in session:
-        flash("Unauthorized access", "danger")
-        return redirect(url_for('login'))
+   
 
     org_id = session['org_id']
     user_id = session.get('user_id')
@@ -3160,10 +1857,9 @@ def view_inventory():
     return response
 ########################---assign sites---#######################################
 @app.route('/assign_site', methods=['GET', 'POST'])
+@require_role('admin')
 def assign_site():
-    if session.get('role') != 'admin':
-        return redirect(url_for('login'))
-    
+
     conn = None
     cursor = None
     try:
@@ -3256,9 +1952,9 @@ def check_duplicate_site():
 ################################--- View Assigned Sites ---###################
 
 @app.route('/view_assigned_sites')
+@require_role('site_engineer')
 def view_assigned_sites():
-    if session.get('role') != 'site_engineer':
-        return redirect(url_for('login'))
+
 
     engineer_id = session['user_id']  # Make sure user_id is set on login
     mark_notifications_as_read(
@@ -3282,9 +1978,8 @@ def view_assigned_sites():
 
 ######################## 🌟 Upload Progress Report (SITE ENGINEER)###################
 @app.route('/upload_progress', methods=['GET', 'POST'])
+@require_role('site_engineer')
 def upload_progress():
-    if session.get('role') != 'site_engineer':
-        return redirect(url_for('login'))
 
     site_engineer_id = session['user_id']
 
@@ -3356,7 +2051,7 @@ def upload_progress():
                     notification_type='progress_report',
                     reference_id=site_id,
                     message=f'Progress report uploaded for {site_name}: {progress}% complete by {session.get("name")}',
-                    cur=cursor    # <-- add this
+                    cur=cursor   
                 )
             conn.commit()
 
@@ -3394,9 +2089,9 @@ def upload_progress():
 
 ################################### View Progress Reports (ADMIN)###############################################
 @app.route('/view_progress')
+@require_role('admin')
 def view_progress():
-    if session.get('role') != 'admin':
-        return redirect(url_for('login'))
+   
     
 
     admin_id = session['user_id']
@@ -3408,8 +2103,7 @@ def view_progress():
     cursor = db.cursor(pymysql.cursors.DictCursor)
 
 
-    # Use the correct SQL order: WHERE before ORDER BY
-    # Assuming org_id is in the sites table
+
     try:
         query = """
             SELECT pr.*, s.site_name, pr.report_date AS upload_date
@@ -3442,9 +2136,8 @@ def allowed(filename: str) -> bool:
 
 ####################################add_vendor_inventory######################################## 
 @app.route('/add_vendor_inventory', methods=['GET', 'POST'])
+@require_role('site_engineer')
 def add_vendor_inventory():
-    if session.get('role') != 'site_engineer':
-        return redirect(url_for('login'))
 
     if request.method == 'POST':
         materials  = request.form.getlist('material_description[]')
@@ -3547,9 +2240,9 @@ def add_vendor_inventory():
 ###################### --- Admin View Vendor Inventory --- ####################################################
 
 @app.route('/admin/vendor_inventory', methods=['GET', 'POST'])
+@require_role('admin')
 def admin_vendor_inventory():
-    if session.get('role') != 'admin':
-        return redirect(url_for('login'))
+
 
     admin_id = session['user_id']
     org_id = session.get('org_id')
@@ -3669,13 +2362,9 @@ def admin_vendor_inventory():
 
 ########################################### Site Engineer View Inventory ######################################
 @app.route('/site_engineer/view_inventory')
+@require_role('site_engineer')
 def site_engineer_view_inventory():
-    if 'role' not in session or session['role'] != 'site_engineer':
-        return redirect(url_for('login'))
-
-    if 'org_id' not in session:
-        flash("Unauthorized access", "danger")
-        return redirect(url_for('login'))
+   
 
     org_id = session['org_id']
     conn = None
@@ -3704,13 +2393,9 @@ def site_engineer_view_inventory():
 
 ############################################ Site Engineer Approved Vendor Inventory ######################################
 @app.route('/site_engineer/approved_vendor_inventory')
+@require_role('site_engineer')
 def site_engineer_approved_vendor_quotations():
-    if session.get('role') != 'site_engineer':
-        return redirect(url_for('login'))
-
-    if 'org_id' not in session:
-        flash("Unauthorized access", "danger")
-        return redirect(url_for('login'))
+    
 
     org_id = session['org_id']
     site_engineer_id = session['user_id']
@@ -3743,10 +2428,10 @@ def site_engineer_approved_vendor_quotations():
 
 ############################################### Add Enquiry ######################################
 @app.route('/add_enquiry', methods=['GET', 'POST'])
+@require_role('site_engineer')
 def add_enquiry():
-    if 'role' not in session or session['role'] != 'site_engineer':
-        return redirect(url_for('login'))
-
+  
+    
     if request.method == 'POST':
         name = request.form['name']
         address = request.form['address']
@@ -3799,8 +2484,9 @@ def add_enquiry():
     
 ################################################ View Enquiries ######################################
 @app.route('/admin/enquiries')
+@require_role('admin','site_engineer')
 def view_enquiries():
-    if 'role' in session and session['role'] in ['admin', 'site_engineer']:
+  
         conn = None
         cur = None
         try:
@@ -3846,16 +2532,15 @@ def view_enquiries():
                 conn.close()
         
         return render_template('view_enquiry.html', enquiries=enquiries)
-    else:
-        return redirect(url_for('login'))
+
 
     
 
  ################################################# Add Architect ######################################   
 @app.route('/add_architect', methods=['GET', 'POST'])
+@require_role('admin')
 def add_architect():
-    if session.get('role') != 'admin':
-        return redirect(url_for('login'))
+
 
     conn = None
     cursor = None
@@ -3904,8 +2589,9 @@ def add_architect():
 
 ################################################# View Architects ######################################
 @app.route('/view_architects')
+@require_role('admin','site_engineer')
 def view_architects():
-    if 'role' in session and session['role'] in ['admin', 'site_engineer']:
+
         conn = get_connection()
         cur = conn.cursor(pymysql.cursors.DictCursor)
         try:
@@ -3927,14 +2613,15 @@ def view_architects():
             conn.close()
 
         return render_template('view_architects.html', architects=architects)
-    return redirect(url_for('login'))
+  
 
 
 
 ########################################### View Architect Details ######################################
 @app.route('/view_architect_details/<int:architect_id>')
+@require_role('admin', 'site_engineer')
 def view_architect_details(architect_id):
-    if 'role' in session and session['role'] in ['admin', 'site_engineer']:
+   
         conn = None
         try:
             conn = get_connection()
@@ -3954,13 +2641,14 @@ def view_architect_details(architect_id):
         finally:
             if conn:
                 conn.close()
-    return redirect(url_for('login'))
+  
 
 ########################################### Upload Utilities Services ######################################
 
 @app.route('/upload_utilities_services', methods=['POST'])
+@require_role('architect')
 def upload_utilities_services():
-    if 'role' in session and session['role'] == 'architect':
+   
         project_id = request.form.get('project_id')
         water_supply = request.form.get('water_supply_source')
         drainage_system = request.form.get('drainage_system_type')
@@ -4000,80 +2688,6 @@ def upload_utilities_services():
 
         return redirect(url_for('architect_dashboard', project_id=project_id))
 
-    flash("Unauthorized access.")
-    return redirect(url_for('login'))
-
-
-
-############################################ Upload Cost Estimation ######################################
-# @app.route('/upload_cost_estimation', methods=['POST'])
-# def upload_cost_estimation():
-#     if 'role' in session and session['role'] == 'architect':
-#         project_id = request.form.get('project_id')
-#         arch_cost = request.form.get('architectural_design_cost')
-#         struct_cost = request.form.get('structural_design_cost')
-#         summary = request.form.get('estimation_summary')
-#         boq = request.form.get('boq_reference')
-#         cost_per_sqft = request.form.get('cost_per_sqft')
-#         org_id = session['org_id']
-
-#         # Ensure the upload directory exists
-#         os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-
-#         # Generate unique PDF filename
-#         filename = f"estimation_{uuid.uuid4().hex[:8]}.pdf"
-#         save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-#         #relative_path = os.path.join('uploads', os.path.basename(app.config['UPLOAD_FOLDER']), filename).replace("\\", "/")
-#         relative_path = os.path.join('uploads', filename).replace("\\", "/")
-
-
-#         # Create PDF from submitted data
-#         pdf_data = {
-#             "Project ID": project_id,
-#             "Architectural Design Cost": arch_cost,
-#             "Structural Design Cost": struct_cost,
-#             "Estimation Summary": summary,
-#             "BOQ Reference": boq,
-#             "Cost per Sqft": cost_per_sqft
-#         }
-#         generate_estimation_pdf(pdf_data, save_path)
-
-#         # Save to DB
-#         conn = get_connection()
-#         cur = conn.cursor()
-
-#         # Update if project already has entry
-#         cur.execute("SELECT id FROM cost_estimation WHERE project_id = %s and org_id = %s", (project_id,org_id))
-#         if cur.fetchone():
-#             cur.execute("""
-#                 UPDATE cost_estimation
-#                 SET architectural_design_cost = %s,
-#                     structural_design_cost = %s,
-#                     estimation_summary = %s,
-#                     boq_reference = %s,
-#                     cost_per_sqft = %s,
-#                     report_pdf_path = %s,
-#                     generated_on = NOW()
-#                 WHERE project_id = %s and org_id = %s
-#             """, (arch_cost, struct_cost, summary, boq, cost_per_sqft, relative_path, project_id,org_id))
-#         else:
-#             cur.execute("""
-#                 INSERT INTO cost_estimation
-#                     (project_id, architectural_design_cost, structural_design_cost,
-#                      estimation_summary, boq_reference, cost_per_sqft, report_pdf_path,org_id)
-#                 VALUES (%s, %s, %s, %s, %s, %s, %s,%s)
-#             """, (project_id, arch_cost, struct_cost, summary, boq, cost_per_sqft, relative_path,org_id))
-
-#         conn.commit()
-#         conn.close()
-
-#         flash("Cost estimation saved and PDF generated.")
-#         return redirect(url_for('architect_dashboard'))
-
-#     flash("Unauthorized access.")
-#     return redirect(url_for('login'))
-
-
 
 
 ########################################## Generate PDF for Cost Estimation ######################################
@@ -4096,9 +2710,9 @@ def generate_estimation_pdf(data, save_path):
     c.save()
 ########################################### Generate Cost Estimation PDF ######################################
 @app.route('/generate_cost_estimation_pdf', methods=['POST'])
+@require_role('architect')
 def generate_cost_estimation_pdf():
-    if 'role' not in session or session['role'] != 'architect':
-        return jsonify({'success': False, 'error': 'Unauthorized'}), 403
+
 
     try:
         project_id      = request.form['project_id']
@@ -4145,13 +2759,7 @@ def generate_cost_estimation_pdf():
         cur.close()
         conn.close()
 
-        # Start background PDF generation
-        # thread = threading.Thread(
-        #     target=generate_cost_estimation_pdf_async,
-        #     args=(project_id, org_id)
-        # )
-        # thread.daemon = True
-        # thread.start()
+     
         generate_cost_estimation_pdf_task.delay(project_id, int(org_id))
 
 
@@ -4234,9 +2842,9 @@ def select_project_by_org():
 
 
 @app.route('/assign_architect', methods=['GET', 'POST'])
+@require_role('admin','site_engineer')
 def assign_architect():
-    if 'role' in session and session['role'] not in ['admin', 'site_engineer']:
-        return redirect(url_for('login'))
+
 
     conn = None
     cursor = None
@@ -4351,9 +2959,9 @@ def get_assigned_sites_by_architect():
     
 ########################################### Admin Assigned Sites ######################################    
 @app.route('/admin/assigned_sites')
+@require_role('admin')
 def admin_assigned_sites():
-    if session.get('role') != 'admin':
-        return redirect(url_for('login'))
+
     
     conn = None
     cursor = None
@@ -4376,9 +2984,9 @@ def admin_assigned_sites():
 ########################################### View Assigned Architects ######################################
 
 @app.route('/view_assigned_architects')
+@require_role('admin', 'site_engineer')
 def view_assigned_architects():
-    if 'role' not in session or session['role'] not in ['admin', 'site_engineer']:
-        return redirect(url_for('login'))
+
 
     conn = None
     cur = None
@@ -4429,9 +3037,9 @@ def view_assigned_architects():
 
 ################################################# View Project Details ######################################
 @app.route('/view_project_details', methods=['GET', 'POST'])
+@require_role('admin','site_engineer')
 def view_project_details():
-    if 'role' not in session or session['role'] not in ['admin', 'site_engineer']:
-        return redirect(url_for('login'))
+
 
     user_id = session['user_id']
     role = session['role']
@@ -4509,9 +3117,9 @@ def view_project_details():
 
 ########################################### Submit Legal Compliances ######################################
 @app.route('/submit_legal_compliances', methods=['GET', 'POST'])
+@require_role('admin','site_engineer')
 def submit_legal_compliances():
-    if 'role' not in session or session['role'] not in ['admin', 'site_engineer']:
-        return redirect(url_for('login'))
+
 
     conn = None
     cur = None
@@ -4664,9 +3272,9 @@ def submit_legal_compliances():
 
 ############################################ View Legal Compliances ######################################
 @app.route('/view_legal_compliances')
+@require_role('admin', 'site_engineer', 'architect', 'accountant')
 def view_legal_compliances():
-    if 'role' not in session:
-        return redirect(url_for('login'))
+
 
     user_id = session['user_id']
     role = session['role']
@@ -4787,10 +3395,10 @@ def get_projects_by_org():
         conn.close()
 
 @app.route('/legal_compliances_dashboard', methods=['GET', 'POST'])
+@require_role('admin','site_engineer','architect','accountant')
 def legal_compliances_dashboard():
 
-    # conn = get_connection()
-    # cur = conn.cursor(pymysql.cursors.DictCursor)
+
     try:
         user_id = session.get('user_id')
         role = session.get('role')
@@ -4925,9 +3533,9 @@ def legal_compliances_dashboard():
 
 ## ###############################--- Generate Invoice --- #######################################
 @app.route('/engineer/generate_invoice', methods=['GET', 'POST'])
+@require_role('site_engineer')
 def generate_invoice():
-    if session.get('role') != 'site_engineer':
-        return redirect(url_for('login'))
+
 
     conn = get_connection()
     cur = conn.cursor(pymysql.cursors.DictCursor)
@@ -5171,9 +3779,8 @@ def download_invoice_pdf(invoice_id):
 
 ###################################################### Invoice Submission Route ##########################
 @app.route('/submit_invoice_alt', methods=['GET', 'POST'])
+@require_role('site_engineer')
 def submit_invoice_alt():
-    if session.get('role') != 'site_engineer':
-        return redirect(url_for('login'))
 
     site_engineer_id = session.get('user_id')
     vendor_name = request.form.get('vendor_name')
@@ -5219,9 +3826,8 @@ def submit_invoice_alt():
 
 ###################################################### Admin View Invoices Route ##########################@app.route('/admin/invoices', methods=['GET', 'POST'])
 @app.route('/admin/invoices', methods=['GET', 'POST'])
+@require_role('admin')
 def admin_view_invoices():
-    if session.get('role') != 'admin':
-        return redirect(url_for('login'))
 
     status_filter = request.args.get('status', 'All')
     admin_id = session.get('user_id')
@@ -5357,6 +3963,7 @@ def admin_view_invoices():
 
 #################################### Admin Invoice Detail View ######################################
 @app.route('/admin/invoice/<int:invoice_id>')
+@require_role('admin')
 def admin_invoice_detail(invoice_id):
     conn = None
     cursor = None
@@ -5381,93 +3988,15 @@ def admin_invoice_detail(invoice_id):
             conn.close()
     
     return render_template('invoice_detail.html', invoice=invoice, items=items)
-################################## Site Engineer Generate Invoice ######################################
-# @app.route('/site_engineer/invoice/new', methods=['GET', 'POST'])
-# def site_engineer_generate_invoice():
-#     if session.get('role') != 'site_engineer':
-#         return redirect(url_for('login'))
 
-#     if request.method == 'POST':
-#         try:
-#             site_engineer_id = session.get('user_id')
-#             vendor_name = request.form['vendor_name']
-#             # Always use current date for invoice_date
-#             invoice_date = datetime.now().strftime("%Y-%m-%d")
-#             bill_to_name = request.form['bill_to_name']
-#             bill_to_address = request.form['bill_to_address']
-#             bill_to_phone = request.form['bill_to_phone']
-#             subtotal = float(request.form['subtotal'])
-#             total_amount = float(request.form['total_amount'])  # This is grand total from form
-
-#             apply_gst = request.form.get('apply_gst')
-#             gst_percentage = 18
-#             gst_amount = 0
-#             if apply_gst:
-#                 gst_amount = subtotal * gst_percentage / 100
-#             else:
-#                 gst_amount = 0
-
-#             descriptions = request.form.getlist('description[]')
-#             quantities = request.form.getlist('quantity[]')
-#             item_prices = request.form.getlist('rate[]')
-#             totals = request.form.getlist('total[]')
-
-#             invoice_number = "INV" + datetime.now().strftime("%Y%m%d%H%M%S")
-#             pdf_filename = f"invoice_{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf"
-
-#             with db.cursor() as cursor:
-#                 cursor.execute("""
-#                     INSERT INTO invoices (
-#                         site_engineer_id, vendor_name, total_amount, gst_amount, pdf_filename, generated_on,
-#                         bill_to_name, bill_to_address, bill_to_phone, subtotal, invoice_number
-#                     )
-#                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-#                 """, (
-#                     site_engineer_id, vendor_name, total_amount, gst_amount, pdf_filename, invoice_date,
-#                     bill_to_name, bill_to_address, bill_to_phone, subtotal, invoice_number
-#                 ))
-
-#                 invoice_id = cursor.lastrowid
-
-#                 items_inserted = 0
-#                 for i, (desc, qty, price, total) in enumerate(zip(descriptions, quantities, item_prices, totals)):
-#                     if not desc.strip():
-#                         continue
-#                     try:
-#                         qty_val = float(qty) if qty else 0
-#                         price_val = float(price) if price else 0
-#                         total_val = float(total) if total else (qty_val * price_val)
-#                         cursor.execute("""
-#                             INSERT INTO invoice_items (invoice_id, description, quantity, rate, subtotal)
-#                             VALUES (%s, %s, %s, %s, %s)
-#                         """, (invoice_id, desc.strip(), qty_val, price_val, total_val))
-#                         items_inserted += 1
-#                     except (ValueError, TypeError):
-#                         continue
-
-#                 if items_inserted == 0:
-#                     raise Exception("No valid items were inserted")
-
-#                 db.commit()
-
-#             flash(f"Invoice generated successfully! ({items_inserted} items added)", "success")
-#             return redirect(url_for('site_engineer_invoices'))
-
-#         except Exception as e:
-#             db.rollback()
-#             flash(f"Error: {str(e)}", "danger")
-
-#     # Pass current date to template for display
-#     return render_template('generate_invoice.html', current_date=datetime.now().strftime("%Y-%m-%d"), user_role='site_engineer')
 
 
 ####################################################### Submit Invoice Route for Site Engineer ##########################################
 
 @app.route('/submit_invoice', methods=['GET', 'POST'])
+@require_role('site_engineer')
 def submit_invoice():
-    if session.get('role') != 'site_engineer':
-        return redirect(url_for('login'))
-
+  
     site_engineer_id = session.get('user_id')
     vendor_name = request.form.get('vendor_name')
     item_names = request.form.getlist('item_name[]')
@@ -5514,8 +4043,6 @@ def submit_invoice():
 
 def serve_invoice_pdf(filename):
 
-    # Allow admin, accountant, site_engineer, architect
-
     if session.get('role') not in ['admin', 'accountant', 'site_engineer', 'architect']:
 
         flash("Unauthorized access", "danger")
@@ -5536,12 +4063,11 @@ def dashboard():
         return redirect(url_for('accountant_dashboard'))
     else:
         return redirect(url_for('login'))
-    from datetime import datetime, date
 
 @app.route('/admin/generate_invoice', methods=['GET', 'POST'])
+@require_role('admin')
 def admin_generate_invoice():
-    if session.get('role') != 'admin':
-        return redirect(url_for('login'))
+ 
     
     conn = None
     cursor = None
@@ -5755,9 +4281,9 @@ def get_engineer_projects(engineer_id):
         conn.close()
 
 @app.route('/site_engineer/invoices')
+@require_role('site_engineer')
 def site_engineer_invoices():
-    if session.get('role') != 'site_engineer':
-        return redirect(url_for('login'))
+    
 
     site_engineer_id = session.get('user_id')
     org_id = session['org_id']
@@ -5791,8 +4317,7 @@ def site_engineer_invoices():
         for row in rows:
             inv_id = row['id']
             if inv_id not in invoices_dict:
-                # FIX: Keep generated_on as a datetime object (not converted to string).
-                # The template calls {{ invoice.generated_on.strftime('%Y-%m-%d') }}
+               
                 # which requires a datetime object, NOT a string.
                 invoices_dict[inv_id] = {
                     'id': inv_id,
@@ -5826,45 +4351,12 @@ def site_engineer_invoices():
 
     return render_template('site_engineer_invoices.html', invoices=invoices)
 
-# @app.route('/admin/edit_invoice/<int:invoice_id>', methods=['GET', 'POST'])
-# def admin_edit_invoice(invoice_id):
-#     if session.get('role') != 'admin':
-#         return redirect(url_for('login'))
 
-#     with db.cursor(pymysql.cursors.DictCursor) as cursor:
-#         cursor.execute("SELECT * FROM invoices WHERE id = %s", (invoice_id,))
-#         invoice = cursor.fetchone()
-
-#         if not invoice:
-#             flash("Invoice not found.", "danger")
-#             return redirect(url_for('admin_view_invoices'))
-
-#         cursor.execute("SELECT * FROM invoice_items WHERE invoice_id = %s", (invoice_id,))
-#         items = cursor.fetchall()
-
-#         if request.method == 'POST':
-#             vendor_name = request.form.get('vendor_name')
-#             total_amount = request.form.get('total_amount')
-#             gst_amount = request.form.get('gst_amount')
-#             pdf_filename = request.form.get('pdf_filename')
-
-#             cursor.execute("""
-#                 UPDATE invoices 
-#                 SET vendor_name=%s, total_amount=%s, gst_amount=%s, pdf_filename=%s,
-#                     status='Pending', rejection_reason=NULL
-#                 WHERE id=%s
-#             """, (vendor_name, total_amount, gst_amount, pdf_filename, invoice_id))
-#             db.commit()
-
-#             flash("Invoice updated and reset to Pending for review.", "success")
-#             return redirect(url_for('admin_view_invoices'))
-
-#     return render_template('admin_edit_invoice.html', invoice=invoice, items=items)
 
 @app.route('/admin/edit_invoice/<int:invoice_id>', methods=['GET', 'POST'])
+@require_role('admin')
 def admin_edit_invoice(invoice_id):
-    if session.get('role') != 'admin':
-        return redirect(url_for('login'))
+
     
     conn = None
     cursor = None
@@ -5938,9 +4430,9 @@ def admin_edit_invoice(invoice_id):
             conn.close()
 
 @app.route('/edit_invoice/<int:invoice_id>', methods=['GET', 'POST'])
+@require_role('site_engineer')
 def edit_invoice(invoice_id):
-    if session.get('role') != 'site_engineer':
-        return redirect(url_for('login'))
+
     
     engineer_id = session['user_id']
     conn = None
@@ -5949,7 +4441,7 @@ def edit_invoice(invoice_id):
         conn = get_connection()
         cursor = conn.cursor(pymysql.cursors.DictCursor)
         
-        # Verify invoice belongs to this engineer and is rejected
+    
         cursor.execute("""
             SELECT * FROM invoices 
             WHERE id = %s AND site_engineer_id = %s AND status = 'Rejected' AND org_id = %s
@@ -6091,9 +4583,9 @@ def edit_invoice(invoice_id):
         if conn:
             conn.close()
 @app.route('/admin/assign_accountant', methods=['GET', 'POST'])
+@require_role('admin')
 def assign_accountant():
-    if 'role' not in session or session['role'] != 'admin':
-        return redirect(url_for('login'))
+
 
     org_id = session.get('org_id')
 
@@ -6178,9 +4670,7 @@ def communication():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     
-    # user_id = session['user_id']
-    # org_id = session['org_id']
-    # mark_notifications_as_read(user_id, org_id, 'communication_message')
+
     
     return render_template('communication.html')
 
@@ -6434,10 +4924,9 @@ def mark_messages_read(sender_id):
 
 ######################enhanced advance salary routes#############################
 @app.route('/advance_management')
+@require_role('accountant')
 def advance_management():
     """Display advance management page for accountant"""
-    if 'role' not in session or session['role'] != 'accountant':
-        return redirect(url_for('login'))
     
     accountant_id = session['user_id']
     org_id = session['org_id']
@@ -6516,10 +5005,10 @@ def advance_management():
 
 
 @app.route('/add_advance', methods=['POST'])
+@require_role_api('accountant')
 def add_advance():
     """Add a new advance"""
-    if 'role' not in session or session['role'] != 'accountant':
-        return jsonify({'success': False, 'error': 'Unauthorized'}), 403
+
     
     try:
         data = request.get_json()
@@ -6564,18 +5053,21 @@ def add_advance():
         })
         
     except Exception as e:
-        if 'conn' in locals():
+        if 'conn' in locals() and conn:
             conn.rollback()
-            cur.close()
+            if 'cur' in locals() and cur:
+                cur.close()
             conn.close()
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({'success': False, 'error': str(e)}), 500        
+      
+     
 
 
 @app.route('/get_user_total_advance', methods=['POST'])
+@require_role_api('accountant')
 def get_user_total_advance():
     """Get total remaining advance for a user"""
-    if 'role' not in session or session['role'] != 'accountant':
-        return jsonify({'success': False, 'error': 'Unauthorized'}), 403
+
     
     try:
         data = request.get_json()
@@ -6641,13 +5133,16 @@ def get_user_total_advance():
         })
         
     except Exception as e:
-        if 'conn' in locals():
-            cur.close()
+        if 'conn' in locals() and conn:
+            if 'cur' in locals() and cur:
+                cur.close()
             conn.close()
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({'success': False, 'error': str(e)}),500        
+      
 
 
 @app.route('/deduct_advance_from_salary', methods=['POST'])
+@require_role_api('accountant')
 def deduct_advance_from_salary():
     """Deduct advance amount when processing salary (internal function)"""
     # This is called automatically from add_salary route
@@ -6725,19 +5220,20 @@ def deduct_advance_from_salary():
         })
         
     except Exception as e:
-        if 'conn' in locals():
+        if 'conn' in locals() and conn:
             conn.rollback()
-            cur.close()
+            if 'cur' in locals() and cur:
+                cur.close()
             conn.close()
-        return jsonify({'success': False, 'error': str(e)}), 500
-# Add this route to handle advance updates
+        return jsonify({'success': False, 'error': str(e)}), 500       
+    
+
 
 @app.route('/update_advance_amount/<int:advance_id>', methods=['POST'])
+@require_role_api('accountant')
 def update_advance_amount(advance_id):
     """Update advance amount - add more to existing advance"""
-    if 'role' not in session or session['role'] != 'accountant':
-        return jsonify({'success': False, 'error': 'Unauthorized'}), 403
-    
+
     try:
         data = request.get_json()
         additional_amount = float(data.get('additional_amount', 0))
@@ -6787,16 +5283,18 @@ def update_advance_amount(advance_id):
         })
         
     except Exception as e:
-        if 'conn' in locals():
+        if 'conn' in locals() and conn:
             conn.rollback()
-            cur.close()
+            if 'cur' in locals() and cur:
+                cur.close()
             conn.close()
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({'success': False, 'error': str(e)}), 500        
+        
+   
 @app.route('/get_employee_advance', methods=['POST'])
+@require_role_api('accountant')
 def get_employee_advance():
     """Get employee's remaining advance from advances table - NEW ROUTE FOR ADD SALARY PAGE"""
-    if 'role' not in session or session['role'] != 'accountant':
-        return jsonify({'success': False, 'error': 'Unauthorized'}), 403
 
     try:
         data = request.get_json()
@@ -6829,17 +5327,19 @@ def get_employee_advance():
         })
         
     except Exception as e:
-        if 'conn' in locals():
-            cur.close()
+        if 'conn' in locals() and conn:
+            if 'cur' in locals() and cur:
+                cur.close()
             conn.close()
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({'success': False, 'error': str(e)}), 500        
+     
 
 
 @app.route('/get_advance_details/<int:advance_id>', methods=['GET'])
+@require_role_api('accountant')
 def get_advance_details(advance_id):
     """Get details of a specific advance"""
-    if 'role' not in session or session['role'] != 'accountant':
-        return jsonify({'success': False, 'error': 'Unauthorized'}), 403
+
     
     try:
         org_id = session['org_id']
@@ -6883,18 +5383,19 @@ def get_advance_details(advance_id):
         })
         
     except Exception as e:
-        if 'conn' in locals():
-            cur.close()
+        if 'conn' in locals() and conn:
+            if 'cur' in locals() and cur:
+                cur.close()
             conn.close()
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
-# Simplified add_salary route with advance integration
+
 
 @app.route('/add_salary', methods=['GET', 'POST'])
+@require_role('accountant')
 def add_salary():
-    if 'role' not in session or session['role'] != 'accountant':
-        return redirect(url_for('login'))
+
 
     accountant_id = session['user_id']
     org_id = session['org_id']
@@ -6943,7 +5444,18 @@ def add_salary():
             user_id = request.form['user_id']
             role = request.form['role']
             month_year = request.form['month_year']
-            base_salary = float(request.form['base_salary'])
+
+            cur.execute("""
+                SELECT salary FROM base_salaries WHERE user_id = %s AND org_id = %s
+            """, (user_id, org_id))
+            base_row = cur.fetchone()
+
+            if not base_row or float(base_row['salary']) <= 0:
+                flash('Base salary is not set for this employee. Please configure it in Base Salary Management before adding a salary entry.', 'warning')
+                return render_template('add_salary.html', projects=projects, users=users)
+
+
+            base_salary = float(base_row['salary'])
             allowance = float(request.form.get('allowance', 0) or 0)
             pf = float(request.form.get('pf', 0) or 0)
             other_deductions = float(request.form.get('other_deductions', 0) or 0)
@@ -7034,13 +5546,7 @@ def add_salary():
 
             conn.commit()
 
-            # 🔥 START BACKGROUND PDF GENERATION FOR SALARY SLIP
-            # thread = threading.Thread(
-            #     target=generate_salary_slip_async,
-            #     args=(salary_id, org_id)
-            # )
-            # thread.daemon = True
-            # thread.start()
+        
             generate_salary_slip_task.delay(salary_id, org_id)
 
             # 1. Notify the employee about their salary entry
@@ -7080,7 +5586,7 @@ def add_salary():
                 )
             conn.commit()
 
-            flash('Salary entry added successfully. Salary slip PDF will be generated in the background.', 'success')
+            flash('Salary entry added successfully.', 'success')
 
         except Exception as e:
             conn.rollback()
@@ -7144,9 +5650,9 @@ def get_users_by_project(project_id):
 
 # Accountant: View Own Entered Salaries
 @app.route('/view_salaries')
+@require_role('accountant')
 def view_salaries():
-    if 'role' not in session or session['role'] != 'accountant':
-        return redirect(url_for('login'))
+
     
     accountant_id = session['user_id']
     org_id = session['org_id']
@@ -7208,9 +5714,9 @@ def view_salaries():
     return render_template('view_salaries.html', salaries=salaries)
 
 @app.route('/admin/view_salaries')
+@require_role('admin')
 def admin_view_salaries():
-    if 'role' not in session or session['role'] != 'admin':
-        return redirect(url_for('login'))
+
     
     admin_id = session['user_id']
     org_id = session.get('org_id')
@@ -7250,10 +5756,9 @@ def admin_view_salaries():
 ##########base salary ##############################
 
 @app.route('/base_salary_management')
+@require_role('accountant')
 def base_salary_management():
-    """Display base salary management page for accountant"""
-    if 'role' not in session or session['role'] != 'accountant':
-        return redirect(url_for('login'))
+
     
     accountant_id = session['user_id']
     org_id = session['org_id']
@@ -7324,10 +5829,10 @@ def base_salary_management():
 
 
 @app.route('/get_employee_base_salary', methods=['POST'])
+@require_role_api('accountant')
 def get_employee_base_salary():
     """Get base salary for a specific employee"""
-    if 'role' not in session or session['role'] != 'accountant':
-        return jsonify({'success': False, 'error': 'Unauthorized'}), 403
+
     
     try:
         data = request.get_json()
@@ -7378,14 +5883,17 @@ def get_employee_base_salary():
         })
         
     except Exception as e:
+        if 'conn' in locals() and conn:
+            if 'cur' in locals() and cur:
+                cur.close()
+            conn.close()
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/update_base_salary', methods=['POST'])
+@require_role_api('accountant')
 def update_base_salary():
-    """Update or create base salary for an employee"""
-    if 'role' not in session or session['role'] != 'accountant':
-        return jsonify({'success': False, 'error': 'Unauthorized'}), 403
+
     
     try:
         data = request.get_json()
@@ -7452,17 +5960,21 @@ def update_base_salary():
         })
         
     except Exception as e:
-        if 'conn' in locals():
+        if 'conn' in locals() and conn:
             conn.rollback()
-            cur.close()
+            if 'cur' in locals() and cur:
+                cur.close()
             conn.close()
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({'success': False, 'error': str(e)}), 500        
+            
+        
+
 ####################salary slip download ###########################
 
 @app.route('/download_salary_slip/<int:salary_id>')
+@require_role('accountant','admin')
 def download_salary_slip(salary_id):
-    if 'role' not in session or session['role'] not in ['accountant', 'admin']:
-        return redirect(url_for('login'))
+
     
     conn = get_connection()
     cur = conn.cursor(pymysql.cursors.DictCursor)
@@ -7504,10 +6016,9 @@ def api_salary_slip_status(salary_id):
     
 
 @app.route('/download_salary_report', methods=['POST'])
+@require_role_api('accountant', 'admin')
 def download_salary_report():
     """Start background generation of salary disbursement report and return task ID."""
-    if 'role' not in session or session['role'] not in ['accountant', 'admin']:
-        return jsonify({'success': False, 'error': 'Unauthorized'}), 403
 
     data = request.get_json()
     month_year = data.get('month_year')
@@ -7517,27 +6028,27 @@ def download_salary_report():
     org_id = session['org_id']
     user_id = session['user_id']
 
-    conn = get_connection()
-    cur = conn.cursor()
+    conn = None
+    cur = None
     try:
-        # Insert task record
+        conn = get_connection()
+        cur = conn.cursor()
         cur.execute("""
             INSERT INTO salary_report_tasks (month_year, status, org_id, created_by)
             VALUES (%s, 'pending', %s, %s)
         """, (month_year, org_id, user_id))
         task_id = cur.lastrowid
         conn.commit()
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
     finally:
-        cur.close()
-        conn.close()
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
 
-    # Start background thread
-    # thread = threading.Thread(
-    #     target=generate_salary_report_async,
-    #     args=(task_id, month_year, org_id, user_id)
-    # )
-    # thread.daemon = True
-    # thread.start()
     generate_salary_report_task.delay(task_id, month_year, org_id, user_id)
 
     return jsonify({'success': True, 'task_id': task_id})
@@ -7629,9 +6140,8 @@ def get_compliance_data():
         conn.close()
 
 @app.route('/site_engineer/expenses', methods=['GET', 'POST'])
+@require_role('site_engineer')
 def site_engineer_expenses():
-    if 'user_id' not in session or session.get('role') != 'site_engineer':
-        return redirect('/login')
 
     site_engineer_id = session['user_id']
     conn = None
@@ -7732,10 +6242,9 @@ def site_engineer_expenses():
 
 
 @app.route('/site_engineer_expenses_view')
+@require_role('site_engineer')
 def site_engineer_expenses_view():
-    # ✅ FIX 1: Use lowercase 'site_engineer' to match your existing route
-    if 'user_id' not in session or session.get('role') != 'site_engineer':
-        return redirect(url_for('login'))
+
     
     user_id = session['user_id']
     
@@ -7792,9 +6301,9 @@ def site_engineer_expenses_view():
                          projects=projects)
 ##################################### Admin View Expenses #####################################
 @app.route('/admin/expenses', methods=['GET', 'POST'])
+@require_role('admin')
 def admin_view_expenses():
-    if 'user_id' not in session or session.get('role') != 'admin':
-        return redirect('/login')
+
 
     admin_id = session['user_id']
     org_id = session.get('org_id')
@@ -7898,9 +6407,9 @@ def admin_view_expenses():
 
 ##################################### Accountant View Expenses #####################################
 @app.route('/accountant/expenses')
+@require_role('accountant')
 def accountant_view_expenses():
-    if 'user_id' not in session or session.get('role') != 'accountant':
-        return redirect('/login')
+ 
 
     accountant_id = session['user_id']
     org_id = session.get('org_id')
@@ -7949,9 +6458,9 @@ def accountant_view_expenses():
 
 
 @app.route('/admin/change_password', methods=['GET', 'POST'])
+@require_role('admin')
 def admin_change_password():
-    if 'role' not in session or session['role'] != 'admin':
-        return redirect(url_for('login'))
+
     
     if request.method == 'POST':
         current_password = request.form['current_password']
@@ -7991,7 +6500,7 @@ def admin_change_password():
             conn.commit()
             
             flash('Password changed successfully!', 'success')
-            return redirect(url_for('admin_dashboard'))
+            return redirect(url_for('admin_change_password'))
             
         except Exception as e:
             if conn:
@@ -8235,56 +6744,7 @@ def delete_notification_api(notification_id):
         conn.close()
 
 
-# @app.route('/api/notifications/debug-all')
-# def debug_all_notifications():
-#     """DEBUG ONLY - See all notifications in database"""
-#     conn = None
-#     cur = None
-#     try:
-#         conn = get_connection()
-#         cur = conn.cursor(pymysql.cursors.DictCursor)
-        
-#         # Get ALL notifications (not filtered by user)
-#         cur.execute("""
-#             SELECT 
-#                 n.id,
-#                 n.user_id,
-#                 n.org_id,
-#                 n.notification_type,
-#                 n.reference_id,
-#                 n.message,
-#                 n.is_read,
-#                 n.created_at,
-#                 r.name as user_name,
-#                 r.role as user_role
-#             FROM notifications n
-#             LEFT JOIN register r ON n.user_id = r.id
-#             ORDER BY n.created_at DESC
-#             LIMIT 50
-#         """)
-        
-#         all_notifs = cur.fetchall()
-        
-#         # Convert datetime
-#         for n in all_notifs:
-#             if n['created_at']:
-#                 n['created_at'] = n['created_at'].strftime('%Y-%m-%d %H:%M:%S')
-        
-#     except Exception as e:
-#         return jsonify({'error': str(e)}), 500
-#     finally:
-#         if cur:
-#             cur.close()
-#         if conn:
-#             conn.close()
-    
-#     return jsonify({
-#         'total_count': len(all_notifs),
-#         'notifications': all_notifs,
-#         'session_user_id': session.get('user_id'),
-#         'session_org_id': session.get('org_id'),
-#         'session_role': session.get('role')
-#     })
+
 
     ################################### NOTIFICATION TYPE CONSTANTS ###################################
 
@@ -8316,7 +6776,7 @@ NOTIFICATION_TYPES = {
     'progress_report': 'New progress report uploaded'
 }
 
-############bills and payments routes#####################
+############bills and payments routes###############
 import os
 import time
 from io import BytesIO
@@ -8330,7 +6790,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.units import mm
 
-# ── Upload folder for bill files ──────────────────────────────
+# ── Upload folder for bill files ──
 UPLOAD_FOLDER_BILLS = 'static/bill_uploads'
 os.makedirs(UPLOAD_FOLDER_BILLS, exist_ok=True)
 
@@ -8339,17 +6799,16 @@ def allowed_bill_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED
 
 
-# ── Route: Bills & Payments (Add + History) ───────────────────
+# ── Route: Bills & Payments (Add + History) ──
 @app.route('/bills_and_payments', methods=['GET', 'POST'])
+@require_role('admin','accountant')
 def bills_and_payments():
-    if 'role' not in session or session['role'] not in ['admin', 'accountant']:
-        return redirect(url_for('login'))
 
     user_id = session['user_id']
     role    = session['role']
     org_id  = session['org_id']
 
-    # ── POST: Add new bill ────────────────────────────────────────────────────
+    # ── POST: Add new bill ──
     if request.method == 'POST':
         conn   = None
         cur    = None
@@ -8442,15 +6901,7 @@ def bills_and_payments():
             # ── Commit bill insert ──
             conn.commit()
 
-            # 🔥 START BACKGROUND PDF GENERATION (with app context)
-            # Import the current Flask app instance (global 'app' variable)
-            # from flask import current_app
-            # thread = threading.Thread(
-            #     target=generate_bill_pdf_async,
-            #     args=(bill_id, org_id, current_app._get_current_object())
-            # )
-            # thread.daemon = True
-            # thread.start()
+         
 
             generate_bill_pdf_task.delay(bill_id, org_id)
 
@@ -8581,12 +7032,11 @@ def bills_and_payments():
             conn.close()
 
 
-# ── Route: Download Bill as PDF (improved with JSON error for AJAX) ─────────
+
 @app.route('/download_bill_pdf/<int:bill_id>')
+@require_role('admin','accountant')
 def download_bill_pdf(bill_id):
-    """Serve pre-generated bill PDF, or return JSON error if not ready."""
-    if 'role' not in session or session['role'] not in ['admin', 'accountant']:
-        return redirect(url_for('login'))
+  
 
     conn = get_connection()
     cur = conn.cursor(pymysql.cursors.DictCursor)
