@@ -132,6 +132,47 @@
             transform: none;
         }
 
+        .flash-circle {
+            position: fixed;
+            top: 110px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: #274E7D;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 8px;
+            padding: 14px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            line-height: 1.2;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            visibility: hidden;
+        }
+
+        .flash-circle-icon {
+            width: 40px;
+            height: 40px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .flash-circle-icon i {
+            color: #274E7D;
+            font-size: 1.2rem;
+        }
+
         @keyframes slideIn {
             from {
                 transform: translateX(100%);
@@ -1063,15 +1104,21 @@
 
 <body>
 
-    <!-- Flash Messages — ALL LOGIC UNCHANGED -->
+    <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
     <div class="flash-messages">
         {% for category, message in messages %}
+        {% if category == 'success' or category == 'message' %}
+        <div class="flash-circle" id="flashCircle">
+            <div class="flash-circle-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <span>{{ message }}</span>
+        </div>
+        {% else %}
         <div class="flash-message {{ category }}">
-            {% if category == 'success' %}
-            <i class="fas fa-check-circle"></i>
-            {% elif category == 'error' %}
+            {% if category == 'error' %}
             <i class="fas fa-exclamation-circle"></i>
             {% elif category == 'warning' %}
             <i class="fas fa-exclamation-triangle"></i>
@@ -1080,8 +1127,7 @@
             {% endif %}
             <div class="flash-message-content">
                 <div class="flash-message-title">
-                    {% if category == 'success' %}Success
-                    {% elif category == 'error' %}Error
+                    {% if category == 'error' %}Error
                     {% elif category == 'warning' %}Warning
                     {% else %}Information
                     {% endif %}
@@ -1092,6 +1138,7 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
+        {% endif %}
         {% endfor %}
     </div>
     {% endif %}
@@ -1148,7 +1195,7 @@
             <!-- Welcome Banner -->
             <div class="welcome-section">
                 <div>
-                    <p class="welcome-back" style="color:rgba(255,255,255,0.65);margin:0 0 4px;font-size:30px;">Welcome
+                    <p class="welcome-back" style="color:rgba(255,255,255,0.65);margin:0 0 4px;font-size:45px;">Welcome
                         back,</p>
                     <h1>{{ architect.name }}</h1>
                     <p>Manage your architectural projects and details efficiently.</p>
@@ -1653,6 +1700,34 @@
             });
         }, 2000);
 
+        setTimeout(function () {
+            const flashCircle = document.getElementById('flashCircle');
+            if (flashCircle) {
+                flashCircle.style.opacity = '0';
+                flashCircle.style.transform = 'translateX(-50%) scale(0.9)';
+                setTimeout(function () { flashCircle.remove(); }, 500);
+            }
+        }, 6000);
+
+        function positionFlashCircle() {
+            const flashCircle = document.getElementById('flashCircle');
+            if (!flashCircle) return;
+
+            const tabsContainer = document.querySelector('.tabs-container .tabs');
+            const tabsBottom = tabsContainer
+                ? tabsContainer.getBoundingClientRect().bottom
+                : 90;
+
+            // Center the circle in the middle of the visible area below the tabs bar
+            const availableTop = Math.max(tabsBottom + 20, 90);
+            const availableBottom = window.innerHeight - 20;
+            let top = (availableTop + availableBottom) / 2 - 80;
+            top = Math.max(availableTop, Math.min(top, window.innerHeight - 180));
+
+            flashCircle.style.top = top + 'px';
+            flashCircle.style.visibility = 'visible';
+        }
+
         document.addEventListener("DOMContentLoaded", function () {
             if (currentProjectId) {
                 if (tabFromBackend) {
@@ -1664,6 +1739,15 @@
                     if (tabButton) tabButton.click();
                 }
             }
+
+            const activeSection = document.querySelector('.tab-content.active .section-block');
+            if (activeSection) {
+                activeSection.scrollIntoView({ block: 'center', behavior: 'auto' });
+            }
+
+            requestAnimationFrame(function () {
+                positionFlashCircle();
+            });
         });
 
         /* ── File Size Validation — ALL LOGIC UNCHANGED ── */
