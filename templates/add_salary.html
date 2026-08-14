@@ -308,6 +308,46 @@
             margin-top: 5px;
         }
 
+        .flash-circle {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: #274E7D;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 8px;
+            padding: 14px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            line-height: 1.2;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .flash-circle-icon {
+            width: 40px;
+            height: 40px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .flash-circle-icon i {
+            color: #274E7D;
+            font-size: 1.2rem;
+        }
+
         /* ── Submit button group ── */
         .btn-group-actions {
             display: flex;
@@ -701,9 +741,11 @@
         <!-- Flash Messages -->
         {% with messages = get_flashed_messages() %}
         {% if messages %}
-        <div class="alert alert-success alert-dismissible fade show">
-            <i class="fas fa-check-circle me-2"></i>{{ messages[0] }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div class="flash-circle" id="flashCircle">
+            <div class="flash-circle-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <span>{{ messages[0] }}</span>
         </div>
         {% endif %}
         {% endwith %}
@@ -764,9 +806,10 @@
                             <div class="input-group">
                                 <span class="input-group-text">₹</span>
                                 <input type="number" step="0.01" name="base_salary" id="base_salary"
-                                    class="form-control" required oninput="calculateNetSalary()"
-                                    onchange="calculateNetSalary()">
+                                    class="form-control bg-light" readonly required>
                             </div>
+                            <small class="text-muted">Auto-filled from Base Salary Management. Not editable
+                                here.</small>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -1043,13 +1086,14 @@
             calculateNetSalary();
 
             // Flash message auto-dismiss
-            const flashMsg = document.querySelector('.alert-success');
+            // Flash message auto-dismiss
+            const flashMsg = document.getElementById('flashCircle');
             if (flashMsg) {
                 setTimeout(function () {
-                    flashMsg.style.transition = 'opacity 0.5s';
                     flashMsg.style.opacity = '0';
+                    flashMsg.style.transform = 'translate(-50%, -50%) scale(0.9)';
                     setTimeout(() => flashMsg.remove(), 500);
-                }, 2000);
+                }, 6000);
             }
         });
 
