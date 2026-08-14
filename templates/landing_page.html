@@ -26,6 +26,11 @@
             box-sizing: border-box;
         }
 
+        html {
+            overflow-x: hidden;
+            width: 100%;
+        }
+
         body {
             font-family: 'Roboto', sans-serif;
             color: #333;
@@ -216,6 +221,8 @@
             align-items: center;
             position: relative;
             min-height: 60px;
+            padding-left: 30px;
+            padding-right: 30px;
         }
 
         .logo {
@@ -238,6 +245,31 @@
 
         .logo:hover .logo-icon {
             transform: scale(1.05);
+        }
+
+        .logo-text {
+            font-family: 'Roboto Slab', 'Georgia', serif;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            display: inline-block;
+            padding-bottom: 8px;
+        }
+
+        .logo-text::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+            border-radius: 2px;
         }
 
         .nav-links {
@@ -276,12 +308,10 @@
             border-radius: 2px;
         }
 
-        .nav-links a:hover::after,
         .nav-links a.active::after {
             width: calc(100% - 16px);
         }
 
-        .nav-links a:hover,
         .nav-links a.active {
             color: #FFD700;
             transform: translateY(-2px);
@@ -646,26 +676,7 @@
             }
         }
 
-        @media (max-width: 768px) {
-            .step {
-                width: 185px;
-                padding: 28px 18px 24px;
-            }
 
-            .step-number {
-                width: 60px;
-                height: 60px;
-                font-size: 22px;
-            }
-
-            .step-title {
-                font-size: 15px;
-            }
-
-            .step-desc {
-                font-size: 13px;
-            }
-        }
 
 
         /* ABOUT */
@@ -822,6 +833,12 @@
             color: #aaa;
             padding: 80px 0 30px;
             position: relative;
+            width: 100%;
+        }
+
+        footer .container {
+            max-width: 100%;
+            padding: 0 40px;
         }
 
         .footer-content {
@@ -851,6 +868,12 @@
 
         .footer-column:nth-child(4) {
             animation-delay: 0.4s
+        }
+
+        @media (min-width: 993px) {
+            .footer-column:nth-child(4) {
+                margin-left: 30px;
+            }
         }
 
         .footer-column h4 {
@@ -937,6 +960,193 @@
         .role-card p {
             color: #666;
             font-size: 15px;
+        }
+
+        /* PRICING SECTION */
+        .pricing-section {
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            position: relative;
+        }
+
+        .pricing-eyebrow {
+            display: block;
+            text-align: center;
+            width: fit-content;
+            margin: 0 auto 20px;
+            padding: 6px 18px;
+            background: rgba(255, 165, 0, 0.1);
+            border: 1px solid rgba(255, 165, 0, 0.3);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #b8860b;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+            max-width: 1100px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .pricing-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 35px 30px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            transition: all 0.4s var(--ease-premium);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .pricing-card.featured {
+            background: #fff;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .pricing-card.custom {
+            background: #fff;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .pricing-badge {
+            display: inline-block;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            background: rgba(255, 165, 0, 0.12);
+            color: #b8860b;
+            width: fit-content;
+        }
+
+        .pricing-card.featured .pricing-badge {
+            background: rgba(255, 165, 0, 0.12);
+            color: #b8860b;
+        }
+
+        .pricing-price {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
+        .pricing-amount {
+            font-family: 'Roboto Slab', serif;
+            font-size: 40px;
+            font-weight: 700;
+            color: #222;
+        }
+
+        .pricing-card.featured .pricing-amount {
+            color: #222;
+        }
+
+        .pricing-period {
+            font-size: 14px;
+            color: #888;
+        }
+
+        .pricing-card.featured .pricing-period {
+            color: #888;
+        }
+
+        .pricing-tagline {
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 25px;
+        }
+
+        .pricing-card.featured .pricing-tagline {
+            color: #777;
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 30px;
+            flex-grow: 1;
+        }
+
+        .pricing-features li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            font-size: 15px;
+            color: #444;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .pricing-card.featured .pricing-features li {
+            color: #444;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .pricing-features li i {
+            color: #FFA500;
+            font-size: 14px;
+        }
+
+        .pricing-cta {
+            display: block;
+            text-align: center;
+            padding: 13px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .pricing-cta {
+            background: var(--gold-gradient);
+            color: #1a1a1a;
+            box-shadow: var(--shadow-gold);
+        }
+
+        .pricing-cta:hover {
+            transform: translateY(-2px);
+        }
+
+        .pricing-cta.outline {
+            background: transparent;
+            color: #b8860b;
+            box-shadow: none;
+            border: 2px solid #FFA500;
+        }
+
+        .pricing-cta.outline:hover {
+            background: rgba(255, 165, 0, 0.08);
+        }
+
+        .pricing-note {
+            text-align: center;
+            margin-top: 35px;
+            font-size: 14px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        @media (max-width: 480px) {
+            .pricing-card {
+                padding: 28px 22px;
+            }
         }
 
         /* MODAL */
@@ -1113,6 +1323,23 @@
             flex-shrink: 0;
         }
 
+        .footer-bottom-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 20px 0 0 0;
+            margin-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            box-sizing: border-box;
+        }
+
+        .footer-bottom-inner p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+        }
+
         /* RESPONSIVE */
         @media (max-width: 1400px) {
             .container {
@@ -1126,6 +1353,18 @@
             .logo-icon {
                 width: 160px;
                 max-height: 70px
+            }
+        }
+
+        @media (min-width: 1401px) {
+            .header-container {
+                padding-top: 6px;
+                padding-bottom: 6px;
+                min-height: 68px;
+            }
+
+            .nav-links .btn {
+                padding: 10px 22px;
             }
         }
 
@@ -1183,6 +1422,28 @@
 
             header {
                 padding: 18px 0
+            }
+
+            .logo-text {
+                font-size: 26px;
+            }
+
+            .logo-flourish {
+                width: 100px;
+            }
+
+            .nav-links li {
+                margin-left: 18px;
+            }
+
+            .nav-links a {
+                font-size: 15px;
+            }
+
+            .nav-links .btn {
+                padding: 8px 16px;
+                font-size: 14px;
+                margin-left: 8px;
             }
         }
 
@@ -1255,90 +1516,127 @@
         }
 
         @media (max-width: 768px) {
+            .step {
+                width: 185px;
+                padding: 28px 18px 24px;
+            }
+
+            .step-number {
+                width: 60px;
+                height: 60px;
+                font-size: 22px;
+            }
+
+            .step-title {
+                font-size: 15px;
+            }
+
+            .step-desc {
+                font-size: 13px;
+            }
+
             .container {
-                padding: 0 20px
+                padding: 0 20px;
             }
 
             .hero {
-                padding: 180px 0 80px
+                padding: 180px 0 80px;
             }
 
             .hero-buttons {
                 flex-direction: column;
                 align-items: center;
-                gap: 15px
+                gap: 15px;
             }
 
             .hero-buttons .btn {
                 width: 100%;
-                max-width: 300px
+                max-width: 300px;
             }
 
             .features-grid {
                 grid-template-columns: 1fr;
-                gap: 20px
+                gap: 20px;
             }
 
             .chat-container,
             .about-container {
                 grid-template-columns: 1fr;
-                gap: 30px
+                gap: 30px;
             }
 
             .section {
-                padding: 60px 0
+                padding: 60px 0;
             }
 
             .header-container {
                 padding: 0 15px;
-                min-height: 65px
+                min-height: 65px;
             }
 
             .logo-icon {
                 width: 120px;
                 max-height: 80px;
-                margin-right: 12px
+                margin-right: 12px;
             }
 
             header {
-                padding: 15px 0
+                padding: 15px 0;
             }
 
             .mobile-menu-btn {
                 font-size: 30px;
-                padding: 10px
+                padding: 10px;
             }
 
             .nav-links {
-                padding: 35px 25px
+                padding: 35px 25px;
             }
 
             .nav-links a {
                 font-size: 18px;
-                padding: 16px 20px
+                padding: 16px 20px;
             }
 
             .flow-step {
                 flex-direction: column;
                 align-items: center;
                 text-align: center;
-                padding: 20px
+                padding: 20px;
             }
 
             .flow-content {
                 text-align: center;
-                width: 100;
+                width: 100%;
             }
 
             .flow-arrow {
                 transform: rotate(90deg);
-                margin: 5px auto
+                margin: 5px auto;
             }
 
             .flow-icon {
-                margin: 0 auto
+                margin: 0 auto;
+            }
+
+            .footer-bottom-inner {
+                flex-direction: column;
+                align-items: center;
+                padding: 0 20px;
+                gap: 8px;
+                text-align: center;
+            }
+
+            .footer-bottom-inner p {
+                text-align: center !important;
+                width: 100%;
             }
         }
+
+
+
+
+
 
         @media (max-width: 480px) {
             .container {
@@ -1395,6 +1693,39 @@
             header {
                 padding: 12px 0
             }
+
+            .logo-text {
+                font-size: 20px;
+                letter-spacing: 1px;
+            }
+
+            .header-container {
+                gap: 8px;
+            }
+
+            footer .container {
+                padding: 0 15px;
+            }
+
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 340px) {
+            .logo-text {
+                font-size: 17px;
+            }
+
+            .header-container {
+                padding-left: 8px;
+                padding-right: 8px;
+            }
+
+            .mobile-menu-btn {
+                font-size: 22px;
+                padding: 6px;
+            }
         }
 
         @keyframes slideDown {
@@ -1410,14 +1741,13 @@
         }
 
         .header-scrolled {
-            padding: 12px 0 !important;
             background: rgba(34, 34, 34, 0.98) !important;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important
         }
 
         .header-scrolled .logo-icon {
-            transform: scale(0.85);
-            width: 140px
+            width: 130px;
+            max-height: 55px
         }
 
         @media (max-width:700px) {
@@ -1432,15 +1762,14 @@
     <!-- Header -->
     <header id="header">
         <div class="container header-container">
-            <div class="logo">
-                <img src="/static/images/ci.png" alt="RudhiArch Logo" class="logo-icon">
-            </div>
+            <span class="logo-text">RudhiArch</span>
             <button class="mobile-menu-btn" id="mobileMenuBtn">
                 <i class="fas fa-bars"></i>
             </button>
             <ul class="nav-links" id="navLinks">
                 <li><a href="#usage">System Usage</a></li>
                 <li><a href="#roles">Roles</a></li>
+                <li><a href="#pricing">Pricing</a></li>
                 <li><a href="#features">Features</a></li>
                 <li><a href="#how-it-works">How It Works</a></li>
                 <li><a href="#chat">Communication</a></li>
@@ -1583,6 +1912,72 @@
                     <p>Salaries, advances, bills, financial reports – controls the purse.</p>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="section pricing-section">
+        <div class="container">
+            <span class="pricing-eyebrow">Pricing</span>
+            <h2 class="section-title">Plans Built for Every Scale</h2>
+            <p class="section-subtitle">Choose the plan that fits your team size and project volume</p>
+
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <span class="pricing-badge">Professional</span>
+                    <div class="pricing-price">
+                        <span class="pricing-amount">₹49,999</span>
+                        <span class="pricing-period">/ year</span>
+                    </div>
+                    <p class="pricing-tagline">For growing teams & medium firms</p>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> Up to 10 active projects</li>
+                        <li><i class="fas fa-check"></i> Up to 31 user seats</li>
+                        <li><i class="fas fa-check"></i> Integrated modules (finance, HR, inventory)</li>
+                        <li><i class="fas fa-check"></i> Real-time analytics & reports</li>
+                        <li><i class="fas fa-check"></i> Multi-level role-based security</li>
+                        <li><i class="fas fa-check"></i> Standard support</li>
+                    </ul>
+                    <a href="#contact" class="pricing-cta">Get Started</a>
+                </div>
+
+                <div class="pricing-card featured">
+                    <span class="pricing-badge">Enterprise</span>
+                    <div class="pricing-price">
+                        <span class="pricing-amount">₹99,999</span>
+                        <span class="pricing-period">/ year</span>
+                    </div>
+                    <p class="pricing-tagline">For large organizations & scaling entities</p>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> Up to 25 active projects</li>
+                        <li><i class="fas fa-check"></i> Up to 76 user seats</li>
+                        <li><i class="fas fa-check"></i> Everything in Professional</li>
+                        <li><i class="fas fa-check"></i> Scalable architecture</li>
+                        <li><i class="fas fa-check"></i> Advanced real-time dashboards</li>
+                        <li><i class="fas fa-check"></i> Priority support</li>
+                    </ul>
+                    <a href="#contact" class="pricing-cta">Get Started</a>
+                </div>
+
+                <div class="pricing-card custom">
+                    <span class="pricing-badge">Custom</span>
+                    <div class="pricing-price">
+                        <span class="pricing-amount">Let's Talk</span>
+                    </div>
+                    <p class="pricing-tagline">For unique needs beyond standard plans</p>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> Custom workflow design</li>
+                        <li><i class="fas fa-check"></i> Additional features on request</li>
+                        <li><i class="fas fa-check"></i> Additional roles & permissions</li>
+                        <li><i class="fas fa-check"></i> 24/7 dedicated support</li>
+                        <li><i class="fas fa-check"></i> Pricing based on your requirements</li>
+                    </ul>
+                    <a href="#contact" class="pricing-cta">Contact Us</a>
+                </div>
+            </div>
+
+            <p class="pricing-note">All prices exclude GST. Contact us for a personalized demo or custom enterprise
+                deal.</p>
         </div>
     </section>
 
@@ -1746,20 +2141,21 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-column">
-                    <div class="logo"><img src="/static/images/ci.png" alt="RudhiArch Logo" class="logo-icon"></div>
+                    <div class="logo"><span class="logo-text">RudhiArch</span></div>
                     <p style="margin-top:15px;">Comprehensive construction management software for projects of all sizes
                         with integrated team communication.</p>
                 </div>
                 <div class="footer-column">
                     <h4>Quick Links</h4>
                     <ul class="footer-links">
+                        <li><a href="#pricing">Pricing</a></li>
                         <li><a href="#features">Features</a></li>
                         <li><a href="#how-it-works">How It Works</a></li>
                         <li><a href="#chat">Communication</a></li>
                         <li><a href="#about">About Us</a></li>
                     </ul>
                 </div>
-                <div class="footer-column">
+                <div class="footer-column" id="contact">
                     <h4>Contact Us</h4>
                     <ul class="footer-links">
                         <li><i class="fas fa-phone"></i> +91 9766149500</li>
@@ -1783,8 +2179,9 @@
                     </ul>
                 </div>
             </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 RudhiArch. All rights reserved.</p>
+            <div class="footer-bottom-inner">
+                <p>© 2026 RudhiArch. All rights reserved.</p>
+                <p>Rudhiarch is a product of Rudhisoft Private Limited, Nashik (India).</p>
             </div>
         </div>
     </footer>
