@@ -406,11 +406,51 @@
         }
 
         .flash-message.success {
-            border-left: 4px solid #28a745;
+            border-left: 4px solid #274E7D;
         }
 
         .flash-message.danger {
-            border-left: 4px solid #dc3545;
+            border-left: 4px solid #274E7D;
+        }
+
+        .flash-circle {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: #274E7D;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 8px;
+            padding: 14px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            line-height: 1.2;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .flash-circle-icon {
+            width: 40px;
+            height: 40px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .flash-circle-icon i {
+            color: #274E7D;
+            font-size: 1.2rem;
         }
 
         @keyframes slideIn {
@@ -945,10 +985,19 @@
     {% if messages %}
     <div class="flash-messages">
         {% for category, message in messages %}
-        <div class="flash-message {{ category }}">
-            <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' }}"></i>
+        {% if category == 'success' %}
+        <div class="flash-circle" id="flashCircle">
+            <div class="flash-circle-icon">
+                <i class="fas fa-check"></i>
+            </div>
             <span>{{ message }}</span>
         </div>
+        {% else %}
+        <div class="flash-message {{ category }}">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>{{ message }}</span>
+        </div>
+        {% endif %}
         {% endfor %}
     </div>
     {% endif %}
@@ -1424,12 +1473,12 @@
 
         // Auto-dismiss flash messages
         setTimeout(() => {
-            document.querySelectorAll('.flash-message').forEach(m => {
+            document.querySelectorAll('.flash-message, .flash-circle').forEach(m => {
                 m.style.transition = 'opacity 0.5s';
                 m.style.opacity = '0';
                 setTimeout(() => m.remove(), 500);
             });
-        }, 4000);
+        }, 6000);
 
         // Mobile menu toggle
         document.getElementById('mobileMenuToggle').addEventListener('click', function () {

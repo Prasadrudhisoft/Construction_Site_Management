@@ -116,7 +116,7 @@
             width: 100%;
         }
 
-     
+
 
         .top-navbar-link:hover {
             background: rgba(52, 152, 219, 0.1);
@@ -1081,25 +1081,40 @@
     </script>
     {% endif %}
 
-    <!-- Success Toast -->
+
     <div id="successToast" style="
-        display: none;
-        position: fixed;
-        top: 90px;
-        right: 24px;
-        z-index: 9999;
-        background: #059669;
-        color: white;
-        padding: 18px 28px;
-        border-radius: 10px;
-        box-shadow: 0 4px 24px rgba(0,0,0,0.18);
-        font-size: 1rem;
-        font-weight: 500;
-        min-width: 280px;
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    background: #274E7D;
+    color: white;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+    font-size: 1.1rem;
+    font-weight: 600;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 14px;
+    padding: 20px;
+">
+        <div style="
+        width: 56px;
+        height: 56px;
+        background: #fff;
+        border-radius: 50%;
+        display: flex;
         align-items: center;
-        gap: 12px;
+        justify-content: center;
     ">
-        <i class="fas fa-check-circle" style="font-size:1.4rem;"></i>
+            <i class="fas fa-check" style="font-size:1.6rem; color:#27ae60;"></i>
+        </div>
         <span id="successToastMsg">Invoice PDF generated successfully!</span>
     </div>
 
@@ -1108,7 +1123,7 @@
             const toast = document.getElementById('successToast');
             document.getElementById('successToastMsg').textContent = message;
             toast.style.display = 'flex';
-            setTimeout(function () { toast.style.display = 'none'; }, 3000);
+            setTimeout(function () { toast.style.display = 'none'; }, 6000);
         }
 
         function pollPdfStatus(invoiceId, redirectUrl, attempts) {
@@ -1116,7 +1131,7 @@
             // Max 30 attempts (~60 seconds), then redirect anyway
             if (attempts > 30) {
                 showSuccessToast('Invoice created! PDF is being generated in background.');
-                setTimeout(function () { window.location.href = redirectUrl; }, 2500);
+                setTimeout(function () { window.location.href = redirectUrl; }, 6000);
                 return;
             }
             fetch('/api/invoice_pdf_status/' + invoiceId)
@@ -1124,7 +1139,7 @@
                 .then(function (data) {
                     if (data.status === 'ready') {
                         showSuccessToast('Invoice PDF generated successfully!');
-                        setTimeout(function () { window.location.href = redirectUrl; }, 2500);
+                        setTimeout(function () { window.location.href = redirectUrl; }, 6000);
                     } else {
                         setTimeout(function () {
                             pollPdfStatus(invoiceId, redirectUrl, attempts + 1);

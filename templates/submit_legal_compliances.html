@@ -232,7 +232,7 @@
             background: linear-gradient(90deg, #3498db, #2c3e50);
         }
 
-        /* ── Flash message ── */
+       
         .flash-message {
             background: #d4edda;
             color: #155724;
@@ -246,6 +246,46 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+        }
+
+        .flash-circle {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: #274E7D;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 8px;
+            padding: 14px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            line-height: 1.2;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .flash-circle-icon {
+            width: 40px;
+            height: 40px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .flash-circle-icon i {
+            color: #274E7D;
+            font-size: 1.2rem;
         }
 
         /* ── Form card (inner) ── */
@@ -297,11 +337,10 @@
             text-align: center;
         }
 
-        /* ── Inputs — select gets a custom arrow, proper z-index ── */
+  
         .form-group select {
             width: 100%;
             padding: 13px 40px 13px 16px;
-            /* right padding for the arrow */
             border: 2px solid #e1e8ed;
             border-radius: 12px;
             font-size: 0.95rem;
@@ -309,14 +348,12 @@
             background: #f8f9fa;
             color: #2c3e50;
             transition: all 0.3s ease;
-            /* Styled arrow — no OS chrome */
             appearance: none;
             -webkit-appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%233498db' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 14px center;
             cursor: pointer;
-            /* Ensure the panel renders above other content */
             position: relative;
             z-index: 10;
         }
@@ -927,8 +964,11 @@
 
             {% with msgs=get_flashed_messages() %}
             {% if msgs %}
-            <div class="flash-message">
-                <i class="fas fa-check-circle"></i> {{ msgs[0] }}
+            <div class="flash-circle" id="flashCircle">
+                <div class="flash-circle-icon">
+                    <i class="fas fa-check"></i>
+                </div>
+                <span>{{ msgs[0] }}</span>
             </div>
             {% endif %}
             {% endwith %}
@@ -1080,14 +1120,14 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Flash message auto-dismiss
-            const flashMsg = document.querySelector('.flash-message');
+      
+            const flashMsg = document.getElementById('flashCircle');
             if (flashMsg) {
                 setTimeout(function () {
-                    flashMsg.style.transition = 'opacity 0.5s';
                     flashMsg.style.opacity = '0';
+                    flashMsg.style.transform = 'translate(-50%, -50%) scale(0.9)';
                     setTimeout(() => flashMsg.remove(), 500);
-                }, 2000);
+                }, 6000);
             }
 
             // Mobile menu toggle

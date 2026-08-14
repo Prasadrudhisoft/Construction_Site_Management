@@ -42,7 +42,7 @@
             display: flex;
             align-items: center;
             padding: 0;
-            
+
         }
 
 
@@ -234,36 +234,44 @@
             font-size: 0.95rem;
         }
 
-        /* ── Flash message ── */
-        .success-message {
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
+   
+        .flash-circle {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: #274E7D;
             color: white;
-            padding: 14px 18px;
-            border-radius: 12px;
-            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             text-align: center;
-            font-weight: 500;
+            gap: 14px;
+            padding: 20px;
+            font-weight: 600;
+            font-size: 1.08rem;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .flash-circle-icon {
+            width: 56px;
+            height: 56px;
+            background: #fff;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            animation: fadeIn 0.5s;
-            font-size: 0.95rem;
-            width: 100%;
         }
 
-        .success-message.fade-out {
-            animation: fadeOut 0.5s forwards;
-        }
-
-        @keyframes fadeOut {
-            from {
-                opacity: 1;
-            }
-
-            to {
-                opacity: 0;
-            }
+        .flash-circle-icon i {
+            color: #274E7D;
+            font-size: 1.6rem;
         }
 
         /* ── Form groups ── */
@@ -721,7 +729,7 @@
                         Dashboard
                     </a>
                 </li>
-            
+
                 <li>
                     <a href="{{ url_for('view_assigned_architects') }}" class="nav-link">
                         <i class="fas fa-users"></i>
@@ -755,9 +763,11 @@
 
                 {% with messages = get_flashed_messages() %}
                 {% if messages %}
-                <div class="success-message" id="flashMessage">
-                    <i class="fas fa-check-circle"></i>
-                    {{ messages[0] }}
+                <div class="flash-circle" id="flashMessage">
+                    <div class="flash-circle-icon">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <span>{{ messages[0] }}</span>
                 </div>
                 {% endif %}
                 {% endwith %}
@@ -981,14 +991,13 @@
         });
 
         document.addEventListener('DOMContentLoaded', function () {
-            // Flash message auto-dismiss — logic unchanged
             const flashMsg = document.getElementById('flashMessage');
             if (flashMsg) {
                 setTimeout(function () {
                     flashMsg.style.transition = 'opacity 0.5s';
                     flashMsg.style.opacity = '0';
                     setTimeout(() => flashMsg.remove(), 500);
-                }, 2000);
+                }, 6000);
             }
         });
     </script>

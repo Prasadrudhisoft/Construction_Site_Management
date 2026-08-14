@@ -187,7 +187,7 @@
             position: relative;
             overflow: hidden;
             text-align: center;
-          
+
         }
 
         .header-section::before {
@@ -887,30 +887,53 @@
                 padding: 0;
             }
 
-            .navbar {
-                display: none;
-            }
-
-            .controls-section {
-                display: none;
-            }
-
+            .navbar,
+            .header-section,
+            .stats-cards,
+            .controls-section,
             .actions-section {
                 display: none;
+            }
+
+            .container {
+                padding: 0;
+                max-width: 100%;
             }
 
             .table-container {
                 box-shadow: none;
                 border-radius: 0;
+                margin-bottom: 0;
+            }
+
+            .table-header {
+                background: none !important;
+                color: #000 !important;
+                padding: 0 0 10px 0;
+                border-bottom: 2px solid #000;
             }
 
             table {
                 font-size: 12px;
+                min-width: 0;
             }
 
             th,
             td {
                 padding: 8px 4px;
+            }
+
+            thead {
+                display: table-header-group;
+            }
+
+            .status-badge,
+            .quantity-badge,
+            .date-badge {
+                border: 1px solid #999 !important;
+                box-shadow: none !important;
+                background: none !important;
+                color: #000 !important;
             }
         }
     </style>

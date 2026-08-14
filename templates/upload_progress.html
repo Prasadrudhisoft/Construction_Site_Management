@@ -21,7 +21,7 @@
             padding-top: 70px;
         }
 
-   
+
         .navbar {
             position: fixed;
             top: 0;
@@ -157,7 +157,7 @@
             color: #3498db;
         }
 
-        
+
         .main-content {
             display: flex;
             align-items: center;
@@ -190,7 +190,7 @@
             background: linear-gradient(90deg, #3498db, #2c3e50);
         }
 
-       
+
         .form-header {
             text-align: center;
             margin-bottom: 30px;
@@ -215,28 +215,59 @@
             font-size: 0.95rem;
         }
 
-        /* Flash messages */
         .flash-message {
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            text-align: center;
-            font-weight: 500;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            text-align: center;
 
+            color: #fff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .3);
+            z-index: 9999;
+
+            animation: popup 0.35s ease;
+        }
+
+        .flash-message i {
+            font-size: 40px;
+            margin-bottom: 10px;
         }
 
         .flash-message.success {
-            background: #27ae60;
-            color: #fff;
+            background: #274E7D;
         }
 
         .flash-message.danger {
-            background: #e74c3c;
-            color: #fff;
+            background: #274E7D;
+        }
+
+        .flash-message span {
+            font-size: 15px;
+            line-height: 1.25;
+            max-width: 120px;
+            word-wrap: break-word;
+        }
+
+        @keyframes popup {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(.8);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
         }
 
         /* Form groups */
@@ -762,8 +793,8 @@
             {% if messages %}
             {% for category, message in messages %}
             <div class="flash-message {{ 'success' if category == 'success' else 'danger' }}">
-                <i class="fas {{ 'fa-check-circle' if category == 'success' else 'fa-exclamation-triangle' }}"></i>
-                {{ message }}
+                <i class="fas {{ 'fa-check-circle' if category == 'success' else 'fa-exclamation-circle' }}"></i>
+                <span>{{ message }}</span>
             </div>
             {% endfor %}
             {% endif %}
@@ -918,7 +949,7 @@
                     msg.style.opacity = '0';
                     msg.style.transform = 'translateY(-20px)';
                     setTimeout(() => msg.style.display = 'none', 500);
-                }, 2000);
+                }, 6000);
             });
         });
 

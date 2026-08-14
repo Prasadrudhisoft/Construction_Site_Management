@@ -180,7 +180,7 @@
             overflow: hidden;
         }
 
- 
+
 
         .form-container::before {
             content: '';
@@ -217,23 +217,65 @@
             font-size: 0.95rem;
         }
 
-        /* Flash message */
         .flash-message {
-            background: #27ae60;
-            color: #fff;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            text-align: center;
-            font-weight: 500;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+
+            width: 160pxpx;
+            min-height: 160px;
+            padding: 16px;
+            border-radius: 50%;
+
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            animation: slideDown 0.5s ease-out;
+            text-align: center;
+
+            color: #fff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .3);
+            z-index: 9999;
+
+            animation: popup 0.35s ease;
         }
 
- 
+        .flash-message i {
+            font-size: 38px;
+            margin-bottom: 10px;
+        }
+
+        .flash-message.success {
+            background: #274E7D;
+        }
+
+        .flash-message.danger {
+            background: #274E7D;
+        }
+
+        .flash-message span {
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.35;
+            max-width: 125px;
+            word-wrap: break-word;
+        }
+
+        @keyframes popup {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(.8);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        
+
 
         /* Form groups */
         .form-group {
@@ -742,7 +784,7 @@
                         Dashboard
                     </a>
                 </li>
-            
+
                 <li>
                     <a href="{{ url_for('site_engineer_view_inventory') }}" class="navbar-link">
                         <i class="fas fa-boxes"></i>
@@ -766,24 +808,26 @@
     <div class="main-content">
         <div class="form-container">
 
-         
+
             <div class="form-header">
                 <i class="fas fa-boxes"></i>
                 <h2>Add Inventory</h2>
                 <p>Record materials and quantities for your project</p>
             </div>
 
-            {% with messages = get_flashed_messages() %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-            <div class="flash-message">
-                <i class="fas fa-check-circle"></i>
-                {{ messages[0] }}
+            {% for category, message in messages %}
+            <div class="flash-message {{ 'success' if category == 'success' else 'danger' }}">
+                <i class="fas {{ 'fa-check-circle' if category == 'success' else 'fa-exclamation-circle' }}"></i>
+                <span>{{ message }}</span>
             </div>
+            {% endfor %}
             {% endif %}
             {% endwith %}
 
             <form method="POST" action="{{ url_for('add_inventory') }}" id="inventoryForm">
-              
+
 
                 <!-- Materials section -->
                 <div class="materials-section">
@@ -877,7 +921,7 @@
                 flashMsg.style.opacity = '0';
                 flashMsg.style.transform = 'translateY(-20px)';
                 setTimeout(() => flashMsg.style.display = 'none', 500);
-            }, 2000);
+            }, 6000);
         }
 
         // Mobile nav toggle

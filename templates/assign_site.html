@@ -39,10 +39,10 @@
             padding: 15px 0;
             z-index: 1000;
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-          
+
         }
 
-    
+
 
         .navbar-container {
             max-width: 100%;
@@ -149,7 +149,7 @@
             transform: translateY(-2px) scale(1.04);
         }
 
-      
+
 
         .mobile-menu-toggle {
             display: none;
@@ -165,7 +165,7 @@
             color: #3498db;
         }
 
-       
+
         .main-content {
             display: flex;
             align-items: flex-start;
@@ -195,10 +195,10 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-          
+
         }
 
-   
+
 
         /* ── Page header ── */
         .page-header {
@@ -310,17 +310,50 @@
             box-shadow: none;
         }
 
-        /* ─── FLASH MESSAGES ─── */
-        .success-message {
-            background: linear-gradient(90deg, #27ae60, #2ecc71);
+  
+        .flash-circle {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: #274E7D;
             color: white;
-            padding: 14px;
-            border-radius: 10px;
-            margin-bottom: 22px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             text-align: center;
-            font-weight: 500;
+            gap: 14px;
+            padding: 20px;
+            font-weight: 600;
             font-size: 1.08rem;
-            width: 100%;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .flash-circle.fade-out {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.9);
+            pointer-events: none;
+        }
+
+        .flash-circle-icon {
+            width: 56px;
+            height: 56px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .flash-circle-icon i {
+            color: #274E7D;
+            font-size: 1.6rem;
         }
 
         /* ─── Flash message auto-hide ─── */
@@ -681,7 +714,7 @@
                         <i class="fas fa-tachometer-alt"></i> Dashboard
                     </a>
                 </li>
-            
+
                 <li>
                     <a href="{{ url_for('logout') }}" class="nav-link logout">
                         <i class="fas fa-sign-out-alt"></i> Logout
@@ -706,17 +739,24 @@
                     <p>Select a project manager and assign the relevant site and location</p>
                 </div>
 
-                <!-- Flash messages with category support + auto-hide -->
+
                 {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                 {% for category, message in messages %}
-                <div class="{{ 'success-message' if category == 'success' else 'error-message' }} flash-msg"
-                    id="flashMessage">
-                    <i
-                        class="{{ 'fas fa-check-circle' if category == 'success' else 'fas fa-exclamation-circle' }}"></i>
+                {% if category == 'success' %}
+                <div class="flash-circle" id="flashMessage">
+                    <div class="flash-circle-icon">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <span>{{ message }}</span>
+                </div>
+                {% else %}
+                <div class="error-message flash-msg" id="flashMessage">
+                    <i class="fas fa-exclamation-circle"></i>
                     {{ message }}
                     <button class="flash-close-btn" onclick="dismissFlash()">&times;</button>
                 </div>
+                {% endif %}
                 {% endfor %}
                 {% endif %}
                 {% endwith %}
@@ -806,15 +846,15 @@
                 const flash = document.getElementById('flashMessage');
                 if (flash) {
                     flash.classList.add('fade-out');
-                    // remove from DOM after animation finishes
+                 
                     setTimeout(() => flash.remove(), 500);
                 }
             }
 
-            // auto-hide after 4 seconds
+         
             const flashMsg = document.getElementById('flashMessage');
             if (flashMsg) {
-                setTimeout(dismissFlash, 2000);
+                setTimeout(dismissFlash, 6000);
             }
 
             // ─── Duplicate Check ───
@@ -870,13 +910,13 @@
                     .catch(() => resetWarnings());   // network error → let backend guard
             }
 
-            // fire check on site_name typing (debounced 600 ms)
+            
             siteNameInput.addEventListener('input', function () {
                 clearTimeout(checkTimer);
                 checkTimer = setTimeout(runCheck, 600);
             });
 
-            // fire check immediately when engineer dropdown changes (no debounce needed)
+            
             engineerSelect.addEventListener('change', function () {
                 clearTimeout(checkTimer);
                 runCheck();

@@ -221,20 +221,45 @@
             font-size: 0.95rem;
         }
 
-        /* ── Flash ── */
-        .success-message {
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
+
+        .flash-circle {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: #274E7D;
             color: white;
-            padding: 14px 18px;
-            border-radius: 12px;
-            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             text-align: center;
-            font-weight: 500;
+            gap: 8px;
+            padding: 14px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            line-height: 1.2;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .flash-circle-icon {
+            width: 40px;
+            height: 40px;
+            background: #fff;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            font-size: 0.95rem;
+        }
+
+        .flash-circle-icon i {
+            color: #274E7D;
+            font-size: 1.2rem;
         }
 
         /* ── Form groups ── */
@@ -993,9 +1018,11 @@
 
                 {% with messages = get_flashed_messages() %}
                 {% if messages %}
-                <div class="success-message" id="flashMessage">
-                    <i class="fas fa-check-circle"></i>
-                    {{ messages[0] }}
+                <div class="flash-circle" id="flashMessage">
+                    <div class="flash-circle-icon">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <span>{{ messages[0] }}</span>
                 </div>
                 {% endif %}
                 {% endwith %}
@@ -1223,7 +1250,7 @@
                     flashMsg.style.transition = 'opacity 0.5s';
                     flashMsg.style.opacity = '0';
                     setTimeout(() => flashMsg.remove(), 500);
-                }, 2000);
+                }, 6000);
             }
 
             /* ── Submit spinner — unchanged ──────────────────── */
