@@ -10,6 +10,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
     <style>
+        html {
+            overflow-y: scroll;
+            scrollbar-gutter: stable;
+        }
+
         body {
             background: #f4f6f8;
             min-height: 100vh;
@@ -90,6 +95,77 @@
             color: #059669;
         }
 
+        /* ── Flash message (matched to submit_expenses.html) ── */
+        .flash-overlay {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .flash-message {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+
+            color: #fff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .3);
+            pointer-events: auto;
+            font-family: 'Poppins', sans-serif;
+
+            animation: fadeInFlash 0.3s ease;
+        }
+
+        .flash-message i {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .flash-message span {
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.3;
+            padding: 0 12px;
+        }
+
+        .flash-message.success {
+            background: #274E7D;
+        }
+
+        .flash-message.error,
+        .flash-message.danger {
+            background: #274E7D;
+        }
+
+        .flash-message.warning {
+            background: #274E7D;
+        }
+
+        .flash-message.info {
+            background: #274E7D;
+        }
+
+        @keyframes fadeInFlash {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
 
 
         /* Navbar Styles */
@@ -120,7 +196,7 @@
             height: 70px;
         }
 
-        
+
         .top-navbar-brand {
             display: flex;
             align-items: center;
@@ -624,6 +700,28 @@
         </div>
     </nav>
 
+    <!-- ── Flash messages — shown for 6s, then page redirects to My Invoices ── -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-overlay" id="flashOverlay">
+        {% for category, message in messages %}
+        <div class="flash-message {{ category }}">
+            {% if category == 'success' %}
+            <i class="fas fa-check-circle"></i>
+            {% elif category == 'error' or category == 'danger' %}
+            <i class="fas fa-exclamation-circle"></i>
+            {% elif category == 'warning' %}
+            <i class="fas fa-exclamation-triangle"></i>
+            {% else %}
+            <i class="fas fa-info-circle"></i>
+            {% endif %}
+            <span>{{ message }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
     <div class="container-fluid px-4 form-container">
         <div class="page-header">
             <i class="fas fa-edit header-icon"></i>
@@ -866,6 +964,21 @@
                 icon.classList.add('fa-bars');
             });
         });
+
+        // ── Flash message: show for 6s, fade out, then redirect to My Invoices ──
+        var flashOverlay = document.getElementById('flashOverlay');
+        if (flashOverlay) {
+            setTimeout(function () {
+                flashOverlay.querySelectorAll('.flash-message').forEach(function (msg) {
+                    msg.style.transition = 'opacity 0.5s, transform 0.5s';
+                    msg.style.opacity = '0';
+                    msg.style.transform = 'translateY(-20px)';
+                });
+                setTimeout(function () {
+                    window.location.href = "{{ url_for('site_engineer_invoices') }}";
+                }, 500);
+            }, 6000);
+        }
     </script>
 </body>
 

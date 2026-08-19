@@ -3824,7 +3824,7 @@ def submit_invoice_alt():
         conn.close()
     
 
-###################################################### Admin View Invoices Route ##########################@app.route('/admin/invoices', methods=['GET', 'POST'])
+###################################################### Admin View Invoices Route #########################
 @app.route('/admin/invoices', methods=['GET', 'POST'])
 @require_role('admin')
 def admin_view_invoices():
@@ -4543,7 +4543,7 @@ def edit_invoice(invoice_id):
                 session.get('name') or ''
             )
 
-            # ── Notify admins — safe message without special characters ──
+            
             cursor.execute(
                 "SELECT id FROM register WHERE role = 'admin' AND org_id = %s",
                 (session['org_id'],)
@@ -4567,8 +4567,23 @@ def edit_invoice(invoice_id):
                 )
             conn.commit()
 
-            flash('Invoice updated and resubmitted for approval. PDF will be generated in the background.', 'success')
-            return redirect(url_for('site_engineer_invoices'))
+            flash('Invoice updated and resubmitted for approval.', 'success')
+
+  
+            cursor.execute(
+                "SELECT * FROM invoices WHERE id = %s AND org_id = %s",
+                (invoice_id, session['org_id'])
+            )
+            invoice = cursor.fetchone()
+
+            cursor.execute(
+                "SELECT * FROM invoice_items WHERE invoice_id = %s AND org_id = %s",
+                (invoice_id, session['org_id'])
+            )
+            items = cursor.fetchall()
+
+         
+            return render_template('edit_invoice.html', invoice=invoice, items=items)
         
         return render_template('edit_invoice.html', invoice=invoice, items=items)
         
